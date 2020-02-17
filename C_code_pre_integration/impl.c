@@ -3,11 +3,11 @@
 #include <string.h>
 
 
-#define JSON_IDENT_1 "\t"
-#define JSON_IDENT_2 "\t\t"
-#define JSON_IDENT_3 "\t\t\t"
-#define JSON_IDENT_4 "\t\t\t\t"
-#define JSON_IDENT_5 "\t\t\t\t\t"
+#define JSON_INDENT_1 "\t"
+#define JSON_INDENT_2 "\t\t"
+#define JSON_INDENT_3 "\t\t\t"
+#define JSON_INDENT_4 "\t\t\t\t"
+#define JSON_INDENT_5 "\t\t\t\t\t"
 
 #define PERSIST_OBJECTS 1
 #define PERSIST_CODE_FLOW 2
@@ -60,39 +60,39 @@ void finalizeJSONstructure(FILE * outputFile){
 }
 
 void writeObjectModificationToFile(FILE * outputFile, ABD_OBJECT_MOD * modification){
-    fprintf(outputFile, "%s\"instructionNumber\" : \"%d\",\n", JSON_IDENT_5, modification->instructionNumber);
-    fprintf(outputFile, "%s\"function\" : \"%s\",\n", JSON_IDENT_5, modification->functionName);
-    fprintf(outputFile, "%s\"newValue\" : \"%d\",\n", JSON_IDENT_5, modification->newValue);
-    fprintf(outputFile, "%s\"remotion\" : %s\n", JSON_IDENT_5, (modification->remotion == 1) ? "true": "false");
+    fprintf(outputFile, "%s\"instructionNumber\" : \"%d\",\n", JSON_INDENT_5, modification->instructionNumber);
+    fprintf(outputFile, "%s\"function\" : \"%s\",\n", JSON_INDENT_5, modification->functionName);
+    fprintf(outputFile, "%s\"newValue\" : \"%d\",\n", JSON_INDENT_5, modification->newValue);
+    fprintf(outputFile, "%s\"remotion\" : %s\n", JSON_INDENT_5, (modification->remotion == 1) ? "true": "false");
 }
 
 void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj){
     ABD_OBJECT_MOD * currentModification = ABD_OBJECT_NOT_FOUND;
 
-    fprintf(outputFile, "%s\"type\" : \"%d\",\n", JSON_IDENT_2, obj->type);
-    fprintf(outputFile, "%s\"name\" : \"%s\",\n", JSON_IDENT_2 ,obj->name);
-    fprintf(outputFile, "%s\"createdEnv\" : \"%s\",\n", JSON_IDENT_2, obj->createdEnv);
+    fprintf(outputFile, "%s\"type\" : \"%d\",\n", JSON_INDENT_2, obj->type);
+    fprintf(outputFile, "%s\"name\" : \"%s\",\n", JSON_INDENT_2 ,obj->name);
+    fprintf(outputFile, "%s\"createdEnv\" : \"%s\",\n", JSON_INDENT_2, obj->createdEnv);
     //start modifications JSON array
-    fprintf(outputFile, "%s\"modList\" : [\n", JSON_IDENT_2);
+    fprintf(outputFile, "%s\"modList\" : [\n", JSON_INDENT_2);
     //start json object
     
     currentModification = obj->ABD_OBJECT_MOD_LIST;
     
     do{
-        fprintf(outputFile, "%s{\n", JSON_IDENT_4);
+        fprintf(outputFile, "%s{\n", JSON_INDENT_4);
         writeObjectModificationToFile(outputFile, currentModification);
         currentModification = currentModification->nextMod;
         if(currentModification!= ABD_OBJECT_NOT_FOUND)
             //object has more modifications
-            fprintf(outputFile, "%s},\n", JSON_IDENT_4);
+            fprintf(outputFile, "%s},\n", JSON_INDENT_4);
         else
-            fprintf(outputFile, "%s}\n", JSON_IDENT_4);
+            fprintf(outputFile, "%s}\n", JSON_INDENT_4);
     }while(currentModification!= ABD_OBJECT_NOT_FOUND);
 
 
     
     //closes modifications JSON array
-    fprintf(outputFile, "%s]\n", JSON_IDENT_3);
+    fprintf(outputFile, "%s]\n", JSON_INDENT_3);
     
 }
 
@@ -103,15 +103,15 @@ void persistObjects(FILE * outputFile){
     ABD_OBJECT * currentObject = objectsRegistry;
 
     do{
-        fprintf(outputFile, "%s{\n", JSON_IDENT_1);
+        fprintf(outputFile, "%s{\n", JSON_INDENT_1);
         writeObjectToFile(outputFile, currentObject);
         
         currentObject = currentObject->next_ABD_OBJECT;
 
         if(currentObject != ABD_OBJECT_NOT_FOUND)
-            fprintf(outputFile, "%s},\n", JSON_IDENT_1);
+            fprintf(outputFile, "%s},\n", JSON_INDENT_1);
         else
-            fprintf(outputFile, "%s}\n", JSON_IDENT_1);
+            fprintf(outputFile, "%s}\n", JSON_INDENT_1);
     }while(currentObject != ABD_OBJECT_NOT_FOUND);
 }
 
