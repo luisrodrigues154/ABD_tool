@@ -1,8 +1,8 @@
 PACKAGE = R
 VERSION = 3.6.2
 
-abs_top_srcdir = /home/luis/Desktop/Dissertation/R_source_code/R-3.6.2
-abs_top_builddir = /home/luis/Desktop/Dissertation/R_source_code/R-3.6.2
+abs_top_srcdir = /home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2
+abs_top_builddir = /home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2
 
 include $(top_srcdir)/share/make/vars.mk
 

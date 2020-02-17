@@ -7,6 +7,7 @@ eval.o: eval.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
  ../../src/include/Internal.h ../../src/include/Rinterface.h \
  ../../src/include/Fileio.h ../../src/include/ABD_tool.h \
- ../../src/include/ABD_tool_DEF.h arithmetic.h ../../src/include/Rmath.h \
+ ../../src/include/ABD_tool_defn.h arithmetic.h ../../src/include/Rmath.h \
  ../../src/include/Rdynpriv.h ../../src/include/Parse.h \
  ../../src/include/IOStuff.h ../../src/include/R_ext/Parse.h
+../../src/include/ABD_tool_JSON_HELPERS_defn.h ../../src/include/ABD_tool_JSON_HELPERS.h \

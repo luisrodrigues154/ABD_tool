@@ -143,7 +143,9 @@ PASSOS:
 		Após encontrar o local desejado na função, a função para registar a alteração é chamada após R terminar a manipulação para que caso algum erro seja despoletado, a estrutura (que de momento nao existe) que guarda os dados nao contenha informação errónea.
 
 
-
+8 - Adicionar ficheiros criados à compilação do interpretador
+	adicionar as bibliotecas ao ficheiro .d para que o makefile faça a devida linkagem e a sua compilação.
+	de momento ficou feito apenas no eval.d mas terá que ser feito de modo a so ter que adicionar a um ficheiro (ao inves de todos)
 	
 
 

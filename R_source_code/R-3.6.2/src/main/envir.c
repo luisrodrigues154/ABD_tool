@@ -97,7 +97,7 @@
 #include <Defn.h>
 #include <Internal.h>
 #include <R_ext/Callbacks.h>
-#include <ABD_tool_DEF.h>
+#include <ABD_tool_defn.h>
 
 #define FAST_BASE_CACHE_LOOKUP  /* Define to enable fast lookups of symbols */
 				/*    in global cache from base environment */
@@ -1628,7 +1628,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
             R_HashSet(hashcode, symbol, HASHTAB(rho), value, FRAME_IS_LOCKED(rho));
             if (R_HashSizeCheck(HASHTAB(rho)))
                 SET_HASHTAB(rho, R_HashResize(HASHTAB(rho)));
-            regVarChange(c, value);
+            regVarChange(c, value, rho);
         }
     }
 }
