@@ -97,7 +97,7 @@
 #include <Defn.h>
 #include <Internal.h>
 #include <R_ext/Callbacks.h>
-#include <ABD_tool_defn.h>
+#include <abd_tool/base_defn.h>
 
 #define FAST_BASE_CACHE_LOOKUP  /* Define to enable fast lookups of symbols */
 				/*    in global cache from base environment */
@@ -1500,7 +1500,7 @@ attribute_hidden
 SEXP findFun3(SEXP symbol, SEXP rho, SEXP call)
 {
     SEXP vl;
-
+    
     /* If the symbol is marked as special, skip to the first
        environment that might contain such a symbol. */
     if (IS_SPECIAL_SYMBOL(symbol)) {
@@ -1570,7 +1570,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
 {
     int hashcode;
     SEXP frame, c;
-
+    
     /* R_DirtyImage should only be set if assigning to R_GlobalEnv. */
     if (rho == R_GlobalEnv) R_DirtyImage = 1;
 
@@ -1600,7 +1600,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
 
         if (IS_SPECIAL_SYMBOL(symbol))
             UNSET_NO_SPECIAL_SYMBOLS(rho);
-
+        
         if (HASHTAB(rho) == R_NilValue) {
             /* First check for an existing binding */
             frame = FRAME(rho);
@@ -1608,6 +1608,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
                 if (TAG(frame) == symbol) {
                     SET_BINDING_VALUE(frame, value);
                     SET_MISSING(frame, 0);	/* Over-ride */
+                    
                     return;
                 }
                 frame = CDR(frame);
@@ -1616,9 +1617,11 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
                 error(_("cannot add bindings to a locked environment"));
             SET_FRAME(rho, CONS(value, FRAME(rho)));
             SET_TAG(FRAME(rho), symbol);
+            
+            //regVarChange(1, symbol, value, rho);
         }
         else {
-            //variables set here
+            regVarChange(2, symbol, value, rho);
             c = PRINTNAME(symbol);
             if( !HASHASH(c) ) {
                 SET_HASHVALUE(c, R_Newhashpjw(CHAR(c)));
@@ -1628,7 +1631,6 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
             R_HashSet(hashcode, symbol, HASHTAB(rho), value, FRAME_IS_LOCKED(rho));
             if (R_HashSizeCheck(HASHTAB(rho)))
                 SET_HASHTAB(rho, R_HashResize(HASHTAB(rho)));
-            regVarChange(c, value, rho);
         }
     }
 }
@@ -1702,11 +1704,12 @@ static SEXP setVarInFrame(SEXP rho, SEXP symbol, SEXP value)
 {
     int hashcode;
     SEXP frame, c;
-
+    
     /* R_DirtyImage should only be set if assigning to R_GlobalEnv. */
     if (rho == R_GlobalEnv) R_DirtyImage = 1;
     if (rho == R_EmptyEnv) return R_NilValue;
 
+    
     if(IS_USER_DATABASE(rho)) {
 	/* FIXME: This does not behave as described */
 	R_ObjectTable *table;
@@ -1774,9 +1777,9 @@ void setVar(SEXP symbol, SEXP value, SEXP rho)
 {
     SEXP vl;
     while (rho != R_EmptyEnv) {
-	vl = setVarInFrame(rho, symbol, value);
-	if (vl != R_NilValue) return;
-	rho = ENCLOS(rho);
+        vl = setVarInFrame(rho, symbol, value);
+        if (vl != R_NilValue) return;
+        rho = ENCLOS(rho);
     }
     defineVar(symbol, value, R_GlobalEnv);
 }
@@ -2104,22 +2107,22 @@ static SEXP gfind(const char *name, SEXP env, SEXPTYPE mode,
     rval = findVar1mode(t1, env, mode, inherits, 1);
 
     if (rval == R_UnboundValue) {
-	if( isFunction(ifnotfound) ) {
-	    PROTECT(var = mkString(name));
-	    PROTECT(R_fcall = LCONS(ifnotfound, LCONS(var, R_NilValue)));
-	    rval = eval(R_fcall, enclos);
-	    UNPROTECT(2);
-	} else
-	    rval = ifnotfound;
+        if( isFunction(ifnotfound) ) {
+            PROTECT(var = mkString(name));
+            PROTECT(R_fcall = LCONS(ifnotfound, LCONS(var, R_NilValue)));
+            rval = eval(R_fcall, enclos);
+            UNPROTECT(2);
+        } else
+            rval = ifnotfound;
     }
 
-    /* We need to evaluate if it is a promise */
-    if (TYPEOF(rval) == PROMSXP) {
-	PROTECT(rval);
-	rval = eval(rval, env);
-	UNPROTECT(1);
-    }
-    ENSURE_NAMED(rval);
+        /* We need to evaluate if it is a promise */
+        if (TYPEOF(rval) == PROMSXP) {
+            PROTECT(rval);
+            rval = eval(rval, env);
+            UNPROTECT(1);
+        }
+        ENSURE_NAMED(rval);
     return rval;
 }
 
@@ -3363,6 +3366,7 @@ void R_MakeActiveBinding(SEXP sym, SEXP fun, SEXP env)
 	else
 	    SETCAR(binding, fun);
     }
+    
 }
 
 Rboolean R_BindingIsLocked(SEXP sym, SEXP env)

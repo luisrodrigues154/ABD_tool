@@ -29,7 +29,7 @@
 #include <Rinterface.h>
 #include <Fileio.h>
 #include <R_ext/Print.h>
-#include <ABD_tool.h>
+#include <abd_tool/base.h>
 
 static SEXP bcEval(SEXP, SEXP, Rboolean);
 
@@ -541,15 +541,16 @@ SEXP eval(SEXP e, SEXP rho)
     /* this is needed even for self-evaluating objects or something like
        'while (TRUE) NULL' will not be interruptable */
     if (++evalcount > 1000) { /* was 100 before 2.8.0 */
-	R_CheckUserInterrupt();
-#ifndef IMMEDIATE_FINALIZERS
-	/* finalizers are run here since this should only be called at
-	   points where running arbitrary code should be safe */
-	R_RunPendingFinalizers();
-#endif
-	evalcount = 0 ;
+		R_CheckUserInterrupt();
+	#ifndef IMMEDIATE_FINALIZERS
+		/* finalizers are run here since this should only be called at
+		points where running arbitrary code should be safe */
+		R_RunPendingFinalizers();
+	#endif
+		evalcount = 0 ;
     }
-
+	
+	
     /* handle self-evaluating objects with minimal overhead */
     switch (TYPEOF(e)) {
 		case NILSXP:
@@ -577,7 +578,7 @@ SEXP eval(SEXP e, SEXP rho)
 			return e;
 		default: break;
     }
-
+	
     int bcintactivesave = R_BCIntActive;
     R_BCIntActive = 0;
 
@@ -614,7 +615,6 @@ SEXP eval(SEXP e, SEXP rho)
      */
     __asm__ ( "fninit" );
 #endif
-
     switch (TYPEOF(e)) {
 		case BCODESXP:
 			tmp = bcEval(e, rho, TRUE);
@@ -670,6 +670,7 @@ SEXP eval(SEXP e, SEXP rho)
 			end up getting duplicated if NAMED > 1.) LT */
 			break;
 		case LANGSXP:
+			
 			if (TYPEOF(CAR(e)) == SYMSXP) {
 				/* This will throw an error if the function is not found */
 				SEXP ecall = e;
@@ -739,9 +740,15 @@ SEXP eval(SEXP e, SEXP rho)
 					vmaxset(vmax);
 				}
 				else if (TYPEOF(op) == CLOSXP) {
+					//its a function, will get here
+					
 					SEXP pargs = promiseArgs(CDR(e), rho);
 					PROTECT(pargs);
 					tmp = applyClosure(e, op, pargs, rho, R_NilValue);
+
+					//tmp is the return value from the function
+					
+					
 					#ifdef ADJUST_ENVIR_REFCNTS
 							unpromiseArgs(pargs);
 					#endif
@@ -1679,18 +1686,18 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     f = formals;
     a = actuals;
     while (f != R_NilValue) {
-	if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {
-	    SETCAR(a, mkPROMISE(CAR(f), newrho));
-	    SET_MISSING(a, 2);
-	}
-	f = CDR(f);
-	a = CDR(a);
+		if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {
+			SETCAR(a, mkPROMISE(CAR(f), newrho));
+			SET_MISSING(a, 2);
+		}
+		f = CDR(f);
+		a = CDR(a);
     }
 
     /*  Fix up any extras that were supplied by usemethod. */
 
     if (suppliedvars != R_NilValue)
-	addMissingVarsToNewEnv(newrho, suppliedvars);
+		addMissingVarsToNewEnv(newrho, suppliedvars);
 
     if (R_envHasNoSpecialSymbols(newrho))
 	SET_NO_SPECIAL_SYMBOLS(newrho);
@@ -1703,6 +1710,20 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     /*  If we have a generic function we need to use the sysparent of
 	the generic as the sysparent of the method because the method
 	is a straight substitution of the generic.  */
+	
+	
+	/*
+		the function will be executed in execClosure so the process of registry starts now
+
+	
+	*/
+	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
+		printf("\nits a closure\n");
+		printf("Name symbol: %s\n", CHAR(PRINTNAME(CAR(call))));
+	}
+
+
+
 
     SEXP val = R_execClosure(call, newrho,
 			     (R_GlobalContext->callflag == CTXT_GENERIC) ?
@@ -1714,6 +1735,17 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     	val = shallow_duplicate(val);
 #endif
 
+	/*
+		this is before return so here we finalize the process of registry and 
+		go back in the chain to set the currentEvent correspondingly
+	
+		- the below works for functions (perhaps it does not for if's, for's, etc..)
+		check CHAR(PRINTNAME(CAR(call))) == ABD_tool currentEvent.obj
+	*/
+	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
+			printf("\nits a closure\n");
+			printf("Returning from symbol %s: %f\n",CHAR(PRINTNAME(CAR(call))), REAL(val)[0]);
+	}
     UNPROTECT(1); /* newrho */
     return val;
 }
@@ -1729,11 +1761,11 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 
     body = BODY(op);
     if (R_CheckJIT(op)) {
-	int old_enabled = R_jit_enabled;
-	R_jit_enabled = 0;
-	R_cmpfun(op);
-	body = BODY(op);
-	R_jit_enabled = old_enabled;
+		int old_enabled = R_jit_enabled;
+		R_jit_enabled = 0;
+		R_cmpfun(op);
+		body = BODY(op);
+		R_jit_enabled = old_enabled;
     }
 
     /* Get the srcref record from the closure object. The old srcref was
@@ -1746,51 +1778,51 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
     if ((RDEBUG(op) && R_current_debug_state()) || RSTEP(op)
          || (RDEBUG(rho) && R_BrowserLastCommand == 's')) {
 
-	dbg = TRUE;
-	SET_RSTEP(op, 0);
-	SET_RDEBUG(newrho, 1);
-	cntxt.browserfinish = 0; /* Don't want to inherit the "f" */
-	/* switch to interpreted version when debugging compiled code */
-	if (TYPEOF(body) == BCODESXP)
-	    body = bytecodeExpr(body);
-	Rprintf("debugging in: ");
-	PrintCall(call, rho);
-	SrcrefPrompt("debug", R_Srcref);
-	PrintValue(body);
-	do_browser(call, op, R_NilValue, newrho);
+		dbg = TRUE;
+		SET_RSTEP(op, 0);
+		SET_RDEBUG(newrho, 1);
+		cntxt.browserfinish = 0; /* Don't want to inherit the "f" */
+		/* switch to interpreted version when debugging compiled code */
+		if (TYPEOF(body) == BCODESXP)
+			body = bytecodeExpr(body);
+		Rprintf("debugging in: ");
+		PrintCall(call, rho);
+		SrcrefPrompt("debug", R_Srcref);
+		PrintValue(body);
+		do_browser(call, op, R_NilValue, newrho);
     }
 
     /*  Set a longjmp target which will catch any explicit returns
 	from the function body.  */
 
     if ((SETJMP(cntxt.cjmpbuf))) {
-	if (!cntxt.jumptarget) {
-	    /* ignores intermediate jumps for on.exits */
-	    if (R_ReturnedValue == R_RestartToken) {
-		cntxt.callflag = CTXT_RETURN;  /* turn restart off */
-		R_ReturnedValue = R_NilValue;  /* remove restart token */
-		cntxt.returnValue = eval(body, newrho);
-	    } else
-		cntxt.returnValue = R_ReturnedValue;
-	}
-	else
-	    cntxt.returnValue = NULL; /* undefined */
+		if (!cntxt.jumptarget) {
+			/* ignores intermediate jumps for on.exits */
+			if (R_ReturnedValue == R_RestartToken) {
+				cntxt.callflag = CTXT_RETURN;  /* turn restart off */
+				R_ReturnedValue = R_NilValue;  /* remove restart token */
+				cntxt.returnValue = eval(body, newrho);
+			} else
+			cntxt.returnValue = R_ReturnedValue;
+		}
+		else
+			cntxt.returnValue = NULL; /* undefined */
     }
     else
-	/* make it available to on.exit and implicitly protect */
-	cntxt.returnValue = eval(body, newrho);
+		/* make it available to on.exit and implicitly protect */
+		cntxt.returnValue = eval(body, newrho);
 
     R_Srcref = cntxt.srcref;
     endcontext(&cntxt);
 
     if (dbg) {
-	Rprintf("exiting from: ");
-	PrintCall(call, rho);
+		Rprintf("exiting from: ");
+		PrintCall(call, rho);
     }
 
     /* clear R_ReturnedValue to allow GC to reclaim old value */
     R_ReturnedValue = R_NilValue;
-
+	
     return cntxt.returnValue;
 }
 
@@ -2411,10 +2443,9 @@ SEXP attribute_hidden NORET do_return(SEXP call, SEXP op, SEXP args, SEXP rho)
 SEXP attribute_hidden do_function(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP rval, srcref;
-
     if (TYPEOF(op) == PROMSXP) {
-	op = forcePromise(op);
-	ENSURE_NAMEDMAX(op);
+		op = forcePromise(op);
+		ENSURE_NAMEDMAX(op);
     }
     if (length(args) < 2) WrongArgCount("function");
     CheckFormals(CAR(args));
@@ -2687,9 +2718,10 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
     FIXUP_RHS_NAMED(rhs);
 
     if (rho == R_BaseNamespace)
-	errorcall(call, _("cannot do complex assignments in base namespace"));
+		errorcall(call, _("cannot do complex assignments in base namespace"));
     if (rho == R_BaseEnv)
-	errorcall(call, _("cannot do complex assignments in base environment"));
+		errorcall(call, _("cannot do complex assignments in base environment"));
+
     defineVar(R_TmpvalSymbol, R_NilValue, rho);
     tmploc = R_findVarLocInFrame(rho, R_TmpvalSymbol);
     PROTECT(tmploc.cell);
@@ -2712,32 +2744,32 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
     PROTECT(rhsprom = mkRHSPROMISE(CADR(args), rhs));
 
     while (isLanguage(CADR(expr))) {
-	nprot = 1; /* the PROTECT of rhs below from this iteration */
-	if (TYPEOF(CAR(expr)) == SYMSXP)
-	    tmp = getAssignFcnSymbol(CAR(expr));
-	else {
-	    /* check for and handle assignments of the form
-	       foo::bar(x) <- y or foo:::bar(x) <- y */
-	    tmp = R_NilValue; /* avoid uninitialized variable warnings */
-	    if (TYPEOF(CAR(expr)) == LANGSXP &&
-		(CAR(CAR(expr)) == R_DoubleColonSymbol ||
-		 CAR(CAR(expr)) == R_TripleColonSymbol) &&
-		length(CAR(expr)) == 3 && TYPEOF(CADDR(CAR(expr))) == SYMSXP) {
-		tmp = getAssignFcnSymbol(CADDR(CAR(expr)));
-		PROTECT(tmp = lang3(CAAR(expr), CADR(CAR(expr)), tmp));
-		nprot++;
-	    }
-	    else
-		error(_("invalid function in complex assignment"));
-	}
-	SET_TEMPVARLOC_FROM_CAR(tmploc, lhs);
-	PROTECT(rhs = replaceCall(tmp, R_TmpvalSymbol, CDDR(expr), rhsprom));
-	rhs = eval(rhs, rho);
-	SET_PRVALUE(rhsprom, rhs);
-	SET_PRCODE(rhsprom, rhs); /* not good but is what we have been doing */
-	UNPROTECT(nprot);
-	lhs = CDR(lhs);
-	expr = CADR(expr);
+		nprot = 1; /* the PROTECT of rhs below from this iteration */
+		if (TYPEOF(CAR(expr)) == SYMSXP)
+			tmp = getAssignFcnSymbol(CAR(expr));
+		else {
+			/* check for and handle assignments of the form
+			foo::bar(x) <- y or foo:::bar(x) <- y */
+			tmp = R_NilValue; /* avoid uninitialized variable warnings */
+			if (TYPEOF(CAR(expr)) == LANGSXP &&
+			(CAR(CAR(expr)) == R_DoubleColonSymbol ||
+			CAR(CAR(expr)) == R_TripleColonSymbol) &&
+			length(CAR(expr)) == 3 && TYPEOF(CADDR(CAR(expr))) == SYMSXP) {
+			tmp = getAssignFcnSymbol(CADDR(CAR(expr)));
+			PROTECT(tmp = lang3(CAAR(expr), CADR(CAR(expr)), tmp));
+			nprot++;
+			}
+			else
+			error(_("invalid function in complex assignment"));
+		}
+		SET_TEMPVARLOC_FROM_CAR(tmploc, lhs);
+		PROTECT(rhs = replaceCall(tmp, R_TmpvalSymbol, CDDR(expr), rhsprom));
+		rhs = eval(rhs, rho);
+		SET_PRVALUE(rhsprom, rhs);
+		SET_PRCODE(rhsprom, rhs); /* not good but is what we have been doing */
+		UNPROTECT(nprot);
+		lhs = CDR(lhs);
+		expr = CADR(expr);
     }
     nprot = 5; /* the commont case */
     if (TYPEOF(CAR(expr)) == SYMSXP)
@@ -2762,14 +2794,14 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     PROTECT(expr = replaceCall(afun, R_TmpvalSymbol, CDDR(expr), rhsprom));
     SEXP value = eval(expr, rho);
-
+	
     if (PRIMVAL(op) == 2)                       /* <<- */
-	setVar(lhsSym, value, ENCLOS(rho));
+		setVar(lhsSym, value, ENCLOS(rho));
     else {                                      /* <-, = */
-	if (ALTREP(value))
-	    value = try_assign_unwrap(value, lhsSym, rho, NULL);
-	defineVar(lhsSym, value, rho);
-    }
+		if (ALTREP(value))
+			value = try_assign_unwrap(value, lhsSym, rho, NULL);
+		defineVar(lhsSym, value, rho);
+	}
     INCREMENT_NAMED(value);
     R_Visible = FALSE;
 
@@ -2789,31 +2821,6 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 /*  Assignment in its various forms  */
 
-void write_To_file(SEXP name, SEXP rho){
-    int isObject = 0;
-	SEXP var;
-	if(isInteger(name)){
-		Rprintf("aqui 1\n");
-		if(isEnvironment(rho)){
-			Rprintf("aqui 2\n");
-			var = findVarInFrame(name, rho);
-			Rprintf("first value is %i\n", SYMVALUE(var));
-			
-		}
-	}
-		
-
-
-	if(isObject){
-		FILE *fp;
-		fp = fopen("/home/luis/Desktop/file.txt", "w+");
-		int i = 0;
-		Rprintf("About to write to file\n");
-		fprintf(fp, "This is testing for fprintf... line %d\n", i);		
-		fclose(fp);
-	}
-}
-
 SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho){
 	switch(PRIMVAL(op)){
 		case 1:
@@ -2831,13 +2838,13 @@ SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho){
 			ABD_HELP();
 			break;
 		default: 
-			errorcall(call, _("invalid usage for ABD_tool. ABD_help for more info.\n"));
+			errorcall(call, _("invalid usage for ABD_tool. Issue ABD_help() for more info.\n"));
 	}
 }
 SEXP attribute_hidden do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP lhs, rhs;
-
+	
     if (args == R_NilValue ||
 	CDR(args) == R_NilValue ||
 	CDDR(args) != R_NilValue)

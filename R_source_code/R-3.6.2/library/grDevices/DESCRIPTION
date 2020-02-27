@@ -8,4 +8,4 @@ Description: Graphics devices and support for base and grid graphics.
 License: Part of R 3.6.2
 Suggests: KernSmooth
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-02-17 23:11:57 UTC; unix
+Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-02-27 12:45:50 UTC; unix
