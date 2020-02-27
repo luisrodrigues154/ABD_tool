@@ -1,0 +1,8 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "abd_tool.h": "c",
+        "typeinfo": "c",
+        "abd_tool_json_helpers_defn.h": "c"
+    }
+}
