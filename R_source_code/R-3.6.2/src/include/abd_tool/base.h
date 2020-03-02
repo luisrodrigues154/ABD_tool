@@ -6,8 +6,13 @@
 #include <abd_tool/obj_manager.h>
 #include <Print.h>
 
+typedef enum abd_state{
+    ABD_ENABLE = 1,
+    ABD_DISABLE = 0
+}ABD_STATE;
 
-
+static ABD_STATE watcherState = ABD_DISABLE;
+static ABD_OBJECT * cmnObjReg, * cfObjReg;
 /*
     Methods to start and stop the tool, helper function also here
 
@@ -24,25 +29,62 @@
 */
 
 void START_WATCHER(){
-    wipeRegistry();
+    initRegs(cmnObjReg);
+    initRegs(cfObjReg);
     watcherState = ABD_ENABLE;
 }
 
 void STOP_WATCHER(){
-    persistInformation(PERSIST_OBJECTS, objectsRegistry);
-    wipeRegistry();
+    persistInformation(PERSIST_OBJECTS, cmnObjReg);
+    wipeRegs(cmnObjReg);
     watcherState = ABD_DISABLE;
 }
 void ABD_HELP(){
     
 }
+
+
+void basicPrint2(){
+   if(cfObjReg == ABD_OBJECT_NOT_FOUND)
+        printf("REG NULL\n");
+    else{
+        ABD_OBJECT * currentObj =cfObjReg;
+        do{
+            printf("name: %s\n", currentObj->name);
+            currentObj = currentObj->nextObj;
+        }while(currentObj!=NULL);
+    }
+}
+void basicPrint(){
+   if(cmnObjReg == ABD_OBJECT_NOT_FOUND)
+        printf("REG NULL\n");
+    else{
+        ABD_OBJECT * currentObj = cmnObjReg;
+        do{
+            printf("name: %s\n", currentObj->name);
+            currentObj = currentObj->nextObj;
+        }while(currentObj!=NULL);
+    }
+}
 void regVarChange(int callingSite, SEXP lhs, SEXP rhs, SEXP rho){
     
     if(watcherState){
         if(isEnvironment(rho)){
-            objectUsage(lhs, rhs, rho);
-                       
-            //basicPrint();  
+            switch(TYPEOF(rhs)){
+                case CLOSXP:
+                    //closures (function objects)
+                    cfObjReg = newObjUsage(cfObjReg, lhs, rhs, rho);
+                    basicPrint2();
+                    break;
+                case REALSXP:
+                    //real numbers (0, 0.1, etc.)
+                    cmnObjReg =  newObjUsage(cmnObjReg, lhs, rhs, rho);
+                    basicPrint(); 
+                    break;
+                default:
+                    break;
+            }
+             
         }
     }
     

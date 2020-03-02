@@ -25,10 +25,6 @@ typedef struct abd_func_event{
     int returnType;
 }ABD_FUNC_EVENT;
 
-
-// EVENT LINKAGE ptrs 
-
-
 //EVENTS LIST
 typedef struct abd_event{
     ABD_EVENT_TYPE type;

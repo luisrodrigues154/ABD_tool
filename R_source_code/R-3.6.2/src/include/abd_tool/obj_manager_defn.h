@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Rinternals.h>
+#include <R.h>
+#include <Internal.h>
 /*
     Here are the declaration of the structures that will store 
     the objects needed information as well as their modifications
@@ -15,60 +18,98 @@
     TODO: do for code flow too
 
 */
+
 typedef enum obj_state {
     ABD_DELETED,
     ABD_ALIVE
 }OBJ_STATE;
 
-typedef enum abd_state{
-    ABD_ENABLE = 1,
-    ABD_DISABLE = 0
-}ABD_STATE;
-
-
-// common OBJECTS
-
 typedef struct abd_obj_mod{
     unsigned int instructionNumber;
     char * functionName;
     int newValue;
-    unsigned short remotion; 
+    OBJ_STATE remotion; 
     struct abd_obj_mod * nextMod;
 }ABD_OBJECT_MOD;
 
 
 typedef struct abd_obj{
-    unsigned short type;
+    SEXPTYPE type;
     char * name;
     unsigned int usages;
     OBJ_STATE state;
     char * createdEnv;
-    ABD_OBJECT_MOD * ABD_OBJECT_MOD_LIST;
-    struct abd_obj * prev_ABD_OBJECT;
-    struct abd_obj * next_ABD_OBJECT;
+    //on CF_OBJ will be NULL
+    ABD_OBJECT_MOD * modList;
+    //pointers to neighbours
+    struct abd_obj * prevObj;
+    struct abd_obj * nextObj;
 }ABD_OBJECT;
 
-
-
+typedef enum abd_storage{
+    ABD_CF_STORAGE,
+    ABD_CMN_STORAGE
+}OBJ_STORAGE;
 
 
 #define ABD_OBJECT_NOT_FOUND NULL
 /*
-    The prototypes regarding the manipulation of the structure that store objects  
-    are below
+    The prototypes regarding the manipulation of
+    the structure that store common objects are below
 
 */
-ABD_OBJECT * allocMemoryForObject();
-ABD_OBJECT_MOD * allocMemoryForObjectModification();
-void setBaseValuesForNewObject(ABD_OBJECT * obj, char * name, unsigned short type, char * createdEnv, int value);
-void setValuesForNewModification(ABD_OBJECT * obj, ABD_OBJECT_MOD * newModification, int instructionNumber, char * functionName, int newValue, unsigned short remotion);
-ABD_OBJECT_MOD * addModificationToObjectRegistry(ABD_OBJECT * obj);
-ABD_OBJECT * addObjectToRegistry();
-ABD_OBJECT * objectLookUp(char * name, char * createdEnv);
-ABD_OBJECT * findNode_RHS(ABD_OBJECT * obj);
+
+/*
+   ####################################
+    Memory manipulation prototypes
+   ####################################
+*/
+
+/*
+    generic
+*/
+ABD_OBJECT * memAllocBaseObj();
+char * memAllocForString(int strSize);
+void wipeRegs(ABD_OBJECT *);
+void initRegs(ABD_OBJECT *);
+ABD_OBJECT * doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS);
+void copyStr(char * dest, char * src, int strSize);
+/*
+    CMN_OBJ specifics
+*/
+ABD_OBJECT_MOD * memAllocMod();
+
+/*
+    CF_OBJ specifics
+*/
+
+/*
+   ####################################
+    Registries Management prototypes
+   ####################################
+*/
+
+/*
+    generic
+*/
+void setObjBaseValues(ABD_OBJECT * obj, char * name,SEXPTYPE type, char * createdEnv);
+ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg);
+ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, char * createdEnv);
+ABD_OBJECT * findRHS(ABD_OBJECT * objReg, ABD_OBJECT * obj);
 void changeNeighbours(ABD_OBJECT * obj);
-void doSwap(ABD_OBJECT * obj, ABD_OBJECT * node_RHS);
-void rankObjectByUsages(ABD_OBJECT * obj);
-void objectUsage(SEXP lhs, SEXP rhs, SEXP rho);
-void wipeRegistry();
-void initializeRegistry();
+ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
+ABD_OBJECT * newObjUsage(ABD_OBJECT *,SEXP lhs, SEXP rhs, SEXP rho);
+ABD_OBJECT * newObjUsage2(ABD_OBJECT *,SEXP lhs, SEXP rhs, SEXP rho);
+char * environmentExtraction(SEXP rho);
+
+/*
+    CMN_OBJ specifics
+*/
+void setModValues(ABD_OBJECT_MOD * newModification,int instructionNumber, char * functionName, int newValue, OBJ_STATE remotion);
+ABD_OBJECT_MOD * addModToObj(ABD_OBJECT * obj);
+ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj);
+/*
+    CF_OBJ specifics
+*/
+
+

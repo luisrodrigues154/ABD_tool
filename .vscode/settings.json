@@ -3,6 +3,14 @@
     "files.associations": {
         "abd_tool.h": "c",
         "typeinfo": "c",
-        "abd_tool_json_helpers_defn.h": "c"
+        "abd_tool_json_helpers_defn.h": "c",
+        "optional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "system_error": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp"
     }
 }

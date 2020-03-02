@@ -36,7 +36,7 @@ void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj){
     
     //start json object
     
-    currentModification = obj->ABD_OBJECT_MOD_LIST;
+    currentModification = obj->modList;
     
     do{
         fprintf(outputFile, "%s{\n", JSON_INDENT_4);
@@ -66,7 +66,7 @@ void persistObjects(FILE * outputFile, ABD_OBJECT * objectsRegistry){
         fprintf(outputFile, "%s{\n", JSON_INDENT_1);
         writeObjectToFile(outputFile, currentObject);
         
-        currentObject = currentObject->next_ABD_OBJECT;
+        currentObject = currentObject->nextObj;
 
         if(currentObject != ABD_OBJECT_NOT_FOUND)
             fprintf(outputFile, "%s},\n", JSON_INDENT_1);

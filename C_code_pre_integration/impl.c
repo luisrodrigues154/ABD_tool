@@ -2,89 +2,112 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef enum obj_state {
+    ABD_DELETED,
+    ABD_ALIVE
+}OBJ_STATE;
+
+typedef enum abd_state{
+    ABD_ENABLE = 1,
+    ABD_DISABLE = 0
+}ABD_STATE;
 
 
 
+typedef struct abd_obj_mod{
+    unsigned int instructionNumber;
+    char * functionName;
+    int newValue;
+    OBJ_STATE remotion; 
+    struct abd_obj_mod * nextMod;
+}ABD_OBJECT_MOD;
 
-#define ABD_DELETED 1
-#define ABD_ALIVE 0
+
+typedef struct abd_obj{
+    unsigned short type;
+    char * name;
+    unsigned int usages;
+    OBJ_STATE state;
+    char * createdEnv;
+    //on CF_OBJ will be NULL
+    ABD_OBJECT_MOD * modList;
+    //pointers to neighbours
+    struct abd_obj * prevObj;
+    struct abd_obj * nextObj;
+}ABD_OBJECT;
+
+typedef enum abd_storage{
+    ABD_CF_STORAGE,
+    ABD_CMN_STORAGE
+}OBJ_STORAGE;
+
+
 #define ABD_OBJECT_NOT_FOUND NULL
+static ABD_STATE watcherState = ABD_DISABLE;
+static ABD_OBJECT * cmnObjReg, * cfObjReg;
+/*
+    The prototypes regarding the manipulation of
+    the structure that store common objects are below
+
+*/
+
+/*
+   ####################################
+    Memory manipulation prototypes
+   ####################################
+*/
+
+/*
+    generic
+*/
+ABD_OBJECT * memAllocBaseObj();
+char * memAllocForString(int strSize);
+void wipeRegs();
+void initRegs();
+void doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS);
+void copyStr(char * dest, char * src, int strSize);
+/*
+    CMN_OBJ specifics
+*/
+ABD_OBJECT_MOD * memAllocMod();
+
+/*
+    CF_OBJ specifics
+*/
+
+/*
+   ####################################
+    Registries Management prototypes
+   ####################################
+*/
+
+/*
+    generic
+*/
+void setObjBaseValues(ABD_OBJECT * obj, char * name,unsigned short type, char * createdEnv, int value);
+ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg);
+ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, char * createdEnv);
+ABD_OBJECT * findRHS(ABD_OBJECT * objReg, ABD_OBJECT * obj);
+void changeNeighbours(ABD_OBJECT * obj);
+void rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
+//void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
+void newObjUsage();
+//char * environmentExtraction(SEXP rho)
+
+/*
+    CMN_OBJ specifics
+*/
+void setModValues(ABD_OBJECT_MOD * newModification,int instructionNumber, char * functionName, int newValue, OBJ_STATE remotion);
+ABD_OBJECT_MOD * addModToObj(ABD_OBJECT * obj);
+ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj);
+/*
+    CF_OBJ specifics
+*/
 
 
-void basicPrint();
-
-
-
-void main(){
-    initializeRegistry();
-    
-    char name[] = "variable1";
-    char name2[] = "variable2";
-    char name3[] = "variable3";
-    
-    objectUsage(1, 1, name, 10, "Main", "GlobalEnv", 0);
-    objectUsage(1, 1, name, 20, "Main", "GlobalEnv", 0);
-    objectUsage(1, 1, name, 30, "Main", "GlobalEnv", 0);
-
-    objectUsage(2, 1, name2, 20, "Main", "GlobalEnv", 0);
-
-    objectUsage(3, 1, name3, 30, "Main", "GlobalEnv", 0);
-    objectUsage(3, 1, name3, 40, "Main", "GlobalEnv", 0);
-    objectUsage(3, 1, name3, 40, "Main", "GlobalEnv", 0);
-    objectUsage(3, 1, name3, 40, "Main", "GlobalEnv", 0);
-
-    //final order 3 1 2
-    basicPrint();
-
-    puts("To store information press any");
-    getchar();
-
-    persistInformation(PERSIST_OBJECTS);
-
-    wipeRegistry();
+int main(){
+    cmnObjReg = initRegs();
+    newObjUsage();
+    return 0;
 }
-void printModifications(ABD_OBJECT * obj){
-    ABD_OBJECT_MOD * modList = obj->ABD_OBJECT_MOD_LIST;
-    
-    while(modList != ABD_OBJECT_NOT_FOUND) {
-        printf("Instruction: %d\n", modList->instructionNumber);
-        printf("Function Name: %s\n", modList->functionName);
-        printf("New Value: %d\n", modList->newValue);
-        printf("Remotion? %s\n", (modList->remotion == 1) ? "yes": "no");
-        puts("----------------------------");
-        modList = modList->nextMod;
-    }
-    puts("");
-    puts("");
-}
-void basicPrint(){
-    int count = 0;
-    ABD_OBJECT * currentObject = objectsRegistry;
-    while(currentObject!=NULL){
-        count++;
-        puts("");
-        puts("----------------------------");
-        printf("name: %s\n", currentObject->name);
-        printf("usages: %d\n", currentObject->usages);
-        printf("prev name: %s\n", (currentObject->prev_ABD_OBJECT != NULL) ? currentObject->prev_ABD_OBJECT->name : "NULL");
-        printf("next name: %s\n", (currentObject->next_ABD_OBJECT != NULL) ? currentObject->next_ABD_OBJECT->name : "NULL");
-        puts("----------------------------");
-        /*if(currentObject->ABD_OBJECT_MOD_LIST!=ABD_OBJECT_NOT_FOUND)
-            //printModifications(currentObject);
-        printf("type: %d\n", obj->type);
-        
-        printf("nMods: %d\n", obj->nMods);
-        printf("createdEnv: %s\n", obj->createdEnv);
-        printf("Removed? %s\n", (obj->removed==ABD_DELETED) ? "yes": "no" );
-        printf("Has modifications? %s\n", (obj->ABD_OBJECT_MOD_LIST != NULL) ? "yes" : "no");
-        printf("Am i the head of the objects? %s (previous name %s)\n", (obj->prev_ABD_OBJECT == NULL) ? "yes" : "no", 
-        (obj->prev_ABD_OBJECT != NULL) ? obj->prev_ABD_OBJECT->name : obj->name);
-        printf("Exist more objects? %s\n", (obj->next_ABD_OBJECT != NULL) ? "yes" : "no");*/
 
-        currentObject = currentObject->next_ABD_OBJECT;
-
-    }
-    //printf("\nObjects printed -> %d\n", count);
-    puts("");
-    puts("");
-}
