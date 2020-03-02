@@ -35,7 +35,7 @@ void START_WATCHER(){
 }
 
 void STOP_WATCHER(){
-    persistInformation(PERSIST_OBJECTS, cmnObjReg);
+    persistInformation(PERSIST_OBJECTS, cmnObjReg, cfObjReg);
     wipeRegs(cmnObjReg);
     watcherState = ABD_DISABLE;
 }
@@ -67,7 +67,6 @@ void basicPrint(){
     }
 }
 void regVarChange(int callingSite, SEXP lhs, SEXP rhs, SEXP rho){
-    
     if(watcherState){
         if(isEnvironment(rho)){
             switch(TYPEOF(rhs)){
@@ -87,7 +86,19 @@ void regVarChange(int callingSite, SEXP lhs, SEXP rhs, SEXP rho){
              
         }
     }
-    
+}
+
+
+/*
+    The function below will verify if R is trying to execute a closure defined by the user.
+    This verification is done because if the user did not declared an object with that symbol
+    name, then, the function being called should not be tracked.
+*/
+void verifySymbol(SEXP lhs, SEXP rho){
+    if(watcherState){
+        ABD_OBJECT * objFound = findObj(cfObjReg, CHAR(PRINTNAME(lhs)), environmentExtraction(rho));
+        printf("Found it? %s\n", (objFound == ABD_OBJECT_NOT_FOUND) ? "no" : "yes");
+    }
 }
 
 

@@ -31,7 +31,7 @@
 #define PERSIST_OBJECTS 1
 #define PERSIST_CODE_FLOW 2
 #define OBJECTS_FILE_PATH "/home/luis/Desktop/objects.json"
-#define FILE_OPEN_MODE "w+"
+#define FILE_OPEN_MODE "w"
 
 
 /*
@@ -46,4 +46,4 @@ void finalizeJSONstructure(FILE * outputFile, char * indentation);
 void writeObjectModificationToFile(FILE * outputFile, ABD_OBJECT_MOD * modification);
 void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj);
 void persistObjects(FILE * outputFile, ABD_OBJECT * objectsRegistry);
-void persistInformation(int structureToStore, ABD_OBJECT * objectsRegistry);
+void persistInformation(int structureToStore, ABD_OBJECT * cmnObjReg, ABD_OBJECT * cfObjReg);

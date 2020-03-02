@@ -99,7 +99,6 @@ ABD_FUNC_EVENT * createFuncEvent(ABD_EVENT * parentEvent, ABD_OBJECT * objectReg
     newFuncEvent->returnType = 1;
 }
 void createStructsForType(ABD_EVENT * parentEvent, ABD_EVENT * newEvent, ABD_EVENT_TYPE eventType, ABD_OBJECT * obj){
-    
     switch (eventType){
         case FUNC_EVENT:
             newEvent->data.func_event = createFuncEvent(parentEvent, obj);

@@ -1717,6 +1717,8 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 
 	
 	*/
+	verAndReg(CAR(call), rho);
+
 	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
 		printf("\nits a closure\n");
 		printf("Name symbol: %s\n", CHAR(PRINTNAME(CAR(call))));
@@ -1742,6 +1744,8 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 		- the below works for functions (perhaps it does not for if's, for's, etc..)
 		check CHAR(PRINTNAME(CAR(call))) == ABD_tool currentEvent.obj
 	*/
+	
+
 	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
 			printf("\nits a closure\n");
 			printf("Returning from symbol %s: %f\n",CHAR(PRINTNAME(CAR(call))), REAL(val)[0]);

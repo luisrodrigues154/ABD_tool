@@ -33,4 +33,5 @@ void ABD_HELP();
 void START_WATCHER();
 void STOP_WATCHER();
 void regVarChange(int, SEXP, SEXP, SEXP);
+void verAndReg(SEXP lhs, SEXP rho);
 void regCodeFlowChange();

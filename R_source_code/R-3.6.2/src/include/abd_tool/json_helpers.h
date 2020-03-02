@@ -71,12 +71,12 @@ void persistObjects(FILE * outputFile, ABD_OBJECT * objectsRegistry){
         if(currentObject != ABD_OBJECT_NOT_FOUND)
             fprintf(outputFile, "%s},\n", JSON_INDENT_1);
         else
-            fprintf(outputFile, "%s}\n", JSON_INDENT_1);
+            fprintf(outputFile, "%s}", JSON_INDENT_1);
     }while(currentObject != ABD_OBJECT_NOT_FOUND);
 }
 
 
-void persistInformation(int structureToStore, ABD_OBJECT * objectsRegistry){
+void persistInformation(int structureToStore, ABD_OBJECT * cmnObjReg, ABD_OBJECT * cfObjReg){
     FILE * outputFile ;
     switch (structureToStore)
     {
@@ -89,7 +89,9 @@ void persistInformation(int structureToStore, ABD_OBJECT * objectsRegistry){
                 return;
             }
             initializeJSONstructure(outputFile, JSON_INDENT_0);
-            persistObjects(outputFile, objectsRegistry);
+            persistObjects(outputFile, cmnObjReg);
+            fprintf(outputFile, "%s\n", (cfObjReg == NULL) ? "" : ",");
+            persistObjects(outputFile, cfObjReg);
             finalizeJSONstructure(outputFile, JSON_INDENT_0);
             break;
         case PERSIST_CODE_FLOW:
