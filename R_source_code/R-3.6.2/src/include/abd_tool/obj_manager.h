@@ -6,13 +6,6 @@
 #include <Print.h>
 
 /*
-    Here are some needed variables 
-
-*/
-
-
-
-/*
    ####################################
     Memory manipulation implementation
    ####################################
@@ -21,7 +14,31 @@
 /*
     generic
 */
-
+void initObjsRegs(){
+    //set NULL to initialize
+    cmnObjReg = ABD_OBJECT_NOT_FOUND;
+    cfObjReg = ABD_OBJECT_NOT_FOUND;
+}
+void wipeRegs(){
+    //clears registry memory (all nodes)
+    //TODO: clear ABD_OBJ_MOD_LIST not done
+    
+    //wipe common objects registry
+    ABD_OBJECT * currentObject = cmnObjReg;
+    while(currentObject!=ABD_OBJECT_NOT_FOUND){
+        ABD_OBJECT * next = currentObject->nextObj;
+        free(currentObject);
+        currentObject = next;
+    }
+    
+    //wipe codeflow objects registry
+    currentObject = cfObjReg;
+    while(currentObject!=ABD_OBJECT_NOT_FOUND){
+        ABD_OBJECT * next = currentObject->nextObj;
+        free(currentObject);
+        currentObject = next;
+    }
+}
 ABD_OBJECT * memAllocBaseObj(){
     return (ABD_OBJECT *) malloc(sizeof(ABD_OBJECT));
 }
@@ -31,22 +48,7 @@ char * memAllocForString(int strSize){
     return (char *) malloc(strSize * sizeof(char) +1);
 }
 
-void wipeRegs(ABD_OBJECT * cmnObjReg){
-    //clears registry memory (all nodes)
-    //TODO: clear ABD_OBJ_MOD_LIST not done
-    
-    ABD_OBJECT * currentObject = cmnObjReg;
-    while(currentObject!=ABD_OBJECT_NOT_FOUND){
-        ABD_OBJECT * next = currentObject->nextObj;
-        free(currentObject);
-        currentObject = next;
-    }
-}
 
-void initRegs(ABD_OBJECT * cmnObjReg){
-    //set NULL to initialize
-    cmnObjReg = ABD_OBJECT_NOT_FOUND;
-}
 ABD_OBJECT * doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS){
     //set obj->prev = (node_RHS->prev)
     obj->prevObj = node_RHS->prevObj;
@@ -237,15 +239,13 @@ ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj){
     return objReg;
 }
 //below is used to all (except closures)
-ABD_OBJECT * newObjUsage(ABD_OBJECT * cmnObjReg, SEXP lhs, SEXP rhs, SEXP rho){
+void newCmnObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
     unsigned int instructionNumber = 1;
     SEXPTYPE type = TYPEOF(rhs);
     int value = REAL(rhs)[0]; 
     char * functionName = "main";
     OBJ_STATE remotion = ABD_ALIVE;
     
-    
-
     //name extraction from lhs
     int nameSize = strlen(CHAR(PRINTNAME(lhs)));
     char * name = memAllocForString(nameSize);
@@ -271,13 +271,13 @@ ABD_OBJECT * newObjUsage(ABD_OBJECT * cmnObjReg, SEXP lhs, SEXP rhs, SEXP rho){
         setObjBaseValues(objectFound, name, type, createdEnv);
     }
     
-    setModValues(addEmptyModToObj(objectFound), instructionNumber,functionName, value, remotion);
+    objectFound->modList = setModValues(addEmptyModToObj(objectFound), value, remotion);
     objectFound->usages++;
-    
-    return rankObjByUsages(cmnObjReg, objectFound);
+
+    rankObjByUsages(cmnObjReg, objectFound);
 }
 //below is used to closures
-ABD_OBJECT * newObjUsage2(ABD_OBJECT * cmnObjReg, SEXP lhs, SEXP rhs, SEXP rho){
+void newCfObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
     unsigned int instructionNumber = 1;
     SEXPTYPE type = CLOSXP; 
     char * functionName = "main";
@@ -293,25 +293,25 @@ ABD_OBJECT * newObjUsage2(ABD_OBJECT * cmnObjReg, SEXP lhs, SEXP rhs, SEXP rho){
     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
 
     
-    if(cmnObjReg == ABD_OBJECT_NOT_FOUND){
+    if(cfObjReg == ABD_OBJECT_NOT_FOUND){
         //registry empty, alloc    
-        cmnObjReg = addEmptyObjToReg(cmnObjReg);
-        objectFound = cmnObjReg;
+        cfObjReg = addEmptyObjToReg(cfObjReg);
+        objectFound = cfObjReg;
         setObjBaseValues(objectFound, name, type, createdEnv);
     }
     else
-        objectFound = findObj(cmnObjReg, name, createdEnv);
+        objectFound = findObj(cfObjReg, name, createdEnv);
     
 
     if(objectFound == ABD_OBJECT_NOT_FOUND){
         //alloc
-        objectFound = addEmptyObjToReg(cmnObjReg);
+        objectFound = addEmptyObjToReg(cfObjReg);
         setObjBaseValues(objectFound, name, type, createdEnv);
     }
     
     //setModValues(addEmptyModToObj(objectFound), instructionNumber,functionName, value, remotion);
     objectFound->usages++;
-    return rankObjByUsages(cmnObjReg, objectFound);
+    rankObjByUsages(cfObjReg, objectFound);
 }
 char * environmentExtraction(SEXP rho){
     const void *vmax = vmaxget();
@@ -331,59 +331,40 @@ char * environmentExtraction(SEXP rho){
 /*
     CMN_OBJ specifics
 */
-void setModValues(ABD_OBJECT_MOD * newModification, int instructionNumber, char * functionName, int newValue, OBJ_STATE remotion){
-    //increment usages
-    int fNameSize = strlen(functionName);
-    newModification->functionName = memAllocForString(fNameSize);
-    copyStr(newModification->functionName, functionName, fNameSize);
-    
+ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, int newValue, OBJ_STATE remotion){
     newModification->newValue = newValue;
     newModification->remotion = remotion;
-    newModification->instructionNumber = instructionNumber;
-    newModification->nextMod = ABD_OBJECT_NOT_FOUND;
+    return newModification;
 }
+
+
 ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj){
     
     if(obj->modList == ABD_OBJECT_NOT_FOUND){
         //list empty
         obj->modList = memAllocMod();
+        obj->modList->prevMod = ABD_OBJECT_NOT_FOUND;
         obj->modList->nextMod = ABD_OBJECT_NOT_FOUND;
-        return obj->modList;
+
+        obj->modListStart = obj->modList;
+        
+        
+    }else{
+        //the last valid registry is stored in the newModification var
+        //alloc memory to new node and assign to nextMod
+        
+        ABD_OBJECT_MOD * newMod = memAllocMod();
+
+        obj->modList->nextMod = newMod;
+        newMod->prevMod = obj->modList;
+        newMod->nextMod = ABD_OBJECT_NOT_FOUND;
+        obj->modList = newMod;
+    
     }
     
-    ABD_OBJECT_MOD * auxModification = obj->modList;
-    while(auxModification->nextMod != ABD_OBJECT_NOT_FOUND)
-        auxModification= auxModification->nextMod;
-
-    //the last valid registry is stored in the newModification var
-    //alloc memory to new node and assign to nextMod
-    ABD_OBJECT_MOD * newModification = auxModification->nextMod = memAllocMod();
-
-    //return nextMod (brand new memory chunk)
-    return newModification;
-        
+    return obj->modList;
 }
-ABD_OBJECT_MOD * addModToObj(ABD_OBJECT * obj){
-    
-    if(obj->modList == ABD_OBJECT_NOT_FOUND){
-        //list empty
-        obj->modList = memAllocMod();
-        obj->modList->nextMod = ABD_OBJECT_NOT_FOUND;
-        return obj->modList;
-    }
-    
-    ABD_OBJECT_MOD * auxModification = obj->modList;
-    while(auxModification->nextMod != ABD_OBJECT_NOT_FOUND)
-        auxModification= auxModification->nextMod;
 
-    //the last valid registry is stored in the newModification var
-    //alloc memory to new node and assign to nextMod
-    ABD_OBJECT_MOD * newModification = auxModification->nextMod = memAllocMod();
-
-    //return nextMod (brand new memory chunk)
-    return newModification;
-        
-}
 /*
     CF_OBJ specifics
 */

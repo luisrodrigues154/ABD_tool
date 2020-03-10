@@ -19,12 +19,20 @@ void finalizeJSONstructure(FILE * outputFile, char * indentation){
 }
 
 void writeObjectModificationToFile(FILE * outputFile, ABD_OBJECT_MOD * modification){
-    fprintf(outputFile, "%s\"instructionNumber\" : \"%d\",\n", JSON_INDENT_5, modification->instructionNumber);
-    fprintf(outputFile, "%s\"function\" : \"%s\",\n", JSON_INDENT_5, modification->functionName);
     fprintf(outputFile, "%s\"newValue\" : \"%d\",\n", JSON_INDENT_5, modification->newValue);
     fprintf(outputFile, "%s\"remotion\" : %s\n", JSON_INDENT_5, (modification->remotion == 1) ? "true": "false");
 }
-
+void printShit2(ABD_OBJECT_MOD * mod){
+    ABD_OBJECT_MOD * currMod = mod;
+    if(currMod==NULL)
+        return;
+    int count = 0;
+    do{
+        count++;
+        currMod = currMod->prevMod;
+    }while(currMod != NULL);
+    printf("num entries %d\n", count);
+}
 void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj){
     ABD_OBJECT_MOD * currentModification = ABD_OBJECT_NOT_FOUND;
 
@@ -35,8 +43,9 @@ void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj){
     fprintf(outputFile, "%s\"modList\" : [\n", JSON_INDENT_2);
     
     //start json object
-    
-    currentModification = obj->modList;
+    puts("json");
+    printShit2(obj->modList);
+    currentModification = obj->modListStart;
     
     do{
         fprintf(outputFile, "%s{\n", JSON_INDENT_4);

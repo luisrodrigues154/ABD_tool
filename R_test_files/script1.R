@@ -1,6 +1,13 @@
-var_x <- 1
-var_y <- 2
+start_watcher()
 
-result <- var_x + var_y
+f1 <- function(){
+    xxx <- 30
+}
 
-print(result)
+
+f1()
+print("---------------------");
+f1()
+print("---------------------");
+f1()
+

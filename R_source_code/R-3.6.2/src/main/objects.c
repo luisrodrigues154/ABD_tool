@@ -115,7 +115,8 @@ static SEXP applyMethod(SEXP call, SEXP op, SEXP args, SEXP rho, SEXP newvars)
 	vmaxset(vmax);
     }
     else if (TYPEOF(op) == CLOSXP) {
-	ans = applyClosure(call, op, args, rho, newvars);
+		
+		ans = applyClosure(call, op, args, rho, newvars);
     }
     else
 	ans = R_NilValue;  /* for -Wall */
@@ -1610,7 +1611,7 @@ R_possible_dispatch(SEXP call, SEXP op, SEXP args, SEXP rho,
     if(!promisedArgs) {
 	PROTECT(s = promiseArgs(CDR(call), rho));
 	if (length(s) != length(args)) error(_("dispatch error"));
-	for (a = args, b = s; a != R_NilValue; a = CDR(a), b = CDR(b))
+		for (a = args, b = s; a != R_NilValue; a = CDR(a), b = CDR(b))
 	    SET_PRVALUE(CAR(b), CAR(a));
 	value = applyClosure(call, fundef, s, rho, R_NilValue);
 	UNPROTECT(1);

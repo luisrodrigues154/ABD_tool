@@ -549,9 +549,10 @@ SEXP eval(SEXP e, SEXP rho)
 	#endif
 		evalcount = 0 ;
     }
-	
-	
+
+
     /* handle self-evaluating objects with minimal overhead */
+	
     switch (TYPEOF(e)) {
 		case NILSXP:
 		case LISTSXP:
@@ -578,7 +579,7 @@ SEXP eval(SEXP e, SEXP rho)
 			return e;
 		default: break;
     }
-	
+
     int bcintactivesave = R_BCIntActive;
     R_BCIntActive = 0;
 
@@ -619,7 +620,7 @@ SEXP eval(SEXP e, SEXP rho)
 		case BCODESXP:
 			tmp = bcEval(e, rho, TRUE);
 				break;
-			case SYMSXP:
+		case SYMSXP:
 			if (e == R_DotsSymbol)
 				error(_("'...' used in an incorrect context"));
 			if( DDVAL(e) )
@@ -670,7 +671,6 @@ SEXP eval(SEXP e, SEXP rho)
 			end up getting duplicated if NAMED > 1.) LT */
 			break;
 		case LANGSXP:
-			
 			if (TYPEOF(CAR(e)) == SYMSXP) {
 				/* This will throw an error if the function is not found */
 				SEXP ecall = e;
@@ -713,7 +713,7 @@ SEXP eval(SEXP e, SEXP rho)
 				const void *vmax = vmaxget();
 				RCNTXT cntxt;
 				PROTECT(tmp = evalList(CDR(e), rho, e, 0));
-				if (flag < 2) 
+				if (flag < 2)
 					R_Visible = flag != 1;
 				/* We used to insert a context only if profiling,
 				but helps for tracebacks on .C etc. */
@@ -735,27 +735,25 @@ SEXP eval(SEXP e, SEXP rho)
 					}
 				#endif
 				if (flag < 2) R_Visible = flag != 1;
-					UNPROTECT(1);
-					check_stack_balance(op, save);
-					vmaxset(vmax);
-				}
-				else if (TYPEOF(op) == CLOSXP) {
-					//its a function, will get here
-					
-					SEXP pargs = promiseArgs(CDR(e), rho);
-					PROTECT(pargs);
-					tmp = applyClosure(e, op, pargs, rho, R_NilValue);
+				UNPROTECT(1);
+				check_stack_balance(op, save);
+				vmaxset(vmax);
+			}
+			else if (TYPEOF(op) == CLOSXP) {
+				//its a function, will get here				
+				
+				SEXP pargs = promiseArgs(CDR(e), rho);
+				PROTECT(pargs);
+				tmp = applyClosure(e, op, pargs, rho, R_NilValue);
 
-					//tmp is the return value from the function
-					
-					
-					#ifdef ADJUST_ENVIR_REFCNTS
-							unpromiseArgs(pargs);
-					#endif
-					UNPROTECT(1);
-				}
-				else
-					error(_("attempt to apply non-function"));
+				
+				#ifdef ADJUST_ENVIR_REFCNTS
+						unpromiseArgs(pargs);
+				#endif
+				UNPROTECT(1);
+			}
+			else
+				error(_("attempt to apply non-function"));
 				UNPROTECT(1);
 				break;
 		case DOTSXP:
@@ -1710,48 +1708,43 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     /*  If we have a generic function we need to use the sysparent of
 	the generic as the sysparent of the method because the method
 	is a straight substitution of the generic.  */
-	
-	
+
+
 	/*
 		the function will be executed in execClosure so the process of registry starts now
 
-	
+
 	*/
-	verAndReg(CAR(call), rho);
+	SEXP lhs = CAR(call);
 
-	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
-		printf("\nits a closure\n");
-		printf("Name symbol: %s\n", CHAR(PRINTNAME(CAR(call))));
+	ABD_SEARCH result = regFunCall(lhs, rho, newrho);
+
+	if(result == ABD_EXIST){
+		printf("------------\n");
+        printf("Will call a function...\n");
+        printf("Name: %s\n",CHAR(PRINTNAME(lhs)));
+        printf("Calling Env: %s\n", EncodeEnvironment(rho));
+		printf("%s env: %s\n", CHAR(PRINTNAME(lhs)), EncodeEnvironment(newrho));
+        printf("------------\n");
 	}
-
-
-
+		
+				
 
     SEXP val = R_execClosure(call, newrho,
 			     (R_GlobalContext->callflag == CTXT_GENERIC) ?
 			     R_GlobalContext->sysparent : rho,
 			     rho, arglist, op);
+
+	if(result == ABD_EXIST)
+		regFunReturn(lhs, rho, val);
 #ifdef ADJUST_ENVIR_REFCNTS
     R_CleanupEnvir(newrho, val);
     if (MAYBE_REFERENCED(val) && is_getter_call)
     	val = shallow_duplicate(val);
 #endif
-
-	/*
-		this is before return so here we finalize the process of registry and 
-		go back in the chain to set the currentEvent correspondingly
-	
-		- the below works for functions (perhaps it does not for if's, for's, etc..)
-		check CHAR(PRINTNAME(CAR(call))) == ABD_tool currentEvent.obj
-	*/
-	
-
-	if((strncmp(CHAR(PRINTNAME(CAR(call))), "f1", 2) == 0) || (strncmp(CHAR(PRINTNAME(CAR(call))), "f2", 2)==0)){
-			printf("\nits a closure\n");
-			printf("Returning from symbol %s: %f\n",CHAR(PRINTNAME(CAR(call))), REAL(val)[0]);
-	}
-    UNPROTECT(1); /* newrho */
-    return val;
+		
+  UNPROTECT(1); /* newrho */
+  return val;
 }
 
 static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
@@ -1826,7 +1819,7 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 
     /* clear R_ReturnedValue to allow GC to reclaim old value */
     R_ReturnedValue = R_NilValue;
-	
+
     return cntxt.returnValue;
 }
 
@@ -2798,7 +2791,7 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     PROTECT(expr = replaceCall(afun, R_TmpvalSymbol, CDDR(expr), rhsprom));
     SEXP value = eval(expr, rho);
-	
+
     if (PRIMVAL(op) == 2)                       /* <<- */
 		setVar(lhsSym, value, ENCLOS(rho));
     else {                                      /* <-, = */
@@ -2841,28 +2834,29 @@ SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho){
 			// ABD_help() issued
 			ABD_HELP();
 			break;
-		default: 
+		default:
 			errorcall(call, _("invalid usage for ABD_tool. Issue ABD_help() for more info.\n"));
 	}
+	return R_NilValue;
 }
 SEXP attribute_hidden do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP lhs, rhs;
-	
+
     if (args == R_NilValue ||
 	CDR(args) == R_NilValue ||
 	CDDR(args) != R_NilValue)
 	WrongArgCount(asym[PRIMVAL(op)]);
 
     lhs = CAR(args);
-	
     switch (TYPEOF(lhs)) {
 		case STRSXP:
 			lhs = installTrChar(STRING_ELT(lhs, 0));
 		/* fall through */
-		case SYMSXP:
+		case SYMSXP: 
 			rhs = eval(CADR(args), rho);
 			INCREMENT_NAMED(rhs);
+			
 			if (PRIMVAL(op) == 2)                       /* <<- */
 				setVar(lhs, rhs, ENCLOS(rho));
 			else{                                       /* <-, = */
@@ -4993,7 +4987,7 @@ static R_INLINE SEXP FIND_VAR_NO_CACHE(SEXP symbol, SEXP rho, SEXP cell,
 	SEXP value = R_GetVarLocValue(loc);
 	DECLNK_stack(stack_base, R_BCNodeStackTop);
 	return value;
-    }	
+    }
     else return R_GetVarLocValue(loc);
 }
 

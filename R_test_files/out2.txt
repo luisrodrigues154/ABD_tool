@@ -1,0 +1,6 @@
+Watcher STARTED successfully.
+calling func ...  f1 with environment <environment: R_GlobalEnv>
+[1] "---------------------"
+calling func ...  f1 with environment <environment: R_GlobalEnv>
+[1] "---------------------"
+calling func ...  f1 with environment <environment: R_GlobalEnv>

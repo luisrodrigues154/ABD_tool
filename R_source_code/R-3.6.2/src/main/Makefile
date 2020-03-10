@@ -555,7 +555,9 @@ envir.o: envir.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
  ../../src/include/Internal.h ../../src/include/R_ext/Callbacks.h \
- ../../src/include/abd_tool/base_defn.h
+ ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+ ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+ ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h
 errors.o: errors.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Complex.h ../../src/include/Rinternals.h \
  ../../src/include/R_ext/Arith.h ../../src/include/R_ext/libextern.h \
@@ -585,7 +587,12 @@ eval.o: eval.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/abd_tool/obj_manager_defn.h \
  ../../src/include/abd_tool/json_helpers.h \
  ../../src/include/abd_tool/json_helpers_defn.h ../../src/include/Print.h \
- ../../src/include/Defn.h ../../src/include/R_ext/PrtUtil.h arithmetic.h \
+ ../../src/include/Defn.h ../../src/include/R_ext/PrtUtil.h \
+ ../../src/include/abd_tool/event_manager_defn.h \
+ ../../src/include/abd_tool/events_defn.h \
+ ../../src/include/abd_tool/event_manager.h \
+ ../../src/include/abd_tool/env_stack.h \
+ ../../src/include/abd_tool/env_stack_defn.h arithmetic.h \
  ../../src/include/Rmath.h ../../src/include/Rdynpriv.h \
  ../../src/include/Parse.h ../../src/include/IOStuff.h \
  ../../src/include/R_ext/Parse.h

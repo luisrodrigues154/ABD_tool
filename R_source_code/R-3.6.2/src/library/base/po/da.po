@@ -6466,6 +6466,9 @@ msgid ""
 "'help.start()' for an HTML browser interface to help.\n"
 "Type 'q()' to quit R.\n"
 "\n"
+"This R version has ABD_TOOL included. Type 'abd_help()' for\n"
+"more information about the debugging tool.
+"\n"
 msgstr ""
 
 #: src/main/xspline.c:60

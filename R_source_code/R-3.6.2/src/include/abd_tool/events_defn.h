@@ -1,0 +1,37 @@
+
+
+#ifndef loaded_ev
+    #define loaded_ev
+    typedef enum abd_event_types {
+        MAIN_EVENT = 0,
+        IF_EVENT = 1,
+        FUNC_EVENT = 2,
+        RET_EVENT = 3
+    }ABD_EVENT_TYPE;
+
+    //event types structures
+    typedef struct abd_if_event{
+        //TODO
+        //analyze R behaviour when if'ing
+    }ABD_IF_EVENT;
+
+    typedef struct abd_func_arg{
+        ABD_OBJECT * objPtr;
+        ABD_OBJECT_MOD * objValue;
+        struct abd_func_arg * nextArg;
+    }ABD_ARGS;
+
+    //register function events
+    typedef struct abd_func_event{
+        ABD_OBJECT * objPtr;
+        ABD_ARGS * args;
+        ABD_OBJECT * retObj;
+    }ABD_FUNC_EVENT;
+
+    //register return events
+    typedef struct abd_func_return{
+        ABD_OBJECT_MOD * retValue;
+    }ABD_RET_EVENT;
+
+    #define ABD_EVENT_NOT_FOUND NULL
+#endif    

@@ -2,35 +2,36 @@
 #include <R.h>
 #include <Internal.h>
 #include <Rinternals.h>
+#include <stdlib.h>
 #include <abd_tool/base_defn.h>
 #include <abd_tool/obj_manager.h>
+#include <abd_tool/obj_manager_defn.h>
+#include <abd_tool/event_manager_defn.h>
+#include <abd_tool/event_manager.h>
+#include <abd_tool/env_stack.h>
+#include <abd_tool/env_stack_defn.h>
 #include <Print.h>
 
-typedef enum abd_state{
-    ABD_ENABLE = 1,
-    ABD_DISABLE = 0
-}ABD_STATE;
-
-static ABD_STATE watcherState = ABD_DISABLE;
-static ABD_OBJECT * cmnObjReg, * cfObjReg;
 /*
     Methods to start and stop the tool, helper function also here
 
-    -> start method: 
+    -> start method:
         # start the information collection
         # Wipe the objectsRegistry
 
     -> stop method:
         # stop the information collection
         # save the objectsRegistry to a JSON with path specified at
-            File: json_helpers_defn.h 
+            File: json_helpers_defn.h
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
 
+
 void START_WATCHER(){
-    initRegs(cmnObjReg);
-    initRegs(cfObjReg);
+    initObjsRegs();
+    initEventsReg();
+    initEnvStack();
     watcherState = ABD_ENABLE;
 }
 
@@ -40,7 +41,13 @@ void STOP_WATCHER(){
     watcherState = ABD_DISABLE;
 }
 void ABD_HELP(){
-    
+    printf("\n\n\t  \"Automatic Bug Detection\" (ABD) tool usage\n");
+    printf("\t###############################################\n");
+    printf("\t-> Start the watcher: start_watcher()\n");
+    printf("\t-> Stop the watcher: stop_watcher()\n");
+    printf("\t-> Set output file: abd_setPath(\"your/path\")\n");
+    printf("\t-> Display current output path: abd_path()\n");
+    printf("\t###############################################\n\n\n");
 }
 
 
@@ -66,24 +73,23 @@ void basicPrint(){
         }while(currentObj!=NULL);
     }
 }
-void regVarChange(int callingSite, SEXP lhs, SEXP rhs, SEXP rho){
+void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
     if(watcherState){
         if(isEnvironment(rho)){
             switch(TYPEOF(rhs)){
                 case CLOSXP:
                     //closures (function objects)
-                    cfObjReg = newObjUsage(cfObjReg, lhs, rhs, rho);
+                    newCfObjUsage(lhs, rhs, rho);
                     basicPrint2();
                     break;
                 case REALSXP:
-                    //real numbers (0, 0.1, etc.)
-                    cmnObjReg =  newObjUsage(cmnObjReg, lhs, rhs, rho);
-                    basicPrint(); 
+                    newCmnObjUsage(lhs, rhs, rho);
+                    basicPrint();
                     break;
                 default:
                     break;
             }
-             
+
         }
     }
 }
@@ -94,11 +100,53 @@ void regVarChange(int callingSite, SEXP lhs, SEXP rhs, SEXP rho){
     This verification is done because if the user did not declared an object with that symbol
     name, then, the function being called should not be tracked.
 */
-void verifySymbol(SEXP lhs, SEXP rho){
-    if(watcherState){
-        ABD_OBJECT * objFound = findObj(cfObjReg, CHAR(PRINTNAME(lhs)), environmentExtraction(rho));
-        printf("Found it? %s\n", (objFound == ABD_OBJECT_NOT_FOUND) ? "no" : "yes");
-    }
+
+ABD_SEARCH checkToReg(SEXP rho){
+    return cmpToCurrEnv(rho);
 }
 
 
+
+ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho){
+    if(watcherState){
+        ABD_OBJECT * objFound = findObj(cfObjReg, CHAR(PRINTNAME(lhs)), environmentExtraction(rho));
+        if(objFound == ABD_OBJECT_NOT_FOUND)
+            return ABD_NOT_EXIST;
+
+        createNewEvent(FUNC_EVENT, objFound);
+        envPush(newRho);
+        return ABD_EXIST;
+    }
+    return ABD_NOT_EXIST;
+}
+
+
+void regFunReturn(SEXP lhs, SEXP rho, SEXP val){
+    createNewEvent(RET_EVENT, NULL);
+    envPop();
+}
+
+
+
+void printEventReg(){
+    printf("Will print events reg...\n");
+    ABD_EVENT * currentEvent = eventsReg;
+    do{
+        switch (currentEvent->type)
+        {
+        case MAIN_EVENT:
+            puts("\tmain event...");
+            break;
+        case FUNC_EVENT:
+            puts("\tfunc event...");
+            break;
+        case RET_EVENT:
+            puts("\tret event...");
+            break;
+        default:
+            break;
+        }
+        currentEvent = currentEvent->nextEvent;
+    }while(currentEvent!=ABD_EVENT_NOT_FOUND);
+    printf("Events reg printed...\n");
+}

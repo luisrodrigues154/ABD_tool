@@ -96,6 +96,7 @@
 #include <stdio.h>
 #include <Defn.h>
 #include <Internal.h>
+
 #include <R_ext/Callbacks.h>
 #include <abd_tool/base_defn.h>
 
@@ -1565,6 +1566,27 @@ SEXP findFun(SEXP symbol, SEXP rho)
   Assign a value in a specific environment frame.
 
 */
+char *encodeIt(SEXP x)
+{
+    const void *vmax = vmaxget();
+    static char ch[1000];
+    if (x == R_GlobalEnv)
+	sprintf(ch, "<environment: R_GlobalEnv>");
+    else if (x == R_BaseEnv)
+	sprintf(ch, "<environment: base>");
+    else if (x == R_EmptyEnv)
+	sprintf(ch, "<environment: R_EmptyEnv>");
+    else if (R_IsPackageEnv(x))
+	snprintf(ch, 1000, "<environment: %s>",
+		translateChar(STRING_ELT(R_PackageEnvName(x), 0)));
+    else if (R_IsNamespaceEnv(x))
+	snprintf(ch, 1000, "<environment: namespace:%s>",
+		translateChar(STRING_ELT(R_NamespaceEnvSpec(x), 0)));
+    else snprintf(ch, 1000, "<environment: %p>", (void *)x);
+
+    vmaxset(vmax);
+    return ch;
+}
 
 void defineVar(SEXP symbol, SEXP value, SEXP rho)
 {
@@ -1590,7 +1612,15 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         #endif
         return;
     }
-
+    if(checkToReg(rho) == ABD_EXIST){        
+        printf("------------\n");
+        printf("Will register a variable...\n");
+        printf("Name: %s\n",CHAR(PRINTNAME(symbol)));
+        printf("Env: %s\n", encodeIt(rho));
+        printf("------------\n");
+        regVarChange(symbol, value, rho);
+    }
+    
     if (rho == R_BaseNamespace || rho == R_BaseEnv) {
 	    gsetVar(symbol, value, rho);
     } else {
@@ -1601,6 +1631,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         if (IS_SPECIAL_SYMBOL(symbol))
             UNSET_NO_SPECIAL_SYMBOLS(rho);
         
+
         if (HASHTAB(rho) == R_NilValue) {
             /* First check for an existing binding */
             frame = FRAME(rho);
@@ -1617,11 +1648,9 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
                 error(_("cannot add bindings to a locked environment"));
             SET_FRAME(rho, CONS(value, FRAME(rho)));
             SET_TAG(FRAME(rho), symbol);
-            
-            //regVarChange(1, symbol, value, rho);
         }
         else {
-            regVarChange(2, symbol, value, rho);
+            
             c = PRINTNAME(symbol);
             if( !HASHASH(c) ) {
                 SET_HASHVALUE(c, R_Newhashpjw(CHAR(c)));

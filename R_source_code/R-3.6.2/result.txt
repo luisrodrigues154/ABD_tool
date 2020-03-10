@@ -1,0 +1,1100 @@
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/m4'
+make[1]: Nothing to be done for 'R'.
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/m4'
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/tools'
+make[1]: Nothing to be done for 'R'.
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/tools'
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc/html'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc/html'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc/manual'
+make[2]: Nothing to be done for 'R'.
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc/manual'
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/doc'
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/etc'
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/etc'
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/share'
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/share'
+make[1]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/scripts'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/scripts'
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/scripts'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/scripts'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/include'
+Rmath.h is unchanged
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/include/R_ext'
+make[3]: Nothing to be done for 'R'.
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/include/R_ext'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/include'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+make[4]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+make[4]: 'libRblas.so' is up to date.
+make[4]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+make[4]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/lib/libRblas.so is unchanged
+make[4]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/blas'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[4]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[4]: 'Makedeps' is up to date.
+make[4]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[4]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[4]: 'libtre.a' is up to date.
+make[4]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra/tre'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/extra'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/appl'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/appl'
+make[3]: 'libappl.a' is up to date.
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/appl'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/appl'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/nmath'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/nmath'
+make[3]: 'libnmath.a' is up to date.
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/nmath'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/nmath'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+make[3]: 'libunix.a' is up to date.
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+gcc -I. -I../../src/include -I../../src/include  -I/usr/local/include -DHAVE_CONFIG_H    -g -O2  -L/usr/local/lib -DR_HOME='"/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2"' \
+  -o Rscript ./Rscript.c
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/unix'
+make[2]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/main'
+make[3]: Entering directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/main'
+gcc -I../../src/extra  -I. -I../../src/include -I../../src/include  -I/usr/local/include -I../../src/nmath -DHAVE_CONFIG_H   -fopenmp  -g -O2  -c envir.c -o envir.o
+In file included from envir.c:101:0:
+../../src/include/abd_tool/base_defn.h:35:9: error: ‘SEXP’ redeclared as different kind of symbol
+         SEXP *
+         ^~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:184:25: note: previous declaration of ‘SEXP’ was here
+ typedef struct SEXPREC *SEXP;
+                         ^~~~
+In file included from envir.c:101:0:
+../../src/include/abd_tool/base_defn.h:35:14: error: expected ‘,’ or ‘}’ before ‘*’ token
+         SEXP *
+              ^
+../../src/include/abd_tool/base_defn.h:48:24: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regVarChange(int, SEXP, SEXP, SEXP);
+                        ^~~~
+../../src/include/abd_tool/base_defn.h:48:30: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regVarChange(int, SEXP, SEXP, SEXP);
+                              ^~~~
+../../src/include/abd_tool/base_defn.h:48:36: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regVarChange(int, SEXP, SEXP, SEXP);
+                                    ^~~~
+../../src/include/abd_tool/base_defn.h:49:23: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho);
+                       ^~~~
+../../src/include/abd_tool/base_defn.h:49:33: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho);
+                                 ^~~~
+../../src/include/abd_tool/base_defn.h:49:43: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho);
+                                           ^~~~
+../../src/include/abd_tool/base_defn.h:50:19: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
+                   ^~~~
+../../src/include/abd_tool/base_defn.h:50:29: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
+                             ^~~~
+../../src/include/abd_tool/base_defn.h:50:39: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
+                                       ^~~~
+../../src/include/abd_tool/base_defn.h:52:23: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ ABD_SEARCH checkToReg(SEXP rho);
+                       ^~~~
+envir.c:149:28: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void setActiveValue(SEXP fun, SEXP val)
+                            ^~~~
+envir.c:149:38: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void setActiveValue(SEXP fun, SEXP val)
+                                      ^~~~
+envir.c:159:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘getActiveValue’
+ static SEXP getActiveValue(SEXP fun)
+             ^~~~~~~~~~~~~~
+envir.c:172:36: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_envHasNoSpecialSymbols (SEXP env)
+                                    ^~~~
+envir.c:246:37: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_HashSet(int hashcode, SEXP symbol, SEXP table, SEXP value,
+                                     ^~~~
+envir.c:246:50: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_HashSet(int hashcode, SEXP symbol, SEXP table, SEXP value,
+                                                  ^~~~
+envir.c:246:62: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_HashSet(int hashcode, SEXP symbol, SEXP table, SEXP value,
+                                                              ^~~~
+envir.c:283:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_HashGet’
+ static SEXP R_HashGet(int hashcode, SEXP symbol, SEXP table)
+             ^~~~~~~~~
+envir.c:296:44: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static Rboolean R_HashExists(int hashcode, SEXP symbol, SEXP table)
+                                            ^~~~
+envir.c:296:57: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static Rboolean R_HashExists(int hashcode, SEXP symbol, SEXP table)
+                                                         ^~~~
+envir.c:321:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_HashGetLoc’
+ static SEXP R_HashGetLoc(int hashcode, SEXP symbol, SEXP table)
+             ^~~~~~~~~~~~
+envir.c:345:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_NewHashTable’
+ static SEXP R_NewHashTable(int size)
+             ^~~~~~~~~~~~~~
+envir.c:366:1: error: unknown type name ‘SEXP’
+ SEXP R_NewHashedEnv(SEXP enclos, SEXP size)
+ ^~~~
+envir.c:366:21: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_NewHashedEnv(SEXP enclos, SEXP size)
+                     ^~~~
+envir.c:366:34: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_NewHashedEnv(SEXP enclos, SEXP size)
+                                  ^~~~
+envir.c:388:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘DeleteItem’
+ static SEXP DeleteItem(SEXP symbol, SEXP lst)
+             ^~~~~~~~~~
+envir.c:401:40: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_HashDelete(int hashcode, SEXP symbol, SEXP table)
+                                        ^~~~
+envir.c:401:53: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_HashDelete(int hashcode, SEXP symbol, SEXP table)
+                                                     ^~~~
+envir.c:424:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_HashResize’
+ static SEXP R_HashResize(SEXP table)
+             ^~~~~~~~~~~~
+envir.c:481:28: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int R_HashSizeCheck(SEXP table)
+                            ^~~~
+envir.c:508:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_HashFrame’
+ static SEXP R_HashFrame(SEXP rho)
+             ^~~~~~~~~~~
+envir.c:555:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_HashProfile’
+ static SEXP R_HashProfile(SEXP table)
+             ^~~~~~~~~~~~~
+envir.c:661:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_GlobalCache’
+ static SEXP R_GlobalCache, R_GlobalCachePreserve;
+             ^~~~~~~~~~~~~
+envir.c:663:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_BaseNamespaceName’
+ static SEXP R_BaseNamespaceName;
+             ^~~~~~~~~~~~~~~~~~~
+envir.c:664:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_NamespaceSymbol’
+ static SEXP R_NamespaceSymbol;
+             ^~~~~~~~~~~~~~~~~
+envir.c: In function ‘Rf_InitGlobalEnv’:
+envir.c:674:5: error: ‘R_NamespaceSymbol’ undeclared (first use in this function); did you mean ‘R_NamespaceEnvSymbol’?
+     R_NamespaceSymbol = install(".__NAMESPACE__.");
+     ^~~~~~~~~~~~~~~~~
+     R_NamespaceEnvSymbol
+envir.c:674:5: note: each undeclared identifier is reported only once for each function it appears in
+envir.c:683:5: error: ‘R_GlobalCache’ undeclared (first use in this function); did you mean ‘R_GlobalContext’?
+     R_GlobalCache = R_NewHashTable(INITIAL_CACHE_SIZE);
+     ^~~~~~~~~~~~~
+     R_GlobalContext
+envir.c:683:21: warning: implicit declaration of function ‘R_NewHashTable’; did you mean ‘R_NewHashedEnv’? [-Wimplicit-function-declaration]
+     R_GlobalCache = R_NewHashTable(INITIAL_CACHE_SIZE);
+                     ^~~~~~~~~~~~~~
+                     R_NewHashedEnv
+envir.c:684:5: error: ‘R_GlobalCachePreserve’ undeclared (first use in this function); did you mean ‘R_GlobalCache’?
+     R_GlobalCachePreserve = CONS(R_GlobalCache, R_NilValue);
+     ^~~~~~~~~~~~~~~~~~~~~
+     R_GlobalCache
+envir.c:690:5: error: ‘R_BaseNamespaceName’ undeclared (first use in this function); did you mean ‘R_BaseNamespace’?
+     R_BaseNamespaceName = ScalarString(mkChar("base"));
+     ^~~~~~~~~~~~~~~~~~~
+     R_BaseNamespace
+envir.c: At top level:
+envir.c:699:22: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int hashIndex(SEXP symbol, SEXP table)
+                      ^~~~
+envir.c:699:35: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int hashIndex(SEXP symbol, SEXP table)
+                                   ^~~~
+envir.c:709:32: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_FlushGlobalCache(SEXP sym)
+                                ^~~~
+envir.c:721:41: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_FlushGlobalCacheFromTable(SEXP table)
+                                         ^~~~
+envir.c:737:45: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_FlushGlobalCacheFromUserTable(SEXP udb)
+                                             ^~~~
+envir.c:749:30: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_AddGlobalCache(SEXP symbol, SEXP place)
+                              ^~~~
+envir.c:749:43: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void R_AddGlobalCache(SEXP symbol, SEXP place)
+                                           ^~~~
+envir.c:767:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_GetGlobalCacheLoc’
+ static SEXP R_GetGlobalCacheLoc(SEXP symbol)
+             ^~~~~~~~~~~~~~~~~~~
+envir.c:791:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘RemoveFromList’
+ static SEXP RemoveFromList(SEXP thing, SEXP list, int *found)
+             ^~~~~~~~~~~~~~
+envir.c:827:33: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void attribute_hidden unbindVar(SEXP symbol, SEXP rho)
+                                 ^~~~
+envir.c:827:46: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void attribute_hidden unbindVar(SEXP symbol, SEXP rho)
+                                              ^~~~
+envir.c:878:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findVarLocInFrame’
+ static SEXP findVarLocInFrame(SEXP rho, SEXP symbol, Rboolean *canCache)
+             ^~~~~~~~~~~~~~~~~
+envir.c:940:32: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_varloc_t R_findVarLocInFrame(SEXP rho, SEXP symbol)
+                                ^~~~
+envir.c:940:42: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_varloc_t R_findVarLocInFrame(SEXP rho, SEXP symbol)
+                                          ^~~~
+envir.c:949:6: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_GetVarLocValue’
+ SEXP R_GetVarLocValue(R_varloc_t vl)
+      ^~~~~~~~~~~~~~~~
+envir.c:960:6: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘R_GetVarLocSymbol’
+ SEXP R_GetVarLocSymbol(R_varloc_t vl)
+      ^~~~~~~~~~~~~~~~~
+envir.c:972:38: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_SetVarLocValue(R_varloc_t vl, SEXP value)
+                                      ^~~~
+envir.c:993:1: error: unknown type name ‘SEXP’
+ SEXP findVarInFrame3(SEXP rho, SEXP symbol, Rboolean doGet)
+ ^~~~
+envir.c:993:22: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVarInFrame3(SEXP rho, SEXP symbol, Rboolean doGet)
+                      ^~~~
+envir.c:993:32: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVarInFrame3(SEXP rho, SEXP symbol, Rboolean doGet)
+                                ^~~~
+envir.c:1046:34: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static Rboolean existsVarInFrame(SEXP rho, SEXP symbol)
+                                  ^~~~
+envir.c:1046:44: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static Rboolean existsVarInFrame(SEXP rho, SEXP symbol)
+                                            ^~~~
+envir.c:1093:1: error: unknown type name ‘SEXP’
+ SEXP findVarInFrame(SEXP rho, SEXP symbol)
+ ^~~~
+envir.c:1093:21: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVarInFrame(SEXP rho, SEXP symbol)
+                     ^~~~
+envir.c:1093:31: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVarInFrame(SEXP rho, SEXP symbol)
+                               ^~~~
+envir.c:1110:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void readS3VarsFromFrame(SEXP rho,
+                          ^~~~
+envir.c:1111:5: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGeneric, SEXP *dotGroup, SEXP *dotClass, SEXP *dotMethod,
+     ^~~~
+envir.c:1111:23: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGeneric, SEXP *dotGroup, SEXP *dotClass, SEXP *dotMethod,
+                       ^~~~
+envir.c:1111:39: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGeneric, SEXP *dotGroup, SEXP *dotClass, SEXP *dotMethod,
+                                       ^~~~
+envir.c:1111:55: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGeneric, SEXP *dotGroup, SEXP *dotClass, SEXP *dotMethod,
+                                                       ^~~~
+envir.c:1112:5: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGenericCallEnv, SEXP *dotGenericDefEnv) {
+     ^~~~
+envir.c:1112:30: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+     SEXP *dotGenericCallEnv, SEXP *dotGenericDefEnv) {
+                              ^~~~
+envir.c:1176:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findGlobalVarLoc’
+ static SEXP findGlobalVarLoc(SEXP symbol)
+             ^~~~~~~~~~~~~~~~
+envir.c:1201:22: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findGlobalVar’
+ static R_INLINE SEXP findGlobalVar(SEXP symbol)
+                      ^~~~~~~~~~~~~
+envir.c:1212:1: error: unknown type name ‘SEXP’
+ SEXP findVar(SEXP symbol, SEXP rho)
+ ^~~~
+envir.c:1212:14: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVar(SEXP symbol, SEXP rho)
+              ^~~~
+envir.c:1212:27: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findVar(SEXP symbol, SEXP rho)
+                           ^~~~
+envir.c:1245:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findVarLoc’
+ static SEXP findVarLoc(SEXP symbol, SEXP rho)
+             ^~~~~~~~~~
+envir.c:1278:25: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_varloc_t R_findVarLoc(SEXP rho, SEXP symbol)
+                         ^~~~
+envir.c:1278:35: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_varloc_t R_findVarLoc(SEXP rho, SEXP symbol)
+                                   ^~~~
+envir.c:1296:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden
+ ^~~~
+envir.c:1296:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1296:1: error: ‘SEXP’ redeclared as different kind of symbol
+In file included from envir.c:101:0:
+../../src/include/abd_tool/base_defn.h:35:9: note: previous definition of ‘SEXP’ was here
+         SEXP *
+         ^~~~
+In file included from envir.c:97:0:
+../../src/include/Defn.h:916:20: error: expected ‘,’ or ‘;’ before ‘Rf_findVar1’
+ # define findVar1  Rf_findVar1
+                    ^
+envir.c:1297:1: note: in expansion of macro ‘findVar1’
+ findVar1(SEXP symbol, SEXP rho, SEXPTYPE mode, int inherits)
+ ^~~~~~~~
+envir.c:1328:1: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findVar1mode’
+ findVar1mode(SEXP symbol, SEXP rho, SEXPTYPE mode, int inherits,
+ ^~~~~~~~~~~~
+envir.c:1369:18: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int ddVal(SEXP symbol)
+                  ^~~~
+envir.c:1408:1: error: unknown type name ‘SEXP’
+ SEXP ddfind(int i, SEXP rho)
+ ^~~~
+envir.c:1408:20: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP ddfind(int i, SEXP rho)
+                    ^~~~
+In file included from envir.c:97:0:
+../../src/include/Defn.h:894:21: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘Rf_ddfindVar’
+ # define ddfindVar  Rf_ddfindVar
+                     ^
+envir.c:1430:6: note: in expansion of macro ‘ddfindVar’
+ SEXP ddfindVar(SEXP symbol, SEXP rho)
+      ^~~~~~~~~
+envir.c:1436:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_dotsElt(SEXP call, SEXP op, SEXP args, SEXP env)
+ ^~~~
+envir.c:1436:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1436:23: error: expected ‘,’ or ‘;’ before ‘do_dotsElt’
+ SEXP attribute_hidden do_dotsElt(SEXP call, SEXP op, SEXP args, SEXP env)
+                       ^~~~~~~~~~
+envir.c:1445:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_dotsLength(SEXP call, SEXP op, SEXP args, SEXP env)
+ ^~~~
+envir.c:1445:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1445:23: error: expected ‘,’ or ‘;’ before ‘do_dotsLength’
+ SEXP attribute_hidden do_dotsLength(SEXP call, SEXP op, SEXP args, SEXP env)
+                       ^~~~~~~~~~~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:1414:19: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘Rf_findFun3’
+ #define findFun3  Rf_findFun3
+                   ^
+envir.c:1501:6: note: in expansion of macro ‘findFun3’
+ SEXP findFun3(SEXP symbol, SEXP rho, SEXP call)
+      ^~~~~~~~
+envir.c:1557:1: error: unknown type name ‘SEXP’
+ SEXP findFun(SEXP symbol, SEXP rho)
+ ^~~~
+envir.c:1557:14: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findFun(SEXP symbol, SEXP rho)
+              ^~~~
+envir.c:1557:27: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP findFun(SEXP symbol, SEXP rho)
+                           ^~~~
+envir.c:1569:16: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ char *encodeIt(SEXP x)
+                ^~~~
+envir.c:1591:16: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void defineVar(SEXP symbol, SEXP value, SEXP rho)
+                ^~~~
+envir.c:1591:29: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void defineVar(SEXP symbol, SEXP value, SEXP rho)
+                             ^~~~
+envir.c:1591:41: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void defineVar(SEXP symbol, SEXP value, SEXP rho)
+                                         ^~~~
+envir.c:1682:29: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void addMissingVarsToNewEnv(SEXP env, SEXP addVars)
+                             ^~~~
+envir.c:1682:39: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void addMissingVarsToNewEnv(SEXP env, SEXP addVars)
+                                       ^~~~
+envir.c:1732:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘setVarInFrame’
+ static SEXP setVarInFrame(SEXP rho, SEXP symbol, SEXP value)
+             ^~~~~~~~~~~~~
+envir.c:1805:13: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void setVar(SEXP symbol, SEXP value, SEXP rho)
+             ^~~~
+envir.c:1805:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void setVar(SEXP symbol, SEXP value, SEXP rho)
+                          ^~~~
+envir.c:1805:38: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void setVar(SEXP symbol, SEXP value, SEXP rho)
+                                      ^~~~
+envir.c:1827:14: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void gsetVar(SEXP symbol, SEXP value, SEXP rho)
+              ^~~~
+envir.c:1827:27: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void gsetVar(SEXP symbol, SEXP value, SEXP rho)
+                           ^~~~
+envir.c:1827:39: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void gsetVar(SEXP symbol, SEXP value, SEXP rho)
+                                       ^~~~
+envir.c:1850:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_assign(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:1850:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1850:23: error: expected ‘,’ or ‘;’ before ‘do_assign’
+ SEXP attribute_hidden do_assign(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~
+envir.c:1883:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_list2env(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:1883:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1883:23: error: expected ‘,’ or ‘;’ before ‘do_list2env’
+ SEXP attribute_hidden do_list2env(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~
+envir.c:1921:27: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int RemoveVariable(SEXP name, int hashcode, SEXP env)
+                           ^~~~
+envir.c:1921:52: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int RemoveVariable(SEXP name, int hashcode, SEXP env)
+                                                    ^~~~
+envir.c:1972:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_remove(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:1972:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:1972:23: error: expected ‘,’ or ‘;’ before ‘do_remove’
+ SEXP attribute_hidden do_remove(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~
+envir.c:2032:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_get(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2032:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2032:23: error: expected ‘,’ or ‘;’ before ‘do_get’
+ SEXP attribute_hidden do_get(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~
+envir.c:2128:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘gfind’
+ static SEXP gfind(const char *name, SEXP env, SEXPTYPE mode,
+             ^~~~~
+envir.c:2165:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_mget(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2165:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2165:23: error: expected ‘,’ or ‘;’ before ‘do_mget’
+ SEXP attribute_hidden do_mget(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~
+envir.c:2248:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘findRootPromise’
+ static SEXP findRootPromise(SEXP p) {
+             ^~~~~~~~~~~~~~~
+envir.c:2258:13: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_isMissing(SEXP symbol, SEXP rho)
+             ^~~~
+envir.c:2258:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ R_isMissing(SEXP symbol, SEXP rho)
+                          ^~~~
+envir.c:2327:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_missing(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2327:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2327:23: error: expected ‘,’ or ‘;’ before ‘do_missing’
+ SEXP attribute_hidden do_missing(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:2394:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_globalenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2394:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2394:23: error: expected ‘,’ or ‘;’ before ‘do_globalenv’
+ SEXP attribute_hidden do_globalenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~
+envir.c:2409:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_baseenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2409:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2409:23: error: expected ‘,’ or ‘;’ before ‘do_baseenv’
+ SEXP attribute_hidden do_baseenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:2424:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_emptyenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2424:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2424:23: error: expected ‘,’ or ‘;’ before ‘do_emptyenv’
+ SEXP attribute_hidden do_emptyenv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~
+envir.c:2441:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_attach(SEXP call, SEXP op, SEXP args, SEXP env)
+ ^~~~
+envir.c:2441:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2441:23: error: expected ‘,’ or ‘;’ before ‘do_attach’
+ SEXP attribute_hidden do_attach(SEXP call, SEXP op, SEXP args, SEXP env)
+                       ^~~~~~~~~
+envir.c:2558:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_detach(SEXP call, SEXP op, SEXP args, SEXP env)
+ ^~~~
+envir.c:2558:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2558:23: error: expected ‘,’ or ‘;’ before ‘do_detach’
+ SEXP attribute_hidden do_detach(SEXP call, SEXP op, SEXP args, SEXP env)
+                       ^~~~~~~~~
+envir.c:2614:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_search(SEXP call, SEXP op, SEXP args, SEXP env)
+ ^~~~
+envir.c:2614:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2614:23: error: expected ‘,’ or ‘;’ before ‘do_search’
+ SEXP attribute_hidden do_search(SEXP call, SEXP op, SEXP args, SEXP env)
+                       ^~~~~~~~~
+envir.c:2652:22: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int FrameSize(SEXP frame, int all)
+                      ^~~~
+envir.c:2670:24: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void FrameNames(SEXP frame, int all, SEXP names, int *indx)
+                        ^~~~
+envir.c:2670:45: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void FrameNames(SEXP frame, int all, SEXP names, int *indx)
+                                             ^~~~
+envir.c:2689:25: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void FrameValues(SEXP frame, int all, SEXP values, int *indx)
+                         ^~~~
+envir.c:2689:46: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void FrameValues(SEXP frame, int all, SEXP values, int *indx)
+                                              ^~~~
+envir.c:2723:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static int HashTableSize(SEXP table, int all)
+                          ^~~~
+envir.c:2734:28: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void HashTableNames(SEXP table, int all, SEXP names, int *indx)
+                            ^~~~
+envir.c:2734:49: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void HashTableNames(SEXP table, int all, SEXP names, int *indx)
+                                                 ^~~~
+envir.c:2743:29: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void HashTableValues(SEXP table, int all, SEXP values, int *indx)
+                             ^~~~
+envir.c:2743:50: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ static void HashTableValues(SEXP table, int all, SEXP values, int *indx)
+                                                  ^~~~
+envir.c: In function ‘BuiltinSize’:
+envir.c:2755:10: error: expected ‘;’ before ‘s’
+     SEXP s;
+          ^
+envir.c:2758:7: error: ‘s’ undeclared (first use in this function)
+  for (s = R_SymbolTable[j]; s != R_NilValue; s = CDR(s)) {
+       ^
+envir.c: At top level:
+envir.c:2774:35: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ BuiltinNames(int all, int intern, SEXP names, int *indx)
+                                   ^~~~
+envir.c:2794:36: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ BuiltinValues(int all, int intern, SEXP values, int *indx)
+                                    ^~~~
+envir.c:2828:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_ls(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2828:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2828:23: error: expected ‘,’ or ‘;’ before ‘do_ls’
+ SEXP attribute_hidden do_ls(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~
+envir.c:2853:1: error: unknown type name ‘SEXP’
+ SEXP R_lsInternal3(SEXP env, Rboolean all, Rboolean sorted)
+ ^~~~
+envir.c:2853:20: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_lsInternal3(SEXP env, Rboolean all, Rboolean sorted)
+                    ^~~~
+envir.c:2893:1: error: unknown type name ‘SEXP’
+ SEXP R_lsInternal(SEXP env, Rboolean all)
+ ^~~~
+envir.c:2893:19: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_lsInternal(SEXP env, Rboolean all)
+                   ^~~~
+envir.c:2900:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_env2list(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2900:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2900:23: error: expected ‘,’ or ‘;’ before ‘do_env2list’
+ SEXP attribute_hidden do_env2list(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~
+envir.c:2986:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_eapply(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:2986:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:2986:23: error: expected ‘,’ or ‘;’ before ‘do_eapply’
+ SEXP attribute_hidden do_eapply(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~
+envir.c:3074:13: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ TYPE_ NAME_(SEXP rho)       \
+             ^
+envir.c:3087:1: note: in expansion of macro ‘R_ENVLENGTH’
+ R_ENVLENGTH(Rf_envlength,   length, int)
+ ^~~~~~~~~~~
+envir.c:3074:13: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ TYPE_ NAME_(SEXP rho)       \
+             ^
+envir.c:3089:1: note: in expansion of macro ‘R_ENVLENGTH’
+ R_ENVLENGTH(Rf_envxlength, xlength, R_xlen_t)
+ ^~~~~~~~~~~
+envir.c:3100:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_builtins(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3100:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3100:23: error: expected ‘,’ or ‘;’ before ‘do_builtins’
+ SEXP attribute_hidden do_builtins(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~
+envir.c:3131:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘pos2env’
+ static SEXP pos2env(int pos, SEXP call)
+             ^~~~~~~
+envir.c:3164:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_pos2env(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3164:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3164:23: error: expected ‘,’ or ‘;’ before ‘do_pos2env’
+ SEXP attribute_hidden do_pos2env(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:3184:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘matchEnvir’
+ static SEXP matchEnvir(SEXP call, const char *what)
+             ^~~~~~~~~~
+envir.c:3207:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden
+ ^~~~
+envir.c:3207:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3208:1: error: expected ‘,’ or ‘;’ before ‘do_as_environment’
+ do_as_environment(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~~~~~~~~~~~~~~
+envir.c:3251:24: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_LockEnvironment(SEXP env, Rboolean bindings)
+                        ^~~~
+envir.c:3294:32: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_EnvironmentIsLocked(SEXP env)
+                                ^~~~
+envir.c:3304:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_lockEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3304:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3304:23: error: expected ‘,’ or ‘;’ before ‘do_lockEnv’
+ SEXP attribute_hidden do_lockEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:3315:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_envIsLocked(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3315:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3315:23: error: expected ‘,’ or ‘;’ before ‘do_envIsLocked’
+ SEXP attribute_hidden do_envIsLocked(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~
+envir.c:3321:20: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_LockBinding(SEXP sym, SEXP env)
+                    ^~~~
+envir.c:3321:30: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_LockBinding(SEXP sym, SEXP env)
+                              ^~~~
+envir.c:3342:22: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_unLockBinding(SEXP sym, SEXP env)
+                      ^~~~
+envir.c:3342:32: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_unLockBinding(SEXP sym, SEXP env)
+                                ^~~~
+envir.c:3363:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_MakeActiveBinding(SEXP sym, SEXP fun, SEXP env)
+                          ^~~~
+envir.c:3363:36: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_MakeActiveBinding(SEXP sym, SEXP fun, SEXP env)
+                                    ^~~~
+envir.c:3363:46: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_MakeActiveBinding(SEXP sym, SEXP fun, SEXP env)
+                                              ^~~~
+envir.c:3401:28: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_BindingIsLocked(SEXP sym, SEXP env)
+                            ^~~~
+envir.c:3401:38: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_BindingIsLocked(SEXP sym, SEXP env)
+                                      ^~~~
+envir.c:3422:28: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_BindingIsActive(SEXP sym, SEXP env)
+                            ^~~~
+envir.c:3422:38: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_BindingIsActive(SEXP sym, SEXP env)
+                                      ^~~~
+envir.c:3443:29: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_HasFancyBindings(SEXP rho)
+                             ^~~~
+envir.c:3469:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_lockBnd(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3469:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3469:23: error: expected ‘,’ or ‘;’ before ‘do_lockBnd’
+ SEXP attribute_hidden do_lockBnd(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:3488:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_bndIsLocked(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3488:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3488:23: error: expected ‘,’ or ‘;’ before ‘do_bndIsLocked’
+ SEXP attribute_hidden do_bndIsLocked(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~
+envir.c:3497:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_mkActiveBnd(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3497:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3497:23: error: expected ‘,’ or ‘;’ before ‘do_mkActiveBnd’
+ SEXP attribute_hidden do_mkActiveBnd(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~
+envir.c:3508:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_bndIsActive(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3508:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3508:23: error: expected ‘,’ or ‘;’ before ‘do_bndIsActive’
+ SEXP attribute_hidden do_bndIsActive(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~
+envir.c:3518:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_mkUnbound(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3518:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3518:23: error: expected ‘,’ or ‘;’ before ‘do_mkUnbound’
+ SEXP attribute_hidden do_mkUnbound(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~
+envir.c:3538:25: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void R_RestoreHashCount(SEXP rho)
+                         ^~~~
+envir.c:3553:25: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_IsPackageEnv(SEXP rho)
+                         ^~~~
+envir.c:3569:1: error: unknown type name ‘SEXP’
+ SEXP R_PackageEnvName(SEXP rho)
+ ^~~~
+envir.c:3569:23: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_PackageEnvName(SEXP rho)
+                       ^~~~
+envir.c:3585:1: error: unknown type name ‘SEXP’
+ SEXP R_FindPackageEnv(SEXP info)
+ ^~~~
+envir.c:3585:23: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_FindPackageEnv(SEXP info)
+                       ^~~~
+envir.c:3596:27: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean R_IsNamespaceEnv(SEXP rho)
+                           ^~~~
+envir.c:3617:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_isNSEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3617:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3617:23: error: expected ‘,’ or ‘;’ before ‘do_isNSEnv’
+ SEXP attribute_hidden do_isNSEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:3623:1: error: unknown type name ‘SEXP’
+ SEXP R_NamespaceEnvSpec(SEXP rho)
+ ^~~~
+envir.c:3623:25: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_NamespaceEnvSpec(SEXP rho)
+                         ^~~~
+envir.c:3648:1: error: unknown type name ‘SEXP’
+ SEXP R_FindNamespace(SEXP info)
+ ^~~~
+envir.c:3648:22: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP R_FindNamespace(SEXP info)
+                      ^~~~
+envir.c:3659:13: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘checkNSname’
+ static SEXP checkNSname(SEXP call, SEXP name)
+             ^~~~~~~~~~~
+envir.c:3676:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_regNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3676:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3676:23: error: expected ‘,’ or ‘;’ before ‘do_regNS’
+ SEXP attribute_hidden do_regNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~
+envir.c:3688:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_unregNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3688:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3688:23: error: expected ‘,’ or ‘;’ before ‘do_unregNS’
+ SEXP attribute_hidden do_unregNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~
+envir.c:3704:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_getRegNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3704:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3704:23: error: expected ‘,’ or ‘;’ before ‘do_getRegNS’
+ SEXP attribute_hidden do_getRegNS(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~
+envir.c:3726:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_getNSRegistry(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3726:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3726:23: error: expected ‘,’ or ‘;’ before ‘do_getNSRegistry’
+ SEXP attribute_hidden do_getNSRegistry(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~~~
+envir.c:3732:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_importIntoEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3732:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3732:23: error: expected ‘,’ or ‘;’ before ‘do_importIntoEnv’
+ SEXP attribute_hidden do_importIntoEnv(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~~~~
+envir.c:3803:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_envprofile(SEXP call, SEXP op, SEXP args, SEXP rho)
+ ^~~~
+envir.c:3803:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:3803:23: error: expected ‘,’ or ‘;’ before ‘do_envprofile’
+ SEXP attribute_hidden do_envprofile(SEXP call, SEXP op, SEXP args, SEXP rho)
+                       ^~~~~~~~~~~~~
+envir.c:3821:1: error: unknown type name ‘SEXP’
+ SEXP mkCharCE(const char *name, cetype_t enc)
+ ^~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:1495:19: error: conflicting types for ‘Rf_mkCharCE’
+ #define mkCharCE  Rf_mkCharCE
+                   ^
+envir.c:3821:6: note: in expansion of macro ‘mkCharCE’
+ SEXP mkCharCE(const char *name, cetype_t enc)
+      ^~~~~~~~
+../../src/include/Rinternals.h:1108:6: note: previous declaration of ‘Rf_mkCharCE’ was here
+ SEXP Rf_mkCharCE(const char *, cetype_t);
+      ^~~~~~~~~~~
+envir.c: In function ‘Rf_mkCharCE’:
+../../src/include/Rinternals.h:1497:22: warning: return makes integer from pointer without a cast [-Wint-conversion]
+ #define mkCharLenCE  Rf_mkCharLenCE
+envir.c:3826:11: note: in expansion of macro ‘mkCharLenCE’
+    return mkCharLenCE(name, (int) len, enc);
+           ^~~~~~~~~~~
+envir.c: At top level:
+envir.c:3830:1: error: unknown type name ‘SEXP’
+ SEXP mkCharLen(const char *name, int len)
+ ^~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:1496:20: error: conflicting types for ‘Rf_mkCharLen’
+ #define mkCharLen  Rf_mkCharLen
+                    ^
+envir.c:3830:6: note: in expansion of macro ‘mkCharLen’
+ SEXP mkCharLen(const char *name, int len)
+      ^~~~~~~~~
+../../src/include/Rinternals.h:1038:6: note: previous declaration of ‘Rf_mkCharLen’ was here
+ SEXP Rf_mkCharLen(const char *, int);
+      ^~~~~~~~~~~~
+envir.c: In function ‘Rf_mkCharLen’:
+../../src/include/Rinternals.h:1497:22: warning: return makes integer from pointer without a cast [-Wint-conversion]
+ #define mkCharLenCE  Rf_mkCharLenCE
+envir.c:3832:12: note: in expansion of macro ‘mkCharLenCE’
+     return mkCharLenCE(name, len, CE_NATIVE);
+            ^~~~~~~~~~~
+envir.c: At top level:
+envir.c:3835:1: error: unknown type name ‘SEXP’
+ SEXP mkChar(const char *name)
+ ^~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:1494:18: error: conflicting types for ‘Rf_mkChar’
+ #define mkChar   Rf_mkChar
+                  ^
+envir.c:3835:6: note: in expansion of macro ‘mkChar’
+ SEXP mkChar(const char *name)
+      ^~~~~~
+../../src/include/Rinternals.h:1037:6: note: previous declaration of ‘Rf_mkChar’ was here
+ SEXP Rf_mkChar(const char *);
+      ^~~~~~~~~
+envir.c: In function ‘Rf_mkChar’:
+../../src/include/Rinternals.h:1497:22: warning: return makes integer from pointer without a cast [-Wint-conversion]
+ #define mkCharLenCE  Rf_mkCharLenCE
+envir.c:3840:12: note: in expansion of macro ‘mkCharLenCE’
+     return mkCharLenCE(name, (int) len, CE_NATIVE);
+            ^~~~~~~~~~~
+envir.c: In function ‘Rf_InitStringHash’:
+envir.c:3872:18: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
+     R_StringHash = R_NewHashTable(char_hash_size);
+                  ^
+envir.c: In function ‘R_StringHash_resize’:
+envir.c:3880:10: error: expected ‘;’ before ‘old_table’
+     SEXP old_table = R_StringHash;
+          ^~~~~~~~~
+envir.c:3881:10: error: expected ‘;’ before ‘new_table’
+     SEXP new_table, chain, new_chain, val, next;
+          ^~~~~~~~~
+envir.c:3896:5: error: ‘new_table’ undeclared (first use in this function); did you mean ‘newlocale’?
+     new_table = R_NewHashTable(newsize);
+     ^~~~~~~~~
+     newlocale
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+envir.c:3900:40: error: ‘old_table’ undeclared (first use in this function); did you mean ‘new_table’?
+     for (counter = 0; counter < LENGTH(old_table); counter++) {
+                                        ^
+../../src/include/Rinternals.h:424:29: note: in definition of macro ‘LENGTH’
+ #define LENGTH(x) LENGTH_EX(x, __FILE__, __LINE__)
+                             ^
+envir.c:3901:2: error: ‘chain’ undeclared (first use in this function); did you mean ‘char’?
+  chain = VECTOR_ELT(old_table, counter);
+  ^~~~~
+  char
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:448:33: error: expected expression before ‘)’ token
+ #define VECTOR_ELT(x,i) ((SEXP *) DATAPTR(x))[i]
+                                 ^
+envir.c:3901:10: note: in expansion of macro ‘VECTOR_ELT’
+  chain = VECTOR_ELT(old_table, counter);
+          ^~~~~~~~~~
+envir.c:3903:6: error: ‘val’ undeclared (first use in this function); did you mean ‘eval’?
+      val = CXHEAD(chain);
+      ^~~
+      eval
+envir.c:3904:6: error: ‘next’ undeclared (first use in this function); did you mean ‘exit’?
+      next = CXTAIL(chain);
+      ^~~~
+      exit
+envir.c:3906:6: error: ‘new_chain’ undeclared (first use in this function); did you mean ‘chain’?
+      new_chain = VECTOR_ELT(new_table, new_hashcode);
+      ^~~~~~~~~
+      chain
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:448:33: error: expected expression before ‘)’ token
+ #define VECTOR_ELT(x,i) ((SEXP *) DATAPTR(x))[i]
+                                 ^
+envir.c:3906:18: note: in expansion of macro ‘VECTOR_ELT’
+      new_chain = VECTOR_ELT(new_table, new_hashcode);
+                  ^~~~~~~~~~
+../../src/include/Rinternals.h:417:7: error: expected ‘;’ before ‘sl__x__’
+  SEXP sl__x__ = (x);     \
+       ^
+envir.c:202:30: note: in expansion of macro ‘SET_TRUELENGTH’
+ #define SET_HASHPRI(x,v)     SET_TRUELENGTH(x,v)
+                              ^~~~~~~~~~~~~~
+envir.c:3909:3: note: in expansion of macro ‘SET_HASHPRI’
+   SET_HASHPRI(new_table, HASHPRI(new_table) + 1);
+   ^~~~~~~~~~~
+../../src/include/Rinternals.h:420:24: error: ‘sl__x__’ undeclared (first use in this function); did you mean ‘sl__v__’?
+  SET_STDVEC_TRUELENGTH(sl__x__, sl__v__); \
+                        ^
+../../src/include/Rinternals.h:414:43: note: in definition of macro ‘STDVEC_TRUELENGTH’
+ #define STDVEC_TRUELENGTH(x) (((VECSEXP) (x))->vecsxp.truelength)
+                                           ^
+../../src/include/Rinternals.h:420:2: note: in expansion of macro ‘SET_STDVEC_TRUELENGTH’
+  SET_STDVEC_TRUELENGTH(sl__x__, sl__v__); \
+  ^~~~~~~~~~~~~~~~~~~~~
+envir.c:202:30: note: in expansion of macro ‘SET_TRUELENGTH’
+ #define SET_HASHPRI(x,v)     SET_TRUELENGTH(x,v)
+                              ^~~~~~~~~~~~~~
+envir.c:3909:3: note: in expansion of macro ‘SET_HASHPRI’
+   SET_HASHPRI(new_table, HASHPRI(new_table) + 1);
+   ^~~~~~~~~~~
+envir.c: At top level:
+envir.c:3934:1: error: unknown type name ‘SEXP’
+ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
+ ^~~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:1497:22: error: conflicting types for ‘Rf_mkCharLenCE’
+ #define mkCharLenCE  Rf_mkCharLenCE
+                      ^
+envir.c:3934:6: note: in expansion of macro ‘mkCharLenCE’
+ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
+      ^~~~~~~~~~~
+../../src/include/Rinternals.h:1109:6: note: previous declaration of ‘Rf_mkCharLenCE’ was here
+ SEXP Rf_mkCharLenCE(const char *, int, cetype_t);
+      ^~~~~~~~~~~~~~
+envir.c: In function ‘Rf_mkCharLenCE’:
+envir.c:3936:10: error: expected ‘;’ before ‘cval’
+     SEXP cval, chain;
+          ^~~~
+envir.c:3957:7: error: expected ‘;’ before ‘c’
+  SEXP c;
+       ^
+envir.c:3961:2: error: ‘c’ undeclared (first use in this function)
+  c = allocCharsxp(len);
+  ^
+envir.c:3985:5: error: ‘cval’ undeclared (first use in this function); did you mean ‘eval’?
+     cval = R_NilValue;
+     ^~~~
+     eval
+envir.c:3986:5: error: ‘chain’ undeclared (first use in this function); did you mean ‘char’?
+     chain = VECTOR_ELT(R_StringHash, hashcode);
+     ^~~~~
+     char
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+../../src/include/Rinternals.h:448:33: error: expected expression before ‘)’ token
+ #define VECTOR_ELT(x,i) ((SEXP *) DATAPTR(x))[i]
+                                 ^
+envir.c:3986:13: note: in expansion of macro ‘VECTOR_ELT’
+     chain = VECTOR_ELT(R_StringHash, hashcode);
+             ^~~~~~~~~~
+envir.c:3988:7: error: expected ‘;’ before ‘val’
+  SEXP val = CXHEAD(chain);
+       ^~~
+In file included from ../../src/include/Defn.h:81:0,
+                 from envir.c:97:
+envir.c:3989:13: error: ‘val’ undeclared (first use in this function); did you mean ‘cval’?
+  if (TYPEOF(val) != CHARSXP) break; /* sanity check */
+             ^
+../../src/include/Rinternals.h:314:21: note: in definition of macro ‘TYPEOF’
+ #define TYPEOF(x) ((x)->sxpinfo.type)
+                     ^
+../../src/include/Rinternals.h:448:33: error: expected expression before ‘)’ token
+ #define VECTOR_ELT(x,i) ((SEXP *) DATAPTR(x))[i]
+                                 ^
+envir.c:4019:10: note: in expansion of macro ‘VECTOR_ELT’
+  chain = VECTOR_ELT(R_StringHash, hashcode);
+          ^~~~~~~~~~
+../../src/include/Rinternals.h:417:7: error: expected ‘;’ before ‘sl__x__’
+  SEXP sl__x__ = (x);     \
+       ^
+envir.c:202:30: note: in expansion of macro ‘SET_TRUELENGTH’
+ #define SET_HASHPRI(x,v)     SET_TRUELENGTH(x,v)
+                              ^~~~~~~~~~~~~~
+envir.c:4021:6: note: in expansion of macro ‘SET_HASHPRI’
+      SET_HASHPRI(R_StringHash, HASHPRI(R_StringHash) + 1);
+      ^~~~~~~~~~~
+../../src/include/Rinternals.h:420:24: error: ‘sl__x__’ undeclared (first use in this function); did you mean ‘sl__v__’?
+  SET_STDVEC_TRUELENGTH(sl__x__, sl__v__); \
+                        ^
+../../src/include/Rinternals.h:414:43: note: in definition of macro ‘STDVEC_TRUELENGTH’
+ #define STDVEC_TRUELENGTH(x) (((VECSEXP) (x))->vecsxp.truelength)
+                                           ^
+../../src/include/Rinternals.h:420:2: note: in expansion of macro ‘SET_STDVEC_TRUELENGTH’
+  SET_STDVEC_TRUELENGTH(sl__x__, sl__v__); \
+  ^~~~~~~~~~~~~~~~~~~~~
+envir.c:202:30: note: in expansion of macro ‘SET_TRUELENGTH’
+ #define SET_HASHPRI(x,v)     SET_TRUELENGTH(x,v)
+                              ^~~~~~~~~~~~~~
+envir.c:4021:6: note: in expansion of macro ‘SET_HASHPRI’
+      SET_HASHPRI(R_StringHash, HASHPRI(R_StringHash) + 1);
+      ^~~~~~~~~~~
+envir.c:4031:6: warning: implicit declaration of function ‘R_HashSizeCheck’ [-Wimplicit-function-declaration]
+  if (R_HashSizeCheck(R_StringHash)
+      ^~~~~~~~~~~~~~~
+envir.c: At top level:
+envir.c:4103:1: error: unknown type name ‘SEXP’
+ SEXP topenv(SEXP target, SEXP envir) {
+ ^~~~
+envir.c:4103:13: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP topenv(SEXP target, SEXP envir) {
+             ^~~~
+envir.c:4103:26: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ SEXP topenv(SEXP target, SEXP envir) {
+                          ^~~~
+envir.c:4124:1: warning: data definition has no type or storage class
+ SEXP attribute_hidden do_topenv(SEXP call, SEXP op, SEXP args, SEXP rho) {
+ ^~~~
+envir.c:4124:1: warning: type defaults to ‘int’ in declaration of ‘SEXP’ [-Wimplicit-int]
+envir.c:4124:23: error: expected ‘,’ or ‘;’ before ‘do_topenv’
+ SEXP attribute_hidden do_topenv(SEXP call, SEXP op, SEXP args, SEXP rho) {
+                       ^~~~~~~~~
+envir.c:4133:47: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean attribute_hidden isUnmodifiedSpecSym(SEXP sym, SEXP env) {
+                                               ^~~~
+envir.c:4133:57: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ Rboolean attribute_hidden isUnmodifiedSpecSym(SEXP sym, SEXP env) {
+                                                         ^~~~
+envir.c:4143:37: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void findFunctionForBodyInNamespace(SEXP body, SEXP nsenv, SEXP nsname) {
+                                     ^~~~
+envir.c:4143:48: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void findFunctionForBodyInNamespace(SEXP body, SEXP nsenv, SEXP nsname) {
+                                                ^~~~
+envir.c:4143:60: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void findFunctionForBodyInNamespace(SEXP body, SEXP nsenv, SEXP nsname) {
+                                                            ^~~~
+envir.c:4193:43: error: expected declaration specifiers or ‘...’ before ‘SEXP’
+ void attribute_hidden findFunctionForBody(SEXP body) {
+                                           ^~~~
+../../Makeconf:124: recipe for target 'envir.o' failed
+make[3]: *** [envir.o] Error 1
+make[3]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/main'
+Makefile:137: recipe for target 'R' failed
+make[2]: *** [R] Error 2
+make[2]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src/main'
+Makefile:28: recipe for target 'R' failed
+make[1]: *** [R] Error 1
+make[1]: Leaving directory '/home/luis/Desktop/ABD_tool/R_source_code/R-3.6.2/src'
+Makefile:60: recipe for target 'R' failed
+make: *** [R] Error 1
