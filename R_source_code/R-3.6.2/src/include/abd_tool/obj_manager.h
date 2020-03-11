@@ -94,20 +94,17 @@ void copyStr(char * dest, char * src, int strSize){
     dest[strSize] = '\0';
 }
 
-void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXPTYPE type, char * createdEnv){
+void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv){
     int nameSize = strlen(name);
-    int createdEnvSize = strlen(createdEnv);
-    
-    obj->type = type;
     obj->name = memAllocForString(nameSize);
     copyStr(obj->name, name, nameSize);
 
     obj->usages = 0;
     obj->state = ABD_ALIVE;
 
-    obj->createdEnv = memAllocForString(createdEnvSize);
-    copyStr(obj->createdEnv, createdEnv, createdEnvSize);
+    obj->createdEnv = createdEnv;
 
+    obj->modListStart = ABD_OBJECT_NOT_FOUND;
     obj->modList = ABD_OBJECT_NOT_FOUND;
 }
 ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg){
@@ -135,7 +132,7 @@ ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg){
     return newObject;
 }
 
-ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, char * createdEnv){
+ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, SEXP  createdEnv){
     if(objReg == ABD_OBJECT_NOT_FOUND)
         //registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
@@ -146,8 +143,8 @@ ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, char * createdEnv){
     unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
     do{
-        result2 = strncmp(currentObject->createdEnv, createdEnv, strlen(createdEnv)*sizeof(char));
-        if(result2 == 0){
+        result2 = (currentObject->createdEnv == createdEnv);
+        if(result2 == 1){
             result = strncmp(currentObject->name, name, strlen(name)*sizeof(char));
             if(result == 0){
                 objectFound = currentObject;
@@ -207,22 +204,7 @@ void changeNeighbours(ABD_OBJECT * obj){
         (obj->nextObj)->prevObj = obj->prevObj;
 
 }
-void printObj(ABD_OBJECT * currentObj){
-    printf("name: %s\n", currentObj->name);
-    printf("Prev name: %s\n", (currentObj->prevObj == NULL) ? "NULL" : currentObj->prevObj->name);
-    printf("Next name: %s\n", (currentObj->nextObj == NULL) ? "NULL" : currentObj->nextObj->name);
-}
-void printi(ABD_OBJECT * cmnObjReg){
-   if(cmnObjReg == ABD_OBJECT_NOT_FOUND)
-        printf("REG NULL\n");
-    else{
-        ABD_OBJECT * currentObj = cmnObjReg;
-        do{
-            printObj(currentObj);
-            currentObj = currentObj->nextObj;
-        }while(currentObj!=NULL);
-    }
-}
+
 
 ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj){
     //this function searches for a space in the list where
@@ -238,81 +220,122 @@ ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj){
     
     return objReg;
 }
-//below is used to all (except closures)
-void newCmnObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
-    unsigned int instructionNumber = 1;
-    SEXPTYPE type = TYPEOF(rhs);
-    int value = REAL(rhs)[0]; 
-    char * functionName = "main";
-    OBJ_STATE remotion = ABD_ALIVE;
-    
-    //name extraction from lhs
-    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
-    char * name = memAllocForString(nameSize);
-    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
-    char * createdEnv = environmentExtraction(rho);
 
-    ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
+void * getAddressForValue(SEXP rhs){
+    switch (TYPEOF(rhs))
+    {
+    case REALSXP:
+        //need to verify
+        break;
+    
+    default:
+        break;
+    }
+
+}
+ABD_OBJECT * getCmnObj(char * name, SEXP rho){
+     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
 
     
     if(cmnObjReg == ABD_OBJECT_NOT_FOUND){
-        //registry empty, alloc    
+        //registry empty, alloc
         cmnObjReg = addEmptyObjToReg(cmnObjReg);
         objectFound = cmnObjReg;
-        setObjBaseValues(objectFound, name, type, createdEnv);
+        setObjBaseValues(objectFound, name, rho);
     }
     else
-        objectFound = findObj(cmnObjReg, name, createdEnv);
+        objectFound = findObj(cmnObjReg, name, rho);
     
 
     if(objectFound == ABD_OBJECT_NOT_FOUND){
         //alloc
         objectFound = addEmptyObjToReg(cmnObjReg);
-        setObjBaseValues(objectFound, name, type, createdEnv);
+        setObjBaseValues(objectFound, name, rho);
     }
-    
-    objectFound->modList = setModValues(addEmptyModToObj(objectFound), value, remotion);
-    objectFound->usages++;
 
-    rankObjByUsages(cmnObjReg, objectFound);
+    return objectFound;
 }
-//below is used to closures
-void newCfObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
-    unsigned int instructionNumber = 1;
-    SEXPTYPE type = CLOSXP; 
-    char * functionName = "main";
-    OBJ_STATE remotion = ABD_ALIVE;
-    
-    //name extraction from lhs
-    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
-    char * name = memAllocForString(nameSize);
-    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
-    
-    char * createdEnv = environmentExtraction(rho);
-
-    ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
+ABD_OBJECT * getCfObj(char * name, SEXP rho){
+     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
 
     
     if(cfObjReg == ABD_OBJECT_NOT_FOUND){
         //registry empty, alloc    
         cfObjReg = addEmptyObjToReg(cfObjReg);
         objectFound = cfObjReg;
-        setObjBaseValues(objectFound, name, type, createdEnv);
     }
     else
-        objectFound = findObj(cfObjReg, name, createdEnv);
+        objectFound = findObj(cfObjReg, name, rho);
     
 
-    if(objectFound == ABD_OBJECT_NOT_FOUND){
+    if(objectFound == ABD_OBJECT_NOT_FOUND)
         //alloc
         objectFound = addEmptyObjToReg(cfObjReg);
-        setObjBaseValues(objectFound, name, type, createdEnv);
-    }
-    
-    //setModValues(addEmptyModToObj(objectFound), instructionNumber,functionName, value, remotion);
-    objectFound->usages++;
-    rankObjByUsages(cfObjReg, objectFound);
+
+    return objectFound;
 }
+
+//below is used to all (except closures)
+void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
+    unsigned int instructionNumber = 1;
+    SEXPTYPE type = TYPEOF(rhs);
+    
+    //name extraction from lhs
+    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
+    char * name = memAllocForString(nameSize);
+    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
+    
+    ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
+    switch (type)
+    {
+        case CLOSXP:
+            //closures (function objects)
+            //newCfObjUsage(lhs, rhs, rho);
+            //basicPrint2();
+            obj = getCfObj( name, rho);
+            break;
+        case REALSXP:
+            //newCmnObjUsage(lhs, rhs, rho);
+            //basicPrint();
+            obj = getCmnObj(name, rho);
+            ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);
+            obj->modList = setModValues(newMod, rhs, createRealVector);
+            break;
+        case STRSXP:
+            puts("character vectors");
+            break;
+        case CPLXSXP:
+            puts("complex vectors");
+            break;
+        case LGLSXP:
+            puts("logical vectors");
+            break;
+        case INTSXP:
+            puts("integer vectors");
+            if(Rf_isMatrix(rhs)){
+                int nCols = Rf_ncols(rhs);
+                int nRows = Rf_nrows(rhs);
+                printf("DIM\nrows %d\ncols %d\n", nRows, nCols);
+            }
+            break;
+        case RAWSXP:
+            puts("raw vector");
+            break;
+        case VECSXP:
+            puts("list (generic vector");
+            break;
+        default:
+            break;
+    }
+    printf("ModList NULL %s\n", (obj->modList == NULL) ? "yes" : "no");
+    obj->usages++;
+    if(type == CLOSXP)
+        cfObjReg = rankObjByUsages(cfObjReg, obj);
+    else
+        cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+    
+}
+
 char * environmentExtraction(SEXP rho){
     const void *vmax = vmaxget();
     static char ch[1000];
@@ -331,37 +354,74 @@ char * environmentExtraction(SEXP rho){
 /*
     CMN_OBJ specifics
 */
-ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, int newValue, OBJ_STATE remotion){
-    newModification->newValue = newValue;
-    newModification->remotion = remotion;
+void manageMatrix(){
+    puts("arrived");
+}
+ABD_OBJECT_MOD * initValueUnion(ABD_OBJECT_MOD * newMod){
+    newMod->value.mtrx_value = NULL;
+    newMod->value.num_value = NULL;
+    newMod->value.vec_value = NULL;
+    newMod->value.str_value = NULL;
+
+    return newMod;
+}
+ABD_VEC_OBJ * memAllocVecObj(){
+    return (ABD_VEC_OBJ *) malloc(sizeof(ABD_VEC_OBJ));
+}
+
+double * memAllocDoubleVector(int size){
+    return (double *) malloc(size*sizeof(double));
+}
+ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
+    int nElements = Rf_nrows(rhs);
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->nCols = nElements;
+    newMod->value.vec_value->vector = memAllocDoubleVector(nElements);
+    
+    for(int i=0; i<nElements; i++)
+       ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[i]; 
+
+    return newMod;
+}
+
+ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) ){
+    
+    if(newValue == ABD_NOT_FOUND){
+        newModification->remotion = ABD_DELETED;
+        return newModification;
+    }
+
+    newModification->remotion = ABD_ALIVE;
+    puts("will call");
+    newModification = (*func)(newModification, newValue);
+
     return newModification;
 }
 
 
-ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj){
+ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type){
     
     if(obj->modList == ABD_OBJECT_NOT_FOUND){
         //list empty
+        puts("modlist null");
         obj->modList = memAllocMod();
         obj->modList->prevMod = ABD_OBJECT_NOT_FOUND;
         obj->modList->nextMod = ABD_OBJECT_NOT_FOUND;
-
         obj->modListStart = obj->modList;
         
-        
     }else{
-        //the last valid registry is stored in the newModification var
-        //alloc memory to new node and assign to nextMod
-        
+        //has modifications
+        //alloc and set at modList (head) [fast search]
         ABD_OBJECT_MOD * newMod = memAllocMod();
 
         obj->modList->nextMod = newMod;
         newMod->prevMod = obj->modList;
         newMod->nextMod = ABD_OBJECT_NOT_FOUND;
         obj->modList = newMod;
-    
+
     }
-    
+    obj->modList->type = type;
+    obj->modList = initValueUnion(obj->modList);
     return obj->modList;
 }
 

@@ -19,7 +19,7 @@ void finalizeJSONstructure(FILE * outputFile, char * indentation){
 }
 
 void writeObjectModificationToFile(FILE * outputFile, ABD_OBJECT_MOD * modification){
-    fprintf(outputFile, "%s\"newValue\" : \"%d\",\n", JSON_INDENT_5, modification->newValue);
+    //fprintf(outputFile, "%s\"newValue\" : \"%d\",\n", JSON_INDENT_5, modification->newValue);
     fprintf(outputFile, "%s\"remotion\" : %s\n", JSON_INDENT_5, (modification->remotion == 1) ? "true": "false");
 }
 void printShit2(ABD_OBJECT_MOD * mod){
@@ -34,32 +34,28 @@ void printShit2(ABD_OBJECT_MOD * mod){
     printf("num entries %d\n", count);
 }
 void writeObjectToFile(FILE * outputFile, ABD_OBJECT * obj){
+
     ABD_OBJECT_MOD * currentModification = ABD_OBJECT_NOT_FOUND;
 
-    fprintf(outputFile, "%s\"type\" : \"%d\",\n", JSON_INDENT_2, obj->type);
+    //fprintf(outputFile, "%s\"type\" : \"%d\",\n", JSON_INDENT_2, obj->type);
     fprintf(outputFile, "%s\"name\" : \"%s\",\n", JSON_INDENT_2 ,obj->name);
-    fprintf(outputFile, "%s\"createdEnv\" : \"%s\",\n", JSON_INDENT_2, obj->createdEnv);
+    fprintf(outputFile, "%s\"createdEnv\" : \"%s\",\n", JSON_INDENT_2, environmentExtraction(obj->createdEnv));
     //start modifications JSON array
     fprintf(outputFile, "%s\"modList\" : [\n", JSON_INDENT_2);
-    
     //start json object
-    puts("json");
-    printShit2(obj->modList);
     currentModification = obj->modListStart;
-    
-    do{
-        fprintf(outputFile, "%s{\n", JSON_INDENT_4);
-        writeObjectModificationToFile(outputFile, currentModification);
-        currentModification = currentModification->nextMod;
-        if(currentModification!= ABD_OBJECT_NOT_FOUND)
-            //object has more modifications
-            fprintf(outputFile, "%s},\n", JSON_INDENT_4);
-        else
-            fprintf(outputFile, "%s}\n", JSON_INDENT_4);
-    }while(currentModification!= ABD_OBJECT_NOT_FOUND);
-
-
-    
+    if(currentModification != ABD_OBJECT_NOT_FOUND){
+        do{
+            fprintf(outputFile, "%s{\n", JSON_INDENT_4);
+            writeObjectModificationToFile(outputFile, currentModification);
+            currentModification = currentModification->nextMod;
+            if(currentModification!= ABD_OBJECT_NOT_FOUND)
+                //object has more modifications
+                fprintf(outputFile, "%s},\n", JSON_INDENT_4);
+            else
+                fprintf(outputFile, "%s}\n", JSON_INDENT_4);
+        }while(currentModification!= ABD_OBJECT_NOT_FOUND);
+    }
     //closes modifications JSON array
     finalizeJSONstructure(outputFile, JSON_INDENT_3);
     
@@ -80,7 +76,7 @@ void persistObjects(FILE * outputFile, ABD_OBJECT * objectsRegistry){
         if(currentObject != ABD_OBJECT_NOT_FOUND)
             fprintf(outputFile, "%s},\n", JSON_INDENT_1);
         else
-            fprintf(outputFile, "%s}", JSON_INDENT_1);
+            fprintf(outputFile, "%s}\n", JSON_INDENT_1);
     }while(currentObject != ABD_OBJECT_NOT_FOUND);
 }
 

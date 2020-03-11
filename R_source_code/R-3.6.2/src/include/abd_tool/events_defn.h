@@ -15,17 +15,17 @@
         //analyze R behaviour when if'ing
     }ABD_IF_EVENT;
 
-    typedef struct abd_func_arg{
+    typedef struct abd_event_arg{
         ABD_OBJECT * objPtr;
+        char * rcvdName;
         ABD_OBJECT_MOD * objValue;
-        struct abd_func_arg * nextArg;
-    }ABD_ARGS;
+        struct abd_event_arg * nextArg;
+    }ABD_EVENT_ARG;
 
     //register function events
     typedef struct abd_func_event{
         ABD_OBJECT * objPtr;
-        ABD_ARGS * args;
-        ABD_OBJECT * retObj;
+        ABD_EVENT_ARG * args;
     }ABD_FUNC_EVENT;
 
     //register return events

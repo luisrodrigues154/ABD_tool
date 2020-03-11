@@ -26,8 +26,25 @@
         ABD_DELETED
     }OBJ_STATE;
 
+    typedef struct abd_vec_obj{
+        int nCols;
+        void * vector;
+    }ABD_VEC_OBJ;
+
+    typedef struct abd_mtrx_obj{
+        int nRows;
+        int nCols;
+        void * matrix;
+    }ABD_MTRX_OBJ;
+
     typedef struct abd_obj_mod{
-        int newValue;
+        SEXPTYPE type;
+        union{
+            double * num_value;
+            ABD_MTRX_OBJ * mtrx_value;
+            ABD_VEC_OBJ * vec_value;
+            char * str_value;
+        }value;
         OBJ_STATE remotion;
         struct abd_obj_mod * prevMod;
         struct abd_obj_mod * nextMod;
@@ -35,11 +52,10 @@
 
 
     typedef struct abd_obj{
-        SEXPTYPE type;
         char * name;
         unsigned int usages;
         OBJ_STATE state;
-        char * createdEnv;
+        SEXP createdEnv;
         //on CF_OBJ will be NULL
         ABD_OBJECT_MOD * modList;
         //pointer to the end of the list (first mod) 
@@ -99,9 +115,9 @@ ABD_OBJECT_MOD * memAllocMod();
 /*
     generic
 */
-void setObjBaseValues(ABD_OBJECT * obj, char * name,SEXPTYPE type, char * createdEnv);
-ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg);
-ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, char * createdEnv);
+void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv);
+ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg );
+ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, SEXP createdEnv);
 ABD_OBJECT * findRHS(ABD_OBJECT * objReg, ABD_OBJECT * obj);
 void changeNeighbours(ABD_OBJECT * obj);
 ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
@@ -112,9 +128,11 @@ char * environmentExtraction(SEXP rho);
 /*
     CMN_OBJ specifics
 */
-ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, int newValue, OBJ_STATE remotion);
-ABD_OBJECT_MOD * addModToObj(ABD_OBJECT * obj);
-ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj);
+ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) );
+ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type);
+ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * mod,SEXP rhs);
+ABD_OBJECT * getCmnObj(char * name, SEXP rho);
+ABD_OBJECT * getCfObj(char * name, SEXP rho);
 /*
     CF_OBJ specifics
 */

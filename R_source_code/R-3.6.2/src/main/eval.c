@@ -1684,7 +1684,7 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     f = formals;
     a = actuals;
     while (f != R_NilValue) {
-		if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {
+		if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {	
 			SETCAR(a, mkPROMISE(CAR(f), newrho));
 			SET_MISSING(a, 2);
 		}
@@ -1717,18 +1717,17 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 	*/
 	SEXP lhs = CAR(call);
 
-	ABD_SEARCH result = regFunCall(lhs, rho, newrho);
+	
 
-	if(result == ABD_EXIST){
-		printf("------------\n");
-        printf("Will call a function...\n");
-        printf("Name: %s\n",CHAR(PRINTNAME(lhs)));
-        printf("Calling Env: %s\n", EncodeEnvironment(rho));
-		printf("%s env: %s\n", CHAR(PRINTNAME(lhs)), EncodeEnvironment(newrho));
-        printf("------------\n");
-	}
-		
-				
+	// if(result == ABD_EXIST){
+	// 	printf("------------\n");
+    //     printf("Will call a function...\n");
+    //     printf("Name: %s\n",CHAR(PRINTNAME(lhs)));
+    //     printf("Calling Env: %s\n", EncodeEnvironment(rho));
+	// 	printf("%s env: %s\n", CHAR(PRINTNAME(lhs)), EncodeEnvironment(newrho));
+    //     printf("------------\n");
+	// }
+	ABD_STATE result = regFunCall(lhs, rho, newrho, arglist, actuals);
 
     SEXP val = R_execClosure(call, newrho,
 			     (R_GlobalContext->callflag == CTXT_GENERIC) ?
@@ -1737,6 +1736,7 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 
 	if(result == ABD_EXIST)
 		regFunReturn(lhs, rho, val);
+	
 #ifdef ADJUST_ENVIR_REFCNTS
     R_CleanupEnvir(newrho, val);
     if (MAYBE_REFERENCED(val) && is_getter_call)

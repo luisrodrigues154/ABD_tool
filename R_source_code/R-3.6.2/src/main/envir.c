@@ -1612,6 +1612,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         #endif
         return;
     }
+    
     if(checkToReg(rho) == ABD_EXIST){        
         printf("------------\n");
         printf("Will register a variable...\n");
@@ -1620,7 +1621,6 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         printf("------------\n");
         regVarChange(symbol, value, rho);
     }
-    
     if (rho == R_BaseNamespace || rho == R_BaseEnv) {
 	    gsetVar(symbol, value, rho);
     } else {
@@ -1662,6 +1662,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
                 SET_HASHTAB(rho, R_HashResize(HASHTAB(rho)));
         }
     }
+    
 }
 
 /*----------------------------------------------------------------------

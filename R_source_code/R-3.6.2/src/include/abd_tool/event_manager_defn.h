@@ -34,8 +34,10 @@ ABD_EVENT * setDataUnionToNULL(ABD_EVENT * event);
 ABD_EVENT * initBaseEvent(ABD_EVENT * newBaseEvent);
 ABD_EVENT * memAllocBaseEvent();
 ABD_FUNC_EVENT * memAllocFuncEvent();
-ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type, void * obj);
-ABD_EVENT * createNewEvent(ABD_EVENT_TYPE newEventType, void * obj);
+ABD_EVENT_ARG * memAllocEventArg();
+ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type);
+ABD_EVENT * bindObjToFuncEvent(ABD_EVENT * funcEvent, ABD_OBJECT * obj);
+ABD_EVENT * createNewEvent(ABD_EVENT_TYPE newEventType);
 ABD_EVENT * createMainEvent();
 void eventPrint(ABD_EVENT * event);
 

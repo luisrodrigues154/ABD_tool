@@ -34,7 +34,9 @@ void envPop(){
     envStack = envStack->prev;
     freeEnv(elementToPop);
 }
-
+SEXP getCurrentEnv(){
+    return envStack->rho;
+}
 ABD_SEARCH cmpToCurrEnv(SEXP rho){
     if(envStack == ABD_ENV_NOT_FOUND)
         return ABD_NOT_EXIST;

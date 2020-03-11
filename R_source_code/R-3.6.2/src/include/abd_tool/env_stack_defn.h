@@ -27,3 +27,4 @@ ABD_ENV_STACK * memAllocEnvStack();
 void envPush(SEXP newRho);
 void envPop();
 ABD_SEARCH cmpToCurrEnv(SEXP rho);
+SEXP getCurrentEnv();

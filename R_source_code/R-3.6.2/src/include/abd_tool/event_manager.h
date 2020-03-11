@@ -15,7 +15,6 @@ void initEventsReg(){
 ABD_EVENT * initBaseEvent(ABD_EVENT * newBaseEvent){
     newBaseEvent->data.if_event = ABD_NOT_FOUND;
     newBaseEvent->data.func_event = ABD_NOT_FOUND;
-    
     newBaseEvent->nextEvent = ABD_EVENT_NOT_FOUND;
     return newBaseEvent;
 }
@@ -29,12 +28,29 @@ ABD_FUNC_EVENT * memAllocFuncEvent(){
     return (ABD_FUNC_EVENT *) malloc(sizeof(ABD_FUNC_EVENT));
 }
 
-ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type, void  * obj){
+ABD_EVENT_ARG * memAllocEventArg(){
+    return (ABD_EVENT_ARG *) malloc(sizeof(ABD_EVENT_ARG));
+}   
+
+ABD_EVENT * bindObjToFuncEvent(ABD_EVENT * funcEvent, ABD_OBJECT * obj){
+    funcEvent->data.func_event->objPtr = obj;
+    
+}
+
+
+void addArgToFuncEvent(SEXP symbol, SEXP value){
+    //need to receive a symbol and a value (not just symbol)
+    //because the arguments may be named
+
+}
+
+
+ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type){
     //main event needs nothing but the type
     switch (type){
         case FUNC_EVENT:{
             ABD_FUNC_EVENT * newFuncEvent = memAllocFuncEvent();
-            newFuncEvent->objPtr = (ABD_OBJECT *) obj;
+            newFuncEvent->args = memAllocEventArg();
             newBaseEvent->data.func_event = newFuncEvent;
             break;
         }
@@ -51,10 +67,10 @@ ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type, vo
 }
 
 
-ABD_EVENT * createNewEvent(ABD_EVENT_TYPE newEventType, void * obj){
+ABD_EVENT * createNewEvent(ABD_EVENT_TYPE newEventType){
     ABD_EVENT * newEvent = memAllocBaseEvent();
     newEvent = initBaseEvent(newEvent);
-    newEvent = creaStructsForType(newEvent, newEventType, obj);  
+    newEvent = creaStructsForType(newEvent, newEventType);  
     if(newEventType != MAIN_EVENT){
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
@@ -63,7 +79,7 @@ ABD_EVENT * createNewEvent(ABD_EVENT_TYPE newEventType, void * obj){
 }
 
 ABD_EVENT * createMainEvent(){
-    return createNewEvent(MAIN_EVENT, ABD_OBJECT_NOT_FOUND);
+    return createNewEvent(MAIN_EVENT);
 }
 
 void eventPrint(ABD_EVENT * event){
