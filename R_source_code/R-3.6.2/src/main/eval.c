@@ -1718,15 +1718,6 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 	SEXP lhs = CAR(call);
 
 	
-
-	// if(result == ABD_EXIST){
-	// 	printf("------------\n");
-    //     printf("Will call a function...\n");
-    //     printf("Name: %s\n",CHAR(PRINTNAME(lhs)));
-    //     printf("Calling Env: %s\n", EncodeEnvironment(rho));
-	// 	printf("%s env: %s\n", CHAR(PRINTNAME(lhs)), EncodeEnvironment(newrho));
-    //     printf("------------\n");
-	// }
 	ABD_STATE result = regFunCall(lhs, rho, newrho, arglist, actuals);
 
     SEXP val = R_execClosure(call, newrho,

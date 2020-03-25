@@ -1614,11 +1614,12 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
     }
     
     if(checkToReg(rho) == ABD_EXIST){        
-        printf("------------\n");
-        printf("Will register a variable...\n");
-        printf("Name: %s\n",CHAR(PRINTNAME(symbol)));
-        printf("Env: %s\n", encodeIt(rho));
-        printf("------------\n");
+        // printf("------------\n");
+        // printf("Will register a variable...\n");
+        // printf("Name: %s\n",CHAR(PRINTNAME(symbol)));
+        // printf("Value: %f\n", REAL(value)[0]);
+        // printf("Env: %s\n", encodeIt(rho));
+        // printf("------------\n");
         regVarChange(symbol, value, rho);
     }
     if (rho == R_BaseNamespace || rho == R_BaseEnv) {

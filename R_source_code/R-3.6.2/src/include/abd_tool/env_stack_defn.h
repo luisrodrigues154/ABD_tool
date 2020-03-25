@@ -4,12 +4,14 @@
 #include <Rinternals.h>
 #include <stdlib.h>
 #include <abd_tool/base_defn.h>
+#include <abd_tool/obj_manager_defn.h>
 
 #ifndef loaded_stack
     #define loaded_stack
        
     typedef struct abd_env_stack{
         SEXP rho;
+        ABD_OBJECT * funcObj;
         struct abd_env_stack * prev;
     }ABD_ENV_STACK;
 
@@ -24,7 +26,8 @@
 void initEnvStack();
 void freeEnv(ABD_ENV_STACK * env);
 ABD_ENV_STACK * memAllocEnvStack();
-void envPush(SEXP newRho);
+void envPush(SEXP newRho, ABD_OBJECT * funcObj);
 void envPop();
 ABD_SEARCH cmpToCurrEnv(SEXP rho);
 SEXP getCurrentEnv();
+ABD_OBJECT * getCurrFuncObj();

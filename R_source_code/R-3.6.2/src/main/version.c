@@ -48,6 +48,8 @@ Type 'q()' to quit R.\n\n"));
     Type 'q()' to quit R.\n\n"));
     Rprintf(_("NOTE: This R version has ABD_TOOL included. Type 'abd_help()' \n\\
     for more information about the debugging tool\n\n"));
+
+    //check if folder with settings exist
 }
 
 SEXP attribute_hidden do_version(SEXP call, SEXP op, SEXP args, SEXP env)

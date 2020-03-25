@@ -6,12 +6,14 @@
 #include <Rinternals.h>
 #include <stdlib.h>
 #include <abd_tool/base_defn.h>
-
+#include <abd_tool/event_manager_defn.h>
 
 void initEnvStack(){
     envStack = (ABD_ENV_STACK *) malloc(sizeof(ABD_ENV_STACK));
     envStack->rho = R_GlobalEnv;
     envStack->prev = ABD_NOT_FOUND;
+    envStack->funcObj = ABD_NOT_FOUND;
+    currFunc = ABD_NOT_FOUND;
 }
 
 void freeEnv(ABD_ENV_STACK * env){
@@ -22,20 +24,27 @@ ABD_ENV_STACK * memAllocEnvStack(){
     return (ABD_ENV_STACK * ) malloc(sizeof(ABD_ENV_STACK));
 }
 
-void envPush(SEXP newRho){
+void envPush(SEXP newRho, ABD_OBJECT * funcObj){
     ABD_ENV_STACK * newEnv = memAllocEnvStack();
     newEnv->rho = newRho;
+    newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
+    currFunc = funcObj;
 }
 
 void envPop(){
     ABD_ENV_STACK * elementToPop = envStack;
     envStack = envStack->prev;
     freeEnv(elementToPop);
+    if(envStack->rho == R_GlobalEnv)
+        currFunc = ABD_OBJECT_NOT_FOUND;
 }
 SEXP getCurrentEnv(){
     return envStack->rho;
+}
+ABD_OBJECT * getCurrFuncObj(){
+    return envStack->funcObj;
 }
 ABD_SEARCH cmpToCurrEnv(SEXP rho){
     if(envStack == ABD_ENV_NOT_FOUND)

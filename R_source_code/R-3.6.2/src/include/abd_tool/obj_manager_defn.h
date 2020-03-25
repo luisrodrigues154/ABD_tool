@@ -27,6 +27,7 @@
     }OBJ_STATE;
 
     typedef struct abd_vec_obj{
+        
         int nCols;
         void * vector;
     }ABD_VEC_OBJ;
@@ -38,9 +39,9 @@
     }ABD_MTRX_OBJ;
 
     typedef struct abd_obj_mod{
+        int id;
         SEXPTYPE type;
         union{
-            double * num_value;
             ABD_MTRX_OBJ * mtrx_value;
             ABD_VEC_OBJ * vec_value;
             char * str_value;
@@ -52,6 +53,7 @@
 
 
     typedef struct abd_obj{
+        int id;
         char * name;
         unsigned int usages;
         OBJ_STATE state;
@@ -74,7 +76,8 @@
     static ABD_OBJECT * cmnObjReg, * cfObjReg;
     static ABD_OBJECT * cmnObjRegTail, * cmnObjRegTail; 
 
-
+    static int numCfObj;
+    static int numCmnObj;
     #define ABD_OBJECT_NOT_FOUND NULL
 #endif
 /*
@@ -136,3 +139,4 @@ ABD_OBJECT * getCfObj(char * name, SEXP rho);
 /*
     CF_OBJ specifics
 */
+ABD_OBJECT * findFuncObj(char * name, SEXP  callingEnv);

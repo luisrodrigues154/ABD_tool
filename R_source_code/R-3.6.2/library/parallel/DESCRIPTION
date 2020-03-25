@@ -12,4 +12,4 @@ Imports: tools, compiler
 Suggests: methods
 Enhances: snow, nws, Rmpi
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-03-11 02:01:15 UTC; unix
+Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-03-25 00:56:20 UTC; unix

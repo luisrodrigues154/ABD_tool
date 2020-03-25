@@ -24,12 +24,15 @@
 
     //register function events
     typedef struct abd_func_event{
-        ABD_OBJECT * objPtr;
+        ABD_OBJECT * caller;
+        ABD_OBJECT * called;
         ABD_EVENT_ARG * args;
     }ABD_FUNC_EVENT;
 
     //register return events
     typedef struct abd_func_return{
+        ABD_OBJECT * from;
+        ABD_OBJECT * toObj;
         ABD_OBJECT_MOD * retValue;
     }ABD_RET_EVENT;
 
