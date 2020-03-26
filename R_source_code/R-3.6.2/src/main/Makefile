@@ -1120,7 +1120,9 @@ version.o: version.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
- ../../src/include/Internal.h ../../src/include/Rversion.h
+ ../../src/include/Internal.h ../../src/include/Rversion.h \
+ ../../src/include/abd_tool/settings_manager_defn.h \
+ ../../src/include/abd_tool/settings_manager.h
 g_alab_her.o: g_alab_her.c g_extern.h ../../src/include/config.h \
  ../../src/include/Defn.h ../../src/include/R_ext/Complex.h \
  ../../src/include/Rinternals.h ../../src/include/R_ext/Arith.h \

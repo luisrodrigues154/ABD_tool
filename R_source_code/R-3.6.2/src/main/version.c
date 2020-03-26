@@ -25,6 +25,10 @@
 #include "Defn.h"
 #include <Internal.h>
 #include <Rversion.h>
+#include <abd_tool/settings_manager_defn.h>
+#include <abd_tool/settings_manager.h>
+
+
 
 void attribute_hidden PrintGreeting(void)
 {
@@ -50,6 +54,7 @@ Type 'q()' to quit R.\n\n"));
     for more information about the debugging tool\n\n"));
 
     //check if folder with settings exist
+    loadSettings();
 }
 
 SEXP attribute_hidden do_version(SEXP call, SEXP op, SEXP args, SEXP env)

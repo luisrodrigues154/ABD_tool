@@ -481,7 +481,3 @@ ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type){
     obj->modList->id = obj->usages+1;
     return obj->modList;
 }
-
-/*
-    CF_OBJ specifics
-*/

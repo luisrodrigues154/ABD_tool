@@ -9,4 +9,4 @@ License: Part of R 3.6.2
 Imports: utils, grDevices, graphics
 Suggests: MASS, Matrix, SuppDists, methods, stats4
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-03-25 00:56:18 UTC; unix
+Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-03-26 21:17:30 UTC; unix

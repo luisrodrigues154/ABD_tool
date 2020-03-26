@@ -27,7 +27,6 @@
     }OBJ_STATE;
 
     typedef struct abd_vec_obj{
-        
         int nCols;
         void * vector;
     }ABD_VEC_OBJ;
@@ -50,7 +49,6 @@
         struct abd_obj_mod * prevMod;
         struct abd_obj_mod * nextMod;
     }ABD_OBJECT_MOD;
-
 
     typedef struct abd_obj{
         int id;
