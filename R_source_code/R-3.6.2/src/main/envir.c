@@ -1538,8 +1538,8 @@ SEXP findFun3(SEXP symbol, SEXP rho, SEXP call)
 		}
 	    }
 	    if (TYPEOF(vl) == CLOSXP || TYPEOF(vl) == BUILTINSXP ||
-		TYPEOF(vl) == SPECIALSXP)
-		return (vl);
+		        TYPEOF(vl) == SPECIALSXP)
+		    return (vl);
 	    if (vl == R_MissingArg)
 		errorcall(call,
 		      _("argument \"%s\" is missing, with no default"),

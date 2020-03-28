@@ -67,28 +67,29 @@ int closeSetFile(FILE * file){
 
 int load(FILE * settingsFile){
     rewind(settingsFile);
-    return fread(&settings, sizeof(ABD_SETTINGS),1, settingsFile);
+    settings = (ABD_SETTINGS *) malloc(sizeof(ABD_SETTINGS));
+    return fread(settings, sizeof(ABD_SETTINGS),1, settingsFile);
 }
 
 int writeCurrSettings(FILE * settingsFile){
     rewind(settingsFile);
-
-    return fwrite(&settings, sizeof(ABD_SETTINGS), 1, settingsFile);
+    return fwrite(settings, sizeof(ABD_SETTINGS), 1, settingsFile);
 }
 
 void createDefaults(FILE * settingsFile){
     int eventsOutSize = strlen("/events.json");
     int objOutSize = strlen("/objects.json");
     int folderPathLen = strlen(folderPath);
+    settings = (ABD_SETTINGS *) malloc(sizeof(ABD_SETTINGS));
 
-    settings.eventsOutPath[0] = '\0';
-    settings.objOutPath[0] = '\0';
+    settings->eventsOutPath[0] = '\0';
+    settings->objOutPath[0] = '\0';
 
-    strncat(settings.eventsOutPath, folderPath, strlen(folderPath) * sizeof(char));
-    strncat(settings.objOutPath, folderPath, strlen(folderPath) * sizeof(char));
+    strncat(settings->eventsOutPath, folderPath, strlen(folderPath) * sizeof(char));
+    strncat(settings->objOutPath, folderPath, strlen(folderPath) * sizeof(char));
 
-    strncat(settings.eventsOutPath, "/events.json" , eventsOutSize * sizeof(char));
-    strncat(settings.objOutPath, "/objects.json" , objOutSize * sizeof(char));
+    strncat(settings->eventsOutPath, "/events.json" , eventsOutSize * sizeof(char));
+    strncat(settings->objOutPath, "/objects.json" , objOutSize * sizeof(char));
 
     writeCurrSettings(settingsFile);
 }
@@ -110,4 +111,16 @@ int loadSettings(){
             closeSetFile(settingsFile);
         }
     }
+}
+
+void checkSettings(){
+    if(settings == NULL)
+        loadSettings();
+}
+
+char * getObjPath(){
+    return settings->objOutPath;
+}
+char * getEventsPath(){
+    return settings->eventsOutPath;
 }

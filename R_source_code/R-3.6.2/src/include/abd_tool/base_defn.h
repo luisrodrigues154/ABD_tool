@@ -54,3 +54,4 @@ void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
 void regCodeFlowChange();
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();
+void saveIdxChanges(int nIdxs, int * idxChanges);

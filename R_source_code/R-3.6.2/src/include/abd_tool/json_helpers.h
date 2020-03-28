@@ -4,6 +4,7 @@
 #include <abd_tool/json_helpers_defn.h>
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/event_manager_defn.h>
+#include <abd_tool/settings_manager_defn.h>
 
 FILE * openFile(char * filePath){
     return fopen(filePath, FILE_OPEN_MODE);
@@ -26,14 +27,22 @@ char * getStrFromIndent(JSON_INDENT indent){
 
 void writeObjVector(FILE * out, ABD_VEC_OBJ * vecObj, int id){
     fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), id);
-    if(vecObj->nCols == 1){
+
+    if(vecObj->idxChange == 'Y'){
+        fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
+        fprintf(out, "\n%s\"idxChanged\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
         fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(INDENT_5), ((double *) vecObj->vector)[0]);
     }else{
-        fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
-        fprintf(out, "\n%s\"value\" : [", getStrFromIndent(INDENT_5));
-        for(int i=0; i<vecObj->nCols; i++)
-            fprintf(out, "%.2f%s", ((double *) vecObj->vector)[i], (i+1==vecObj->nCols) ? "" : ",");
-        fprintf(out, "]");
+        fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));
+        if(vecObj->nCols == 1){
+        fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(INDENT_5), ((double *) vecObj->vector)[0]);
+        }else{
+            fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
+            fprintf(out, "\n%s\"value\" : [", getStrFromIndent(INDENT_5));
+            for(int i=0; i<vecObj->nCols; i++)
+                fprintf(out, "%.2f%s", ((double *) vecObj->vector)[i], (i+1==vecObj->nCols) ? "" : ",");
+            fprintf(out, "]");
+        }
     }
 }
 
@@ -239,12 +248,12 @@ void saveEvents(FILE * out){
 void persistInformation(){
     FILE * outputFile ;
 
-    outputFile = openFile(OBJECTS_FILE_PATH);
+    
+    outputFile = openFile(getObjPath());
     if(outputFile == NULL){
         //unable to open file
         //check destination path
         puts("Cannot open objects file... check path");
-        
         return;
     }
 
@@ -255,7 +264,7 @@ void persistInformation(){
     closeFile(outputFile);
 
     //open events file
-    outputFile = openFile(EVENTS_FILE_PATH);
+    outputFile = openFile(getEventsPath());
     if(outputFile == NULL){
         //unable to open file
         //check destination path

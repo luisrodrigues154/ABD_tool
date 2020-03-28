@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-
-
 #ifndef loaded_settm
     #define loaded_settm
 
@@ -12,10 +9,10 @@
         char eventsOutPath[100];
     }ABD_SETTINGS;
 
-    static ABD_SETTINGS settings;
-    static char * userPath;
-    static char * folderPath;
-    static char * filePath;
+    static ABD_SETTINGS * settings = NULL;
+    static char * userPath = NULL;
+    static char * folderPath = NULL;
+    static char * filePath = NULL;
 #endif
 
 int writeCurrSettings(FILE * settingsFile);
@@ -27,3 +24,6 @@ void buildFilePath();
 int buildFolderPath();
 int checkFolderHierarchy();
 void createDefaults(FILE * settingsFile);
+char * getObjPath();
+char * getEventsPath();
+void checkSettings();

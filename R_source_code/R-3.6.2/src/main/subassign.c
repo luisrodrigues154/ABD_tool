@@ -93,6 +93,7 @@
 #include <Internal.h>
 #include <R_ext/RS.h> /* for test of S4 objects */
 #include <R_ext/Itermacros.h>
+#include <abd_tool/base_defn.h>
 
 /* The SET_STDVEC_LENGTH macro is used to modify the length of
    growable vectors. This would need to change to allow ALTREP vectors to
@@ -611,29 +612,41 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
     /* try for quick return for simple scalar case */
     if (ATTRIB(s) == R_NilValue) {
-	if (TYPEOF(x) == REALSXP && IS_SCALAR(y, REALSXP)) {
-	    if (IS_SCALAR(s, INTSXP)) {
-		R_xlen_t ival = SCALAR_IVAL(s);
-		if (1 <= ival && ival <= XLENGTH(x)) {
-		    REAL(x)[ival - 1] = SCALAR_DVAL(y);
-		    return x;
+		if (TYPEOF(x) == REALSXP && IS_SCALAR(y, REALSXP)) {
+			/* 
+				this will execute when only one modification is
+				done to the var (in this case will modify the TMP
+				var)
+			*/
+			
+			if (IS_SCALAR(s, INTSXP)) {
+				R_xlen_t ival = SCALAR_IVAL(s);
+				if (1 <= ival && ival <= XLENGTH(x)) {
+					REAL(x)[ival - 1] = SCALAR_DVAL(y);
+					int * idxs = (int *) malloc(sizeof(int));
+					idxs[0] = ival-1;
+					saveIdxChanges(1, idxs);
+					return x;
+				}
+			}
+			else if (IS_SCALAR(s, REALSXP)) {
+				double dval = SCALAR_DVAL(s);
+				if (R_FINITE(dval)) {
+					R_xlen_t ival = (R_xlen_t) dval;
+					if (1 <= ival && ival <= XLENGTH(x)) {
+						REAL(x)[ival - 1] = SCALAR_DVAL(y);
+						int * idxs = (int *) malloc(sizeof(int));
+						idxs[0] = ival-1;
+						saveIdxChanges(1, idxs);
+						return x;
+					}
+				}
+			}
 		}
-	    }
-	    else if (IS_SCALAR(s, REALSXP)) {
-		double dval = SCALAR_DVAL(s);
-		if (R_FINITE(dval)) {
-		    R_xlen_t ival = (R_xlen_t) dval;
-		    if (1 <= ival && ival <= XLENGTH(x)) {
-			REAL(x)[ival - 1] = SCALAR_DVAL(y);
-			return x;
-		    }
-		}
-	    }
-	}
     }
 
     if (isNull(x) && isNull(y)) {
-	return R_NilValue;
+		return R_NilValue;
     }
 
     /* Check to see if we have special matrix subscripting. */
@@ -1507,17 +1520,17 @@ static R_INLINE int SubAssignArgs(SEXP args, SEXP *x, SEXP *s, SEXP *y)
 	error(_("SubAssignArgs: invalid number of arguments"));
     *x = CAR(args);
     if (CDDR(args) == R_NilValue) {
-	*s = R_NilValue;
-	*y = CADR(args);
-	return 0;
+		*s = R_NilValue;
+		*y = CADR(args);
+		return 0;
     }
     else {
-	int nsubs = 1;
-	SEXP p;
-	*s = p = CDR(args);
-	while (CDDR(p) != R_NilValue) {
-	    p = CDR(p);
-	    nsubs++;
+		int nsubs = 1;
+		SEXP p;
+		*s = p = CDR(args);
+		while (CDDR(p) != R_NilValue) {
+			p = CDR(p);
+			nsubs++;
 	}
 	*y = CADR(p);
 	SETCDR(p, R_NilValue);
@@ -1532,19 +1545,22 @@ int R_DispatchOrEvalSP(SEXP call, SEXP op, const char *generic, SEXP args,
 		    SEXP rho, SEXP *ans)
 {
     SEXP prom = NULL;
+	
+
     if (args != R_NilValue && CAR(args) != R_DotsSymbol) {
-	SEXP x = eval(CAR(args), rho);
-	PROTECT(x);
-	INCREMENT_LINKS(x);
-	if (! OBJECT(x)) {
-	    *ans = CONS_NR(x, evalListKeepMissing(CDR(args), rho));
-	    DECREMENT_LINKS(x);
-	    UNPROTECT(1);
-	    return FALSE;
-	}
-	prom = R_mkEVPROMISE_NR(CAR(args), x);
-	args = CONS(prom, CDR(args));
-	UNPROTECT(1);
+		SEXP x = eval(CAR(args), rho);
+		//printf("var name %s\n", CHAR(PRINTNAME(x)));
+		PROTECT(x);
+		INCREMENT_LINKS(x);
+		if (! OBJECT(x)) {
+			*ans = CONS_NR(x, evalListKeepMissing(CDR(args), rho));
+			DECREMENT_LINKS(x);
+			UNPROTECT(1);
+			return FALSE;
+		}
+		prom = R_mkEVPROMISE_NR(CAR(args), x);
+		args = CONS(prom, CDR(args));
+		UNPROTECT(1);
     }
     PROTECT(args);
     int disp = DispatchOrEval(call, op, generic, args, rho, ans, 0, 0);
@@ -1593,9 +1609,9 @@ SEXP attribute_hidden do_subassign_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 	  as.vector(permute)
     */
     for (SEXP s = subs; s != R_NilValue; s = CDR(s)) {
-	SEXP idx = CAR(s);
-	if (x == idx)
-	    MARK_NOT_MUTABLE(x);
+		SEXP idx = CAR(s);
+		if (x == idx)
+			MARK_NOT_MUTABLE(x);
     }
 
     /* If there are multiple references to an object we must */
@@ -1604,67 +1620,67 @@ SEXP attribute_hidden do_subassign_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
     /* over always duplicating. */
 
     if (MAYBE_SHARED(CAR(args)))
-	x = SETCAR(args, shallow_duplicate(CAR(args)));
+		x = SETCAR(args, shallow_duplicate(CAR(args)));
 
     S4 = IS_S4_OBJECT(x);
 
     oldtype = 0;
     if (TYPEOF(x) == LISTSXP || TYPEOF(x) == LANGSXP) {
-	oldtype = TYPEOF(x);
-	PROTECT(x = PairToVectorList(x));
+		oldtype = TYPEOF(x);
+		PROTECT(x = PairToVectorList(x));
     }
     else if (xlength(x) == 0) {
-	if (xlength(y) == 0 && (isNull(x) || TYPEOF(x) == TYPEOF(y) ||
-				// isVectorList(y):
-				TYPEOF(y) == VECSXP || TYPEOF(y) == EXPRSXP)) {
-	    UNPROTECT(2);  /* args, y */
-	    return(x);
-	}
-	else {
-	    /* bug PR#2590 coerce only if null */
-	    if(isNull(x)) PROTECT(x = coerceVector(x, TYPEOF(y)));
-	    else PROTECT(x);
-	}
+		if (xlength(y) == 0 && (isNull(x) || TYPEOF(x) == TYPEOF(y) ||
+					// isVectorList(y):
+					TYPEOF(y) == VECSXP || TYPEOF(y) == EXPRSXP)) {
+			UNPROTECT(2);  /* args, y */
+			return(x);
+		}
+		else {
+			/* bug PR#2590 coerce only if null */
+			if(isNull(x)) PROTECT(x = coerceVector(x, TYPEOF(y)));
+			else PROTECT(x);
+		}
     }
     else {
-	PROTECT(x);
+		PROTECT(x);
     }
 
     switch (TYPEOF(x)) {
-    case LGLSXP:
-    case INTSXP:
-    case REALSXP:
-    case CPLXSXP:
-    case STRSXP:
-    case EXPRSXP:
-    case VECSXP:
-    case RAWSXP:
-	switch (nsubs) {
-	case 0:
-	    x = VectorAssign(call, rho, x, R_MissingArg, y);
-	    break;
-	case 1:
-	    x = VectorAssign(call, rho, x, CAR(subs), y);
-	    break;
-	case 2:
-	    x = MatrixAssign(call, rho, x, subs, y);
-	    break;
-	default:
-	    x = ArrayAssign(call, rho, x, subs, y);
-	    break;
-	}
-	break;
-    default:
-	error(R_MSG_ob_nonsub, type2char(TYPEOF(x)));
-	break;
+		case LGLSXP:
+		case INTSXP:
+		case REALSXP:
+		case CPLXSXP:
+		case STRSXP:
+		case EXPRSXP:
+		case VECSXP:
+		case RAWSXP:
+			switch (nsubs) {
+				case 0:
+					x = VectorAssign(call, rho, x, R_MissingArg, y);
+					break;
+				case 1:
+					x = VectorAssign(call, rho, x, CAR(subs), y);
+					break;
+				case 2:
+					x = MatrixAssign(call, rho, x, subs, y);
+					break;
+				default:
+					x = ArrayAssign(call, rho, x, subs, y);
+					break;
+			}
+			break;
+		default:
+			error(R_MSG_ob_nonsub, type2char(TYPEOF(x)));
+			break;
     }
 
     if (oldtype == LANGSXP) {
-	if(length(x)) {
-	    x = VectorToPairList(x);
-	    SET_TYPEOF(x, LANGSXP);
-	} else
-	    error(_("result is zero-length and so cannot be a language object"));
+		if(length(x)) {
+			x = VectorToPairList(x);
+			SET_TYPEOF(x, LANGSXP);
+		} else
+			error(_("result is zero-length and so cannot be a language object"));
     }
 
     /* Note the setting of NAMED(x) to zero here.  This means */

@@ -49,8 +49,7 @@
         OBJECTS,
         EVENTS
     }ABD_PERSIST;
-    char * OBJECTS_FILE_PATH = "/home/luis/Desktop/objects.json";
-    char * EVENTS_FILE_PATH = "/home/luis/Desktop/events.json";
+
 #endif
 
 

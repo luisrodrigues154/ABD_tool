@@ -4,6 +4,7 @@
 #include <abd_tool/event_manager_defn.h>
 #include <abd_tool/obj_manager_defn.h>
 #include <Print.h>
+#include <ctype.h>
 
 /*
    ####################################
@@ -20,6 +21,9 @@ void initObjsRegs(){
     cfObjReg = ABD_OBJECT_NOT_FOUND;
     numCfObj = 0;
     numCmnObj = 0;
+    waitingIdxChange = 0;
+    nIdxChanges = 0;
+    idxChanges = ABD_NOT_FOUND;
 }
 
 void wipeObjMods(ABD_OBJECT_MOD * listStart){
@@ -325,73 +329,6 @@ ABD_OBJECT * getCfObj(char * name, SEXP rho){
     return objectFound;
 }
 
-//below is used to all (except closures)
-void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
-    unsigned int instructionNumber = 1;
-    SEXPTYPE type = TYPEOF(rhs);
-    
-    //name extraction from lhs
-    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
-    char * name = memAllocForString(nameSize);
-    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
-    
-    ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
-    switch (type)
-    {
-        case CLOSXP:
-            //closures (function objects)
-            //newCfObjUsage(lhs, rhs, rho);
-            //basicPrint2();
-            obj = getCfObj(name, rho);
-            break;
-        case REALSXP:
-            //newCmnObjUsage(lhs, rhs, rho);
-            //basicPrint();
-            obj = getCmnObj(name, rho);
-            ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);
-
-            obj->modList = setModValues(newMod, rhs, createRealVector);
-            break;
-        case STRSXP:
-            puts("character vectors");
-            break;
-        case CPLXSXP:
-            puts("complex vectors");
-            break;
-        case LGLSXP:
-            puts("logical vectors");
-            break;
-        case INTSXP:
-            puts("integer vectors");
-            if(Rf_isMatrix(rhs)){
-                int nCols = Rf_ncols(rhs);
-                int nRows = Rf_nrows(rhs);
-                printf("DIM\nrows %d\ncols %d\n", nRows, nCols);
-            }
-            break;
-        case RAWSXP:
-            puts("raw vector");
-            break;
-        case VECSXP:
-            puts("list (generic vector");
-            break;
-        default:
-            break;
-    }
-    obj->usages++;
-    if(type == CLOSXP)
-        cfObjReg = rankObjByUsages(cfObjReg, obj);
-    else
-        cmnObjReg = rankObjByUsages(cmnObjReg, obj);
-
-    if(rhs == lastRetValue){
-        lastRetEvent->toObj = obj;
-        free(lastRetEvent->retValue);
-        lastRetEvent->retValue = obj->modList;
-        lastRetEvent = ABD_EVENT_NOT_FOUND;
-        lastRetValue = ABD_NOT_FOUND;
-    }
-}
 
 char * environmentExtraction(SEXP rho){
     const void *vmax = vmaxget();
@@ -428,14 +365,55 @@ ABD_VEC_OBJ * memAllocVecObj(){
 double * memAllocDoubleVector(int size){
     return (double *) malloc(size*sizeof(double));
 }
+
 ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
     int nElements = Rf_nrows(rhs);
     newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 'N';
     newMod->value.vec_value->nCols = nElements;
     newMod->value.vec_value->vector = memAllocDoubleVector(nElements);
     
     for(int i=0; i<nElements; i++)
        ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[i]; 
+
+    return newMod;
+}
+ABD_OBJECT_MOD * createRealVectorIdxChange(ABD_OBJECT_MOD * newMod, SEXP rhs){
+    
+
+    return newMod;
+}
+
+ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
+    
+    ABD_OBJECT_MOD * firstMod = newMod;
+
+
+    for(int i = 0; i < nIdxChanges; i++){
+        int idxMod = idxChanges[i];
+        newMod->value.vec_value = memAllocVecObj();
+        newMod->value.vec_value->idxChange = 'Y';
+        newMod->value.vec_value->nCols = idxMod;    
+        newMod->value.vec_value->vector = memAllocDoubleVector(1);
+
+        printf("IDXmod %d\n", idxMod);
+        printf("rhs[idxMod] %f\n", REAL(rhs)[idxMod]);
+        ((double *) newMod->value.vec_value->vector)[0] = REAL(rhs)[idxMod]; 
+
+        
+        if(i+1 == nIdxChanges){
+            if(nIdxChanges != 1)
+                newMod->nextMod = firstMod;
+            break;
+        }
+
+        ABD_OBJECT_MOD * auxMod = memAllocMod();
+        auxMod->nextMod = ABD_OBJECT_NOT_FOUND;
+        auxMod->prevMod = newMod;
+
+        newMod->nextMod = auxMod;
+        newMod = newMod->nextMod;
+    }
 
     return newMod;
 }
@@ -481,3 +459,106 @@ ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type){
     obj->modList->id = obj->usages+1;
     return obj->modList;
 }
+
+
+//below is used to all (except closures)
+void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
+    if(!isalpha(CHAR(PRINTNAME(lhs))[0]))
+        return;
+    
+    
+    SEXPTYPE type = TYPEOF(rhs);
+    
+    //name extraction from lhs
+    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
+    char * name = memAllocForString(nameSize);
+    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
+
+    if((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges==0))
+        return;
+
+    ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
+    switch (type)
+    {
+        case CLOSXP:
+            //closures (function objects)
+            //newCfObjUsage(lhs, rhs, rho);
+            //basicPrint2();
+            obj = getCfObj(name, rho);
+            break;
+        case REALSXP:
+            //newCmnObjUsage(lhs, rhs, rho);
+            //basicPrint();
+            
+            if(waitingIdxChange){
+                if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND)
+                    return;
+                ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);    
+                newMod = setModValues(newMod, rhs, realVectorMultiChanges);
+                
+                if(newMod->nextMod != ABD_OBJECT_NOT_FOUND){
+                    obj->modList = newMod->nextMod;
+                    newMod->nextMod = ABD_OBJECT_NOT_FOUND;
+                }else
+                    obj->modList = newMod;
+            }else{
+                obj = getCmnObj(name, rho);
+                ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);
+                obj->modList = setModValues(newMod, rhs, createRealVector);
+            }
+            break;
+        case STRSXP:
+            puts("character vectors");
+            break;
+        case CPLXSXP:
+            puts("complex vectors");
+            break;
+        case LGLSXP:
+            puts("logical vectors");
+            break;
+        case INTSXP:
+            puts("integer vectors");
+            if(Rf_isMatrix(rhs)){
+                int nCols = Rf_ncols(rhs);
+                int nRows = Rf_nrows(rhs);
+                printf("DIM\nrows %d\ncols %d\n", nRows, nCols);
+            }
+            break;
+        case RAWSXP:
+            puts("raw vector");
+            break;
+        case VECSXP:
+            puts("list (generic vector");
+            break;
+        default:
+            break;
+    }
+    obj->usages++;
+    if(type == CLOSXP)
+        cfObjReg = rankObjByUsages(cfObjReg, obj);
+    else
+        cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+
+    if(rhs == lastRetValue){
+        lastRetEvent->toObj = obj;
+        free(lastRetEvent->retValue);
+        lastRetEvent->retValue = obj->modList;
+        lastRetEvent = ABD_EVENT_NOT_FOUND;
+        lastRetValue = ABD_NOT_FOUND;
+    }
+
+    nIdxChanges = 0;
+    if(idxChanges != ABD_NOT_FOUND)
+        free(idxChanges);
+    idxChanges = ABD_NOT_FOUND;
+    waitingIdxChange = 0;
+}
+
+/*
+    stage the index changes before the next attribution
+
+*/
+void commitIdxChanges(int nIdxs, int * idx){
+    nIdxChanges = nIdxs;
+    idxChanges = idx;
+}   

@@ -7,4 +7,6 @@ subassign.o: subassign.c ../../src/include/config.h \
  ../../src/include/R_ext/Rdynload.h ../../src/include/Rinlinedfuns.h \
  ../../src/include/Errormsg.h ../../src/include/Internal.h \
  ../../src/include/R_ext/RS.h ../../src/include/Rconfig.h \
- ../../src/include/R_ext/Itermacros.h
+ ../../src/include/R_ext/Itermacros.h \
+ ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+ ../../src/include/R_ext/Constants.h ../../src/include/R_ext/Random.h

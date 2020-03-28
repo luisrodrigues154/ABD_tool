@@ -53,7 +53,6 @@ Type 'q()' to quit R.\n\n"));
     Rprintf(_("NOTE: This R version has ABD_TOOL included. Type 'abd_help()' \n\\
     for more information about the debugging tool\n\n"));
 
-    //check if folder with settings exist
     loadSettings();
 }
 

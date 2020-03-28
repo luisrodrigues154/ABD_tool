@@ -13,7 +13,10 @@
 #include <abd_tool/json_helpers.h>
 #include <abd_tool/env_stack.h>
 #include <abd_tool/env_stack_defn.h>
+#include <abd_tool/settings_manager_defn.h>
 #include <Print.h>
+
+
 
 /*
     Methods to start and stop the tool, helper function also here
@@ -54,6 +57,7 @@ void basicPrint(){
 }
 
 void START_WATCHER(){
+    checkSettings();
     initObjsRegs();
     initEventsReg();
     initEnvStack();
@@ -61,37 +65,40 @@ void START_WATCHER(){
 }
 
 void STOP_WATCHER(){
-    watcherState = ABD_DISABLE;
-    persistInformation();
-    //wipeRegs(cmnObjReg);
+    if(watcherState == ABD_ENABLE){
+        checkSettings();
+        watcherState = ABD_DISABLE;
+        persistInformation();
+    }
 }
 void ABD_HELP(){
-    /*printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
-    printf("\t###############################################\n");
+    printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
+    printf("\t##################################################\n");
     printf("\t-> Start the watcher: start_watcher()\n");
     printf("\t-> Stop the watcher: stop_watcher()\n");
-    printf("\t-> Set output file: abd_setPath(\"your/path\")\n");
-    printf("\t-> Display current output path: abd_path()\n");
-    printf("\t###############################################\n\n\n");*/
+    printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
+    printf("\t-> Display current output file path: abd_path()\n");
+    printf("\t##################################################\n\n\n");
+    checkSettings();
 }
 
 
-void basicPrint2(){
-   if(cfObjReg == ABD_OBJECT_NOT_FOUND)
-        printf("REG NULL\n");
-    else{
-        ABD_OBJECT * currentObj =cfObjReg;
-        do{
-            printf("name: %s\n", currentObj->name);
-            currentObj = currentObj->nextObj;
-        }while(currentObj!=NULL);
-    }
+void saveIdxChanges(int nIdxs, int * idxChanges){
+    printf("ival rcvd %d\n", idxChanges[0]);
+    commitIdxChanges(nIdxs, idxChanges);
 }
 
 void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
     if(watcherState){
         if(isEnvironment(rho)){
+            
+            if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0){
+               //do not register
+               puts("temp");
+               waitingIdxChange = 1;
+            }
             newObjUsage(lhs,rhs,rho);
+            
         }
     }
 }

@@ -27,6 +27,16 @@
     }OBJ_STATE;
 
     typedef struct abd_vec_obj{
+        char idxChange;
+        /*
+            if idxChange is y then
+                nCols will represent the index changed
+                and vector will be the new value for that index
+            else
+                a new vector is allocated and nCols will represent
+                what the name says (the number of columns in the vector)
+                while vector will be the vector totality (1,2,3, ...)
+        */
         int nCols;
         void * vector;
     }ABD_VEC_OBJ;
@@ -76,6 +86,14 @@
 
     static int numCfObj;
     static int numCmnObj;
+
+    static int waitingIdxChange;
+
+    //vectors
+    static int nIdxChanges;
+    static int * idxChanges;
+
+
     #define ABD_OBJECT_NOT_FOUND NULL
 #endif
 /*
@@ -113,9 +131,6 @@ ABD_OBJECT_MOD * memAllocMod();
    ####################################
 */
 
-/*
-    generic
-*/
 void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv);
 ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg );
 ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, SEXP createdEnv);
@@ -125,16 +140,12 @@ ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
 void newCmnObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
 void newCfObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
 char * environmentExtraction(SEXP rho);
-
-/*
-    CMN_OBJ specifics
-*/
 ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) );
 ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type);
 ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * mod,SEXP rhs);
+ABD_OBJECT_MOD * createRealVectorIdxChange(ABD_OBJECT_MOD * newMod, SEXP rhs);
 ABD_OBJECT * getCmnObj(char * name, SEXP rho);
 ABD_OBJECT * getCfObj(char * name, SEXP rho);
-/*
-    CF_OBJ specifics
-*/
 ABD_OBJECT * findFuncObj(char * name, SEXP  callingEnv);
+
+void commitIdxChanges(int, int * );
