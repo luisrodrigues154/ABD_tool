@@ -25,20 +25,29 @@ char * getStrFromIndent(JSON_INDENT indent){
     return ret;
 }
 
-void writeObjVector(FILE * out, ABD_VEC_OBJ * vecObj, int id){
+void writeRealVector(FILE * out, ABD_VEC_OBJ * vecObj, int id){
     fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), id);
 
     if(vecObj->idxChange == 'Y'){
         fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
-        fprintf(out, "\n%s\"idxChanged\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
-        fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(INDENT_5), ((double *) vecObj->vector)[0]);
+        fprintf(out, "\n%s\"numMods\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
+        fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5));
+        
+        //nCols represent number of modifications
+        for(int i =0; i<vecObj->nCols; i++){
+            fprintf(out, "\n%s{ \"index\" : %d, ", getStrFromIndent(INDENT_6), vecObj->idxs[i]);
+            fprintf(out, "\"newValue\" : %.2f }", ((double *) vecObj->vector)[i]);
+            if(i+1 != vecObj->nCols)
+                fprintf(out, ",");
+        }
+        fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
     }else{
         fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));
         if(vecObj->nCols == 1){
         fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(INDENT_5), ((double *) vecObj->vector)[0]);
         }else{
             fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
-            fprintf(out, "\n%s\"value\" : [", getStrFromIndent(INDENT_5));
+            fprintf(out, "\n%s\"vector\" : [", getStrFromIndent(INDENT_5));
             for(int i=0; i<vecObj->nCols; i++)
                 fprintf(out, "%.2f%s", ((double *) vecObj->vector)[i], (i+1==vecObj->nCols) ? "" : ",");
             fprintf(out, "]");
@@ -53,7 +62,7 @@ void writeObjModsToFile(FILE * out, ABD_OBJECT_MOD * listStart){
         switch(currMod->type){
             case REALSXP:
                 //vector can be size 1 (single number)
-                writeObjVector(out, currMod->value.vec_value, currMod->id);
+                writeRealVector(out, currMod->value.vec_value, currMod->id);
                 break;
             case STRSXP:
                 break;

@@ -30,7 +30,7 @@
         char idxChange;
         /*
             if idxChange is y then
-                nCols will represent the index changed
+                nCols will represent how many indexes changed
                 and vector will be the new value for that index
             else
                 a new vector is allocated and nCols will represent
@@ -38,6 +38,7 @@
                 while vector will be the vector totality (1,2,3, ...)
         */
         int nCols;
+        int * idxs;
         void * vector;
     }ABD_VEC_OBJ;
 

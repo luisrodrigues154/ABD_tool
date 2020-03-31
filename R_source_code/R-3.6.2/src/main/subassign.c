@@ -623,9 +623,12 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 				R_xlen_t ival = SCALAR_IVAL(s);
 				if (1 <= ival && ival <= XLENGTH(x)) {
 					REAL(x)[ival - 1] = SCALAR_DVAL(y);
-					int * idxs = (int *) malloc(sizeof(int));
-					idxs[0] = ival-1;
-					saveIdxChanges(1, idxs);
+					if(isRunning()){
+						//if tool enabled, prepare the vector modification
+						int * idxs = (int *) malloc(sizeof(int));
+						idxs[0] = ival-1;
+						saveIdxChanges(1, idxs);
+					}
 					return x;
 				}
 			}
@@ -635,9 +638,12 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 					R_xlen_t ival = (R_xlen_t) dval;
 					if (1 <= ival && ival <= XLENGTH(x)) {
 						REAL(x)[ival - 1] = SCALAR_DVAL(y);
-						int * idxs = (int *) malloc(sizeof(int));
-						idxs[0] = ival-1;
-						saveIdxChanges(1, idxs);
+						if(isRunning()){
+							//if tool enabled, prepare the vector modification
+							int * idxs = (int *) malloc(sizeof(int));
+							idxs[0] = ival-1;
+							saveIdxChanges(1, idxs);
+						}
 						return x;
 					}
 				}
@@ -684,8 +690,8 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
     which = SubassignTypeFix(&x, &y, stretch, 1, call, rho);
     /* = 100 * TYPEOF(x) + TYPEOF(y);*/
     if (n == 0) {
-	UNPROTECT(2);
-	return x;
+		UNPROTECT(2);
+		return x;
     }
     ny = xlength(y);
     nx = xlength(x);
@@ -706,172 +712,171 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
     /* objects.  A full duplication is wasteful. */
 
     if (x == y)
-	PROTECT(y = shallow_duplicate(y));
+		PROTECT(y = shallow_duplicate(y));
     else
-	PROTECT(y);
+		PROTECT(y);
 
     /* Note that we are now committed. */
     /* Since we are mutating existing objects, */
     /* any changes we make now are (likely to be) permanent.  Beware! */
-
+	//printf("WHICH %d\n", which);
     switch(which) {
-	/* because we have called SubassignTypeFix the commented
-	   values cannot occur (and would be unsafe) */
+		/* because we have called SubassignTypeFix the commented
+		values cannot occur (and would be unsafe) */
 
-    case 1010:	/* logical   <- logical	  */
-    case 1310:	/* integer   <- logical	  */
-    /* case 1013:  logical   <- integer	  */
-    case 1313:	/* integer   <- integer	  */
+		case 1010:	/* logical   <- logical	  */
+		case 1310:	/* integer   <- logical	  */
+		/* case 1013:  logical   <- integer	  */
+		case 1313:	/* integer   <- integer	  */
 
-	{
-	    int *px = INTEGER(x);
-	    VECTOR_ASSIGN_LOOP(px[ii] = INTEGER_ELT(y, iny););
-	}
-	break;
+		{
+			int *px = INTEGER(x);
+			VECTOR_ASSIGN_LOOP(px[ii] = INTEGER_ELT(y, iny););
+		}
+		break;
 
-    case 1410:	/* real	     <- logical	  */
-    case 1413:	/* real	     <- integer	  */
+		case 1410:	/* real	     <- logical	  */
+		case 1413:	/* real	     <- integer	  */
 
-	{
-	    double *px = REAL(x);
-	    VECTOR_ASSIGN_LOOP({
-		    int iy = INTEGER_ELT(y, iny);
-		    if (iy == NA_INTEGER)
-			px[ii] = NA_REAL;
-		    else
-			px[ii] = iy;
-		});
-	}
-	break;
+		{
+			double *px = REAL(x);
+			VECTOR_ASSIGN_LOOP({
+				int iy = INTEGER_ELT(y, iny);
+				if (iy == NA_INTEGER)
+				px[ii] = NA_REAL;
+				else
+				px[ii] = iy;
+			});
+		}
+		break;
 
-    /* case 1014:  logical   <- real	  */
-    /* case 1314:  integer   <- real	  */
-    case 1414:	/* real	     <- real	  */
+		/* case 1014:  logical   <- real	  */
+		/* case 1314:  integer   <- real	  */
+		case 1414:	/* real	     <- real	  */
 
-	{
-	    double *px = REAL(x);
-	    VECTOR_ASSIGN_LOOP(px[ii] = REAL_ELT(y, iny););
-	}
-	break;
+		{
+			double *px = REAL(x);
+			VECTOR_ASSIGN_LOOP(px[ii] = REAL_ELT(y, iny););
+		}
+		break;
 
-    case 1510:	/* complex   <- logical	  */
-    case 1513:	/* complex   <- integer	  */
+		case 1510:	/* complex   <- logical	  */
+		case 1513:	/* complex   <- integer	  */
 
-	{
-	    Rcomplex *px = COMPLEX(x);
-	    VECTOR_ASSIGN_LOOP({
-		    int iy = INTEGER_ELT(y, iny);
-		    if (iy == NA_INTEGER) {
-			px[ii].r = NA_REAL;
-			px[ii].i = NA_REAL;
-		    }
-		    else {
-			px[ii].r = iy;
-			px[ii].i = 0.0;
-		    }
-		});
-	}
-	break;
+		{
+			Rcomplex *px = COMPLEX(x);
+			VECTOR_ASSIGN_LOOP({
+				int iy = INTEGER_ELT(y, iny);
+				if (iy == NA_INTEGER) {
+				px[ii].r = NA_REAL;
+				px[ii].i = NA_REAL;
+				}
+				else {
+				px[ii].r = iy;
+				px[ii].i = 0.0;
+				}
+			});
+		}
+		break;
 
-    case 1514:	/* complex   <- real	  */
+		case 1514:	/* complex   <- real	  */
 
-	{
-	    Rcomplex *px = COMPLEX(x);
-	    VECTOR_ASSIGN_LOOP({
-		    double ry = REAL_ELT(y, iny);
-		    if (ISNA(ry)) {
-			px[ii].r = NA_REAL;
-			px[ii].i = NA_REAL;
-		    }
-		    else {
-			px[ii].r = ry;
-			px[ii].i = 0.0;
-		    }
-		});
-	}
-	break;
+		{
+			Rcomplex *px = COMPLEX(x);
+			VECTOR_ASSIGN_LOOP({
+				double ry = REAL_ELT(y, iny);
+				if (ISNA(ry)) {
+				px[ii].r = NA_REAL;
+				px[ii].i = NA_REAL;
+				}
+				else {
+				px[ii].r = ry;
+				px[ii].i = 0.0;
+				}
+			});
+		}
+		break;
 
-    /* case 1015:  logical   <- complex	  */
-    /* case 1315:  integer   <- complex	  */
-    /* case 1415:  real	     <- complex	  */
-    case 1515:	/* complex   <- complex	  */
+		/* case 1015:  logical   <- complex	  */
+		/* case 1315:  integer   <- complex	  */
+		/* case 1415:  real	     <- complex	  */
+		case 1515:	/* complex   <- complex	  */
 
-	{
-	    Rcomplex *px = COMPLEX(x);
-	    VECTOR_ASSIGN_LOOP(px[ii] = COMPLEX_ELT(y, iny););
-	}
-	break;
+		{
+			Rcomplex *px = COMPLEX(x);
+			VECTOR_ASSIGN_LOOP(px[ii] = COMPLEX_ELT(y, iny););
+		}
+		break;
 
-    case 1610:	/* character <- logical	  */
-    case 1613:	/* character <- integer	  */
-    case 1614:	/* character <- real	  */
-    case 1615:	/* character <- complex	  */
-    case 1616:	/* character <- character */
-    /* case 1016:  logical   <- character */
-    /* case 1316:  integer   <- character */
-    /* case 1416:  real	     <- character */
-    /* case 1516:  complex   <- character */
+		case 1610:	/* character <- logical	  */
+		case 1613:	/* character <- integer	  */
+		case 1614:	/* character <- real	  */
+		case 1615:	/* character <- complex	  */
+		case 1616:	/* character <- character */
+		/* case 1016:  logical   <- character */
+		/* case 1316:  integer   <- character */
+		/* case 1416:  real	     <- character */
+		/* case 1516:  complex   <- character */
 
-	VECTOR_ASSIGN_LOOP(SET_STRING_ELT(x, ii, STRING_ELT(y, iny)););
-	break;
+		VECTOR_ASSIGN_LOOP(SET_STRING_ELT(x, ii, STRING_ELT(y, iny)););
+		break;
 
-    /* case 1019:  logial     <- vector   */
-    /* case 1319:  integer    <- vector   */
-    /* case 1419:  real       <- vector   */
-    /* case 1519:  complex    <- vector   */
-    /* case 1619:  character  <- vector   */
+		/* case 1019:  logial     <- vector   */
+		/* case 1319:  integer    <- vector   */
+		/* case 1419:  real       <- vector   */
+		/* case 1519:  complex    <- vector   */
+		/* case 1619:  character  <- vector   */
 
-    /* case 1910:  vector     <- logical    */
-    /* case 1913:  vector     <- integer    */
-    /* case 1914:  vector     <- real       */
-    /* case 1915:  vector     <- complex    */
-    /* case 1916:  vector     <- character  */
+		/* case 1910:  vector     <- logical    */
+		/* case 1913:  vector     <- integer    */
+		/* case 1914:  vector     <- real       */
+		/* case 1915:  vector     <- complex    */
+		/* case 1916:  vector     <- character  */
 
-    case 1919:  /* vector     <- vector     */
+		case 1919:  /* vector     <- vector     */
+		//puts("GOT HEREEEEEEEE");
+		VECTOR_ASSIGN_LOOP({
 
-	VECTOR_ASSIGN_LOOP({
+			/* set NAMED on RHS value to NAMEDMAX if used more than once
+			(PR15098) */
+			if (i >= ny)
+				ENSURE_NAMEDMAX(VECTOR_ELT(y, iny));
 
-		/* set NAMED on RHS value to NAMEDMAX if used more than once
-		   (PR15098) */
-		if (i >= ny)
-		    ENSURE_NAMEDMAX(VECTOR_ELT(y, iny));
+			SET_VECTOR_ELT(x, ii, VECTOR_ELT_FIX_NAMED(y, iny));
+			});
+		break;
 
-		SET_VECTOR_ELT(x, ii, VECTOR_ELT_FIX_NAMED(y, iny));
-	    });
-	break;
+		/* case 2001: */
+		/* case 2006:  expression <- language   */
+		/* case 2010:  expression <- logical    */
+		/* case 2013:  expression <- integer    */
+		/* case 2014:  expression <- real	    */
+		/* case 2015:  expression <- complex    */
+		/* case 2016:  expression <- character  */
+		case 2019:	/* expression <- vector, needed if we have promoted a
+			RHS  to a list */
+		case 2020:	/* expression <- expression */
 
-    /* case 2001: */
-    /* case 2006:  expression <- language   */
-    /* case 2010:  expression <- logical    */
-    /* case 2013:  expression <- integer    */
-    /* case 2014:  expression <- real	    */
-    /* case 2015:  expression <- complex    */
-    /* case 2016:  expression <- character  */
-    case 2019:	/* expression <- vector, needed if we have promoted a
-		   RHS  to a list */
-    case 2020:	/* expression <- expression */
+		VECTOR_ASSIGN_LOOP(SET_VECTOR_ELT(x, ii, VECTOR_ELT(y, iny)););
+		break;
 
-	VECTOR_ASSIGN_LOOP(SET_VECTOR_ELT(x, ii, VECTOR_ELT(y, iny)););
-	break;
+		case 1900:  /* vector     <- null       */
+		case 2000:  /* expression <- null       */
 
-    case 1900:  /* vector     <- null       */
-    case 2000:  /* expression <- null       */
+		x = DeleteListElements(x, indx);
+		UNPROTECT(4);
+		return x;
+		break;
 
-	x = DeleteListElements(x, indx);
-	UNPROTECT(4);
-	return x;
-	break;
+		case 2424:	/* raw   <- raw	  */
+			{
+				Rbyte *px = RAW(x);
+				VECTOR_ASSIGN_LOOP(px[ii] = RAW_ELT(y, iny););
+			}
+		break;
 
-    case 2424:	/* raw   <- raw	  */
-
-	{
-	    Rbyte *px = RAW(x);
-	    VECTOR_ASSIGN_LOOP(px[ii] = RAW_ELT(y, iny););
-	}
-	break;
-
-    default:
-	warningcall(call, "sub assignment (*[*] <- *) not done; __bug?__");
+		default:
+			warningcall(call, "sub assignment (*[*] <- *) not done; __bug?__");
     }
     /* Check for additional named elements. */
     /* Note makeSubscript passes the additional names back as the use.names

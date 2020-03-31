@@ -19,6 +19,7 @@ eval.o: eval.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/abd_tool/env_stack_defn.h \
  ../../src/include/abd_tool/json_helpers_defn.h \
  ../../src/include/abd_tool/json_helpers.h \
+ ../../src/include/abd_tool/settings_manager_defn.h \
  ../../src/include/abd_tool/env_stack.h arithmetic.h \
  ../../src/include/Rmath.h ../../src/include/Rdynpriv.h \
  ../../src/include/Parse.h ../../src/include/IOStuff.h \

@@ -672,8 +672,7 @@ SEXP eval(SEXP e, SEXP rho)
 			from evaluating their 'value' argument so the value will
 			end up getting duplicated if NAMED > 1.) LT */
 			break;
-		case LANGSXP:
-			
+		case LANGSXP:			
 			if (TYPEOF(CAR(e)) == SYMSXP) {
 				/* This will throw an error if the function is not found */
 				SEXP ecall = e;
@@ -683,10 +682,15 @@ SEXP eval(SEXP e, SEXP rho)
 				if (R_GlobalContext != NULL &&
 					(R_GlobalContext->callflag == CTXT_CCODE))
 				ecall = R_GlobalContext->call;
+				
 				PROTECT(op = findFun3(CAR(e), rho, ecall));
-			} else
+				printf("Hum, SYMSXP\nCAR(e) -> %s\n", CHAR(PRINTNAME(CAR(e))));
+			} else{
+				//printf("Hum2, SYMSXP\nCAR(e) -> %s\n OP-> %s\n\n", CHAR(PRINTNAME(CAR(e))), CHAR(PRINTNAME(op)));
 				PROTECT(op = eval(CAR(e), rho));
-
+			}
+				
+			
 			
 
 			if(RTRACE(op) && R_current_trace_state()) {
@@ -694,6 +698,7 @@ SEXP eval(SEXP e, SEXP rho)
 				PrintValue(e);
 			}
 			if (TYPEOF(op) == SPECIALSXP) {
+				puts("in SPECIALSXP\n");
 				int save = R_PPStackTop, flag = PRIMPRINT(op);
 				const void *vmax = vmaxget();
 				PROTECT(e);
@@ -715,6 +720,7 @@ SEXP eval(SEXP e, SEXP rho)
 				vmaxset(vmax);
 			}
 			else if (TYPEOF(op) == BUILTINSXP) {
+				puts("in BUILTINSXP\n");
 				int save = R_PPStackTop, flag = PRIMPRINT(op);
 				const void *vmax = vmaxget();
 				RCNTXT cntxt;
@@ -747,7 +753,6 @@ SEXP eval(SEXP e, SEXP rho)
 			}
 			else if (TYPEOF(op) == CLOSXP) {
 				//its a function, will get here				
-				
 				SEXP pargs = promiseArgs(CDR(e), rho);
 				PROTECT(pargs);
 				tmp = applyClosure(e, op, pargs, rho, R_NilValue);
@@ -2051,14 +2056,15 @@ static R_INLINE Rboolean asLogicalNoNA(SEXP s, SEXP call, SEXP rho)
 
     /* handle most common special case directly */
     if (IS_SCALAR(s, LGLSXP)) {
-	cond = SCALAR_LVAL(s);
-	if (cond != NA_LOGICAL)
-	    return cond;
+		cond = SCALAR_LVAL(s);
+		printf("COND asLogical1 %d\n", cond);
+		if (cond != NA_LOGICAL)
+			return cond;
     }
     else if (IS_SCALAR(s, INTSXP)) {
-	int val = SCALAR_IVAL(s);
-	if (val != NA_INTEGER)
-	    return val != 0;
+		int val = SCALAR_IVAL(s);
+		if (val != NA_INTEGER)
+			return val != 0;
     }
 
     int len = length(s);
@@ -2076,16 +2082,16 @@ static R_INLINE Rboolean asLogicalNoNA(SEXP s, SEXP call, SEXP rho)
     }
     if (len > 0) {
 	/* inline common cases for efficiency */
-	switch(TYPEOF(s)) {
-	case LGLSXP:
-	    cond = LOGICAL(s)[0];
-	    break;
-	case INTSXP:
-	    cond = INTEGER(s)[0]; /* relies on NA_INTEGER == NA_LOGICAL */
-	    break;
-	default:
-	    cond = asLogical(s);
-	}
+		switch(TYPEOF(s)) {
+			case LGLSXP:
+				cond = LOGICAL(s)[0];
+				break;
+			case INTSXP:
+				cond = INTEGER(s)[0]; /* relies on NA_INTEGER == NA_LOGICAL */
+				break;
+			default:
+				cond = asLogical(s);
+		}
     }
 
     if (cond == NA_LOGICAL) {
@@ -2116,29 +2122,90 @@ static R_INLINE Rboolean asLogicalNoNA(SEXP s, SEXP call, SEXP rho)
 	}							\
     } while(0)
 
+SEXP showArgs(SEXP args)
+{
+    //args = CDR(args); /* skip 'name' */
+    for(int i = 0; args != R_NilValue; i++, args = CDR(args)) {
+        const char *name = 
+            isNull(TAG(args)) ? "" : CHAR(PRINTNAME(TAG(args)));
+	SEXP el = CAR(args);
+	if (length(el) == 0) {
+	    Rprintf("[%d] '%s' R type, length 0\n", i+1, name);
+	    continue;
+	}
+	switch(TYPEOF(el)) {
+	case REALSXP:
+	    Rprintf("[%d] '%s' %f\n", i+1, name, REAL(el)[0]);
+	    break;
+	case LGLSXP:
+	case INTSXP:
+	    Rprintf("[%d] '%s' %d\n", i+1, name, INTEGER(el)[0]);
+	    break;
+	case CPLXSXP:
+	{
+	    Rcomplex cpl = COMPLEX(el)[0];
+	    Rprintf("[%d] '%s' %f + %fi\n", i+1, name, cpl.r, cpl.i);
+	}
+	    break;
+	case STRSXP:
+	    Rprintf("[%d] '%s' %s\n", i+1, name,
+		    CHAR(STRING_ELT(el, 0)));
+	    break;
+	default:
+	    Rprintf("[%d] '%s' R type\n", i+1, name);
+	}
+    }
+    return R_NilValue;
+}
+
 SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP Cond, Stmt=R_NilValue;
     int vis=0;
 
+	puts("if issued");
+	showArgs(CDR(CAR(args)));
     PROTECT(Cond = eval(CAR(args), rho));
-    if (asLogicalNoNA(Cond, call, rho))
-	Stmt = CAR(CDR(args));
-    else {
-	if (length(args) > 2)
-	    Stmt = CAR(CDR(CDR(args)));
-	else
-	    vis = 1;
+    if (asLogicalNoNA(Cond, call, rho)){
+		puts("if 1");
+		if(st){
+			SEXP fullXP = CAR(args); 
+			/* 
+				
+			*/
+			
+			// printf("op1 %s\n", CHAR(PRINTNAME(CAR(CAR(args)))));
+			// printf("op2 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(args)))))));
+			// printf("op3 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(args))))))));
+			// printf("op4 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(CDR(CDR(CAR(args))))))))));
+			// printf("op5 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(CDR(CDR(CAR(args)))))))))));
+			
+		}
+		
+		Stmt = CAR(CDR(args));
+    }else {
+		if (length(args) > 2){
+			puts("if 2");
+			/*printf("Length %d\n", length(args));
+			
+			printf("Length 2 %d\n", length(Stmt));
+			printf("CAR(CAR %s\n", CHAR(PRINTNAME(CAR(CAR(args)))));*/
+			Stmt = CAR(CDR(CDR(args)));
+		}
+		else{
+			puts("if 3");
+			vis = 1;
+		}
     }
     if( !vis && RDEBUG(rho) && !BodyHasBraces(Stmt) && !R_GlobalContext->browserfinish) {
-	SrcrefPrompt("debug", R_Srcref);
-	PrintValue(Stmt);
-	do_browser(call, op, R_NilValue, rho);
+		SrcrefPrompt("debug", R_Srcref);
+		PrintValue(Stmt);
+		do_browser(call, op, R_NilValue, rho);
     }
     UNPROTECT(1);
     if( vis ) {
-	R_Visible = FALSE; /* case of no 'else' so return invisible NULL */
-	return Stmt;
+		R_Visible = FALSE; /* case of no 'else' so return invisible NULL */
+		return Stmt;
     }
     return (eval(Stmt, rho));
 }

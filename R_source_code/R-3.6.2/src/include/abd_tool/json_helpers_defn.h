@@ -62,7 +62,7 @@
 FILE * openFile(char * filePath);
 int closeFile(FILE * outputFile);
 char * getStrFromIndent(JSON_INDENT indent);
-void writeObjVector(FILE * out, ABD_VEC_OBJ * vecObj, int id);
+void writeRealVector(FILE * out, ABD_VEC_OBJ * vecObj, int id);
 void writeObjModsToFile(FILE * out, ABD_OBJECT_MOD * listStart);
 void writeObjToFile(FILE * out, ABD_OBJECT * obj);
 void saveObjects(FILE * out);

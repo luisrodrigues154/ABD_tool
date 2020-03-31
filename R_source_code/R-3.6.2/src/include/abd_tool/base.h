@@ -65,38 +65,36 @@ void START_WATCHER(){
 }
 
 void STOP_WATCHER(){
-    if(watcherState == ABD_ENABLE){
+    if(isRunning()){
         checkSettings();
         watcherState = ABD_DISABLE;
         persistInformation();
     }
 }
 void ABD_HELP(){
-    printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
-    printf("\t##################################################\n");
-    printf("\t-> Start the watcher: start_watcher()\n");
-    printf("\t-> Stop the watcher: stop_watcher()\n");
-    printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
-    printf("\t-> Display current output file path: abd_path()\n");
-    printf("\t##################################################\n\n\n");
-    checkSettings();
+    // printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
+    // printf("\t##################################################\n");
+    // printf("\t-> Start the watcher: start_watcher()\n");
+    // printf("\t-> Stop the watcher: stop_watcher()\n");
+    // printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
+    // printf("\t-> Display current output file path: abd_path()\n");
+    // printf("\t##################################################\n\n\n");
+    //checkSettings();
+    st =1;
 }
 
 
 void saveIdxChanges(int nIdxs, int * idxChanges){
-    printf("ival rcvd %d\n", idxChanges[0]);
     commitIdxChanges(nIdxs, idxChanges);
 }
 
 void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
-    if(watcherState){
+    if(isRunning()){
         if(isEnvironment(rho)){
             
-            if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0){
+            if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0)
                //do not register
-               puts("temp");
                waitingIdxChange = 1;
-            }
             newObjUsage(lhs,rhs,rho);
             
         }
@@ -116,7 +114,7 @@ ABD_SEARCH checkToReg(SEXP rho){
 
 
 ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs){
-    if(watcherState){
+    if(isRunning()){
         ABD_OBJECT * objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
         if(objFound == ABD_OBJECT_NOT_FOUND)
             return ABD_NOT_EXIST;
@@ -134,5 +132,9 @@ void regFunReturn(SEXP lhs, SEXP rho, SEXP val){
     setRetEventValue(val);
     lastRetValue = val;
     envPop();
+}
+
+ABD_STATE isRunning(){
+    return watcherState;
 }
 

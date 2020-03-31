@@ -370,6 +370,7 @@ ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
     int nElements = Rf_nrows(rhs);
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 'N';
+    newMod->value.vec_value->idxs = ABD_NOT_FOUND;
     newMod->value.vec_value->nCols = nElements;
     newMod->value.vec_value->vector = memAllocDoubleVector(nElements);
     
@@ -378,41 +379,19 @@ ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
 
     return newMod;
 }
-ABD_OBJECT_MOD * createRealVectorIdxChange(ABD_OBJECT_MOD * newMod, SEXP rhs){
-    
-
-    return newMod;
-}
 
 ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
     
     ABD_OBJECT_MOD * firstMod = newMod;
-
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 'Y';
+    newMod->value.vec_value->nCols = nIdxChanges;    
+    newMod->value.vec_value->vector = memAllocDoubleVector(nIdxChanges);
+    newMod->value.vec_value->idxs = idxChanges;
 
     for(int i = 0; i < nIdxChanges; i++){
         int idxMod = idxChanges[i];
-        newMod->value.vec_value = memAllocVecObj();
-        newMod->value.vec_value->idxChange = 'Y';
-        newMod->value.vec_value->nCols = idxMod;    
-        newMod->value.vec_value->vector = memAllocDoubleVector(1);
-
-        printf("IDXmod %d\n", idxMod);
-        printf("rhs[idxMod] %f\n", REAL(rhs)[idxMod]);
-        ((double *) newMod->value.vec_value->vector)[0] = REAL(rhs)[idxMod]; 
-
-        
-        if(i+1 == nIdxChanges){
-            if(nIdxChanges != 1)
-                newMod->nextMod = firstMod;
-            break;
-        }
-
-        ABD_OBJECT_MOD * auxMod = memAllocMod();
-        auxMod->nextMod = ABD_OBJECT_NOT_FOUND;
-        auxMod->prevMod = newMod;
-
-        newMod->nextMod = auxMod;
-        newMod = newMod->nextMod;
+        ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[idxMod]; 
     }
 
     return newMod;
@@ -474,8 +453,10 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
     char * name = memAllocForString(nameSize);
     copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
 
-    if((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges==0))
+    if((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges==0)){
+        waitingIdxChange = 0;
         return;
+    }
 
     ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
     switch (type)
@@ -487,26 +468,23 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
             obj = getCfObj(name, rho);
             break;
         case REALSXP:
-            //newCmnObjUsage(lhs, rhs, rho);
-            //basicPrint();
-            
-            if(waitingIdxChange){
-                if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND)
-                    return;
-                ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);    
-                newMod = setModValues(newMod, rhs, realVectorMultiChanges);
-                
-                if(newMod->nextMod != ABD_OBJECT_NOT_FOUND){
-                    obj->modList = newMod->nextMod;
-                    newMod->nextMod = ABD_OBJECT_NOT_FOUND;
-                }else
+            {
+                //newCmnObjUsage(lhs, rhs, rho);
+                //basicPrint();
+                ABD_OBJECT_MOD * newMod = ABD_OBJECT_NOT_FOUND;
+                if(waitingIdxChange){
+                    if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND)
+                        return;
+                    newMod = addEmptyModToObj(obj, type);    
+                    newMod = setModValues(newMod, rhs, realVectorMultiChanges);
+                }else{
+                    obj = getCmnObj(name, rho);
+                    newMod = addEmptyModToObj(obj, type);
+                    newMod = setModValues(newMod, rhs, createRealVector);
+                }
                     obj->modList = newMod;
-            }else{
-                obj = getCmnObj(name, rho);
-                ABD_OBJECT_MOD * newMod = addEmptyModToObj(obj, type);
-                obj->modList = setModValues(newMod, rhs, createRealVector);
+                break;
             }
-            break;
         case STRSXP:
             puts("character vectors");
             break;

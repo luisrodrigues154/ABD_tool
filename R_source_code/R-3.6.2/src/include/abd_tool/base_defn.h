@@ -34,7 +34,7 @@
     }ABD_SEARCH;
     
   static ABD_STATE watcherState = ABD_DISABLE;
-  
+  static int st =0;
   //constants
   #define ABD_NOT_FOUND NULL
 #endif
@@ -43,15 +43,13 @@
 /*
     General tool methods prototypes are declared below
 */
-SEXP myFunc(SEXP name, SEXP rho);
 void ABD_HELP();
 void START_WATCHER();
 void STOP_WATCHER();
-
+ABD_STATE isRunning();
 void regVarChange(SEXP, SEXP, SEXP);
 ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
-void regCodeFlowChange();
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();
 void saveIdxChanges(int nIdxs, int * idxChanges);
