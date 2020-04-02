@@ -57,16 +57,16 @@ FLIBS =  -lgfortran -lm -lquadmath
 FPICFLAGS = -fpic
 FOUNDATION_CPPFLAGS = 
 FOUNDATION_LIBS = 
-JAR = /usr/lib/jvm/java-11-openjdk-amd64/bin//jar
+JAR = /usr/bin/jar
 JAVA = /usr/lib/jvm/java-11-openjdk-amd64/bin//java
-JAVAC = /usr/lib/jvm/java-11-openjdk-amd64/bin//javac
-JAVAH = 
+JAVAC = /usr/bin/javac
+JAVAH = /usr/bin/javah
 ## JAVA_HOME might be used in the next three.  
 ## They are for packages 'JavaGD' and 'rJava'
 JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64/bin/
-JAVA_CPPFLAGS = -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/linux
-JAVA_LIBS = -L/usr/lib/jvm/java-11-openjdk-amd64/lib/server -ljvm
-JAVA_LD_LIBRARY_PATH = /usr/lib/jvm/java-11-openjdk-amd64/lib/server
+JAVA_CPPFLAGS = 
+JAVA_LIBS = 
+JAVA_LD_LIBRARY_PATH = 
 LAPACK_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRlapack
 LDFLAGS = -L/usr/local/lib
 ## we only need this is if it is external, as otherwise link to R

@@ -28,6 +28,7 @@
 #include <Rmath.h>
 #include <errno.h>
 #include <R_ext/Itermacros.h>
+#include <abd_tool/base_defn.h>
 
 /* interval at which to check interrupts, a guess */
 #define NINTERRUPT 10000000
@@ -38,13 +39,18 @@ static SEXP string_relop (RELOP_TYPE code, SEXP s1, SEXP s2);
 static SEXP raw_relop    (RELOP_TYPE code, SEXP s1, SEXP s2);
 
 #define DO_SCALAR_RELOP(oper, x, y) do {		\
-	switch (oper) {					\
-	case EQOP: return ScalarLogical((x) == (y));	\
-	case NEOP: return ScalarLogical((x) != (y));	\
+	SEXP ans; 									\
+	switch (oper) {								\
+	case EQOP: {								\
+				ans = ScalarLogical((x) == (y));\
+				storeCompareResult(ans);		\
+				return ans;						\
+				}								\
+	case NEOP: return ScalarLogical((x) != (y));\
 	case LTOP: return ScalarLogical((x) < (y));	\
 	case GTOP: return ScalarLogical((x) > (y));	\
-	case LEOP: return ScalarLogical((x) <= (y));	\
-	case GEOP: return ScalarLogical((x) >= (y));	\
+	case LEOP: return ScalarLogical((x) <= (y));\
+	case GEOP: return ScalarLogical((x) >= (y));\
 	}						\
     } while (0)
 
@@ -77,35 +83,38 @@ SEXP attribute_hidden do_relop(SEXP call, SEXP op, SEXP args, SEXP env)
 SEXP attribute_hidden do_relop_dflt(SEXP call, SEXP op, SEXP x, SEXP y)
 {
     /* handle the REALSXP/INTSXP simple scalar case quickly */
+	puts("Will compare");
+
     if (IS_SIMPLE_SCALAR(x, INTSXP)) {
-	int ix = SCALAR_IVAL(x);
-	if (IS_SIMPLE_SCALAR(y, INTSXP)) {
-	    int iy = SCALAR_IVAL(y);
-	    if (ix == NA_INTEGER || iy == NA_INTEGER)
-		return ScalarLogical(NA_LOGICAL);
-	    DO_SCALAR_RELOP(PRIMVAL(op), ix, iy);
-	}
-	else if (IS_SIMPLE_SCALAR(y, REALSXP)) {
-	    double dy = SCALAR_DVAL(y);
-	    if (ix == NA_INTEGER || ISNAN(dy))
-		return ScalarLogical(NA_LOGICAL);
-	    DO_SCALAR_RELOP(PRIMVAL(op), ix, dy);
-	}
+		int ix = SCALAR_IVAL(x);
+		if (IS_SIMPLE_SCALAR(y, INTSXP)) {
+			int iy = SCALAR_IVAL(y);
+			if (ix == NA_INTEGER || iy == NA_INTEGER)
+			return ScalarLogical(NA_LOGICAL);
+			DO_SCALAR_RELOP(PRIMVAL(op), ix, iy);
+		}
+		else if (IS_SIMPLE_SCALAR(y, REALSXP)) {
+			double dy = SCALAR_DVAL(y);
+			if (ix == NA_INTEGER || ISNAN(dy))
+			return ScalarLogical(NA_LOGICAL);
+			DO_SCALAR_RELOP(PRIMVAL(op), ix, dy);
+		}
     }
     else if (IS_SIMPLE_SCALAR(x, REALSXP)) {
-	double dx = SCALAR_DVAL(x);
-	if (IS_SIMPLE_SCALAR(y, INTSXP)) {
-	    int iy = SCALAR_IVAL(y);
-	    if (ISNAN(dx) || iy == NA_INTEGER)
-		return ScalarLogical(NA_LOGICAL);
-	    DO_SCALAR_RELOP(PRIMVAL(op), dx, iy);
-	}
-	else if (IS_SIMPLE_SCALAR(y, REALSXP)) {
-	    double dy = SCALAR_DVAL(y);
-	    if (ISNAN(dx) || ISNAN(dy))
-		return ScalarLogical(NA_LOGICAL);
-	    DO_SCALAR_RELOP(PRIMVAL(op), dx, dy);
-	}
+		
+		double dx = SCALAR_DVAL(x);
+		if (IS_SIMPLE_SCALAR(y, INTSXP)) {
+			int iy = SCALAR_IVAL(y);
+			if (ISNAN(dx) || iy == NA_INTEGER)
+			return ScalarLogical(NA_LOGICAL);
+			DO_SCALAR_RELOP(PRIMVAL(op), dx, iy);
+		}
+		else if (IS_SIMPLE_SCALAR(y, REALSXP)) {
+			double dy = SCALAR_DVAL(y);
+			if (ISNAN(dx) || ISNAN(dy))
+			return ScalarLogical(NA_LOGICAL);
+			DO_SCALAR_RELOP(PRIMVAL(op), dx, dy);
+		}
     }
 
     R_xlen_t
@@ -120,15 +129,15 @@ SEXP attribute_hidden do_relop_dflt(SEXP call, SEXP op, SEXP x, SEXP y)
 	(typex == REALSXP || typex == INTSXP) &&
 	(typey == REALSXP || typey == INTSXP) &&
 	nx > 0 && ny > 0 && (nx == 1 || ny == 1)) {
-
-	PROTECT(x);
-	PROTECT(y);
-	SEXP ans;
-	ans = numeric_relop(PRIMVAL(op), x, y);
-	UNPROTECT(2);
-	return ans;
+		PROTECT(x);
+		PROTECT(y);
+		SEXP ans;
+		ans = numeric_relop(PRIMVAL(op), x, y);
+		UNPROTECT(2);
+		
+		return ans;
     }
-
+	
     /* handle the general case */
     PROTECT_INDEX xpi, ypi;
     PROTECT_WITH_INDEX(x, &xpi);

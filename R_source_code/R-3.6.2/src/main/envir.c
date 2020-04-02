@@ -1612,7 +1612,6 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         #endif
         return;
     }
-    
     if(checkToReg(rho) == ABD_EXIST){        
         // printf("------------\n");
         // printf("Will register a variable...\n");
@@ -1620,6 +1619,7 @@ void defineVar(SEXP symbol, SEXP value, SEXP rho)
         // printf("Value: %f\n", REAL(value)[0]);
         // printf("Env: %s\n", encodeIt(rho));
         // printf("------------\n");
+        puts("Will call tool");
         regVarChange(symbol, value, rho);
     }
     if (rho == R_BaseNamespace || rho == R_BaseEnv) {

@@ -80,6 +80,7 @@ void ABD_HELP(){
     // printf("\t-> Display current output file path: abd_path()\n");
     // printf("\t##################################################\n\n\n");
     //checkSettings();
+    
     st =1;
 }
 
@@ -95,6 +96,7 @@ void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
             if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0)
                //do not register
                waitingIdxChange = 1;
+            printf("Env %s\n", environmentExtraction(rho));
             newObjUsage(lhs,rhs,rho);
             
         }
@@ -109,6 +111,8 @@ void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
 */
 
 ABD_SEARCH checkToReg(SEXP rho){
+    if(!isRunning())
+        return ABD_NOT_EXIST;
     return cmpToCurrEnv(rho);
 }
 
@@ -138,3 +142,8 @@ ABD_STATE isRunning(){
     return watcherState;
 }
 
+
+
+void storeCompareResult(SEXP cmpr){
+    cmp = cmpr;
+}

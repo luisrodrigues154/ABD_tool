@@ -37,6 +37,7 @@
   static int st =0;
   //constants
   #define ABD_NOT_FOUND NULL
+  static SEXP cmp;
 #endif
 
 
@@ -53,3 +54,4 @@ void regFunReturn(SEXP lhs, SEXP rho, SEXP val);
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();
 void saveIdxChanges(int nIdxs, int * idxChanges);
+void storeCompareResult(SEXP cmpr);

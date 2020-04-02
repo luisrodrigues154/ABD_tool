@@ -5,12 +5,13 @@ print(" ")
 print("START")
 
 
-abd_help()
 
-if((4>3 | 0<1) & 1>-1){
+if((2>3 | 1<0) && (1==1)){
+    a <- "abcd"
     1
-}else if(1>0){
+}else if(1==0){
+    b <- "2323"
     2
-}else{
-    
+}else if(2==3){
+    1
 }

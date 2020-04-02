@@ -554,7 +554,7 @@ SEXP eval(SEXP e, SEXP rho)
 
 
     /* handle self-evaluating objects with minimal overhead */
-	
+
     switch (TYPEOF(e)) {
 		case NILSXP:
 		case LISTSXP:
@@ -672,33 +672,34 @@ SEXP eval(SEXP e, SEXP rho)
 			from evaluating their 'value' argument so the value will
 			end up getting duplicated if NAMED > 1.) LT */
 			break;
-		case LANGSXP:			
+		case LANGSXP:
 			if (TYPEOF(CAR(e)) == SYMSXP) {
 				/* This will throw an error if the function is not found */
 				SEXP ecall = e;
-				
+
 				/* This picks the correct/better error expression for
 				replacement calls running in the AST interpreter. */
 				if (R_GlobalContext != NULL &&
 					(R_GlobalContext->callflag == CTXT_CCODE))
 				ecall = R_GlobalContext->call;
-				
+
 				PROTECT(op = findFun3(CAR(e), rho, ecall));
-				printf("Hum, SYMSXP\nCAR(e) -> %s\n", CHAR(PRINTNAME(CAR(e))));
+				printf("\n\nHum, SYMSXP\nCAR(e) -> %s\n", CHAR(PRINTNAME(CAR(e))));
+        		printf("TYPEOF(op) %d\n", TYPEOF(op));
 			} else{
 				//printf("Hum2, SYMSXP\nCAR(e) -> %s\n OP-> %s\n\n", CHAR(PRINTNAME(CAR(e))), CHAR(PRINTNAME(op)));
 				PROTECT(op = eval(CAR(e), rho));
 			}
-				
-			
-			
+
+
+
 
 			if(RTRACE(op) && R_current_trace_state()) {
 				Rprintf("trace: ");
 				PrintValue(e);
 			}
 			if (TYPEOF(op) == SPECIALSXP) {
-				puts("in SPECIALSXP\n");
+				//puts("in SPECIALSXP\n");
 				int save = R_PPStackTop, flag = PRIMPRINT(op);
 				const void *vmax = vmaxget();
 				PROTECT(e);
@@ -720,7 +721,7 @@ SEXP eval(SEXP e, SEXP rho)
 				vmaxset(vmax);
 			}
 			else if (TYPEOF(op) == BUILTINSXP) {
-				puts("in BUILTINSXP\n");
+				//puts("in BUILTINSXP\n");
 				int save = R_PPStackTop, flag = PRIMPRINT(op);
 				const void *vmax = vmaxget();
 				RCNTXT cntxt;
@@ -752,7 +753,7 @@ SEXP eval(SEXP e, SEXP rho)
 				vmaxset(vmax);
 			}
 			else if (TYPEOF(op) == CLOSXP) {
-				//its a function, will get here				
+				//its a function, will get here
 				SEXP pargs = promiseArgs(CDR(e), rho);
 				PROTECT(pargs);
 				tmp = applyClosure(e, op, pargs, rho, R_NilValue);
@@ -1693,7 +1694,7 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
     f = formals;
     a = actuals;
     while (f != R_NilValue) {
-		if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {	
+		if (CAR(a) == R_MissingArg && CAR(f) != R_MissingArg) {
 			SETCAR(a, mkPROMISE(CAR(f), newrho));
 			SET_MISSING(a, 2);
 		}
@@ -1726,7 +1727,7 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 	*/
 	SEXP lhs = CAR(call);
 
-	
+
 	ABD_STATE result = regFunCall(lhs, rho, newrho, arglist, actuals);
 
     SEXP val = R_execClosure(call, newrho,
@@ -1734,15 +1735,16 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 			     R_GlobalContext->sysparent : rho,
 			     rho, arglist, op);
 
+	//if not running nor objFound result == ABD_NOT_EXIST
 	if(result == ABD_EXIST)
 		regFunReturn(lhs, rho, val);
-	
+
 #ifdef ADJUST_ENVIR_REFCNTS
     R_CleanupEnvir(newrho, val);
     if (MAYBE_REFERENCED(val) && is_getter_call)
     	val = shallow_duplicate(val);
 #endif
-		
+
   UNPROTECT(1); /* newrho */
   return val;
 }
@@ -2057,7 +2059,6 @@ static R_INLINE Rboolean asLogicalNoNA(SEXP s, SEXP call, SEXP rho)
     /* handle most common special case directly */
     if (IS_SCALAR(s, LGLSXP)) {
 		cond = SCALAR_LVAL(s);
-		printf("COND asLogical1 %d\n", cond);
 		if (cond != NA_LOGICAL)
 			return cond;
     }
@@ -2126,7 +2127,7 @@ SEXP showArgs(SEXP args)
 {
     //args = CDR(args); /* skip 'name' */
     for(int i = 0; args != R_NilValue; i++, args = CDR(args)) {
-        const char *name = 
+        const char *name =
             isNull(TAG(args)) ? "" : CHAR(PRINTNAME(TAG(args)));
 	SEXP el = CAR(args);
 	if (length(el) == 0) {
@@ -2158,44 +2159,112 @@ SEXP showArgs(SEXP args)
     return R_NilValue;
 }
 
+void tryPrint(SEXP statement){
+	char * operator = CHAR(PRINTNAME(CAR(statement)));
+	SEXP state1 = CAR(CDR(statement));
+	SEXP state2 = CAR(CDR(CDR(statement)));
+	puts("Printing statement");
+	printf("Central operator (global): %s\n", operator);
+	printf("TYPEOF st1 %d\n", TYPEOF(state1));
+	/*
+		raw statement = (2>3 | 1<0) && (1==1)
+		LISP structure: 
+			rawState -> (2>3 | 1<0) && (1==1)
+			CAR - &&
+			CDR - { (, { | ,{ {>, 2,3}, {<,1,0} } } }
+
+			IF LEFT SIDE 
+				state1 (left) -> (2>3 | 1<0)
+				state1 = CAR(CDR(rawState)) - { (, { |, {>, 2,3} , {<, 1, 0} } } 
+				- CAR(state1) = (
+				- CDR(state1) = { |, {>, 2,3} , {<, 1, 0} } } 
+				
+				state1A (left) -> 2>3
+				state1A = CAR(CDR(state1)) - {>, 2,3} 
+				- CAR(state1A) = >
+				- CDR(state1A) = 2,3
+
+				state1B (right) -> 1<0
+				state1B = CAR(CDR(CDR(state1)) - {<, 1, 0}
+				- CAR(state1B) = <
+				- CDR(state1B) = 1,0
+
+			IF RIGHT SIDE
+				state2 (right) -> (1==1)
+				state2 = CAR(CDR(CDR(rawState))) -{ ( , {== , 1, 1})
+				- CAR(state2) = (
+				- CDR(state2) = {== , 1, 1}
+
+				state2b (final) -> 1==1
+				state2b = CAR(CDR(state2)) - {== , 1, 1}
+				- CAR(state2b) = ==
+				- CDR(state2b) = 1,1
+
+		state 1 tracks the left
+
+
+	*/
+
+	if(TYPEOF(state1) == LANGSXP){
+		SEXP state1b = CAR(CDR(state1));
+		printf("Statement 1 central operator: %s\n", CHAR(PRINTNAME(CAR(state1))));
+		if(TYPEOF(state1b) == LANGSXP){
+			printf("Statement 1 b) central operator: %s\n", CHAR(PRINTNAME(CAR(state1b))));
+			SEXP state1c = CAR(CDR(state1b));
+			if(TYPEOF(state1c) == LANGSXP){
+				printf("Statement 1 c) central operator: %s\n", CHAR(PRINTNAME(CAR(state1c))));
+			}
+			SEXP state1c2 = CAR(CDR(CDR(state1b)));
+			if(TYPEOF(state1c2) == LANGSXP){
+				printf("Statement 1 c2) central operator: %s\n", CHAR(PRINTNAME(CAR(state1c2))));
+			}
+		}
+	}
+	printf("TYPEOF st2 %d\n", TYPEOF(state2));
+	if(TYPEOF(state2) == LANGSXP){
+		printf("Statement 2 central operator: %s\n", CHAR(PRINTNAME(CAR(state2))));
+		SEXP state2b = CAR(CDR(state2));
+		printf("Statement 2b central operator: %s\n", CHAR(PRINTNAME(CAR(state2b))));
+	}
+		
+}
+
 SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP Cond, Stmt=R_NilValue;
     int vis=0;
 
-	puts("if issued");
-	showArgs(CDR(CAR(args)));
+	puts("\ninside do_if");
+	// if(st)
+	// 	tryPrint(CAR(args));
     PROTECT(Cond = eval(CAR(args), rho));
+	puts("Back to do_if");
     if (asLogicalNoNA(Cond, call, rho)){
-		puts("if 1");
+		//puts("if 1");
 		if(st){
-			SEXP fullXP = CAR(args); 
-			/* 
-				
-			*/
-			
-			// printf("op1 %s\n", CHAR(PRINTNAME(CAR(CAR(args)))));
+			SEXP fullXP = Cond;
+			puts("Starting");
+			printf("FullXP type -> %d\n", TYPEOF(fullXP));
 			// printf("op2 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(args)))))));
 			// printf("op3 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(args))))))));
 			// printf("op4 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(CDR(CDR(CAR(args))))))))));
 			// printf("op5 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(CDR(CDR(CAR(args)))))))))));
-			
+
 		}
-		
+
 		Stmt = CAR(CDR(args));
     }else {
+		printf("LEN %d\n", length(args));
 		if (length(args) > 2){
-			puts("if 2");
-			/*printf("Length %d\n", length(args));
-			
-			printf("Length 2 %d\n", length(Stmt));
-			printf("CAR(CAR %s\n", CHAR(PRINTNAME(CAR(CAR(args)))));*/
+			puts("else if?");
 			Stmt = CAR(CDR(CDR(args)));
+			
+			if(st)
+				printf("Next operation %s\n", CHAR(PRINTNAME(CAR(Stmt))));
 		}
-		else{
-			puts("if 3");
+		else
 			vis = 1;
-		}
+			
     }
     if( !vis && RDEBUG(rho) && !BodyHasBraces(Stmt) && !R_GlobalContext->browserfinish) {
 		SrcrefPrompt("debug", R_Srcref);
@@ -2207,7 +2276,11 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 		R_Visible = FALSE; /* case of no 'else' so return invisible NULL */
 		return Stmt;
     }
-    return (eval(Stmt, rho));
+	puts("calling return eval");
+	SEXP ans = eval(Stmt, rho);
+
+	printf("TYPEOF return %d\n", TYPEOF(ans));
+    return ans;
 }
 
 static R_INLINE SEXP GET_BINDING_CELL(SEXP symbol, SEXP rho)
@@ -2915,10 +2988,10 @@ SEXP attribute_hidden do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
 		case STRSXP:
 			lhs = installTrChar(STRING_ELT(lhs, 0));
 		/* fall through */
-		case SYMSXP: 
+		case SYMSXP:
 			rhs = eval(CADR(args), rho);
 			INCREMENT_NAMED(rhs);
-			
+
 			if (PRIMVAL(op) == 2)                       /* <<- */
 				setVar(lhs, rhs, ENCLOS(rho));
 			else{                                       /* <-, = */

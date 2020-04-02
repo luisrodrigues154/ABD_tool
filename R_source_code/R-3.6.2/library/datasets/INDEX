@@ -1,169 +1,101 @@
-AirPassengers           Monthly Airline Passenger Numbers 1949-1960 [1]
-                        " R type [2] " R type
-BJsales                 Sales Data with Leading Indicator [1] " R type
-                        [2] " R type
-BOD                     Biochemical Oxygen Demand [1] " R type [2] " R
-                        type
-CO2                     Carbon Dioxide Uptake in Grass Plants [1] " R
-                        type [2] " R type
+AirPassengers           Monthly Airline Passenger Numbers 1949-1960
+BJsales                 Sales Data with Leading Indicator
+BOD                     Biochemical Oxygen Demand
+CO2                     Carbon Dioxide Uptake in Grass Plants
 ChickWeight             Weight versus age of chicks on different diets
-                        [1] " R type [2] " R type
-DNase                   Elisa assay of DNase [1] " R type [2] " R type
+DNase                   Elisa assay of DNase
 EuStockMarkets          Daily Closing Prices of Major European Stock
-                        Indices, 1991-1998 [1] " R type [2] " R type
-Formaldehyde            Determination of Formaldehyde [1] " R type [2]
-                        " R type
-HairEyeColor            Hair and Eye Color of Statistics Students [1] "
-                        R type [2] " R type
-Harman23.cor            Harman Example 2.3 [1] " R type [2] " R type
-Harman74.cor            Harman Example 7.4 [1] " R type [2] " R type
-Indometh                Pharmacokinetics of Indomethacin [1] " R type
-                        [2] " R type
-InsectSprays            Effectiveness of Insect Sprays [1] " R type [2]
-                        " R type
+                        Indices, 1991-1998
+Formaldehyde            Determination of Formaldehyde
+HairEyeColor            Hair and Eye Color of Statistics Students
+Harman23.cor            Harman Example 2.3
+Harman74.cor            Harman Example 7.4
+Indometh                Pharmacokinetics of Indomethacin
+InsectSprays            Effectiveness of Insect Sprays
 JohnsonJohnson          Quarterly Earnings per Johnson & Johnson Share
-                        [1] " R type [2] " R type
-LakeHuron               Level of Lake Huron 1875-1972 [1] " R type [2]
-                        " R type
-LifeCycleSavings        Intercountry Life-Cycle Savings Data [1] " R
-                        type [2] " R type
-Loblolly                Growth of Loblolly pine trees [1] " R type [2]
-                        " R type
-Nile                    Flow of the River Nile [1] " R type [2] " R
-                        type
-Orange                  Growth of Orange Trees [1] " R type [2] " R
-                        type
-OrchardSprays           Potency of Orchard Sprays [1] " R type [2] " R
-                        type
-PlantGrowth             Results from an Experiment on Plant Growth [1]
-                        " R type [2] " R type
-Puromycin               Reaction Velocity of an Enzymatic Reaction [1]
-                        " R type [2] " R type
-Theoph                  Pharmacokinetics of Theophylline [1] " R type
-                        [2] " R type
-Titanic                 Survival of passengers on the Titanic [1] " R
-                        type [2] " R type
+LakeHuron               Level of Lake Huron 1875-1972
+LifeCycleSavings        Intercountry Life-Cycle Savings Data
+Loblolly                Growth of Loblolly pine trees
+Nile                    Flow of the River Nile
+Orange                  Growth of Orange Trees
+OrchardSprays           Potency of Orchard Sprays
+PlantGrowth             Results from an Experiment on Plant Growth
+Puromycin               Reaction Velocity of an Enzymatic Reaction
+Theoph                  Pharmacokinetics of Theophylline
+Titanic                 Survival of passengers on the Titanic
 ToothGrowth             The Effect of Vitamin C on Tooth Growth in
-                        Guinea Pigs [1] " R type [2] " R type
-UCBAdmissions           Student Admissions at UC Berkeley [1] " R type
-                        [2] " R type
-UKDriverDeaths          Road Casualties in Great Britain 1969-84 [1] "
-                        R type [2] " R type
-UKLungDeaths            Monthly Deaths from Lung Diseases in the UK [1]
-                        " R type [2] " R type
-UKgas                   UK Quarterly Gas Consumption [1] " R type [2] "
-                        R type
-USAccDeaths             Accidental Deaths in the US 1973-1978 [1] " R
-                        type [2] " R type
-USArrests               Violent Crime Rates by US State [1] " R type
-                        [2] " R type
+                        Guinea Pigs
+UCBAdmissions           Student Admissions at UC Berkeley
+UKDriverDeaths          Road Casualties in Great Britain 1969-84
+UKLungDeaths            Monthly Deaths from Lung Diseases in the UK
+UKgas                   UK Quarterly Gas Consumption
+USAccDeaths             Accidental Deaths in the US 1973-1978
+USArrests               Violent Crime Rates by US State
 USJudgeRatings          Lawyers' Ratings of State Judges in the US
-                        Superior Court [1] " R type [2] " R type
-USPersonalExpenditure   Personal Expenditure Data [1] " R type [2] " R
-                        type
-VADeaths                Death Rates in Virginia (1940) [1] " R type [2]
-                        " R type
-WWWusage                Internet Usage per Minute [1] " R type [2] " R
-                        type
-WorldPhones             The World's Telephones [1] " R type [2] " R
-                        type
-ability.cov             Ability and Intelligence Tests [1] " R type [2]
-                        " R type
+                        Superior Court
+USPersonalExpenditure   Personal Expenditure Data
+VADeaths                Death Rates in Virginia (1940)
+WWWusage                Internet Usage per Minute
+WorldPhones             The World's Telephones
+ability.cov             Ability and Intelligence Tests
 airmiles                Passenger Miles on Commercial US Airlines,
-                        1937-1960 [1] " R type [2] " R type
-airquality              New York Air Quality Measurements [1] " R type
-                        [2] " R type
+                        1937-1960
+airquality              New York Air Quality Measurements
 anscombe                Anscombe's Quartet of 'Identical' Simple Linear
-                        Regressions [1] " R type [2] " R type
-attenu                  The Joyner-Boore Attenuation Data [1] " R type
-                        [2] " R type
-attitude                The Chatterjee-Price Attitude Data [1] " R type
-                        [2] " R type
+                        Regressions
+attenu                  The Joyner-Boore Attenuation Data
+attitude                The Chatterjee-Price Attitude Data
 austres                 Quarterly Time Series of the Number of
-                        Australian Residents [1] " R type [2] " R type
-beavers                 Body Temperature Series of Two Beavers [1] " R
-                        type [2] " R type
-cars                    Speed and Stopping Distances of Cars [1] " R
-                        type [2] " R type
-chickwts                Chicken Weights by Feed Type [1] " R type [2] "
-                        R type
-co2                     Mauna Loa Atmospheric CO2 Concentration [1] " R
-                        type [2] " R type
-crimtab                 Student's 3000 Criminals Data [1] " R type [2]
-                        " R type
-datasets-package        The R Datasets Package [1] " R type [2] " R
-                        type
-discoveries             Yearly Numbers of Important Discoveries [1] " R
-                        type [2] " R type
-esoph                   Smoking, Alcohol and (O)esophageal Cancer [1] "
-                        R type [2] " R type
-euro                    Conversion Rates of Euro Currencies [1] " R
-                        type [2] " R type
+                        Australian Residents
+beavers                 Body Temperature Series of Two Beavers
+cars                    Speed and Stopping Distances of Cars
+chickwts                Chicken Weights by Feed Type
+co2                     Mauna Loa Atmospheric CO2 Concentration
+crimtab                 Student's 3000 Criminals Data
+datasets-package        The R Datasets Package
+discoveries             Yearly Numbers of Important Discoveries
+esoph                   Smoking, Alcohol and (O)esophageal Cancer
+euro                    Conversion Rates of Euro Currencies
 eurodist                Distances Between European Cities and Between
-                        US Cities [1] " R type [2] " R type
-faithful                Old Faithful Geyser Data [1] " R type [2] " R
-                        type
-freeny                  Freeny's Revenue Data [1] " R type [2] " R type
+                        US Cities
+faithful                Old Faithful Geyser Data
+freeny                  Freeny's Revenue Data
 infert                  Infertility after Spontaneous and Induced
-                        Abortion [1] " R type [2] " R type
-iris                    Edgar Anderson's Iris Data [1] " R type [2] " R
-                        type
-islands                 Areas of the World's Major Landmasses [1] " R
-                        type [2] " R type
-lh                      Luteinizing Hormone in Blood Samples [1] " R
-                        type [2] " R type
-longley                 Longley's Economic Regression Data [1] " R type
-                        [2] " R type
-lynx                    Annual Canadian Lynx trappings 1821-1934 [1] "
-                        R type [2] " R type
-morley                  Michelson Speed of Light Data [1] " R type [2]
-                        " R type
-mtcars                  Motor Trend Car Road Tests [1] " R type [2] " R
-                        type
-nhtemp                  Average Yearly Temperatures in New Haven [1] "
-                        R type [2] " R type
+                        Abortion
+iris                    Edgar Anderson's Iris Data
+islands                 Areas of the World's Major Landmasses
+lh                      Luteinizing Hormone in Blood Samples
+longley                 Longley's Economic Regression Data
+lynx                    Annual Canadian Lynx trappings 1821-1934
+morley                  Michelson Speed of Light Data
+mtcars                  Motor Trend Car Road Tests
+nhtemp                  Average Yearly Temperatures in New Haven
 nottem                  Average Monthly Temperatures at Nottingham,
-                        1920-1939 [1] " R type [2] " R type
-npk                     Classical N, P, K Factorial Experiment [1] " R
-                        type [2] " R type
+                        1920-1939
+npk                     Classical N, P, K Factorial Experiment
 occupationalStatus      Occupational Status of Fathers and their Sons
-                        [1] " R type [2] " R type
-precip                  Annual Precipitation in US Cities [1] " R type
-                        [2] " R type
-presidents              Quarterly Approval Ratings of US Presidents [1]
-                        " R type [2] " R type
+precip                  Annual Precipitation in US Cities
+presidents              Quarterly Approval Ratings of US Presidents
 pressure                Vapor Pressure of Mercury as a Function of
-                        Temperature [1] " R type [2] " R type
-quakes                  Locations of Earthquakes off Fiji [1] " R type
-                        [2] " R type
+                        Temperature
+quakes                  Locations of Earthquakes off Fiji
 randu                   Random Numbers from Congruential Generator
-                        RANDU [1] " R type [2] " R type
-rivers                  Lengths of Major North American Rivers [1] " R
-                        type [2] " R type
-rock                    Measurements on Petroleum Rock Samples [1] " R
-                        type [2] " R type
-sleep                   Student's Sleep Data [1] " R type [2] " R type
-stackloss               Brownlee's Stack Loss Plant Data [1] " R type
-                        [2] " R type
-state                   US State Facts and Figures [1] " R type [2] " R
-                        type
+                        RANDU
+rivers                  Lengths of Major North American Rivers
+rock                    Measurements on Petroleum Rock Samples
+sleep                   Student's Sleep Data
+stackloss               Brownlee's Stack Loss Plant Data
+state                   US State Facts and Figures
 sunspot.month           Monthly Sunspot Data, from 1749 to "Present"
-                        [1] " R type [2] " R type
-sunspot.year            Yearly Sunspot Data, 1700-1988 [1] " R type [2]
-                        " R type
-sunspots                Monthly Sunspot Numbers, 1749-1983 [1] " R type
-                        [2] " R type
+sunspot.year            Yearly Sunspot Data, 1700-1988
+sunspots                Monthly Sunspot Numbers, 1749-1983
 swiss                   Swiss Fertility and Socioeconomic Indicators
-                        (1888) Data [1] " R type [2] " R type
-treering                Yearly Treering Data, -6000-1979 [1] " R type
-                        [2] " R type
+                        (1888) Data
+treering                Yearly Treering Data, -6000-1979
 trees                   Diameter, Height and Volume for Black Cherry
-                        Trees [1] " R type [2] " R type
-uspop                   Populations Recorded by the US Census [1] " R
-                        type [2] " R type
+                        Trees
+uspop                   Populations Recorded by the US Census
 volcano                 Topographic Information on Auckland's Maunga
-                        Whau Volcano [1] " R type [2] " R type
-warpbreaks              The Number of Breaks in Yarn during Weaving [1]
-                        " R type [2] " R type
+                        Whau Volcano
+warpbreaks              The Number of Breaks in Yarn during Weaving
 women                   Average Heights and Weights for American Women
-                        [1] " R type [2] " R type
