@@ -9,12 +9,39 @@
         RET_EVENT = 3
     }ABD_EVENT_TYPE;
 
-    //event types structures
-    typedef struct abd_if_event{
-        //TODO
-        //analyze R behaviour when if'ing
+    //event structures
+
+    //describe a if statement and its else ifs 
+    typedef enum if_type {
+        IF_EXPR = 0,
+        IF_ABD = 1
+    }IF_DATA_TYPE;
+
+    
+    typedef struct if_expr{
+        char * operator; // '>', '<', '|' (...)
+        int isConfined; // 'T' or 'F' -> indicates if is inside parentheses
+        int result; // 'T' or 'F'
+        
+        /* 
+            in the end, the left_data and right_data will have the type IF_ABD 
+        */
+        IF_DATA_TYPE left_type; // indicates the type of data in the left_data var
+        IF_DATA_TYPE right_type;// indicates the type of data in the left_data var
+
+        void * left_data; // left value of expression
+        void * right_data; // right value of expression
+    }IF_EXPRESSION;
+
+
+    typedef struct if_event{
+        int globalResult; // 'T' or 'F' for the statement as a whole
+        IF_EXPRESSION * expr; // if or else if
+        struct if_content * else_if; // pointer to an else if that was originated from this if
+        int reachedElse; // 'T' or 'F'
     }ABD_IF_EVENT;
 
+    //describe a function call and its arguments
     typedef struct abd_event_arg{
         ABD_OBJECT * objPtr;
         char * rcvdName;
@@ -22,15 +49,15 @@
         struct abd_event_arg * nextArg;
     }ABD_EVENT_ARG;
 
-    //register function events
+    
     typedef struct abd_func_event{
         ABD_OBJECT * caller;
         ABD_OBJECT * called;
         ABD_EVENT_ARG * args;
     }ABD_FUNC_EVENT;
 
-    //register return events
-    typedef struct abd_func_return{
+    //describe return events
+    typedef struct abd_return{
         ABD_OBJECT * from;
         ABD_OBJECT * toObj;
         ABD_OBJECT_MOD * retValue;

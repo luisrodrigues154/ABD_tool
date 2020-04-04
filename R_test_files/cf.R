@@ -1,17 +1,11 @@
-print(" ")
-print(" ")
-print(" ")
-print(" ")
-print("START")
 
 
+abd_help()
 
-if((2>3 | 1<0) && (1==1)){
-    a <- "abcd"
+if((2>=3 | 1<0) && (1==1)){
     1
-}else if(1==0){
-    b <- "2323"
+}else{
     2
-}else if(2==3){
-    1
 }
+
+print("end")

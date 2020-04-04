@@ -773,6 +773,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -830,6 +831,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -912,6 +914,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -993,6 +996,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -1515,6 +1519,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -1596,6 +1601,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -3737,6 +3743,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -3818,6 +3825,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -6369,6 +6377,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -6421,6 +6430,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -17758,6 +17768,7 @@ CAR(e) -> getOption
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -17795,6 +17806,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -17847,6 +17859,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -17897,6 +17910,7 @@ CAR(e) -> identical
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18054,6 +18068,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18106,6 +18121,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18235,6 +18251,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18287,6 +18304,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18391,6 +18409,7 @@ CAR(e) -> nchar
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18463,6 +18482,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18544,6 +18564,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18780,6 +18801,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18832,6 +18854,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18872,6 +18895,7 @@ CAR(e) -> nzchar
 TYPEOF(op) 8
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -18984,6 +19008,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19036,6 +19061,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19076,6 +19102,7 @@ CAR(e) -> nchar
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19115,6 +19142,7 @@ CAR(e) -> nchar
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19141,6 +19169,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 16
 TYPEOF return 16
 TYPEOF return 16
 TYPEOF return 16
@@ -19264,6 +19293,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19316,6 +19346,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19385,6 +19416,7 @@ CAR(e) -> getOption
 TYPEOF(op) 3
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19763,6 +19795,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19849,6 +19882,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19933,6 +19967,7 @@ CAR(e) -> .Internal
 TYPEOF(op) 7
 Back to do_if
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -19965,6 +20000,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20086,6 +20122,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20492,6 +20529,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20529,6 +20567,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20581,6 +20620,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20768,6 +20808,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -20849,6 +20890,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -21957,6 +21999,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -22004,6 +22047,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -22085,6 +22129,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -22266,6 +22311,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -22669,6 +22715,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -22712,6 +22759,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -23108,6 +23156,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -23145,6 +23194,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -23197,6 +23247,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24247,6 +24298,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24325,6 +24377,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24369,6 +24422,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24765,6 +24819,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24802,6 +24857,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -24854,6 +24910,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -25521,6 +25578,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -25566,6 +25624,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -26005,6 +26064,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -26042,6 +26102,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -26094,6 +26155,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -26859,6 +26921,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -26905,6 +26968,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -27338,6 +27402,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -27375,6 +27440,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -27427,6 +27493,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -30614,6 +30681,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -30661,6 +30729,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -30910,6 +30979,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -30947,6 +31017,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -30999,6 +31070,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -31159,6 +31231,7 @@ Back to do_if
 LEN 3
 else if?
 calling return eval
+TYPEOF(stmt) 6
 
 
 Hum, SYMSXP
@@ -31208,6 +31281,60 @@ TYPEOF(op) 8
 
 
 Hum, SYMSXP
+CAR(e) -> abd_help
+TYPEOF(op) 7
+
+
+Hum, SYMSXP
+CAR(e) -> if
+TYPEOF(op) 7
+
+inside do_if
+WILL PRINT THE IF
+if((2.00 >= 3.00 | 1.00 < 0.00) && (1.00 == 1.00))
+
+Hum, SYMSXP
+CAR(e) -> &&
+TYPEOF(op) 7
+
+
+Hum, SYMSXP
+CAR(e) -> (
+TYPEOF(op) 8
+
+
+Hum, SYMSXP
+CAR(e) -> |
+TYPEOF(op) 8
+
+
+Hum, SYMSXP
+CAR(e) -> >=
+TYPEOF(op) 8
+Will compare
+
+
+Hum, SYMSXP
+CAR(e) -> <
+TYPEOF(op) 8
+Will compare
+Back to do_if
+LEN 3
+else if?
+Next operation {
+calling return eval
+TYPEOF(stmt) 6
+
+
+Hum, SYMSXP
+CAR(e) -> {
+TYPEOF(op) 7
+Returned value 2.00
+TYPEOF return 14
+[1] 2
+
+
+Hum, SYMSXP
 CAR(e) -> lazyLoadDBfetch
 TYPEOF(op) 8
 
@@ -31235,111 +31362,4 @@ TYPEOF(op) 8
 Hum, SYMSXP
 CAR(e) -> lazyLoadDBfetch
 TYPEOF(op) 8
-[1] " "
-
-
-Hum, SYMSXP
-CAR(e) -> print
-TYPEOF(op) 3
-[1] " "
-
-
-Hum, SYMSXP
-CAR(e) -> print
-TYPEOF(op) 3
-[1] " "
-
-
-Hum, SYMSXP
-CAR(e) -> print
-TYPEOF(op) 3
-[1] " "
-
-
-Hum, SYMSXP
-CAR(e) -> print
-TYPEOF(op) 3
-[1] "START"
-
-
-Hum, SYMSXP
-CAR(e) -> start_watcher
-TYPEOF(op) 7
-Loading ABD_tool settings... DONE...
-
-Watcher STARTED successfully.
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-
-
-Hum, SYMSXP
-CAR(e) -> function
-TYPEOF(op) 7
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-
-
-Hum, SYMSXP
-CAR(e) -> c
-TYPEOF(op) 8
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> [<-
-TYPEOF(op) 7
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-
-
-Hum, SYMSXP
-CAR(e) -> f1
-TYPEOF(op) 3
-
-
-Hum, SYMSXP
-CAR(e) -> {
-TYPEOF(op) 7
-
-
-Hum, SYMSXP
-CAR(e) -> <-
-TYPEOF(op) 7
-Will call tool
-Env 0x556b987c7978
-Will call tool
-Env GlobalEnv
-
-
-Hum, SYMSXP
-CAR(e) -> stop_watcher
-TYPEOF(op) 7
-Watcher STOPED successfully.
+[1] "end"

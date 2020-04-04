@@ -13,6 +13,7 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "defn.h": "c",
-        "internal.h": "c"
+        "internal.h": "c",
+        "algorithm": "c"
     }
 }

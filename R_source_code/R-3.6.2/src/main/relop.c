@@ -39,13 +39,8 @@ static SEXP string_relop (RELOP_TYPE code, SEXP s1, SEXP s2);
 static SEXP raw_relop    (RELOP_TYPE code, SEXP s1, SEXP s2);
 
 #define DO_SCALAR_RELOP(oper, x, y) do {		\
-	SEXP ans; 									\
 	switch (oper) {								\
-	case EQOP: {								\
-				ans = ScalarLogical((x) == (y));\
-				storeCompareResult(ans);		\
-				return ans;						\
-				}								\
+	case EQOP: return ScalarLogical((x) == (y));\
 	case NEOP: return ScalarLogical((x) != (y));\
 	case LTOP: return ScalarLogical((x) < (y));	\
 	case GTOP: return ScalarLogical((x) > (y));	\

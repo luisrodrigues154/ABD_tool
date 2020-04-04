@@ -2158,75 +2158,171 @@ SEXP showArgs(SEXP args)
     }
     return R_NilValue;
 }
-
-void tryPrint(SEXP statement){
-	char * operator = CHAR(PRINTNAME(CAR(statement)));
-	SEXP state1 = CAR(CDR(statement));
-	SEXP state2 = CAR(CDR(CDR(statement)));
-	puts("Printing statement");
-	printf("Central operator (global): %s\n", operator);
-	printf("TYPEOF st1 %d\n", TYPEOF(state1));
-	/*
-		raw statement = (2>3 | 1<0) && (1==1)
-		LISP structure: 
-			rawState -> (2>3 | 1<0) && (1==1)
-			CAR - &&
-			CDR - { (, { | ,{ {>, 2,3}, {<,1,0} } } }
-
-			IF LEFT SIDE 
-				state1 (left) -> (2>3 | 1<0)
-				state1 = CAR(CDR(rawState)) - { (, { |, {>, 2,3} , {<, 1, 0} } } 
-				- CAR(state1) = (
-				- CDR(state1) = { |, {>, 2,3} , {<, 1, 0} } } 
-				
-				state1A (left) -> 2>3
-				state1A = CAR(CDR(state1)) - {>, 2,3} 
-				- CAR(state1A) = >
-				- CDR(state1A) = 2,3
-
-				state1B (right) -> 1<0
-				state1B = CAR(CDR(CDR(state1)) - {<, 1, 0}
-				- CAR(state1B) = <
-				- CDR(state1B) = 1,0
-
-			IF RIGHT SIDE
-				state2 (right) -> (1==1)
-				state2 = CAR(CDR(CDR(rawState))) -{ ( , {== , 1, 1})
-				- CAR(state2) = (
-				- CDR(state2) = {== , 1, 1}
-
-				state2b (final) -> 1==1
-				state2b = CAR(CDR(state2)) - {== , 1, 1}
-				- CAR(state2b) = ==
-				- CDR(state2b) = 1,1
-
-		state 1 tracks the left
-
-
-	*/
-
-	if(TYPEOF(state1) == LANGSXP){
-		SEXP state1b = CAR(CDR(state1));
-		printf("Statement 1 central operator: %s\n", CHAR(PRINTNAME(CAR(state1))));
-		if(TYPEOF(state1b) == LANGSXP){
-			printf("Statement 1 b) central operator: %s\n", CHAR(PRINTNAME(CAR(state1b))));
-			SEXP state1c = CAR(CDR(state1b));
-			if(TYPEOF(state1c) == LANGSXP){
-				printf("Statement 1 c) central operator: %s\n", CHAR(PRINTNAME(CAR(state1c))));
-			}
-			SEXP state1c2 = CAR(CDR(CDR(state1b)));
-			if(TYPEOF(state1c2) == LANGSXP){
-				printf("Statement 1 c2) central operator: %s\n", CHAR(PRINTNAME(CAR(state1c2))));
-			}
-		}
+char getIntForOperator(const char * operator){
+	if(strcmp(operator, "==") == 0)
+		return 1;
+	if(strcmp(operator, "!=") == 0)
+		return 2;
+	if(strcmp(operator, "<") == 0)
+		return 3;
+	if(strcmp(operator, ">") == 0)
+		return 6;
+	if(strcmp(operator, ">=") == 0)
+		return 5;
+	if(strcmp(operator, "<=") == 0)
+		return 4;
+}
+char getResCmpREAL(SEXP op, double lVal, double rVal){
+	int operator = getIntForOperator(CHAR(PRINTNAME(op)));
+	switch(operator){
+		case EQOP: return (lVal==rVal) ? 'T' : 'F';
+		case NEOP: return (lVal!=rVal) ? 'T' : 'F';
+		case LTOP: return (lVal<rVal) ? 'T' : 'F';
+		case GTOP: return (lVal>rVal) ? 'T' : 'F';
+		case LEOP: return (lVal<=rVal) ? 'T' : 'F';
+		case GEOP: return (lVal>=rVal) ? 'T' : 'F';
 	}
-	printf("TYPEOF st2 %d\n", TYPEOF(state2));
-	if(TYPEOF(state2) == LANGSXP){
-		printf("Statement 2 central operator: %s\n", CHAR(PRINTNAME(CAR(state2))));
-		SEXP state2b = CAR(CDR(state2));
-		printf("Statement 2b central operator: %s\n", CHAR(PRINTNAME(CAR(state2b))));
+}
+
+char compareStatement(SEXP op, SEXP lVal, SEXP rVal){
+	
+	if(TYPEOF(lVal) == SYMSXP)
+		lVal =  findVar(installChar(STRING_ELT(PRINTNAME(lVal), 0)), R_GlobalEnv);
+	if(TYPEOF(rVal) == SYMSXP)
+		rVal =  findVar(installChar(STRING_ELT(PRINTNAME(rVal), 0)), R_GlobalEnv);
+	
+	
+	if((TYPEOF(lVal) == REALSXP || TYPEOF(lVal) == INTSXP) && (TYPEOF(rVal) == REALSXP || TYPEOF(rVal) == INTSXP)){
+		char result =getResCmpREAL(op, REAL(lVal)[0], REAL(rVal)[0]);
+
+		printf("Result of %.2f %s %.2f = %c\n", REAL(lVal)[0], CHAR(PRINTNAME(op)), REAL(rVal)[0], result); 
+		return  result;
 	}
 		
+
+	
+	
+}
+
+int inCollection(char * check){
+	char * collection [] = {
+			"+", "-", "*", "/", "==", 
+			"!=", "<", ">", "<=", ">=",
+			"&", "|", "&&", "||", "!" };
+    int nCollection = 15;
+
+    for(int i=0; i<15; i++){
+        if(strcmp(check, collection[i]) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+
+int count = 0;
+IF_EXPRESSION * procStatement(SEXP st){
+	// char * operator = CHAR(PRINTNAME(CAR(statement)));
+	// SEXP state1 = CAR(CDR(statement));
+	// SEXP state2 = CAR(CDR(CDR(statement)));	
+	// puts("Printing statement");
+	// printf("Central operator (global): %s\n", operator);
+	// printf("TYPEOF st1 %d\n", TYPEOF(state1));
+	
+	IF_EXPRESSION * newExpr = (IF_EXPRESSION *) malloc(sizeof(IF_EXPRESSION));
+	if(TYPEOF(st) == LANGSXP){
+		newExpr->isConfined = 0;
+		procStateLabel:;
+		SEXP carSt = CAR(st);
+		char * operator = CHAR(PRINTNAME(carSt));
+		int opSize = strlen(operator);
+		newExpr->operator = memAllocForString(opSize);
+		copyStr(newExpr->operator, operator, opSize);
+
+		if(inCollection(operator)){
+			SEXP lElem = CAR(CDR(st));
+			if(TYPEOF(lElem) == LANGSXP){
+				newExpr->left_type = IF_EXPR;
+				newExpr->left_data = procStatement(lElem);
+			}else{
+				// if we come to (2>3) left side wont be LANGSXP
+				// need to process by type
+				newExpr->left_type = IF_ABD;
+
+				// alloc new ABD_OBJ and set values (dont forget mod)
+				if(TYPEOF(lElem) == REALSXP){
+					newExpr->left_data = (double *) malloc(sizeof(double));
+					((double *) newExpr->left_data)[0] = REAL(lElem)[0];
+				}
+			}
+			
+			SEXP rElem = CAR(CDR(CDR(st)));
+			if(TYPEOF(rElem) == LANGSXP){
+				newExpr->right_type = IF_EXPR;
+				newExpr->right_data = procStatement(rElem);
+			}else{
+				// if we come to (2>3) left side wont be LANGSXP
+				// need to process by type
+				newExpr->right_type = IF_ABD;
+				
+				// alloc new ABD_OBJ and set values (dont forget mod)
+				if(TYPEOF(rElem) == REALSXP){
+					newExpr->right_data = (double *) malloc(sizeof(double));
+					((double *) newExpr->right_data)[0] = REAL(rElem)[0];
+				}
+			}
+			
+				
+			
+		}else if(strcmp(operator, "(") == 0){
+			//confine
+			newExpr->isConfined = 1;
+			st = CAR(CDR(st));
+			goto procStateLabel;
+		}
+		
+	}else{
+		// not language expression
+		// can be if(a) or if(1), etc...
+		puts("just a single number in here...");
+	}
+	return newExpr;
+}
+
+
+void printExpression(IF_EXPRESSION * expr){	
+	
+	if(expr->isConfined)
+		printf("(");
+
+	if(expr->left_type == IF_EXPR)
+		printExpression(expr->left_data);
+	else
+		printf("%.2f", ((double *) expr->left_data)[0]);
+
+	printf(" %s ", expr->operator);
+	
+	if(expr->right_type == IF_EXPR)
+		printExpression(expr->right_data);
+	else
+		printf("%.2f", ((double *) expr->right_data)[0]);
+
+	if(expr->isConfined)
+		printf(")");
+	
+}
+void procIF_Event(SEXP statement){
+	ABD_IF_EVENT * if_event = (ABD_IF_EVENT *) malloc(sizeof(ABD_IF_EVENT));
+	
+	if_event->else_if = ABD_EVENT_NOT_FOUND;
+	if_event->reachedElse = 0;
+	if_event->globalResult = 0;
+
+	if_event->expr = procStatement(statement);
+	puts("WILL PRINT THE IF");
+	printf("if(");
+	printExpression(if_event->expr);
+	printf(")");
+
 }
 
 SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
@@ -2235,23 +2331,12 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
     int vis=0;
 
 	puts("\ninside do_if");
-	// if(st)
-	// 	tryPrint(CAR(args));
+	if(st)
+		procIF_Event(CAR(args));
     PROTECT(Cond = eval(CAR(args), rho));
 	puts("Back to do_if");
     if (asLogicalNoNA(Cond, call, rho)){
 		//puts("if 1");
-		if(st){
-			SEXP fullXP = Cond;
-			puts("Starting");
-			printf("FullXP type -> %d\n", TYPEOF(fullXP));
-			// printf("op2 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(args)))))));
-			// printf("op3 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(args))))))));
-			// printf("op4 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CAR(CDR(CDR(CAR(args))))))))));
-			// printf("op5 %s\n", CHAR(PRINTNAME(CAR(CAR(CDR(CDR(CAR(CDR(CDR(CAR(args)))))))))));
-
-		}
-
 		Stmt = CAR(CDR(args));
     }else {
 		printf("LEN %d\n", length(args));
@@ -2277,8 +2362,17 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 		return Stmt;
     }
 	puts("calling return eval");
+	printf("TYPEOF(stmt) %d\n", TYPEOF(Stmt));
+	
 	SEXP ans = eval(Stmt, rho);
-
+	if(TYPEOF(ans) == SYMSXP){
+		SEXP rStrName = mkString(CHAR(PRINTNAME(Stmt)));
+                        //request R for the object (not hardcoded)
+		SEXP symbValue = findVar(installChar(STRING_ELT(rStrName, 0)), R_GlobalEnv);
+		printf("Symbol name %s value %.2f\n", CHAR(PRINTNAME(Stmt)), REAL(symbValue)[0]);
+	}else if(TYPEOF(ans) == REALSXP){
+		printf("Returned value %.2f\n", REAL(ans)[0]);
+	}
 	printf("TYPEOF return %d\n", TYPEOF(ans));
     return ans;
 }
