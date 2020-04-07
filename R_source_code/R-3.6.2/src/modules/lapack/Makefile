@@ -39,14 +39,14 @@ Rlapack_la = libRlapack$(R_DYLIB_EXT)
 lapack_la_OBJECTS = $(OBJECTS)
 ## Formerly uxsed for passing '+s' to SHLIB_LINK on HP-UX.
 lapack_la_LDFLAGS = 
-lapack_la_LIBADD = $(LIBR1) # $(LIBINTL)
+lapack_la_LIBADD = $(LIBR1)  $(LIBINTL)
 
 Rlapack_la_OBJECTS = $(LIBOBJECTS)
 ## This used to skip FLIBS, but that relied on all the functions
 ## needed being loaded into R.bin/libR.so, and that need not be the
 ## case for a static libfortran or if a package is compiled under a
 ## different compiler.
-Rlapack_la_LIBADD =  $(FLIBS_IN_SO) # $(LIBR)
+Rlapack_la_LIBADD =  $(FLIBS_IN_SO)  $(LIBR)
 
 ALL_CFLAGS = $(ALL_CFLAGS_LO)
 ALL_FFLAGS = $(ALL_FFLAGS_LO)
@@ -84,7 +84,7 @@ $(lapack_la): $(lapack_la_OBJECTS)
 ## Include BLAS here, as with (static) ATLAS that pulls all the
 ## BLAS routines into one place.
 $(Rlapack_la): $(LIBOBJECTS)
-	$(DYLIB_LINK) -o $@ $(LIBOBJECTS)  -L"$(R_HOME)/lib$(R_ARCH)" -lRblas $(Rlapack_la_LIBADD)
+	$(DYLIB_LINK) -o $@ $(LIBOBJECTS) -install_name libRlapack.dylib -compatibility_version 3.6.0 -current_version 3.6.2  -headerpad_max_install_names -L"$(R_HOME)/lib$(R_ARCH)" -lRblas $(Rlapack_la_LIBADD)
 
 Rlapack_install: $(Rlapack_la) 
 	@$(MKINSTALLDIRS) "$(DESTDIR)$(Rexeclibdir)"
@@ -130,13 +130,15 @@ distdir: $(DISTFILES)
 ## Automagically generated dependencies:
 
 Lapack.o: Lapack.c ../../../src/include/config.h \
- ../../../src/include/Defn.h ../../../src/include/R_ext/Complex.h \
- ../../../src/include/Rinternals.h ../../../src/include/R_ext/Arith.h \
- ../../../src/include/R_ext/libextern.h \
- ../../../src/include/R_ext/Boolean.h ../../../src/include/R_ext/Error.h \
- ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
- ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
- ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- Lapack.h ../../../src/include/R_ext/RS.h ../../../src/include/Rconfig.h \
- ../../../src/include/R_ext/Lapack.h ../../../src/include/R_ext/BLAS.h \
- ../../../src/include/Rmodules/Rlapack.h
+  ../../../src/include/Defn.h ../../../src/include/R_ext/Complex.h \
+  ../../../src/include/Rinternals.h ../../../src/include/R_ext/Arith.h \
+  ../../../src/include/R_ext/libextern.h \
+  ../../../src/include/R_ext/Boolean.h \
+  ../../../src/include/R_ext/Error.h ../../../src/include/R_ext/Memory.h \
+  ../../../src/include/R_ext/Utils.h ../../../src/include/R_ext/Print.h \
+  ../../../src/include/R_ext/Rdynload.h \
+  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
+  ../../../src/include/libintl.h Lapack.h \
+  ../../../src/include/R_ext/RS.h ../../../src/include/Rconfig.h \
+  ../../../src/include/R_ext/Lapack.h ../../../src/include/R_ext/BLAS.h \
+  ../../../src/include/Rmodules/Rlapack.h

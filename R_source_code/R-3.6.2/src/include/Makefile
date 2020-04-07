@@ -81,7 +81,7 @@ Rmath.h: Rmath.h0
 Rmath.h0: $(srcdir)/Rmath.h0.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
-install: installdirs install-intl-no
+install: installdirs install-intl-yes
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) $@) || exit 1; \
 	done

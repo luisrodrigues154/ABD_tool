@@ -14,7 +14,7 @@ include $(top_builddir)/Makeconf
 ## When compiling rbitmap.c it is essential that we find the
 ## png.h matching BITMAP_LIBS.  Since /opt/X11 on macOS contains libpng
 ## and we might want our own version, we give priority to BITMAP_*
-ALL_CPPFLAGS =  -I/usr/include/libpng16 $(R_XTRA_CPPFLAGS) $(X_CFLAGS)  \
+ALL_CPPFLAGS =  $(R_XTRA_CPPFLAGS) $(X_CFLAGS)  \
   -I$(top_srcdir)/src/library/grDevices/src/cairo $(CPPFLAGS) $(DEFS)
 ALL_CFLAGS = $(ALL_CFLAGS_LO)
 ALL_X_LIBS = $(X_PRE_LIBS)  $(X_LIBS) $(X_EXTRA_LIBS)
@@ -33,10 +33,10 @@ DISTFILES = \
 R_X11_la = R_X11$(SHLIB_EXT)
 ## Note that this is used after LDFLAGS, which usually contains -L flags.
 ## AIX needs LIBM
-R_X11_la_LIBADD =  -lpng16 -lz $(ALL_X_LIBS) $(LIBR1) $(LIBM) # $(LIBINTL)
+R_X11_la_LIBADD =  $(ALL_X_LIBS) $(LIBR1) $(LIBM)  $(LIBINTL)
 
 R_de_la = R_de$(SHLIB_EXT)
-R_de_la_LIBADD = $(ALL_X_LIBS) $(LIBR1) $(LIBM) # $(LIBINTL)
+R_de_la_LIBADD = $(ALL_X_LIBS) $(LIBR1) $(LIBM)  $(LIBINTL)
 
 all: R
 
@@ -95,20 +95,39 @@ distdir: $(DISTFILES)
 ## Automagically generated dependencies:
 
 devX11.o: devX11.c ../../../src/include/config.h \
- ../../../src/include/Defn.h ../../../src/include/R_ext/Complex.h \
- ../../../src/include/Rinternals.h ../../../src/include/R_ext/Arith.h \
- ../../../src/include/R_ext/libextern.h \
- ../../../src/include/R_ext/Boolean.h ../../../src/include/R_ext/Error.h \
- ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
- ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
- ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- ../../../src/include/R_ext/GraphicsEngine.h \
- ../../../src/include/R_ext/GraphicsDevice.h \
- ../../../src/include/Fileio.h rotated.h \
- ../../../src/include/R_ext/eventloop.h devX11.h rlogo_icon.h \
- ../../../src/include/Rmodules/RX11.h ../../../src/include/Rconnections.h \
- ../../../src/include/R_ext/Connections.h bitmap.h
-rotated.o: rotated.c ../../../src/include/config.h rotated.h
+  ../../../src/include/Defn.h ../../../src/include/R_ext/Complex.h \
+  ../../../src/include/Rinternals.h ../../../src/include/R_ext/Arith.h \
+  ../../../src/include/R_ext/libextern.h \
+  ../../../src/include/R_ext/Boolean.h \
+  ../../../src/include/R_ext/Error.h ../../../src/include/R_ext/Memory.h \
+  ../../../src/include/R_ext/Utils.h ../../../src/include/R_ext/Print.h \
+  ../../../src/include/R_ext/Rdynload.h \
+  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
+  ../../../src/include/libintl.h /usr/X11/include/X11/X.h \
+  /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/Xfuncproto.h \
+  /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xatom.h \
+  /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/keysym.h \
+  /usr/X11/include/X11/keysymdef.h /usr/X11/include/X11/cursorfont.h \
+  /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xresource.h \
+  /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h \
+  /usr/X11/include/X11/Constraint.h /usr/X11/include/X11/Object.h \
+  /usr/X11/include/X11/RectObj.h /usr/X11/include/X11/Xmu/Atoms.h \
+  ../../../src/include/R_ext/GraphicsEngine.h \
+  ../../../src/include/R_ext/GraphicsDevice.h \
+  ../../../src/include/Fileio.h rotated.h \
+  ../../../src/include/R_ext/eventloop.h devX11.h rlogo_icon.h \
+  ../../../src/include/Rmodules/RX11.h \
+  ../../../src/include/Rconnections.h \
+  ../../../src/include/R_ext/Connections.h \
+  /usr/X11/include/X11/StringDefs.h /usr/X11/include/X11/Shell.h \
+  /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h \
+  /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h \
+  bitmap.h
+rotated.o: rotated.c ../../../src/include/config.h \
+  /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/X.h \
+  /usr/X11/include/X11/Xfuncproto.h /usr/X11/include/X11/Xosdefs.h \
+  /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/keysym.h \
+  /usr/X11/include/X11/keysymdef.h /usr/X11/include/X11/Xatom.h \
+  rotated.h
 rbitmap.o: rbitmap.c ../../../src/include/config.h bitmap.h \
- /usr/include/libpng16/png.h /usr/include/libpng16/pnglibconf.h \
- /usr/include/libpng16/pngconf.h ../../../src/include/R_ext/Error.h
+  ../../../src/include/R_ext/Error.h

@@ -28,7 +28,7 @@ OBJECTS = $(SOURCES:.c=.o) $(top_builddir)/src/modules/X11/rbitmap.o
 cairo_la = cairo$(SHLIB_EXT)
 ## This order has to be consistent with the other use of rbitmap.o
 ## AIX needs LIBM
-cairo_la_LIBADD =  -lpng16 -lz  $(LIBR) $(LIBM) # $(LIBINTL)
+cairo_la_LIBADD =   $(LIBR) $(LIBM)  $(LIBINTL)
 
 all: Makedeps
 	@$(MAKE) R

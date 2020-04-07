@@ -27,7 +27,7 @@ PKG_CPPFLAGS = \
   -I../../../include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H \
   
 PKG_CFLAGS = $(C_VISIBILITY)
-PKG_LIBS =  -lm
+PKG_LIBS =  
 
 all: Makedeps
 	@$(MAKE) shlib

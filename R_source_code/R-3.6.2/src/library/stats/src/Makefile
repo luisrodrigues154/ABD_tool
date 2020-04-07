@@ -36,7 +36,7 @@ OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
 # need config.h
 PKG_CPPFLAGS = -I../../../include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H
-PKG_CFLAGS = -fopenmp $(C_VISIBILITY)
+PKG_CFLAGS =  $(C_VISIBILITY)
 PKG_FFLAGS = $(F_VISIBILITY)
 
 SHLIB = $(pkg).so
@@ -45,7 +45,7 @@ SHLIB = $(pkg).so
 ## We should really add FLIBS to SHLIB_LIBADD, but we need to include
 ## the shlib Makeconf at a later stage, and its default value would
 ## override our setting.
-PKG_LIBS = -fopenmp $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+PKG_LIBS =  $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 ## </FIXME>
 
 
@@ -85,443 +85,539 @@ maintainer-clean: distclean
 
 ## Automagically generated dependencies:
 init.o: init.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h nls.h port.h stats.h statsR.h ts.h \
- ../../../../include/R_ext/Visibility.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h nls.h port.h stats.h statsR.h ts.h \
+  ../../../../include/R_ext/Visibility.h
 kmeans.o: kmeans.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h
 ansari.o: ansari.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rmath.h stats.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rmath.h stats.h ../../../../include/libintl.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
 bandwidths.o: bandwidths.c ../../../../include/Rmath.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../../include/Rconfig.h
+  ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h ../../../../include/libintl.h
 chisqsim.o: chisqsim.c ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rmath.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rmath.h stats.h ../../../../include/libintl.h
 d2x2xk.o: d2x2xk.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rmath.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rmath.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Rdynload.h
 fexact.o: fexact.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h stats.h ../../../../include/Rmath.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  stats.h ../../../../include/libintl.h ../../../../include/Rmath.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
 kendall.o: kendall.c ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rmath.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rmath.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Rdynload.h
 ks.o: ks.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rmath.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rmath.h
 line.o: line.c ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rconfig.h \
- statsR.h
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h statsR.h
 smooth.o: smooth.c ../../../include/config.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h
 prho.o: prho.c ../../../../include/Rmath.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../../include/Rconfig.h
+  ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h
 swilk.o: swilk.c ../../../../include/Rmath.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../../include/Rconfig.h
+  ../../../../include/R_ext/Boolean.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h
 ksmooth.o: ksmooth.c ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h
 loessc.o: loessc.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/libintl.h
 monoSpl.o: monoSpl.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h
 isoreg.o: isoreg.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h
 Srunmed.o: Srunmed.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h Trunmed.c
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h Trunmed.c
 dblcen.o: dblcen.c ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rconfig.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h
 distance.o: distance.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rmath.h stats.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rmath.h stats.h ../../../../include/libintl.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
 hclust-utils.o: hclust-utils.c ../../../../include/R_ext/Boolean.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../../include/Rconfig.h statsR.h
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h statsR.h
 nls.o: nls.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h nls.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  nls.h ../../../../include/libintl.h
 rWishart.o: rWishart.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rmath.h \
- ../../../../include/R_ext/Lapack.h ../../../../include/R_ext/BLAS.h \
- stats.h statsR.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rmath.h ../../../../include/R_ext/Lapack.h \
+  ../../../../include/R_ext/BLAS.h stats.h ../../../../include/libintl.h \
+  statsR.h
 HoltWinters.o: HoltWinters.c ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h ts.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  stats.h ../../../../include/libintl.h
 PPsum.o: PPsum.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
 arima.o: arima.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h statsR.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h ts.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  stats.h ../../../../include/libintl.h statsR.h
 burg.o: burg.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h
 filter.o: filter.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h ts.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  stats.h ../../../../include/libintl.h
 mAR.o: mAR.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/BLAS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/BLAS.h \
+  ts.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Rdynload.h stats.h \
+  ../../../../include/libintl.h
 pacf.o: pacf.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h ts.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  stats.h ../../../../include/libintl.h
 starma.o: starma.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ts.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h ts.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  stats.h ../../../../include/libintl.h
 port.o: port.c port.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/RS.h ../../../../include/R_ext/Constants.h \
- ../../../../include/R_ext/BLAS.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/RS.h \
+  ../../../../include/libintl.h ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/BLAS.h
 family.o: family.c ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Constants.h stats.h \
- ../../../../include/R_ext/RS.h statsR.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Constants.h \
+  stats.h ../../../../include/libintl.h ../../../../include/R_ext/RS.h \
+  statsR.h
 sbart.o: sbart.c modreg.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/Rmath.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h ../../../../include/Rmath.h
 approx.o: approx.c ../../../include/config.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- statsR.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Applic.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/libintl.h statsR.h
 loglin.o: loglin.c ../../../include/config.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
- statsR.h
-lowess.o: lowess.c ../../../include/config.h ../../../../include/Rmath.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/BLAS.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Utils.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Applic.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h \
+  ../../../../include/R.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Rdynload.h statsR.h \
+  ../../../../include/libintl.h
+lowess.o: lowess.c ../../../include/config.h \
+  ../../../../include/libintl.h ../../../../include/Rmath.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Applic.h \
+  ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/BLAS.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
+  ../../../../include/R_ext/Rdynload.h
 massdist.o: massdist.c ../../../include/config.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Boolean.h \
- ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h
 splines.o: splines.c ../../../include/config.h ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/BLAS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h statsR.h ../../../include/Defn.h \
- ../../../include/Errormsg.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/BLAS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  statsR.h ../../../include/Defn.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h
 lm.o: lm.c ../../../../include/R.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/BLAS.h statsR.h
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/BLAS.h \
+  statsR.h ../../../../include/libintl.h
 complete_cases.o: complete_cases.c ../../../include/config.h \
- ../../../include/Defn.h ../../../../include/R_ext/Complex.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h
+  ../../../include/Defn.h ../../../../include/R_ext/Complex.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h
 cov.o: cov.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
- ../../../../include/Rmath.h statsR.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h ../../../../include/Rmath.h statsR.h
 deriv.o: deriv.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h
 fft.o: fft.c ../../../include/config.h ../../../../include/Rmath.h \
- ../../../../include/R_ext/Boolean.h
+  ../../../../include/R_ext/Boolean.h
 fourier.o: fourier.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h statsR.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h statsR.h
 model.o: model.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h statsR.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h statsR.h
 optim.o: optim.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
- ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h statsR.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h ../../../../include/R_ext/Applic.h \
+  ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h \
+  ../../../../include/R_ext/BLAS.h statsR.h
 optimize.o: optimize.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
- ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h statsR.h \
- stats.h ../../../../include/Rmath.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h \
+  statsR.h stats.h ../../../../include/libintl.h \
+  ../../../../include/Rmath.h
 integrate.o: integrate.c ../../../include/config.h \
- ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
- ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Rdynload.h ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h \
- ../../../../include/R_ext/BLAS.h
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/BLAS.h \
+  ../../../../include/libintl.h
 random.o: random.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
- ../../../../include/R_ext/Random.h ../../../../include/Rmath.h statsR.h \
- stats.h ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h ../../../../include/R_ext/Random.h \
+  ../../../../include/Rmath.h statsR.h stats.h \
+  ../../../../include/R_ext/RS.h ../../../../include/Rconfig.h
 distn.o: distn.c ../../../include/config.h ../../../include/Defn.h \
- ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
- ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
- ../../../../include/Rmath.h statsR.h
+  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+  ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+  ../../../../include/libintl.h ../../../../include/Rmath.h statsR.h
 zeroin.o: zeroin.c ../../../../include/R_ext/Applic.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h
-rcont.o: rcont.c ../../../include/config.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Boolean.h \
- ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Utils.h
+  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h
+rcont.o: rcont.c ../../../include/config.h ../../../../include/libintl.h \
+  ../../../../include/R_ext/Random.h ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Applic.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Error.h \
+  ../../../../include/R_ext/BLAS.h ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Utils.h
 influence.o: influence.c ../../../../include/R.h \
- ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
- ../../../../include/R_ext/libextern.h \
- ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
- ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
- ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
- ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
- ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
- ../../../../include/R_ext/Rdynload.h statsR.h stats.h
+  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+  ../../../../include/R_ext/libextern.h \
+  ../../../../include/R_ext/Boolean.h \
+  ../../../../include/R_ext/Complex.h \
+  ../../../../include/R_ext/Constants.h \
+  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
+  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
+  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
+  statsR.h stats.h ../../../../include/libintl.h

@@ -18,9 +18,9 @@ SUBDIRS_WITH_NO_BUILD = graphapp trio win_iconv # intl
 
 RBLAS = make.blas
 LIBXDR =# make.xdr
-LIBINTL =# make.intl
+LIBINTL = make.intl
 LIBTRE = make.tre
-LIBTZONE =#make.tzone
+LIBTZONE =make.tzone
 EXTRAS = $(RBLAS) $(LIBXDR) $(LIBINTL) $(LIBTRE) $(LIBTZONE)
 
 all: Makefile R

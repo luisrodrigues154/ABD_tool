@@ -17,7 +17,7 @@ ALL_CPPFLAGS = $(XDR_CPPFLAGS) $(R_XTRA_CPPFLAGS) $(CPPFLAGS) $(DEFS)
 SOURCES = xdr.c xdr_float.c xdr_mem.c xdr_stdio.c
 DEPENDS = $(SOURCES:.c=.d)
 OBJECTS = $(SOURCES:.c=.o)
-#ALL_CFLAGS = $(ALL_CFLAGS_LO) -fvisibility=hidden
+#ALL_CFLAGS = $(ALL_CFLAGS_LO) 
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 DISTFILES = \
