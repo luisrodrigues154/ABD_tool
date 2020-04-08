@@ -78,8 +78,7 @@ SEXP attribute_hidden do_relop(SEXP call, SEXP op, SEXP args, SEXP env)
 SEXP attribute_hidden do_relop_dflt(SEXP call, SEXP op, SEXP x, SEXP y)
 {
     /* handle the REALSXP/INTSXP simple scalar case quickly */
-	puts("Will compare");
-
+	
     if (IS_SIMPLE_SCALAR(x, INTSXP)) {
 		int ix = SCALAR_IVAL(x);
 		if (IS_SIMPLE_SCALAR(y, INTSXP)) {

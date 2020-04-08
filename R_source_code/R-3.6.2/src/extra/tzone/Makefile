@@ -67,3 +67,15 @@ localtime.o: localtime.c ../../../src/include/config.h \
   ../../../src/main/datetime.h tzfile.h
 strftime.o: strftime.c ../../../src/include/config.h tzfile.h \
   ../../../src/main/datetime.h
+localtime.o: localtime.c ../../../src/include/config.h \
+  ../../../src/main/datetime.h tzfile.h
+strftime.o: strftime.c ../../../src/include/config.h tzfile.h \
+  ../../../src/main/datetime.h
+localtime.o: localtime.c ../../../src/include/config.h \
+  ../../../src/main/datetime.h tzfile.h
+strftime.o: strftime.c ../../../src/include/config.h tzfile.h \
+  ../../../src/main/datetime.h
+localtime.o: localtime.c ../../../src/include/config.h \
+  ../../../src/main/datetime.h tzfile.h
+strftime.o: strftime.c ../../../src/include/config.h tzfile.h \
+  ../../../src/main/datetime.h

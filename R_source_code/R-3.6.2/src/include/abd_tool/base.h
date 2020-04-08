@@ -15,6 +15,8 @@
 #include <abd_tool/env_stack_defn.h>
 #include <abd_tool/settings_manager_defn.h>
 #include <Print.h>
+ #include <Rembedded.h>
+ #include <R_ext/Parse.h>
 
 
 
@@ -81,7 +83,6 @@ void ABD_HELP(){
     // printf("\t##################################################\n\n\n");
     //checkSettings();
     
-    st =1;
 }
 
 
@@ -130,6 +131,13 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
     return ABD_NOT_EXIST;
 }
 
+void regIf(SEXP Stmt, Rboolean result){
+    if(isRunning()){
+        createNewEvent(IF_EVENT);
+
+        setIfEventValues(Stmt, result);
+    }
+}
 
 void regFunReturn(SEXP lhs, SEXP rho, SEXP val){
     createNewEvent(RET_EVENT);

@@ -613,10 +613,10 @@ eval.o: eval.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/abd_tool/json_helpers_defn.h \
   ../../src/include/abd_tool/json_helpers.h \
   ../../src/include/abd_tool/settings_manager_defn.h \
-  ../../src/include/abd_tool/env_stack.h arithmetic.h \
-  ../../src/include/Rmath.h ../../src/include/Rdynpriv.h \
-  ../../src/include/Parse.h ../../src/include/IOStuff.h \
-  ../../src/include/R_ext/Parse.h
+  ../../src/include/abd_tool/env_stack.h ../../src/include/Rembedded.h \
+  ../../src/include/R_ext/Parse.h arithmetic.h ../../src/include/Rmath.h \
+  ../../src/include/Rdynpriv.h ../../src/include/Parse.h \
+  ../../src/include/IOStuff.h
 format.o: format.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/R_ext/Complex.h ../../src/include/Rinternals.h \
   ../../src/include/R_ext/Arith.h ../../src/include/R_ext/libextern.h \

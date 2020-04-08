@@ -72,30 +72,56 @@ distdir: $(DISTFILES)
 ## Automagically generated dependencies:
 
 regcomp.o: regcomp.c ../../../src/include/config.h tre.h tre-config.h \
- tre-internal.h xmalloc.h
+  tre-internal.h xmalloc.h
 regerror.o: regerror.c ../../../src/include/config.h tre-internal.h tre.h \
- tre-config.h
+  tre-config.h
 regexec.o: regexec.c ../../../src/include/config.h tre-internal.h tre.h \
- tre-config.h xmalloc.h
+  tre-config.h xmalloc.h
 tre-ast.o: tre-ast.c ../../../src/include/config.h tre-ast.h tre-mem.h \
- tre-internal.h tre.h tre-config.h tre-compile.h
+  tre-internal.h tre.h tre-config.h tre-compile.h
 tre-compile.o: tre-compile.c ../../../src/include/config.h tre-internal.h \
- tre.h tre-config.h tre-mem.h tre-stack.h tre-ast.h tre-compile.h \
- tre-parse.h xmalloc.h
+  tre.h tre-config.h tre-mem.h tre-stack.h tre-ast.h tre-compile.h \
+  tre-parse.h xmalloc.h
 tre-match-approx.o: tre-match-approx.c ../../../src/include/config.h \
- tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
+  tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
 tre-match-backtrack.o: tre-match-backtrack.c \
- ../../../src/include/config.h tre-internal.h tre.h tre-config.h \
- tre-mem.h tre-match-utils.h xmalloc.h
+  ../../../src/include/config.h tre-internal.h tre.h tre-config.h \
+  tre-mem.h tre-match-utils.h xmalloc.h
 tre-match-parallel.o: tre-match-parallel.c ../../../src/include/config.h \
- tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
+  tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
 tre-mem.o: tre-mem.c ../../../src/include/config.h tre-internal.h tre.h \
- tre-config.h tre-mem.h xmalloc.h
+  tre-config.h tre-mem.h xmalloc.h
 tre-parse.o: tre-parse.c ../../../src/include/config.h xmalloc.h \
- tre-mem.h tre-ast.h tre-internal.h tre.h tre-config.h tre-compile.h \
- tre-stack.h tre-parse.h
+  tre-mem.h tre-ast.h tre-internal.h tre.h tre-config.h tre-compile.h \
+  tre-stack.h tre-parse.h
 tre-stack.o: tre-stack.c ../../../src/include/config.h tre-internal.h \
- tre.h tre-config.h tre-stack.h xmalloc.h
+  tre.h tre-config.h tre-stack.h xmalloc.h
+xmalloc.o: xmalloc.c ../../../src/include/config.h xmalloc.h
+regcomp.o: regcomp.c ../../../src/include/config.h tre.h tre-config.h \
+  tre-internal.h xmalloc.h
+regerror.o: regerror.c ../../../src/include/config.h tre-internal.h tre.h \
+  tre-config.h
+regexec.o: regexec.c ../../../src/include/config.h tre-internal.h tre.h \
+  tre-config.h xmalloc.h
+tre-ast.o: tre-ast.c ../../../src/include/config.h tre-ast.h tre-mem.h \
+  tre-internal.h tre.h tre-config.h tre-compile.h
+tre-compile.o: tre-compile.c ../../../src/include/config.h tre-internal.h \
+  tre.h tre-config.h tre-mem.h tre-stack.h tre-ast.h tre-compile.h \
+  tre-parse.h xmalloc.h
+tre-match-approx.o: tre-match-approx.c ../../../src/include/config.h \
+  tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
+tre-match-backtrack.o: tre-match-backtrack.c \
+  ../../../src/include/config.h tre-internal.h tre.h tre-config.h \
+  tre-mem.h tre-match-utils.h xmalloc.h
+tre-match-parallel.o: tre-match-parallel.c ../../../src/include/config.h \
+  tre-internal.h tre.h tre-config.h tre-match-utils.h xmalloc.h
+tre-mem.o: tre-mem.c ../../../src/include/config.h tre-internal.h tre.h \
+  tre-config.h tre-mem.h xmalloc.h
+tre-parse.o: tre-parse.c ../../../src/include/config.h xmalloc.h \
+  tre-mem.h tre-ast.h tre-internal.h tre.h tre-config.h tre-compile.h \
+  tre-stack.h tre-parse.h
+tre-stack.o: tre-stack.c ../../../src/include/config.h tre-internal.h \
+  tre.h tre-config.h tre-stack.h xmalloc.h
 xmalloc.o: xmalloc.c ../../../src/include/config.h xmalloc.h
 regcomp.o: regcomp.c ../../../src/include/config.h tre.h tre-config.h \
   tre-internal.h xmalloc.h

@@ -8,4 +8,4 @@ Description: Tools for package development, administration and documentation.
 License: Part of R 3.6.2
 Suggests: codetools, methods, xml2, curl, commonmark
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.3.0; 2020-04-06 22:37:06 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.3.0; 2020-04-08 04:26:19 UTC; unix

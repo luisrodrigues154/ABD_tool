@@ -10,12 +10,13 @@
 
 int checkFolderHierarchy(){
     DIR * setDir;
-    if(!(setDir = opendir(folderPath)))
+    if((setDir = opendir(folderPath)) == NULL){
         //folder does not exists, create
         if(mkdir(folderPath, 0700))
             //error creating
             return 0;
-    closedir(setDir);
+    }else
+        closedir(setDir);
     //folder ready
     return 1;
 }
@@ -26,22 +27,35 @@ int buildFolderPath(){
     if(login == NULL)
         return 0;
 
-    int userPathLen = strlen(login) + strlen("/home/");
-    int folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
+    int userPathLen;
+    int folderPathLen;
+    
+    #ifdef __APPLE__
+        userPathLen = strlen(login) + strlen("/Users/");
+        folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
+    #elif defined __LINUX__
+        userPathLen = strlen(login) + strlen("/home/");
+        folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
+    #endif
+
 
     folderPath = (char *) malloc(folderPathLen * sizeof(char) + 1);
     userPath = (char *) malloc(userPathLen * sizeof(char) + 1);
 
     memset(userPath, 0, userPathLen * sizeof(char));
     memset(folderPath, 0, folderPathLen * sizeof(char));
-
-
-    strncat(userPath, "/home/", strlen("/home/")*sizeof(char));
+   
+    #ifdef __APPLE__
+        strncat(userPath, "/Users/", strlen("/Users/")*sizeof(char));
+    #elif defined __LINUX__
+        strncat(userPath, "/home/", strlen("/home/")*sizeof(char));
+    #endif
+    
     strncat(userPath, login, strlen(login)*sizeof(char));
 
     strncat(folderPath, userPath, userPathLen * sizeof(char));
     strncat(folderPath, "/Documents/ABD_tool", (folderPathLen - userPathLen) * sizeof(char));
-    
+
     return 1;
 }
 

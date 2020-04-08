@@ -17,11 +17,15 @@
         IF_ABD = 1
     }IF_DATA_TYPE;
 
+    typedef struct if_abd_obj{
+        ABD_OBJECT * objPtr;
+        ABD_OBJECT_MOD * objValue;
+    }IF_ABD_OBJ;
     
     typedef struct if_expr{
-        char * operator; // '>', '<', '|' (...)
-        int isConfined; // 'T' or 'F' -> indicates if is inside parentheses
-        int result; // 'T' or 'F'
+        char * operator; // '>', '<', '|' , '+', '-' , (...)
+        int isConfined; // 1 - True, 0 - False -> indicates if is inside parentheses
+        double result; // 1 - True; 0 - False (if operator is arith then is the result of arith)
         
         /* 
             in the end, the left_data and right_data will have the type IF_ABD 
