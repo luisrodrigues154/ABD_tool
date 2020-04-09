@@ -933,6 +933,7 @@ static void performCompletion(control c)
 	    char *p = "try(loadNamespace('utils'), silent=TRUE)";
 	    PROTECT(cmdSexp = mkString(p));
 	    cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+		
 	    if(status == PARSE_OK) {
 		for(i = 0; i < length(cmdexpr); i++)
 		    eval(VECTOR_ELT(cmdexpr, i), R_GlobalEnv);
@@ -1041,25 +1042,24 @@ static void deleteselected(ConsoleData p)
 void consolecmd(control c, const char *cmd)
 {
     ConsoleData p = getdata(c);
-
     int i;
     if (p->sel) {
-	deleteselected(p);
-	p->sel = 0;
-	p->needredraw = 1;
-	REDRAW;
+		deleteselected(p);
+		p->sel = 0;
+		p->needredraw = 1;
+		REDRAW;
     }
     storekey(c, BEGINLINE);
     storekey(c, KILLRESTOFLINE);
     if(isUnicodeWindow(c)) {
-	size_t sz = (strlen(cmd) + 1) * sizeof(wchar_t);
-	wchar_t *wcs = (wchar_t*) R_alloc(strlen(cmd) + 1, sizeof(wchar_t));
-	memset(wcs, 0, sz);
-	mbstowcs(wcs, cmd, sz-1);
-	for(i = 0; wcs[i]; i++) storekey(c, wcs[i]);
-    } else {
-	const char *ch;
-	for (ch = cmd; *ch; ch++) storekey(c, (unsigned char) *ch);
+		size_t sz = (strlen(cmd) + 1) * sizeof(wchar_t);
+		wchar_t *wcs = (wchar_t*) R_alloc(strlen(cmd) + 1, sizeof(wchar_t));
+		memset(wcs, 0, sz);
+		mbstowcs(wcs, cmd, sz-1);
+		for(i = 0; wcs[i]; i++) storekey(c, wcs[i]);
+	} else {
+		const char *ch;
+		for (ch = cmd; *ch; ch++) storekey(c, (unsigned char) *ch);
     }
     storekey(c, '\n');
 /* if we are editing we save the actual line
@@ -1584,7 +1584,6 @@ static wchar_t consolegetc(control c)
 {
     ConsoleData p;
     wchar_t ch;
-
     p = getdata(c);
     while((p->numkeys == 0) && (!p->clp))
     {

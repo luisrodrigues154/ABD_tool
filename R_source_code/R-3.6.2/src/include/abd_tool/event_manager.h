@@ -14,6 +14,7 @@ void initEventsReg(){
     currFunc = ABD_OBJECT_NOT_FOUND;
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
+    waitingElseIF = 0;
 }
 
 ABD_EVENT * initBaseEvent(ABD_EVENT * newBaseEvent){
@@ -43,6 +44,9 @@ ABD_EVENT_ARG * memAllocEventArg(){
 
 ABD_RET_EVENT * memAllocRetEvent(){
     return (ABD_RET_EVENT *) malloc(sizeof(ABD_RET_EVENT));
+}
+IF_EXPRESSION * memAllocIfExp(){
+    return (IF_EXPRESSION *) malloc(sizeof(IF_EXPRESSION));
 }
 
 ABD_EVENT_ARG * setArgValues(ABD_EVENT_ARG * currArg, ABD_OBJECT * objPtr, char * rcvdName, ABD_OBJECT_MOD * objValue){
@@ -266,8 +270,8 @@ int inCollection(char * check){
 	char * collection [] = {
             "+", "-", "*", "/",
 			"==", "!=", "<", ">", "<=", ">=",
-			"&", "|", "&&", "||", "!" };
-    int nCollection = 15;
+			"&", "|", "&&", "||", "!", "[" };
+    int nCollection = 16;
 
     for(int i=0; i<nCollection; i++){
         if(strcmp(check, collection[i]) == 0)
@@ -276,6 +280,13 @@ int inCollection(char * check){
     return 0;
 }
 
+void * rebuildVector(ABD_OBJECT * obj){
+
+}
+
+IF_ABD_OBJ * getAbdIfObjIndexed(SEXP symbol, SEXP index){
+
+}
 IF_ABD_OBJ * getAbdIfObj(SEXP symbol){
     IF_ABD_OBJ * newObj = memAllocIfAbdObj();
     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
@@ -337,23 +348,25 @@ IF_ABD_OBJ * getAbdIfObj(SEXP symbol){
 
     return newObj;
 }
-
-int calculateResult(char * expr){
-    SEXP e, tmp, ret;
+//
+// (1+a)
+SEXP calculateResult(char * expr){
+    SEXP e, tmp, retValue;
     ParseStatus status;
     int i;
-
+    
     PROTECT(tmp = mkString(expr));
     PROTECT(e = R_ParseVector(tmp, -1, &status, R_NilValue));
-    PROTECT(ret = R_tryEval(VECTOR_ELT(e,0), R_GlobalEnv, NULL));
+    PROTECT(retValue = R_tryEval(VECTOR_ELT(e,0), R_GlobalEnv, NULL));
 
     UNPROTECT(3);
-    return LOGICAL(ret)[0];
+
+    return retValue;
 }
 
 IF_EXPRESSION * processIfStmt(SEXP st){
 
-	IF_EXPRESSION * newExpr = (IF_EXPRESSION *) malloc(sizeof(IF_EXPRESSION));
+	IF_EXPRESSION * newExpr = memAllocIfExp();
     char asChar[100];
 	if(TYPEOF(st) == LANGSXP){
 		newExpr->isConfined = 0;
@@ -366,11 +379,27 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 		copyStr(newExpr->operator, operator, opSize);
         
 		if(inCollection(operator)){
+            if(strcmp(operator, "[") == 0){
+                // a[1]
+                // lElem == symb name
+                // rElem == 1 (index)
+            }else{
+
+            }
+
+            int objIndex = 0;
 			SEXP lElem = CAR(CDR(st));
 			if(TYPEOF(lElem) == LANGSXP){
-				newExpr->left_type = IF_EXPR;
+				
+                char * auxOp = CHAR(PRINTNAME(CAR(lElem)));
+                if(strcmp(operator, "[") == 0){
+                    objIndex = 1;
+                    goto jump;
+                }
+                newExpr->left_type = IF_EXPR;
 				newExpr->left_data = processIfStmt(lElem);
 			}else{
+                jump:;
 				// if we come to (2>3) left side wont be LANGSXP
 				// need to process by type
 				newExpr->left_type = IF_ABD;
@@ -380,8 +409,10 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 			}
 			
 			SEXP rElem = CAR(CDR(CDR(st)));
+            printf("TYPEOF rElem %d\n", TYPEOF(rElem));
 			if(TYPEOF(rElem) == LANGSXP){
 				newExpr->right_type = IF_EXPR;
+                puts("will enter from rElem");
 				newExpr->right_data = processIfStmt(rElem);
 			}else{
 				// if we come to (2>3) left side wont be LANGSXP
@@ -433,8 +464,16 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 		// can be if(a) or if(1), etc...
 		puts("just a single number in here...");
 	}
-    newExpr->result = calculateResult(asChar);
-    //printf("\nStatement %s\nResult %s\n", asChar, (newExpr->result) ? "TRUE" : "FALSE");
+    SEXP result = calculateResult(asChar);
+    switch (TYPEOF(result))
+    {
+        case LGLSXP: newExpr->result = LOGICAL(result)[0]; break;
+        case REALSXP: newExpr->result = REAL(result)[0];   break;
+        default: break;
+    }
+        
+    
+    printf("\nStatement %s\nResult %s\n", asChar, (newExpr->result) ? "TRUE" : "FALSE");
 	return newExpr;
 }
 
@@ -468,20 +507,51 @@ void printExpression(IF_EXPRESSION * expr){
 		printf(")");
 	
 }
-
-
+int isWaitingElseIf(){
+    return waitingElseIF;
+}
+void setIsWaiting(int isWaiting){
+    waitingElseIF = isWaiting;
+}
+ABD_IF_EVENT * findLastElseIf(){
+    ABD_IF_EVENT * currEvent = eventsRegTail->data.if_event;
+    while(currEvent->else_if != ABD_EVENT_NOT_FOUND)
+        currEvent = currEvent->else_if;
+    return currEvent;
+}
 void setIfEventValues(SEXP statement, Rboolean result){
-	eventsRegTail->data.if_event->else_if = ABD_EVENT_NOT_FOUND;
-	eventsRegTail->data.if_event->reachedElse = 0;
-	eventsRegTail->data.if_event->globalResult = result;
+    ABD_IF_EVENT * currEvent = findLastElseIf();
+    
+    if(isWaitingElseIf()){
+        if(statement == R_NilValue){
+            //is an else
+            puts("regging else");
+            currEvent->else_if = memAllocIfExp();
+            currEvent->else_if->else_if = ABD_EVENT_NOT_FOUND;
+            currEvent->else_if->expr = ABD_NOT_FOUND;
+            currEvent->else_if->globalResult = 1;
+            currEvent->else_if->isElse = 1;
+            waitingElseIF = 0;
+        }else{
+            //is an else if
+            puts("reging an else if");
+            currEvent->else_if = processIfStmt(statement);
+            currEvent->else_if->isElse = 0;
+            currEvent->else_if->globalResult = result;
+        }
+    }else{
+        puts("reging an if");
+        currEvent->else_if = ABD_EVENT_NOT_FOUND;
+        currEvent->isElse = 0;
+        currEvent->globalResult = result;
+        currEvent->expr = processIfStmt(statement);
+    }
 
-	eventsRegTail->data.if_event->expr = processIfStmt(statement);
-	
-    puts("WILL PRINT THE IF");
-	printf("if(");
+	puts("WILL PRINT THE IF");
+	printf("%sif(", (waitingElseIF) ? "else " : "");
 	printExpression(eventsRegTail->data.if_event->expr);
 	printf(")\n");
-
+    
 }
 
 void setFuncEventValues(ABD_OBJECT * callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs){
@@ -509,6 +579,7 @@ ABD_EVENT * creaStructsForType(ABD_EVENT * newBaseEvent, ABD_EVENT_TYPE type){
             break;
         case IF_EVENT:
             newBaseEvent->data.if_event = memAllocIfEvent();
+            newBaseEvent->data.if_event->else_if = ABD_EVENT_NOT_FOUND;
             break;
         case RET_EVENT:
             newBaseEvent->data.ret_event = memAllocRetEvent();

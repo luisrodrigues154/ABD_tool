@@ -41,8 +41,8 @@
     typedef struct if_event{
         int globalResult; // 'T' or 'F' for the statement as a whole
         IF_EXPRESSION * expr; // if or else if
-        struct if_content * else_if; // pointer to an else if that was originated from this if
-        int reachedElse; // 'T' or 'F'
+        struct if_event * else_if; // pointer to an else if that was originated from this if
+        int isElse; // 'T' or 'F' indicates if the statement is an ELSE
     }ABD_IF_EVENT;
 
     //describe a function call and its arguments

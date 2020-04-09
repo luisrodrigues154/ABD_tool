@@ -683,6 +683,12 @@ SEXP eval(SEXP e, SEXP rho)
 					(R_GlobalContext->callflag == CTXT_CCODE))
 				ecall = R_GlobalContext->call;
 				PROTECT(op = findFun3(CAR(e), rho, ecall));
+				
+				if(isRunning())
+					if(isWaitingElseIf())
+						if(strcmp(CHAR(PRINTNAME(CAR(e))), "{") == 0)
+						//its an else, does not come from eval to here, need to hack
+							regIf(R_NilValue, 1);
 			} else
 				PROTECT(op = eval(CAR(e), rho));
 
@@ -1766,7 +1772,7 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
        saved in cntxt. */
 
     R_Srcref = getAttrib(op, R_SrcrefSymbol);
-
+	
     /* Debugging */
 
     if ((RDEBUG(op) && R_current_debug_state()) || RSTEP(op)
@@ -2159,22 +2165,21 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP Cond, Stmt=R_NilValue;
     int vis=0;
-
-	
 	
     PROTECT(Cond = eval(CAR(args), rho));
 	
 	Rboolean ans = asLogicalNoNA(Cond, call, rho);
 	regIf(CAR(args), ans);
     if (ans){
-		//puts("if 1");
 		Stmt = CAR(CDR(args));
     }else {
-		if (length(args) > 2)
+		if (length(args) > 2){
+			storeIsWaiting(1);
 			Stmt = CAR(CDR(CDR(args)));
-		else
+		}else{
+			storeIsWaiting(0);
 			vis = 1;
-			
+		}
     }
     if( !vis && RDEBUG(rho) && !BodyHasBraces(Stmt) && !R_GlobalContext->browserfinish) {
 		SrcrefPrompt("debug", R_Srcref);
@@ -8059,6 +8064,7 @@ SEXP attribute_hidden do_returnValue(SEXP call, SEXP op, SEXP args, SEXP rho)
 #include <Parse.h>
 SEXP R_ParseEvalString(const char *str, SEXP env)
 {
+	printf("called");
     SEXP s = PROTECT(mkString(str));
 
     ParseStatus status;

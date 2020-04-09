@@ -15,6 +15,12 @@
         "defn.h": "c",
         "internal.h": "c",
         "algorithm": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "parse.h": "c",
+        "rlocale.h": "c",
+        "langinfo.h": "c",
+        "print.h": "c",
+        "rinterface.h": "c",
+        "fileio.h": "c"
     }
 }

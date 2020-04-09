@@ -1,9 +1,1 @@
-Loading ABD_tool settings... DONE...
-
-Watcher STARTED successfully.
-Will call tool
-Env GlobalEnv
-WILL PRINT THE IF
-if((1.00 > 2.00) || (1.00 == 1.00))
-[1] 1
-[1] "end"
+[1] "full path: /Users/luis/Documents/Repos/ABD_tool/R_test_files/cf.R"

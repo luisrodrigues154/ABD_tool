@@ -943,6 +943,7 @@ handleInterrupt(void)
 /* Fill a text buffer from stdin or with user typed console input. */
 static void *cd = NULL;
 
+
 int attribute_hidden
 Rstd_ReadConsole(const char *prompt, unsigned char *buf, int len,
 		 int addtohistory)

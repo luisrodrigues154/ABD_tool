@@ -124,6 +124,7 @@ static int ConsoleGetchar(void)
 	    R_ClearerrConsole();
 	    return R_EOF;
 	}
+	
 	ConsoleBufp = ConsoleBuf;
 	ConsoleBufCnt = (int) strlen((char *)ConsoleBuf);
 	ConsoleBufCnt--;

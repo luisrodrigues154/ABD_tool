@@ -15,7 +15,7 @@
 #include <abd_tool/env_stack_defn.h>
 #include <abd_tool/settings_manager_defn.h>
 #include <Print.h>
-
+#include <Defn.h>
 
 
 
@@ -81,7 +81,11 @@ void ABD_HELP(){
     // printf("\t-> Display current output file path: abd_path()\n");
     // printf("\t##################################################\n\n\n");
     //checkSettings();
-    
+    // cntx
+    // SrcRefState ParseState;
+    // ParseState = src
+    // printf("At line... %d\n", ParseState.xxlineno);
+    st = 1;
 }
 
 
@@ -132,9 +136,16 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
 
 void regIf(SEXP Stmt, Rboolean result){
     if(isRunning()){
-        createNewEvent(IF_EVENT);
-
+        if(!isWaitingElseIf())
+            createNewEvent(IF_EVENT);
         setIfEventValues(Stmt, result);
+    }
+}
+
+void storeIsWaiting(int isWaiting){
+    if(isRunning()){
+        setIsWaiting(isWaiting);   
+        printf("isWaiting? %d\n", isWaiting);
     }
 }
 

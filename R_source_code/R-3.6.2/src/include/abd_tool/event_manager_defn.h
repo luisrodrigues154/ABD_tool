@@ -21,6 +21,7 @@
       }data;
       struct abd_event * nextEvent;
   }ABD_EVENT;
+  static int waitingElseIF;
   static ABD_OBJECT * currFunc;
   static ABD_RET_EVENT * lastRetEvent;
   static SEXP lastRetValue;
