@@ -27,7 +27,7 @@
     }OBJ_STATE;
 
     typedef struct abd_vec_obj{
-        char idxChange;
+        int idxChange;
         /*
             if idxChange is y then
                 nCols will represent how many indexes changed

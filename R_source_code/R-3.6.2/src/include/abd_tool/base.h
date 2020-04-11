@@ -75,8 +75,8 @@ void STOP_WATCHER(){
 void ABD_HELP(){
     // printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
     // printf("\t##################################################\n");
-    // printf("\t-> Start the watcher: start_watcher()\n");
-    // printf("\t-> Stop the watcher: stop_watcher()\n");
+    // printf("\t-> Start the watcher: abd_start()\n");
+    // printf("\t-> Stop the watcher: abd_stop()\n");
     // printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
     // printf("\t-> Display current output file path: abd_path()\n");
     // printf("\t##################################################\n\n\n");

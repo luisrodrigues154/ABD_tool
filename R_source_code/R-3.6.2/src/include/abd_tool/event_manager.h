@@ -246,10 +246,6 @@ ABD_EVENT_ARG * processArgs(SEXP passedArgs, SEXP receivedArgs){
     return argsList;
 }
 
-
-
-
-
 // void printArgsList(ABD_EVENT_ARG * argsList){
 //     if(argsList == ABD_NOT_FOUND)
 //         return;
@@ -279,15 +275,48 @@ int inCollection(char * check){
     }
     return 0;
 }
-
-void * rebuildVector(ABD_OBJECT * obj){
-
+//returns the id (+1 to avoid idx 0 problems) in the changes vector, otherwise 0 (false)
+int inIdxChangesVec(int idx, int nChanges,  int * idxChanges){
+    for(int i=0; i<nChanges; i++){
+        if(idxChanges[i] == idx){
+            return i+1;
+        }
+    }
+    return 0;
 }
 
-IF_ABD_OBJ * getAbdIfObjIndexed(SEXP symbol, SEXP index){
+ABD_OBJECT_MOD * idxCurrValueVec(ABD_OBJECT_MOD * modList, int findIdx){
+    ABD_OBJECT_MOD * retMod = memAllocMod();
+    ABD_OBJECT_MOD * currMod = modList;
+    int found = 0;
+    top:;
+    if(!currMod->value.vec_value->idxChange || found){
+        retMod->id = modList->id;
+        retMod->nextMod = ABD_OBJECT_NOT_FOUND;
+        retMod->prevMod = ABD_OBJECT_NOT_FOUND;
+        retMod->type = modList->type;
+        retMod->value.vec_value = memAllocVecObj();
+        retMod->value.vec_value->idxChange = 0;
+        retMod->value.vec_value->nCols = 1;
+        retMod->value.vec_value->idxs = (int *) malloc(sizeof(int));
+        retMod->value.vec_value->idxs[0] = findIdx; 
+        retMod->value.vec_value->vector = memAllocDoubleVector(1);
+        if(found)
+            retMod->value.vec_value->vector = &(((double *) currMod->value.vec_value->vector)[found-1]);
+        else
+            retMod->value.vec_value->vector = &(((double *) currMod->value.vec_value->vector)[findIdx]);
+        return retMod;
+    } 
 
-}
-IF_ABD_OBJ * getAbdIfObj(SEXP symbol){
+    do{
+        if((found = inIdxChangesVec(findIdx, currMod->value.vec_value->nCols, currMod->value.vec_value->idxs))) break;
+        currMod = currMod->prevMod;
+    }while(!found && currMod->value.vec_value->idxChange);
+    goto top;
+} 
+
+
+IF_ABD_OBJ * getAbdIfObj(SEXP symbol, int withIndex){
     IF_ABD_OBJ * newObj = memAllocIfAbdObj();
     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT_MOD * objValue = ABD_OBJECT_NOT_FOUND;
@@ -318,7 +347,9 @@ IF_ABD_OBJ * getAbdIfObj(SEXP symbol){
                     objValue = memAllocMod();
                     objValue = processByType(symbValue, objValue);
                 }else{
-                    objValue = objectFound->modList;
+                    // get index effective value
+                    objValue = idxCurrValueVec(objectFound->modList, withIndex);
+                    //printf("... %.2f\n", *((double *) objValue->value.vec_value->vector));
                 }
                 
                 break;
@@ -348,20 +379,50 @@ IF_ABD_OBJ * getAbdIfObj(SEXP symbol){
 
     return newObj;
 }
-//
-// (1+a)
-SEXP calculateResult(char * expr){
+
+SEXP getResult(char * expr){
     SEXP e, tmp, retValue;
     ParseStatus status;
     int i;
     
     PROTECT(tmp = mkString(expr));
     PROTECT(e = R_ParseVector(tmp, -1, &status, R_NilValue));
-    PROTECT(retValue = R_tryEval(VECTOR_ELT(e,0), R_GlobalEnv, NULL));
+    PROTECT(retValue = R_tryEval(VECTOR_ELT(e,0), getCurrentEnv(), NULL));
 
     UNPROTECT(3);
 
     return retValue;
+}
+
+void makeStrForExp(IF_EXPRESSION * newExpr, char * operator, char * asChar){
+    if(newExpr->left_type == IF_EXPR){
+        sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->left_data)->result);
+    }else{
+        ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->left_data)->objPtr;
+        if(obj->id == -1){
+            // hardcoded, get value
+            ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->left_data)->objValue;
+            sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
+        }else
+            sprintf(asChar, "%s%s", asChar, obj->name);
+    }
+    
+    //get the operator  
+    sprintf(asChar, "%s%s", asChar, operator);
+    
+    if(newExpr->right_type == IF_EXPR){
+        sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->right_data)->result);
+    }else{
+        ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->right_data)->objPtr;
+        if(obj->id == -1){
+            // hardcoded, get value
+            ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->right_data)->objValue;
+            sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
+        }else
+            sprintf(asChar, "%s%s", asChar, obj->name);
+    }
+    if(newExpr->isConfined)
+        sprintf(asChar, "%s)", asChar);
 }
 
 IF_EXPRESSION * processIfStmt(SEXP st){
@@ -379,78 +440,52 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 		copyStr(newExpr->operator, operator, opSize);
         
 		if(inCollection(operator)){
-            if(strcmp(operator, "[") == 0){
-                // a[1]
-                // lElem == symb name
-                // rElem == 1 (index)
-            }else{
-
-            }
-
-            int objIndex = 0;
+            int withIndex = 0;
 			SEXP lElem = CAR(CDR(st));
 			if(TYPEOF(lElem) == LANGSXP){
-				
-                char * auxOp = CHAR(PRINTNAME(CAR(lElem)));
-                if(strcmp(operator, "[") == 0){
-                    objIndex = 1;
-                    goto jump;
+                if(strcmp(CHAR(PRINTNAME(CAR(lElem))), "[") == 0){
+                    //index change language sxp
+                    // a[1] 
+                    // lElem == symb name
+                    // rElem == 1 (index)
+                    SEXP val = CAR(CDR(CDR(lElem)));
+                    lElem = CAR(CDR(lElem));
+                    withIndex = (int) REAL(val)[0]-1;
+                    goto jump1;
                 }
                 newExpr->left_type = IF_EXPR;
 				newExpr->left_data = processIfStmt(lElem);
 			}else{
-                jump:;
+                jump1:;
 				// if we come to (2>3) left side wont be LANGSXP
 				// need to process by type
 				newExpr->left_type = IF_ABD;
-
 				// alloc new ABD_OBJ and set values (dont forget mod)
-                newExpr->left_data = getAbdIfObj(lElem);				
+                newExpr->left_data = getAbdIfObj(lElem, withIndex);				
 			}
-			
-			SEXP rElem = CAR(CDR(CDR(st)));
-            printf("TYPEOF rElem %d\n", TYPEOF(rElem));
+			withIndex = 0;
+			SEXP rElem = CAR(CDR(CDR(st)));        
 			if(TYPEOF(rElem) == LANGSXP){
-				newExpr->right_type = IF_EXPR;
-                puts("will enter from rElem");
+                if(strcmp(CHAR(PRINTNAME(CAR(rElem))), "[") == 0){
+                    //index change language sxp
+                    // a[1] 
+                    // lElem == symb name
+                    // rElem == 1 (index)
+                    SEXP val = CAR(CDR(CDR(rElem)));
+                    rElem = CAR(CDR(rElem));
+                    withIndex = (int) REAL(val)[0]-1;
+                    goto jump2;
+                }
+                newExpr->right_type = IF_EXPR;
 				newExpr->right_data = processIfStmt(rElem);
 			}else{
+                jump2:;
 				// if we come to (2>3) left side wont be LANGSXP
 				// need to process by type
 				newExpr->right_type = IF_ABD;
-				
 				// alloc new ABD_OBJ and set values (dont forget mod)
-				newExpr->right_data = getAbdIfObj(rElem);
+                newExpr->right_data = getAbdIfObj(rElem, withIndex);				
 			}
-            
-            if(newExpr->left_type == IF_EXPR){
-                sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->left_data)->result);
-            }else{
-                ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->left_data)->objPtr;
-                if(obj->id == -1){
-                    // hardcoded, get value
-                    ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->left_data)->objValue;
-                    sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
-                }else
-                    sprintf(asChar, "%s%s", asChar, obj->name);
-            }
-            
-            //get the operator  
-            sprintf(asChar, "%s%s", asChar, operator);
-            
-            if(newExpr->right_type == IF_EXPR){
-                sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->right_data)->result);
-            }else{
-                ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->right_data)->objPtr;
-                if(obj->id == -1){
-                    // hardcoded, get value
-                    ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->right_data)->objValue;
-                    sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
-                }else
-                    sprintf(asChar, "%s%s", asChar, obj->name);
-            }
-            if(newExpr->isConfined)
-                sprintf(asChar, "%s)", asChar);
 		}else if(strcmp(operator, "(") == 0){
 			//confine
 			newExpr->isConfined = 1;
@@ -464,15 +499,16 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 		// can be if(a) or if(1), etc...
 		puts("just a single number in here...");
 	}
-    SEXP result = calculateResult(asChar);
-    switch (TYPEOF(result))
-    {
-        case LGLSXP: newExpr->result = LOGICAL(result)[0]; break;
-        case REALSXP: newExpr->result = REAL(result)[0];   break;
-        default: break;
-    }
-        
-    
+
+    makeStrForExp(newExpr, operator, &asChar);
+    SEXP result = getResult(asChar);
+    SEXPTYPE resType = TYPEOF(result);
+
+    if(resType == LGLSXP) 
+        newExpr->result = LOGICAL(result)[0];
+    else if(resType == REALSXP)
+        newExpr->result = REAL(result)[0]; 
+
     printf("\nStatement %s\nResult %s\n", asChar, (newExpr->result) ? "TRUE" : "FALSE");
 	return newExpr;
 }
@@ -526,7 +562,7 @@ void setIfEventValues(SEXP statement, Rboolean result){
         if(statement == R_NilValue){
             //is an else
             puts("regging else");
-            currEvent->else_if = memAllocIfExp();
+            currEvent->else_if = memAllocIfEvent();
             currEvent->else_if->else_if = ABD_EVENT_NOT_FOUND;
             currEvent->else_if->expr = ABD_NOT_FOUND;
             currEvent->else_if->globalResult = 1;
@@ -535,7 +571,8 @@ void setIfEventValues(SEXP statement, Rboolean result){
         }else{
             //is an else if
             puts("reging an else if");
-            currEvent->else_if = processIfStmt(statement);
+            currEvent->else_if = memAllocIfEvent();
+            currEvent->else_if->expr = processIfStmt(statement);
             currEvent->else_if->isElse = 0;
             currEvent->else_if->globalResult = result;
         }

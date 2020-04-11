@@ -19,6 +19,19 @@
 
     typedef struct if_abd_obj{
         ABD_OBJECT * objPtr;
+         /* 
+            the objValue can assume different things depending on the flag that it has inside it.
+            the flag itself is idxChange
+            if(idxChange)
+                - objValue.id translates to the the state the object was used and not the actual modList value
+                - the idxs vector will indicate which index was used (always size 1)
+                - the vector index will indicate which was the value for that position doing the needed roolbacks
+                    * the roll is basically, find the effective value for that index based on the history 
+                    * which means that if, going back until the declaration of the whole vector,
+                    * there'is no changes to that index, the value assumed is the initially declared one,
+                    * otherwise the value is is the first modifcation found
+             
+         */
         ABD_OBJECT_MOD * objValue;
     }IF_ABD_OBJ;
     

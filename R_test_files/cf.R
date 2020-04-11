@@ -1,19 +1,14 @@
 
 
-y <- 2
-b <- 3
-x <- 4
-d <- c(33,4)
 
-print("aaa")
 
 start_watcher()
-
-if(1>2){
-    print("a")
-}else if(1==2){
-    print("b")
-}else{
+a <- c(11,12,13)
+a[2] <- -222
+a[3] <- 123
+if(2<a[2]){
     1
+}else{
+    2
 }
 

@@ -1,1 +1,25 @@
-[1] "full path: /Users/luis/Documents/Repos/ABD_tool/R_test_files/cf.R"
+Loading ABD_tool settings... DONE...
+
+Watcher STARTED successfully.
+Will call tool
+Env GlobalEnv
+Will call tool
+Env GlobalEnv
+Will call tool
+Env GlobalEnv
+Will call tool
+Env GlobalEnv
+Will call tool
+Env GlobalEnv
+reging an if
+r [
+
+Statement 2.0000<a
+Result TRUE
+WILL PRINT THE IF
+if(2.00 < -222.00)
+isWaiting? 1
+regging else
+WILL PRINT THE IF
+if(2.00 < -222.00)
+[1] 2

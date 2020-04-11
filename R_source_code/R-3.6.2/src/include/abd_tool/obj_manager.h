@@ -369,7 +369,7 @@ double * memAllocDoubleVector(int size){
 ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
     int nElements = Rf_nrows(rhs);
     newMod->value.vec_value = memAllocVecObj();
-    newMod->value.vec_value->idxChange = 'N';
+    newMod->value.vec_value->idxChange = 0;
     newMod->value.vec_value->idxs = ABD_NOT_FOUND;
     newMod->value.vec_value->nCols = nElements;
     newMod->value.vec_value->vector = memAllocDoubleVector(nElements);
@@ -384,13 +384,14 @@ ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
     
     ABD_OBJECT_MOD * firstMod = newMod;
     newMod->value.vec_value = memAllocVecObj();
-    newMod->value.vec_value->idxChange = 'Y';
+    newMod->value.vec_value->idxChange = 1;
     newMod->value.vec_value->nCols = nIdxChanges;    
     newMod->value.vec_value->vector = memAllocDoubleVector(nIdxChanges);
-    newMod->value.vec_value->idxs = idxChanges;
+    newMod->value.vec_value->idxs = (int *) malloc(sizeof(int) * nIdxChanges);
 
     for(int i = 0; i < nIdxChanges; i++){
         int idxMod = idxChanges[i];
+        newMod->value.vec_value->idxs[i] = idxMod;
         ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[idxMod]; 
     }
 
@@ -482,7 +483,7 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
                     newMod = addEmptyModToObj(obj, type);
                     newMod = setModValues(newMod, rhs, createRealVector);
                 }
-                    obj->modList = newMod;
+                obj->modList = newMod;
                 break;
             }
         case STRSXP:
