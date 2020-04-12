@@ -22,7 +22,7 @@
       struct abd_event * nextEvent;
   }ABD_EVENT;
   static int waitingElseIF;
-  static ABD_OBJECT * currFunc;
+
   static ABD_RET_EVENT * lastRetEvent;
   static SEXP lastRetValue;
   static ABD_EVENT * eventsReg;
@@ -49,5 +49,5 @@ ABD_EVENT * createMainEvent();
 void eventPrint(ABD_EVENT * event);
 void setFuncEventValues(ABD_OBJECT * callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 ABD_EVENT_ARG * processArgs(SEXP passedArgs, SEXP receivedArgs);
-ABD_OBJECT_MOD * processByType(SEXP symbolValue, ABD_OBJECT_MOD * mod);
+ABD_OBJECT_MOD * processByType(SEXP symbolValue, ABD_OBJECT_MOD * mod, int);
 ABD_EVENT_ARG * setArgValues(ABD_EVENT_ARG * arg, ABD_OBJECT * objPtr, char * rcvdName, ABD_OBJECT_MOD * objValue);

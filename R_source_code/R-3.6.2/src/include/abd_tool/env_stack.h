@@ -13,7 +13,6 @@ void initEnvStack(){
     envStack->rho = R_GlobalEnv;
     envStack->prev = ABD_NOT_FOUND;
     envStack->funcObj = ABD_NOT_FOUND;
-    currFunc = ABD_NOT_FOUND;
 }
 
 void freeEnv(ABD_ENV_STACK * env){
@@ -30,15 +29,12 @@ void envPush(SEXP newRho, ABD_OBJECT * funcObj){
     newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
-    currFunc = funcObj;
 }
 
 void envPop(){
     ABD_ENV_STACK * elementToPop = envStack;
     envStack = envStack->prev;
     freeEnv(elementToPop);
-    if(envStack->rho == R_GlobalEnv)
-        currFunc = ABD_OBJECT_NOT_FOUND;
 }
 SEXP getCurrentEnv(){
     return envStack->rho;

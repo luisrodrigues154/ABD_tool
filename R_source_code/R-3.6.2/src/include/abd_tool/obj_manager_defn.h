@@ -26,7 +26,15 @@
         ABD_DELETED
     }OBJ_STATE;
 
+    typedef enum obj_data_typ{
+        ABD_VECTOR = 1,
+        ABD_MATRIX = 2,
+        ABD_FRAME = 3,
+        ABD_ARRAY = 4
+    }ABD_OBJ_VALUE_TYPE;
+
     typedef struct abd_vec_obj{
+        SEXPTYPE type;
         int idxChange;
         /*
             if idxChange is y then
@@ -43,6 +51,7 @@
     }ABD_VEC_OBJ;
 
     typedef struct abd_mtrx_obj{
+        SEXP type;
         int nRows;
         int nCols;
         void * matrix;
@@ -50,7 +59,7 @@
 
     typedef struct abd_obj_mod{
         int id;
-        SEXPTYPE type;
+        ABD_OBJ_VALUE_TYPE valueType;
         union{
             ABD_MTRX_OBJ * mtrx_value;
             ABD_VEC_OBJ * vec_value;
@@ -67,6 +76,7 @@
         unsigned int usages;
         OBJ_STATE state;
         SEXP createdEnv;
+        char * createdAt;
         //on CF_OBJ will be NULL
         ABD_OBJECT_MOD * modList;
         //pointer to the end of the list (first mod) 
@@ -140,7 +150,7 @@ void changeNeighbours(ABD_OBJECT * obj);
 ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
 void newCmnObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
 void newCfObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
-char * environmentExtraction(SEXP rho);
+char * envToStr(SEXP rho);
 ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) );
 ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type);
 ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * mod,SEXP rhs);

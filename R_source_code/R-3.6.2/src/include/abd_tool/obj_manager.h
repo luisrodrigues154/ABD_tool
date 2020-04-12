@@ -3,6 +3,7 @@
 #include <Rinternals.h>
 #include <abd_tool/event_manager_defn.h>
 #include <abd_tool/obj_manager_defn.h>
+#include <abd_tool/env_stack_defn.h>
 #include <Print.h>
 #include <ctype.h>
 
@@ -120,7 +121,16 @@ void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv){
     obj->state = ABD_ALIVE;
 
     obj->createdEnv = createdEnv;
-
+    puts("1");
+    ABD_OBJECT * createdAt = getCurrFuncObj();
+    if(createdAt == ABD_OBJECT_NOT_FOUND){
+        int mainSize = strlen("main");
+        obj->createdAt = memAllocForString(mainSize);
+        copyStr(obj->createdAt, "main", mainSize);
+    }
+    else
+        obj->createdAt = getCurrFuncObj()->name;
+    puts("2");
     obj->modListStart = ABD_OBJECT_NOT_FOUND;
     obj->modList = ABD_OBJECT_NOT_FOUND;
 }
@@ -268,18 +278,6 @@ ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj){
     return objReg;
 }
 
-void * getAddressForValue(SEXP rhs){
-    switch (TYPEOF(rhs))
-    {
-    case REALSXP:
-        //need to verify
-        break;
-    
-    default:
-        break;
-    }
-
-}
 ABD_OBJECT * getCmnObj(char * name, SEXP rho){
      ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
 
@@ -330,7 +328,7 @@ ABD_OBJECT * getCfObj(char * name, SEXP rho){
 }
 
 
-char * environmentExtraction(SEXP rho){
+char * envToStr(SEXP rho){
     const void *vmax = vmaxget();
     static char ch[1000];
     if (rho == R_GlobalEnv)
@@ -383,6 +381,7 @@ ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
 ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
     
     ABD_OBJECT_MOD * firstMod = newMod;
+    puts("got here");
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 1;
     newMod->value.vec_value->nCols = nIdxChanges;    
@@ -406,14 +405,20 @@ ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, A
     }
     
     newModification->remotion = ABD_ALIVE;
-    
     newModification = (*func)(newModification, newValue);
 
     return newModification;
 }
 
+int getObjStructType(SEXP symbolValue){
+    if(isVector(symbolValue)) return 1;
+    else if(isMatrix(symbolValue)) return 2;
+    else if(isFrame(symbolValue)) return 3;
+    else if(isArray(symbolValue)) return 4;
+    return 0;
+}
 
-ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type){
+ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, ABD_OBJ_VALUE_TYPE type){
     
     if(obj->modList == ABD_OBJECT_NOT_FOUND){
         //list empty
@@ -433,8 +438,7 @@ ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type){
         obj->modList = newMod;
 
     }
-    
-    obj->modList->type = type;
+    obj->modList->valueType = type;
     obj->modList = initValueUnion(obj->modList);
     obj->modList->id = obj->usages+1;
     return obj->modList;
@@ -447,7 +451,6 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
         return;
     
     
-    SEXPTYPE type = TYPEOF(rhs);
     
     //name extraction from lhs
     int nameSize = strlen(CHAR(PRINTNAME(lhs)));
@@ -460,64 +463,28 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
     }
 
     ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
-    switch (type)
-    {
-        case CLOSXP:
-            //closures (function objects)
-            //newCfObjUsage(lhs, rhs, rho);
-            //basicPrint2();
-            obj = getCfObj(name, rho);
-            break;
-        case REALSXP:
-            {
-                //newCmnObjUsage(lhs, rhs, rho);
-                //basicPrint();
-                ABD_OBJECT_MOD * newMod = ABD_OBJECT_NOT_FOUND;
-                if(waitingIdxChange){
-                    if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND)
-                        return;
-                    newMod = addEmptyModToObj(obj, type);    
-                    newMod = setModValues(newMod, rhs, realVectorMultiChanges);
-                }else{
-                    obj = getCmnObj(name, rho);
-                    newMod = addEmptyModToObj(obj, type);
-                    newMod = setModValues(newMod, rhs, createRealVector);
-                }
-                obj->modList = newMod;
-                break;
-            }
-        case STRSXP:
-            puts("character vectors");
-            break;
-        case CPLXSXP:
-            puts("complex vectors");
-            break;
-        case LGLSXP:
-            puts("logical vectors");
-            break;
-        case INTSXP:
-            puts("integer vectors");
-            if(Rf_isMatrix(rhs)){
-                int nCols = Rf_ncols(rhs);
-                int nRows = Rf_nrows(rhs);
-                printf("DIM\nrows %d\ncols %d\n", nRows, nCols);
-            }
-            break;
-        case RAWSXP:
-            puts("raw vector");
-            break;
-        case VECSXP:
-            puts("list (generic vector");
-            break;
-        default:
-            break;
-    }
-    obj->usages++;
-    if(type == CLOSXP)
+    if(TYPEOF(rhs) == CLOSXP){
+        obj = getCfObj(name, rho);
+        obj->usages++;
         cfObjReg = rankObjByUsages(cfObjReg, obj);
-    else
+    }
+    else{
+        ABD_OBJECT_MOD * newMod = ABD_OBJECT_NOT_FOUND;
+        if(waitingIdxChange){
+            if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND){
+                goto clearIdxChanges;
+            }
+        }else
+            obj = getCmnObj(name, rho);
+        
+        newMod = addEmptyModToObj(obj, getObjStructType(rhs));
+        printf("Waiting %d\n", waitingIdxChange);
+        newMod = processByType(rhs, newMod, waitingIdxChange);
+        obj->modList = newMod;
+        obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
-
+    }
+    
     if(rhs == lastRetValue){
         lastRetEvent->toObj = obj;
         free(lastRetEvent->retValue);
@@ -526,6 +493,7 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
         lastRetValue = ABD_NOT_FOUND;
     }
 
+    clearIdxChanges:;
     nIdxChanges = 0;
     if(idxChanges != ABD_NOT_FOUND)
         free(idxChanges);

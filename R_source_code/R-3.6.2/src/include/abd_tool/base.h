@@ -33,30 +33,6 @@
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
-
-void printMods(ABD_OBJECT * obj){
-    ABD_OBJECT_MOD * currMod = obj->modList;
-    do{
-        if(currMod->type == REALSXP){
-            for(int i=0; i<currMod->value.vec_value->nCols; i++)
-                printf("mod %i  Value %f\n", i, ((double *) currMod->value.vec_value->vector)[i]);
-        }
-        currMod = currMod->prevMod;
-    }while(currMod != NULL);
-}
-void basicPrint(){
-   if(cmnObjReg == ABD_OBJECT_NOT_FOUND)
-        printf("REG NULL\n");
-    else{
-        ABD_OBJECT * currentObj = cmnObjReg;
-        do{
-            printf("name: %s\n", currentObj->name);
-            printMods(currentObj);
-            currentObj = currentObj->nextObj;
-        }while(currentObj!=NULL);
-    }
-}
-
 void START_WATCHER(){
     checkSettings();
     initObjsRegs();
@@ -96,11 +72,9 @@ void saveIdxChanges(int nIdxs, int * idxChanges){
 void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
     if(isRunning()){
         if(isEnvironment(rho)){
-            
             if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0)
                //do not register
                waitingIdxChange = 1;
-            printf("Env %s\n", environmentExtraction(rho));
             newObjUsage(lhs,rhs,rho);
             
         }

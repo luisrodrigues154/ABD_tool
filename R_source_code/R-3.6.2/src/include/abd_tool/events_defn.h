@@ -68,6 +68,8 @@
 
     
     typedef struct abd_func_event{
+        SEXP fromEnv;
+        SEXP toEnv;
         ABD_OBJECT * caller;
         ABD_OBJECT * called;
         ABD_EVENT_ARG * args;
@@ -75,6 +77,7 @@
 
     //describe return events
     typedef struct abd_return{
+        SEXP retEnv;
         ABD_OBJECT * from;
         ABD_OBJECT * toObj;
         ABD_OBJECT_MOD * retValue;

@@ -4,14 +4,13 @@
 #include <abd_tool/event_manager_defn.h>
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/env_stack_defn.h>
- #include <Rembedded.h>
- #include <R_ext/Parse.h>
+#include <Rembedded.h>
+#include <R_ext/Parse.h>
  
 void initEventsReg(){
     eventsReg = ABD_EVENT_NOT_FOUND;
     eventsRegTail = ABD_EVENT_NOT_FOUND;
     lastRetValue = ABD_EVENT_NOT_FOUND;
-    currFunc = ABD_OBJECT_NOT_FOUND;
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
     waitingElseIF = 0;
@@ -96,14 +95,23 @@ SEXP getValueFromPROMSXP(SEXP symbol){
     by the symbolValue nRows (which is the number of elements) 
     with the function 'createRealVector'.  
 */
-ABD_OBJECT_MOD * processByType(SEXP symbolValue, ABD_OBJECT_MOD * mod){
+ABD_OBJECT_MOD * processVector(SEXP symbolValue, ABD_OBJECT_MOD * mod, int idxChange){
+    SEXPTYPE modType = TYPEOF(symbolValue);
     rollback2:
-    switch (TYPEOF(symbolValue))
+    switch (modType)
     {
         case CLOSXP:
             break;
         case REALSXP:
-            mod = setModValues(mod, symbolValue, createRealVector);
+            if(idxChange == -1){
+                // to process idxCurrValue
+            }else{
+                if(idxChange)
+                    mod = setModValues(mod, symbolValue, realVectorMultiChanges);
+                else
+                    mod = setModValues(mod, symbolValue, createRealVector);
+                mod->value.vec_value->type = modType;
+            }
             break;
         case STRSXP:
             puts("character vectors");
@@ -133,7 +141,22 @@ ABD_OBJECT_MOD * processByType(SEXP symbolValue, ABD_OBJECT_MOD * mod){
             break;
 
     }
-    mod->type = TYPEOF(symbolValue);
+    return mod;
+}
+ABD_OBJECT_MOD * processByType(SEXP symbolValue, ABD_OBJECT_MOD * mod, int idxChange){
+    
+    switch (getObjStructType(symbolValue))
+    {
+        case ABD_VECTOR:
+            mod->valueType = ABD_VECTOR;
+            mod = processVector(symbolValue, mod, idxChange);
+            break;
+        case ABD_MATRIX:
+            mod->valueType = ABD_MATRIX;
+            break;
+        default:
+            break;
+    }
     return mod;
 }
 
@@ -184,9 +207,10 @@ ABD_EVENT_ARG * processArgs(SEXP passedArgs, SEXP receivedArgs){
                 objectFound = memAllocBaseObj();
                 setObjBaseValues(objectFound, "NA", getCurrentEnv());
                 objectFound->id = -1;
-                objValue = memAllocMod();
+                objectFound->usages = 1;
+                objValue = addEmptyModToObj(objectFound, getObjStructType(symbol));
                 objValue->id = -1;
-                objValue = processByType(symbol, objValue);
+                objValue = processByType(symbol, objValue, 0);
                 break;
 
             case SYMSXP:
@@ -203,8 +227,9 @@ ABD_EVENT_ARG * processArgs(SEXP passedArgs, SEXP receivedArgs){
                         objectFound = memAllocBaseObj();
                         setObjBaseValues(objectFound, passedName, getCurrentEnv());
                         objectFound->id = -2;
-                        objValue = memAllocMod();
-                        objValue = processByType(symbValue, objValue);
+                        objectFound->usages = 1;
+                        objValue = addEmptyModToObj(objectFound,getObjStructType(symbol));
+                        objValue = processByType(symbValue, objValue, 0);
                     }else{
                         objValue = objectFound->modList;
                     }
@@ -246,22 +271,6 @@ ABD_EVENT_ARG * processArgs(SEXP passedArgs, SEXP receivedArgs){
     return argsList;
 }
 
-// void printArgsList(ABD_EVENT_ARG * argsList){
-//     if(argsList == ABD_NOT_FOUND)
-//         return;
-//     int count = 0;
-//     ABD_EVENT_ARG * currArg = argsList;
-//     do{
-//         count++;
-//         printf("Arg %d\n", count);
-//         printf("Passed name: %s\n", currArg->objPtr->name);
-//         printf("Received name: %s\n", currArg->rcvdName);
-//         printf("Value: %f\n", ((double *) currArg->objValue->value.vec_value->vector)[0]);
-//         puts("--------------------------");
-//         currArg = currArg->nextArg;
-//     }while(currArg != ABD_OBJECT_NOT_FOUND);
-// }
-
 int inCollection(char * check){
 	char * collection [] = {
             "+", "-", "*", "/",
@@ -294,8 +303,9 @@ ABD_OBJECT_MOD * idxCurrValueVec(ABD_OBJECT_MOD * modList, int findIdx){
         retMod->id = modList->id;
         retMod->nextMod = ABD_OBJECT_NOT_FOUND;
         retMod->prevMod = ABD_OBJECT_NOT_FOUND;
-        retMod->type = modList->type;
+        retMod->valueType = modList->valueType;
         retMod->value.vec_value = memAllocVecObj();
+        retMod->value.vec_value->type = currMod->value.vec_value->type; 
         retMod->value.vec_value->idxChange = 0;
         retMod->value.vec_value->nCols = 1;
         retMod->value.vec_value->idxs = (int *) malloc(sizeof(int));
@@ -326,9 +336,10 @@ IF_ABD_OBJ * getAbdIfObj(SEXP symbol, int withIndex){
             objectFound = memAllocBaseObj();
             setObjBaseValues(objectFound, "NA", getCurrentEnv());
             objectFound->id = -1;
-            objValue = memAllocMod();
+            objectFound->usages = 1;
+            objValue = addEmptyModToObj(objectFound, getObjStructType(symbol));
             objValue->id = -1;
-            objValue = processByType(symbol, objValue);
+            objValue = processByType(symbol, objValue, 0);
             break;
         case SYMSXP:
             {
@@ -344,10 +355,12 @@ IF_ABD_OBJ * getAbdIfObj(SEXP symbol, int withIndex){
                     objectFound = memAllocBaseObj();
                     setObjBaseValues(objectFound, objName, getCurrentEnv());
                     objectFound->id = -2;
-                    objValue = memAllocMod();
-                    objValue = processByType(symbValue, objValue);
+                    objectFound->usages = 1;
+                    objValue = addEmptyModToObj(objectFound, getObjStructType(symbol));
+                    objValue = processByType(symbValue, objValue, 0);
                 }else{
                     // get index effective value
+                    // need to be abstracted to
                     objValue = idxCurrValueVec(objectFound->modList, withIndex);
                     //printf("... %.2f\n", *((double *) objValue->value.vec_value->vector));
                 }
@@ -394,47 +407,48 @@ SEXP getResult(char * expr){
     return retValue;
 }
 
-void makeStrForExp(IF_EXPRESSION * newExpr, char * operator, char * asChar){
+void makeStrForExp(IF_EXPRESSION * newExpr, char * stmtStr){
     if(newExpr->left_type == IF_EXPR){
-        sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->left_data)->result);
+        sprintf(stmtStr, "%s%.2f", stmtStr, ((IF_EXPRESSION *) newExpr->left_data)->result);
     }else{
         ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->left_data)->objPtr;
         if(obj->id == -1){
             // hardcoded, get value
             ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->left_data)->objValue;
-            sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
+            sprintf(stmtStr, "%s%.4f", stmtStr, ((double *) objValue->value.vec_value->vector)[0]);
         }else
-            sprintf(asChar, "%s%s", asChar, obj->name);
+            sprintf(stmtStr, "%s%s", stmtStr, obj->name);
     }
     
     //get the operator  
-    sprintf(asChar, "%s%s", asChar, operator);
+    sprintf(stmtStr, "%s%s", stmtStr, newExpr->operator);
     
     if(newExpr->right_type == IF_EXPR){
-        sprintf(asChar, "%s%.2f", asChar, ((IF_EXPRESSION *) newExpr->right_data)->result);
+        sprintf(stmtStr, "%s%.2f", stmtStr, ((IF_EXPRESSION *) newExpr->right_data)->result);
     }else{
         ABD_OBJECT * obj = ((IF_ABD_OBJ *) newExpr->right_data)->objPtr;
         if(obj->id == -1){
             // hardcoded, get value
             ABD_OBJECT_MOD * objValue = ((IF_ABD_OBJ *) newExpr->right_data)->objValue;
-            sprintf(asChar, "%s%.4f", asChar, ((double *) objValue->value.vec_value->vector)[0]);
+            sprintf(stmtStr, "%s%.4f", stmtStr, ((double *) objValue->value.vec_value->vector)[0]);
         }else
-            sprintf(asChar, "%s%s", asChar, obj->name);
+            sprintf(stmtStr, "%s%s", stmtStr, obj->name);
     }
     if(newExpr->isConfined)
-        sprintf(asChar, "%s)", asChar);
+        sprintf(stmtStr, "%s)", stmtStr);
 }
 
 IF_EXPRESSION * processIfStmt(SEXP st){
 
 	IF_EXPRESSION * newExpr = memAllocIfExp();
-    char asChar[100];
+    char stmtStr[100];
+    char * operator;
 	if(TYPEOF(st) == LANGSXP){
 		newExpr->isConfined = 0;
         
 		procStateLabel:;
 		SEXP carSt = CAR(st);
-		char * operator = CHAR(PRINTNAME(carSt));
+		operator = CHAR(PRINTNAME(carSt));
 		int opSize = strlen(operator);
 		newExpr->operator = memAllocForString(opSize);
 		copyStr(newExpr->operator, operator, opSize);
@@ -490,7 +504,7 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 			//confine
 			newExpr->isConfined = 1;
 			st = CAR(CDR(st));
-            sprintf(asChar, "(");
+            sprintf(stmtStr, "(");
 			goto procStateLabel;
 		}
 		
@@ -500,8 +514,8 @@ IF_EXPRESSION * processIfStmt(SEXP st){
 		puts("just a single number in here...");
 	}
 
-    makeStrForExp(newExpr, operator, &asChar);
-    SEXP result = getResult(asChar);
+    makeStrForExp(newExpr, stmtStr);
+    SEXP result = getResult(stmtStr);
     SEXPTYPE resType = TYPEOF(result);
 
     if(resType == LGLSXP) 
@@ -509,7 +523,7 @@ IF_EXPRESSION * processIfStmt(SEXP st){
     else if(resType == REALSXP)
         newExpr->result = REAL(result)[0]; 
 
-    printf("\nStatement %s\nResult %s\n", asChar, (newExpr->result) ? "TRUE" : "FALSE");
+    printf("\nStatement %s\nResult %s\n", stmtStr, (newExpr->result) ? "TRUE" : "FALSE");
 	return newExpr;
 }
 
@@ -592,7 +606,9 @@ void setIfEventValues(SEXP statement, Rboolean result){
 }
 
 void setFuncEventValues(ABD_OBJECT * callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs){
-    eventsRegTail->data.func_event->caller = currFunc;
+    eventsRegTail->data.func_event->toEnv = newRho;
+    eventsRegTail->data.func_event->fromEnv = getCurrentEnv();
+    eventsRegTail->data.func_event->caller = getCurrFuncObj();
     eventsRegTail->data.func_event->called = callingObj;
     eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs);
     envPush(newRho, callingObj);
@@ -600,10 +616,11 @@ void setFuncEventValues(ABD_OBJECT * callingObj, SEXP newRho, SEXP passedArgs, S
 
 void setRetEventValue(SEXP value){
     ABD_OBJECT_MOD * valueABD = memAllocMod();
-    valueABD = processByType(value, valueABD);
+    valueABD = processByType(value, valueABD, 0);
     valueABD->id = -1;
     eventsRegTail->data.ret_event->toObj = ABD_OBJECT_NOT_FOUND;
     eventsRegTail->data.ret_event->from = getCurrFuncObj();
+    eventsRegTail->data.ret_event->retEnv = getCurrentEnv();
     eventsRegTail->data.ret_event->retValue = valueABD;
 
 }

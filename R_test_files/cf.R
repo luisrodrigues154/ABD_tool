@@ -1,14 +1,13 @@
 
-
-
-
+b <- 40
 start_watcher()
-a <- c(11,12,13)
-a[2] <- -222
-a[3] <- 123
-if(2<a[2]){
-    1
-}else{
-    2
+
+f1 <- function(x,y,z){
+    f1_a <- 10
+    f2_a <- f1_a + x
+    f2_a
 }
+a <- 30
+result <- f1(a,b, 10)
+stop_watcher()
 

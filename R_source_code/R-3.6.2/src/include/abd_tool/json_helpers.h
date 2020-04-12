@@ -25,10 +25,8 @@ char * getStrFromIndent(JSON_INDENT indent){
     return ret;
 }
 
-void writeRealVector(FILE * out, ABD_VEC_OBJ * vecObj, int id){
-    fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), id);
-
-    if(vecObj->idxChange == 'Y'){
+void writeRealVector(FILE * out, ABD_VEC_OBJ * vecObj){
+    if(vecObj->idxChange){
         fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
         fprintf(out, "\n%s\"numMods\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
         fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5));
@@ -54,19 +52,32 @@ void writeRealVector(FILE * out, ABD_VEC_OBJ * vecObj, int id){
         }
     }
 }
+void writeVectorForType(FILE * out, ABD_VEC_OBJ * vecObj){
+     switch(vecObj->type){
+        case REALSXP:
+            //vector can be size 1 (single number)
+            writeRealVector(out, vecObj);
+            break;
+        case STRSXP:
+            break;
+    }
+}
 
 void writeObjModsToFile(FILE * out, ABD_OBJECT_MOD * listStart){
     ABD_OBJECT_MOD * currMod = listStart;
     do{
         fprintf(out, "\n%s{", getStrFromIndent(INDENT_4));
-        switch(currMod->type){
-            case REALSXP:
-                //vector can be size 1 (single number)
-                writeRealVector(out, currMod->value.vec_value, currMod->id);
+        fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), currMod->id);
+        switch (currMod->valueType){
+            case ABD_VECTOR:
+                writeVectorForType(out, currMod->value.vec_value);
                 break;
-            case STRSXP:
+            case ABD_MATRIX:
+                break;            
+            default:
                 break;
         }
+       
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
         currMod = currMod->nextMod;
         if(currMod != ABD_NOT_FOUND)
@@ -77,8 +88,9 @@ void writeObjModsToFile(FILE * out, ABD_OBJECT_MOD * listStart){
 void writeObjToFile(FILE * out, ABD_OBJECT * obj){
     //write first start
     fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_2), obj->id);
-    fprintf(out, "\n%s\"name\" : \"%s\",",getStrFromIndent(INDENT_3), obj->name);
-    fprintf(out, "\n%s\"createdEnv\" : \"%s\",",getStrFromIndent(INDENT_3), environmentExtraction(obj->createdEnv));
+    fprintf(out, "\n%s\"name\" : \"%s\",", getStrFromIndent(INDENT_3), obj->name);
+    fprintf(out, "\n%s\"createdAt\" : \"%s\",", getStrFromIndent(INDENT_3), obj->createdAt);
+    fprintf(out, "\n%s\"env\" : \"%s\",",getStrFromIndent(INDENT_3), envToStr(obj->createdEnv));
     fprintf(out, "\n%s\"usages\" : %d",getStrFromIndent(INDENT_3), obj->usages);
     if(obj->modListStart != ABD_NOT_FOUND){
         fprintf(out, ",");
@@ -124,7 +136,7 @@ void saveObjects(FILE * out){
 }
 
 //EVENTS HELPERS
-void writeArgVector(FILE * out, ABD_VEC_OBJ * vecObj, JSON_INDENT indent){
+void writeArgRealVector(FILE * out, ABD_VEC_OBJ * vecObj, JSON_INDENT indent){
     if(vecObj->nCols == 1){
         fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(indent), ((double *) vecObj->vector)[0]);
     }else{
@@ -134,11 +146,12 @@ void writeArgVector(FILE * out, ABD_VEC_OBJ * vecObj, JSON_INDENT indent){
         fprintf(out, "]");
     }
 }
-void writeArgValueToFile(FILE * out, ABD_OBJECT_MOD * value, JSON_INDENT indent){
-    switch(value->type){
+
+void writeArgVectorForType(FILE * out, ABD_VEC_OBJ * vecObj, JSON_INDENT indent){
+    switch(vecObj->type){
         case REALSXP:
             //vector can be size 1 (single number)
-            writeArgVector(out, value->value.vec_value, indent);
+            writeArgRealVector(out, vecObj, indent);
             break;
         case STRSXP:
             break;
@@ -148,6 +161,18 @@ void writeArgValueToFile(FILE * out, ABD_OBJECT_MOD * value, JSON_INDENT indent)
         default:
             fprintf(out, "\n%s\"value\" : \"unknownValue\"", getStrFromIndent(indent));
             break;
+    }
+}
+void writeArgValueToFile(FILE * out, ABD_OBJECT_MOD * value, JSON_INDENT indent){
+    switch (value->valueType){
+            case ABD_VECTOR:
+                writeArgVectorForType(out, value->value.vec_value, indent);
+                break;
+            case ABD_MATRIX:
+                break;
+            
+            default:
+                break;
     }
 }
 
@@ -188,8 +213,10 @@ void saveFuncArgs(FILE * out, ABD_EVENT_ARG * argsList){
 }
 
 void saveFuncEvent(FILE * out, ABD_FUNC_EVENT * funcEvent){
-    fprintf(out, "\n%s\"callerId\" : %d,", getStrFromIndent(INDENT_3), (funcEvent->caller == ABD_OBJECT_NOT_FOUND) ? 0: funcEvent->caller->id);
-    fprintf(out, "\n%s\"calledId\" : %d,", getStrFromIndent(INDENT_3), funcEvent->called->id);
+    fprintf(out, "\n%s\"fromId\" : %d,", getStrFromIndent(INDENT_3), (funcEvent->caller == ABD_OBJECT_NOT_FOUND) ? 0 : funcEvent->caller->id);
+    fprintf(out, "\n%s\"fromEnv\" : \"%s\",", getStrFromIndent(INDENT_3), envToStr(funcEvent->fromEnv));
+    fprintf(out, "\n%s\"toId\" : %d,", getStrFromIndent(INDENT_3), funcEvent->called->id);
+    fprintf(out, "\n%s\"toEnv\" : \"%s\",", getStrFromIndent(INDENT_3), envToStr(funcEvent->toEnv));
     fprintf(out, "\n%s\"args\" : [", getStrFromIndent(INDENT_3));
     if(funcEvent->args == ABD_NOT_FOUND)
         fprintf(out, "]");

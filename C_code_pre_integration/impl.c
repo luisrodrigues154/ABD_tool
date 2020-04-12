@@ -92,7 +92,7 @@ void changeNeighbours(ABD_OBJECT * obj);
 void rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
 //void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
 void newObjUsage();
-//char * environmentExtraction(SEXP rho)
+//char * envToStr(SEXP rho)
 
 /*
     CMN_OBJ specifics
