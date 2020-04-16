@@ -3,20 +3,26 @@ Loading ABD_tool settings... DONE...
 Watcher STARTED successfully.
 1
 2
-1
-2
 Waiting 0
-1
-2
-1
-2
-1
-2
-Waiting 0
-1
-2
-Waiting 0
-1
-2
-Waiting 0
+Waiting 1
+got here
+reging an if
+Called with findIdx: 0
+found 1... findIdx 0
+IDX 0
+Called with findIdx: 2
+found 0... findIdx 2
+IDX 2
+Operator: ==
+TYPEOF RET: 10
+
+Statement a[1]==a[3]
+Result FALSE
+WILL PRINT THE IF
+if(10.00 == 11.00)
+isWaiting? 1
+regging else
+WILL PRINT THE IF
+if(10.00 == 11.00)
+[1] 2
 Watcher STOPED successfully.

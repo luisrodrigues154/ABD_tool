@@ -379,7 +379,6 @@ ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
 }
 
 ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
-    
     ABD_OBJECT_MOD * firstMod = newMod;
     puts("got here");
     newMod->value.vec_value = memAllocVecObj();
