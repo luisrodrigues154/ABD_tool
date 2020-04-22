@@ -16,71 +16,78 @@
 /*
     generic
 */
-void initObjsRegs(){
+void initObjsRegs()
+{
     //set NULL to initialize
     cmnObjReg = ABD_OBJECT_NOT_FOUND;
     cfObjReg = ABD_OBJECT_NOT_FOUND;
     numCfObj = 0;
     numCmnObj = 0;
     waitingIdxChange = 0;
-    nIdxChanges = 0;
-    idxChanges = ABD_NOT_FOUND;
+    idxChanges = ABD_OBJECT_NOT_FOUND;
 }
 
-void wipeObjMods(ABD_OBJECT_MOD * listStart){
-    ABD_OBJECT_MOD * currMod = listStart;
-    
-    do{
-        ABD_OBJECT_MOD * freeMod = currMod;
+void wipeObjMods(ABD_OBJECT_MOD *listStart)
+{
+    ABD_OBJECT_MOD *currMod = listStart;
+
+    do
+    {
+        ABD_OBJECT_MOD *freeMod = currMod;
         currMod = currMod->nextMod;
         free(freeMod);
-    }while(currMod != ABD_NOT_FOUND);
-
+    } while (currMod != ABD_NOT_FOUND);
 }
-void wipeRegs(){
+void wipeRegs()
+{
     //clears registry memory (all nodes)
     //TODO: clear ABD_OBJ_MOD_LIST not done
-    
+
     //wipe common objects registry
-    ABD_OBJECT * currentObject = cmnObjReg;
-    while(currentObject!=ABD_OBJECT_NOT_FOUND){
-        ABD_OBJECT * next = currentObject->nextObj;
+    ABD_OBJECT *currentObject = cmnObjReg;
+    while (currentObject != ABD_OBJECT_NOT_FOUND)
+    {
+        ABD_OBJECT *next = currentObject->nextObj;
         free(currentObject);
         currentObject = next;
     }
-    
+
     //wipe codeflow objects registry
     currentObject = cfObjReg;
-    while(currentObject!=ABD_OBJECT_NOT_FOUND){
-        ABD_OBJECT * next = currentObject->nextObj;
+    while (currentObject != ABD_OBJECT_NOT_FOUND)
+    {
+        ABD_OBJECT *next = currentObject->nextObj;
         free(currentObject);
         currentObject = next;
     }
 }
-ABD_OBJECT * memAllocBaseObj(){
-    return (ABD_OBJECT *) malloc(sizeof(ABD_OBJECT));
+
+ABD_OBJECT *memAllocBaseObj()
+{
+    return (ABD_OBJECT *)malloc(sizeof(ABD_OBJECT));
 }
 
-char * memAllocForString(int strSize){
+char *memAllocForString(int strSize)
+{
     //+1 for \0 terminator
-    return (char *) malloc(strSize * sizeof(char) +1);
+    return (char *)malloc(strSize * sizeof(char) + 1);
 }
 
-
-ABD_OBJECT * doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS){
+ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS)
+{
     //set obj->prev = (node_RHS->prev)
     obj->prevObj = node_RHS->prevObj;
 
     //verify NULL pointer to prev
-    if(node_RHS->prevObj != ABD_OBJECT_NOT_FOUND)
+    if (node_RHS->prevObj != ABD_OBJECT_NOT_FOUND)
         //RHS NOT HEAD OF LIST
         //set (node_RHS->prev)->next = obj
         (node_RHS->prevObj)->nextObj = obj;
     else
         //RHS HEAD OF THE LIST
         //need to assign the new head of the registry to it
-        objReg = obj;   
-    
+        objReg = obj;
+
     //set node_RHS->prev = obj
     node_RHS->prevObj = obj;
 
@@ -94,8 +101,9 @@ ABD_OBJECT * doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS
     CMN_OBJ specifics
 */
 
-ABD_OBJECT_MOD * memAllocMod(){
-    return (ABD_OBJECT_MOD *) malloc(sizeof(ABD_OBJECT_MOD));
+ABD_OBJECT_MOD *memAllocMod()
+{
+    return (ABD_OBJECT_MOD *)malloc(sizeof(ABD_OBJECT_MOD));
 }
 
 /*
@@ -107,12 +115,14 @@ ABD_OBJECT_MOD * memAllocMod(){
 /*
     generic
 */
-void copyStr(char * dest, char * src, int strSize){
-    strncpy(dest, src, strSize*sizeof(char));
+void copyStr(char *dest, char *src, int strSize)
+{
+    strncpy(dest, src, strSize * sizeof(char));
     dest[strSize] = '\0';
 }
 
-void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv){
+void setObjBaseValues(ABD_OBJECT *obj, char *name, SEXP createdEnv)
+{
     int nameSize = strlen(name);
     obj->name = memAllocForString(nameSize);
     copyStr(obj->name, name, nameSize);
@@ -121,180 +131,192 @@ void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv){
     obj->state = ABD_ALIVE;
 
     obj->createdEnv = createdEnv;
-    puts("1");
-    ABD_OBJECT * createdAt = getCurrFuncObj();
-    if(createdAt == ABD_OBJECT_NOT_FOUND){
+    ABD_OBJECT *createdAt = getCurrFuncObj();
+    if (createdAt == ABD_OBJECT_NOT_FOUND)
+    {
         int mainSize = strlen("main");
         obj->createdAt = memAllocForString(mainSize);
         copyStr(obj->createdAt, "main", mainSize);
     }
     else
         obj->createdAt = getCurrFuncObj()->name;
-    puts("2");
+
     obj->modListStart = ABD_OBJECT_NOT_FOUND;
     obj->modList = ABD_OBJECT_NOT_FOUND;
 }
-ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg){
-    
-    if(objReg == ABD_OBJECT_NOT_FOUND){
+ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg)
+{
+    if (objReg == ABD_OBJECT_NOT_FOUND)
+    {
         //empty registry
-        
         objReg = memAllocBaseObj();
         objReg->nextObj = ABD_OBJECT_NOT_FOUND;
         objReg->prevObj = ABD_OBJECT_NOT_FOUND;
-
         return objReg;
     }
-    ABD_OBJECT * auxObject = objReg;
-    while(auxObject->nextObj != ABD_OBJECT_NOT_FOUND)
+    ABD_OBJECT *auxObject = objReg;
+    while (auxObject->nextObj != ABD_OBJECT_NOT_FOUND)
         auxObject = auxObject->nextObj;
 
     //auxObject->next_ABD_OBJECT is empty
-    ABD_OBJECT * newObject = auxObject->nextObj = memAllocBaseObj();
-   
+    ABD_OBJECT *newObject = auxObject->nextObj = memAllocBaseObj();
+
     //set DLList pointers
     newObject->prevObj = auxObject;
     newObject->nextObj = ABD_OBJECT_NOT_FOUND;
-    
+
     return newObject;
 }
-ABD_OBJECT * findFuncObj(char * name, SEXP  callingEnv){
-    if(cfObjReg == ABD_OBJECT_NOT_FOUND)
+ABD_OBJECT *findFuncObj(char *name, SEXP callingEnv)
+{
+    if (cfObjReg == ABD_OBJECT_NOT_FOUND)
         //registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
-    
+
     //registry have elements
-    ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
-    ABD_OBJECT * currentObject = cfObjReg;
+    ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
+    ABD_OBJECT *currentObject = cfObjReg;
     unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
-    do{
+    do
+    {
         // line below mitigates recursion and calling functions declared
         // in the global env as well as declared in function scope
-        result2 = (currentObject->createdEnv == callingEnv) || (currentObject->createdEnv  == R_GlobalEnv);
-        if(result2 == 1){
-            result = strncmp(currentObject->name, name, strlen(name)*sizeof(char));
-            if(result == 0){
+        result2 = (currentObject->createdEnv == callingEnv) || (currentObject->createdEnv == R_GlobalEnv);
+        if (result2 == 1)
+        {
+            result = strncmp(currentObject->name, name, strlen(name) * sizeof(char));
+            if (result == 0)
+            {
                 objectFound = currentObject;
                 found = 1;
                 break;
             }
-        }    
+        }
         currentObject = currentObject->nextObj;
-    }while(currentObject!=ABD_OBJECT_NOT_FOUND);
+    } while (currentObject != ABD_OBJECT_NOT_FOUND);
 
-    if(found==0)
+    if (found == 0)
         //if not found
         return ABD_OBJECT_NOT_FOUND;
 
     return objectFound;
 }
-ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, SEXP  createdEnv){
-    if(objReg == ABD_OBJECT_NOT_FOUND)
+ABD_OBJECT *findObj(ABD_OBJECT *objReg, char *name, SEXP createdEnv)
+{
+    if (objReg == ABD_OBJECT_NOT_FOUND)
         //registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
-    
+
     //registry have elements
-    ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
-    ABD_OBJECT * currentObject = objReg;
+    ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
+    ABD_OBJECT *currentObject = objReg;
     unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
-    do{
+    do
+    {
         result2 = (currentObject->createdEnv == createdEnv);
-        if(result2 == 1){
-            result = strncmp(currentObject->name, name, strlen(name)*sizeof(char));
-            if(result == 0){
+        if (result2 == 1)
+        {
+            result = strncmp(currentObject->name, name, strlen(name) * sizeof(char));
+            if (result == 0)
+            {
                 objectFound = currentObject;
                 found = 1;
                 break;
             }
-        }    
+        }
         currentObject = currentObject->nextObj;
-    }while(currentObject!=ABD_OBJECT_NOT_FOUND);
+    } while (currentObject != ABD_OBJECT_NOT_FOUND);
 
-    if(found==0)
+    if (found == 0)
         //if not found (new object)
         return ABD_OBJECT_NOT_FOUND;
 
     return objectFound;
 }
 
-ABD_OBJECT * findRHS(ABD_OBJECT * objReg, ABD_OBJECT * obj){
+ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj)
+{
     //verify if already top of the list
-    if(obj->prevObj == ABD_OBJECT_NOT_FOUND)
+    if (obj->prevObj == ABD_OBJECT_NOT_FOUND)
         return ABD_OBJECT_NOT_FOUND;
 
     //verify if already well ranked (before.usages > node.usages)
-    if((obj->prevObj)->usages >= obj->usages)
+    if ((obj->prevObj)->usages >= obj->usages)
         return ABD_OBJECT_NOT_FOUND;
 
     //find the node which will stay immediately after the node being ranked
-    ABD_OBJECT * node_RHS = ABD_OBJECT_NOT_FOUND;
-    ABD_OBJECT * auxNode = obj->prevObj;
+    ABD_OBJECT *node_RHS = ABD_OBJECT_NOT_FOUND;
+    ABD_OBJECT *auxNode = obj->prevObj;
     unsigned short found = 0;
-    do{
-        if(auxNode->usages < obj->usages){
+    do
+    {
+        if (auxNode->usages < obj->usages)
+        {
             //need to move
             node_RHS = auxNode;
             auxNode = auxNode->prevObj;
-        }else
+        }
+        else
             found = 1;
-        
-        if(auxNode == ABD_OBJECT_NOT_FOUND)
+
+        if (auxNode == ABD_OBJECT_NOT_FOUND)
             //left side will be the HEAD
             //right side will be node_RHS
             found = 1;
 
-    }while(found!=1);
-   
-   return node_RHS;
-} 
-void changeNeighbours(ABD_OBJECT * obj){
+    } while (found != 1);
+
+    return node_RHS;
+}
+void changeNeighbours(ABD_OBJECT *obj)
+{
     //prev obj NULL
     //prev NULL
 
-    if(obj->prevObj != ABD_OBJECT_NOT_FOUND)
+    if (obj->prevObj != ABD_OBJECT_NOT_FOUND)
         (obj->prevObj)->nextObj = obj->nextObj;
 
     //check if last in registry
-    if(obj->nextObj != ABD_OBJECT_NOT_FOUND)
+    if (obj->nextObj != ABD_OBJECT_NOT_FOUND)
         (obj->nextObj)->prevObj = obj->prevObj;
-
 }
 
-
-ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj){
+ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj)
+{
     //this function searches for a space in the list where
     //the node before has more usages or is NULL (HEAD)
     //and the node after has less usages than the node being ranked.
     // Before doing the swap it is needed to save the references that the node stores (changeNeighbours).
     //This way the list can maintain coerence
-    ABD_OBJECT * node_RHS = findRHS(objReg, obj);
-    if(node_RHS != ABD_OBJECT_NOT_FOUND){
+    ABD_OBJECT *node_RHS = findRHS(objReg, obj);
+    if (node_RHS != ABD_OBJECT_NOT_FOUND)
+    {
         changeNeighbours(obj);
         objReg = doSwap(objReg, obj, node_RHS);
-    }    
-    
+    }
+
     return objReg;
 }
 
-ABD_OBJECT * getCmnObj(char * name, SEXP rho){
-     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
+ABD_OBJECT *getCmnObj(char *name, SEXP rho)
+{
+    ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
-    
-    if(cmnObjReg == ABD_OBJECT_NOT_FOUND){
+    if (cmnObjReg == ABD_OBJECT_NOT_FOUND)
+    {
         //registry empty, alloc
         cmnObjReg = addEmptyObjToReg(cmnObjReg);
         objectFound = cmnObjReg;
         objectFound->id = ++numCmnObj;
         setObjBaseValues(objectFound, name, rho);
-        
     }
     else
         objectFound = findObj(cmnObjReg, name, rho);
-    
 
-    if(objectFound == ABD_OBJECT_NOT_FOUND){
+    if (objectFound == ABD_OBJECT_NOT_FOUND)
+    {
         //alloc
         objectFound = addEmptyObjToReg(cmnObjReg);
         objectFound->id = ++numCmnObj;
@@ -302,12 +324,13 @@ ABD_OBJECT * getCmnObj(char * name, SEXP rho){
     }
     return objectFound;
 }
-ABD_OBJECT * getCfObj(char * name, SEXP rho){
-     ABD_OBJECT * objectFound = ABD_OBJECT_NOT_FOUND;
+ABD_OBJECT *getCfObj(char *name, SEXP rho)
+{
+    ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
-    
-    if(cfObjReg == ABD_OBJECT_NOT_FOUND){
-        //registry empty, alloc    
+    if (cfObjReg == ABD_OBJECT_NOT_FOUND)
+    {
+        //registry empty, alloc
         cfObjReg = addEmptyObjToReg(cfObjReg);
         objectFound = cfObjReg;
         objectFound->id = ++numCfObj;
@@ -315,9 +338,9 @@ ABD_OBJECT * getCfObj(char * name, SEXP rho){
     }
     else
         objectFound = findObj(cfObjReg, name, rho);
-    
 
-    if(objectFound == ABD_OBJECT_NOT_FOUND){
+    if (objectFound == ABD_OBJECT_NOT_FOUND)
+    {
         //alloc
         objectFound = addEmptyObjToReg(cfObjReg);
         objectFound->id = ++numCfObj;
@@ -327,164 +350,186 @@ ABD_OBJECT * getCfObj(char * name, SEXP rho){
     return objectFound;
 }
 
-
-char * envToStr(SEXP rho){
+char *envToStr(SEXP rho)
+{
     const void *vmax = vmaxget();
     static char ch[1000];
     if (rho == R_GlobalEnv)
-	    sprintf(ch, "GlobalEnv");
+        sprintf(ch, "GlobalEnv");
     else if (rho == R_BaseEnv)
-    	sprintf(ch, "Base");
+        sprintf(ch, "Base");
     else if (rho == R_EmptyEnv)
-	    sprintf(ch, "EmptyEnv");
+        sprintf(ch, "EmptyEnv");
     else if (R_IsPackageEnv(rho))
-	    snprintf(ch, 1000, "%s",translateChar(STRING_ELT(R_PackageEnvName(rho), 0)));
-    else snprintf(ch, 1000, "%p", (void *)rho);
+        snprintf(ch, 1000, "%s", translateChar(STRING_ELT(R_PackageEnvName(rho), 0)));
+    else
+        snprintf(ch, 1000, "%p", (void *)rho);
 
     return ch;
 }
 /*
     CMN_OBJ specifics
 */
-void manageMatrix(){
+void manageMatrix()
+{
     puts("arrived");
 }
-ABD_OBJECT_MOD * initValueUnion(ABD_OBJECT_MOD * newMod){
+ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod)
+{
     newMod->value.mtrx_value = NULL;
     newMod->value.vec_value = NULL;
     newMod->value.str_value = NULL;
 
     return newMod;
 }
-ABD_VEC_OBJ * memAllocVecObj(){
-    return (ABD_VEC_OBJ *) malloc(sizeof(ABD_VEC_OBJ));
+ABD_VEC_OBJ *memAllocVecObj()
+{
+    return (ABD_VEC_OBJ *)malloc(sizeof(ABD_VEC_OBJ));
 }
 
-double * memAllocDoubleVector(int size){
-    return (double *) malloc(size*sizeof(double));
+double *memAllocDoubleVector(int size)
+{
+    return (double *)malloc(size * sizeof(double));
 }
 
-ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * newMod, SEXP rhs){
+ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
+{
     int nElements = Rf_nrows(rhs);
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 0;
     newMod->value.vec_value->idxs = ABD_NOT_FOUND;
     newMod->value.vec_value->nCols = nElements;
     newMod->value.vec_value->vector = memAllocDoubleVector(nElements);
-    
-    for(int i=0; i<nElements; i++)
-       ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[i]; 
+
+    for (int i = 0; i < nElements; i++)
+        ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
 
     return newMod;
 }
 
-ABD_OBJECT_MOD * realVectorMultiChanges(ABD_OBJECT_MOD * newMod, SEXP rhs){
-    ABD_OBJECT_MOD * firstMod = newMod;
-    puts("got here");
+ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
+{
+    ABD_OBJECT_MOD *firstMod = newMod;
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 1;
-    newMod->value.vec_value->nCols = nIdxChanges;    
-    newMod->value.vec_value->vector = memAllocDoubleVector(nIdxChanges);
-    newMod->value.vec_value->idxs = (int *) malloc(sizeof(int) * nIdxChanges);
+    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+    newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
+    newMod->value.vec_value->idxs = (int *)malloc(sizeof(int) * idxChanges->nIdxChanges);
 
-    for(int i = 0; i < nIdxChanges; i++){
-        int idxMod = idxChanges[i];
+    for (int i = 0; i < idxChanges->nIdxChanges; i++)
+    {
+        int idxMod = idxChanges->idxs[i];
         newMod->value.vec_value->idxs[i] = idxMod;
-        ((double *) newMod->value.vec_value->vector)[i] = REAL(rhs)[idxMod]; 
+        ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
     }
 
     return newMod;
 }
 
-ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) ){
-    
-    if(newValue == ABD_NOT_FOUND){
+ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD_OBJECT_MOD *(*func)(ABD_OBJECT_MOD *, SEXP))
+{
+
+    if (newValue == ABD_NOT_FOUND)
+    {
         newModification->remotion = ABD_DELETED;
         return newModification;
     }
-    
+
     newModification->remotion = ABD_ALIVE;
     newModification = (*func)(newModification, newValue);
 
     return newModification;
 }
 
-int getObjStructType(SEXP symbolValue){
-    if(isVector(symbolValue)) return 1;
-    else if(isMatrix(symbolValue)) return 2;
-    else if(isFrame(symbolValue)) return 3;
-    else if(isArray(symbolValue)) return 4;
+int getObjStructType(SEXP symbolValue)
+{
+    if (isVector(symbolValue))
+        return 1;
+    else if (isMatrix(symbolValue))
+        return 2;
+    else if (isFrame(symbolValue))
+        return 3;
+    else if (isArray(symbolValue))
+        return 4;
     return 0;
 }
 
-ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, ABD_OBJ_VALUE_TYPE type){
-    
-    if(obj->modList == ABD_OBJECT_NOT_FOUND){
+ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, ABD_OBJ_VALUE_TYPE type)
+{
+
+    if (obj->modList == ABD_OBJECT_NOT_FOUND)
+    {
         //list empty
         obj->modList = memAllocMod();
         obj->modList->prevMod = ABD_OBJECT_NOT_FOUND;
         obj->modList->nextMod = ABD_OBJECT_NOT_FOUND;
         obj->modListStart = obj->modList;
-        
-    }else{
+    }
+    else
+    {
         //has modifications
         //alloc and set at modList (head) [fast search]
-        ABD_OBJECT_MOD * newMod = memAllocMod();
+        ABD_OBJECT_MOD *newMod = memAllocMod();
 
         obj->modList->nextMod = newMod;
         newMod->prevMod = obj->modList;
         newMod->nextMod = ABD_OBJECT_NOT_FOUND;
         obj->modList = newMod;
-
     }
     obj->modList->valueType = type;
     obj->modList = initValueUnion(obj->modList);
-    obj->modList->id = obj->usages+1;
+    obj->modList->id = obj->usages + 1;
     return obj->modList;
 }
 
-
 //below is used to all (except closures)
-void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
-    if(!isalpha(CHAR(PRINTNAME(lhs))[0]))
+void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
+{
+    if (!isalpha(CHAR(PRINTNAME(lhs))[0]) && !waitingIdxChange)
         return;
-    
-    
-    
+
     //name extraction from lhs
-    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
-    char * name = memAllocForString(nameSize);
-    copyStr(name,CHAR(PRINTNAME(lhs)), nameSize);
-
-    if((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges==0)){
-        waitingIdxChange = 0;
-        return;
+    char *name;
+    if (!waitingIdxChange)
+    {
+        int nameSize = strlen(CHAR(PRINTNAME(lhs)));
+        name = memAllocForString(nameSize);
+        copyStr(name, CHAR(PRINTNAME(lhs)), nameSize);
     }
+    else
+        name = idxChanges->varChanged->name;
+    // if ((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges == 0))
+    // {
+    //     puts("Setting w8 to 0");
+    //     waitingIdxChange = 0;
+    //     return;
+    // }
 
-    ABD_OBJECT * obj = ABD_OBJECT_NOT_FOUND;
-    if(TYPEOF(rhs) == CLOSXP){
+    ABD_OBJECT *obj = ABD_OBJECT_NOT_FOUND;
+    if (TYPEOF(rhs) == CLOSXP)
+    {
         obj = getCfObj(name, rho);
         obj->usages++;
         cfObjReg = rankObjByUsages(cfObjReg, obj);
     }
-    else{
-        ABD_OBJECT_MOD * newMod = ABD_OBJECT_NOT_FOUND;
-        if(waitingIdxChange){
-            if((obj = findObj(cmnObjReg, name, rho)) == ABD_OBJECT_NOT_FOUND){
-                goto clearIdxChanges;
-            }
-        }else
+    else
+    {
+        ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
+        if (waitingIdxChange)
+            obj = idxChanges->varChanged;
+        else
             obj = getCmnObj(name, rho);
-        
+
         newMod = addEmptyModToObj(obj, getObjStructType(rhs));
-        printf("Waiting %d\n", waitingIdxChange);
+
         newMod = processByType(rhs, newMod, waitingIdxChange);
         obj->modList = newMod;
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
     }
-    
-    if(rhs == lastRetValue){
+
+    if (rhs == lastRetValue)
+    {
         lastRetEvent->toObj = obj;
         free(lastRetEvent->retValue);
         lastRetEvent->retValue = obj->modList;
@@ -492,19 +537,38 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho){
         lastRetValue = ABD_NOT_FOUND;
     }
 
-    clearIdxChanges:;
-    nIdxChanges = 0;
-    if(idxChanges != ABD_NOT_FOUND)
+clearIdxChanges:;
+    if (idxChanges != ABD_OBJECT_NOT_FOUND)
+    {
+        free(idxChanges->idxs);
         free(idxChanges);
-    idxChanges = ABD_NOT_FOUND;
+    }
+    idxChanges = ABD_OBJECT_NOT_FOUND;
     waitingIdxChange = 0;
 }
 
 /*
     stage the index changes before the next attribution
-
 */
-void commitIdxChanges(int nIdxs, int * idx){
-    nIdxChanges = nIdxs;
-    idxChanges = idx;
-}   
+void prepForIdxChange(SEXP var)
+{
+
+    ABD_OBJECT *varChanged = ABD_OBJECT_NOT_FOUND;
+    if ((varChanged = findObj(cmnObjReg, CHAR(PRINTNAME(var)), getCurrentEnv())) != ABD_OBJECT_NOT_FOUND)
+    {
+        //object mapped
+        waitingIdxChange = 1;
+        idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
+        idxChanges->varChanged = varChanged;
+    }
+    else
+        waitingIdxChange = 0;
+}
+
+void storeIdxChange(SEXP indexes)
+{
+    // abstract to use multi indexes
+    idxChanges->nIdxChanges = 1;
+    idxChanges->idxs = (int *)malloc(sizeof(int) * idxChanges->nIdxChanges);
+    idxChanges->idxs[0] = asInteger(indexes) - 1;
+}

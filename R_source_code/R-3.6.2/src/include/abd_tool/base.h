@@ -17,8 +17,6 @@
 #include <Print.h>
 #include <Defn.h>
 
-
-
 /*
     Methods to start and stop the tool, helper function also here
 
@@ -33,7 +31,8 @@
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
-void START_WATCHER(){
+void abd_start()
+{
     checkSettings();
     initObjsRegs();
     initEventsReg();
@@ -41,14 +40,17 @@ void START_WATCHER(){
     watcherState = ABD_ENABLE;
 }
 
-void STOP_WATCHER(){
-    if(isRunning()){
+void abd_stop()
+{
+    if (isRunning())
+    {
         checkSettings();
         watcherState = ABD_DISABLE;
         persistInformation();
     }
 }
-void ABD_HELP(){
+void abd_help()
+{
     // printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
     // printf("\t##################################################\n");
     // printf("\t-> Start the watcher: abd_start()\n");
@@ -64,23 +66,51 @@ void ABD_HELP(){
     st = 1;
 }
 
-
-void saveIdxChanges(int nIdxs, int * idxChanges){
-    commitIdxChanges(nIdxs, idxChanges);
+void prepVarIdxChange(SEXP var)
+{
+    prepForIdxChange(var);
 }
-
-void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
-    if(isRunning()){
-        if(isEnvironment(rho)){
-            if(strncmp(CHAR(PRINTNAME(lhs)), "*tmp*", 5) == 0)
-               //do not register
-               waitingIdxChange = 1;
-            newObjUsage(lhs,rhs,rho);
-            
+int getCurrScriptLn()
+{
+    /* If we have a valid srcref, use it */
+    SEXP srcref = R_Srcref;
+    if (srcref && srcref != R_NilValue)
+    {
+        if (TYPEOF(srcref) == VECSXP)
+            srcref = VECTOR_ELT(srcref, 0);
+        SEXP srcfile = getAttrib(srcref, R_SrcfileSymbol);
+        if (TYPEOF(srcfile) == ENVSXP)
+        {
+            SEXP filename = findVar(install("filename"), srcfile);
+            if (isString(filename) && length(filename))
+            {
+                return asInteger(srcref);
+            }
         }
     }
+    /* default: */
+    return 0;
 }
 
+void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)
+{
+
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && waitingIdxChange))
+        return;
+
+    storeIdxChange(indexes);
+    printf("Index Changed at line %d\n", getCurrScriptLn());
+    newObjUsage(R_NilValue, newValues, rho);
+}
+
+void regVarChange(SEXP lhs, SEXP rhs, SEXP rho)
+{
+    if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
+        return;
+
+    printf("Assignment at line %d\n", getCurrScriptLn());
+    newObjUsage(lhs, rhs, rho);
+}
 
 /*
     The function below will verify if R is trying to execute a closure defined by the user.
@@ -88,54 +118,59 @@ void regVarChange(SEXP lhs, SEXP rhs, SEXP rho){
     name, then, the function being called should not be tracked.
 */
 
-ABD_SEARCH checkToReg(SEXP rho){
-    if(!isRunning())
+ABD_SEARCH checkToReg(SEXP rho)
+{
+    if (!isRunning())
         return ABD_NOT_EXIST;
     return cmpToCurrEnv(rho);
 }
 
+ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return ABD_NOT_EXIST;
 
-ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs){
-    if(isRunning()){
-        ABD_OBJECT * objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
-        if(objFound == ABD_OBJECT_NOT_FOUND)
-            return ABD_NOT_EXIST;
+    ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
+    if (objFound == ABD_OBJECT_NOT_FOUND)
+        return ABD_NOT_EXIST;
 
-        createNewEvent(FUNC_EVENT);
-        setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
-        return ABD_EXIST;
-    }
-    return ABD_NOT_EXIST;
+    printf("FunCall at line %d\n", getCurrScriptLn());
+    createNewEvent(FUNC_EVENT);
+    setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
+    return ABD_EXIST;
 }
 
-void regIf(SEXP Stmt, Rboolean result){
-    if(isRunning()){
-        if(!isWaitingElseIf())
-            createNewEvent(IF_EVENT);
-        setIfEventValues(Stmt, result);
-    }
+void regIf(SEXP Stmt, Rboolean result, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+
+    printf("If stmt at line %d\n", getCurrScriptLn());
+    if (!isWaitingElseIf())
+        createNewEvent(IF_EVENT);
+    setIfEventValues(Stmt, result);
 }
 
-void storeIsWaiting(int isWaiting){
-    if(isRunning()){
-        setIsWaiting(isWaiting);   
-        printf("isWaiting? %d\n", isWaiting);
-    }
+void storeIsWaitingIf(int isWaiting, SEXP rho)
+{
+    if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
+        setIsWaitingIf(isWaiting);
 }
 
-void regFunReturn(SEXP lhs, SEXP rho, SEXP val){
+void regFunRet(SEXP lhs, SEXP rho, SEXP val)
+{
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
     lastRetValue = val;
     envPop();
 }
 
-ABD_STATE isRunning(){
+ABD_STATE isRunning()
+{
     return watcherState;
 }
 
-
-
-void storeCompareResult(SEXP cmpr){
+void storeCompareResult(SEXP cmpr)
+{
     cmp = cmpr;
 }

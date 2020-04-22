@@ -1225,11 +1225,9 @@ SEXP attribute_hidden do_bindtextdomain(SEXP call, SEXP op, SEXP args, SEXP rho)
 static SEXP findCall(void)
 {
     RCNTXT *cptr;
-    for (cptr = R_GlobalContext->nextcontext;
-	 cptr != NULL && cptr->callflag != CTXT_TOPLEVEL;
-	 cptr = cptr->nextcontext)
-	if (cptr->callflag & CTXT_FUNCTION)
-	    return cptr->call;
+    for (cptr = R_GlobalContext->nextcontext; cptr != NULL && cptr->callflag != CTXT_TOPLEVEL; cptr = cptr->nextcontext)
+		if (cptr->callflag & CTXT_FUNCTION)
+			return cptr->call;
     return R_NilValue;
 }
 

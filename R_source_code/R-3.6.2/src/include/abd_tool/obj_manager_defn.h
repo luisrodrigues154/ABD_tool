@@ -20,23 +20,26 @@
 */
 
 #ifndef loaded_om
-    #define loaded_om
-    typedef enum obj_state {
-        ABD_ALIVE,
-        ABD_DELETED
-    }OBJ_STATE;
+#define loaded_om
+typedef enum obj_state
+{
+    ABD_ALIVE,
+    ABD_DELETED
+} OBJ_STATE;
 
-    typedef enum obj_data_typ{
-        ABD_VECTOR = 1,
-        ABD_MATRIX = 2,
-        ABD_FRAME = 3,
-        ABD_ARRAY = 4
-    }ABD_OBJ_VALUE_TYPE;
+typedef enum obj_data_typ
+{
+    ABD_VECTOR = 1,
+    ABD_MATRIX = 2,
+    ABD_FRAME = 3,
+    ABD_ARRAY = 4
+} ABD_OBJ_VALUE_TYPE;
 
-    typedef struct abd_vec_obj{
-        SEXPTYPE type;
-        int idxChange;
-        /*
+typedef struct abd_vec_obj
+{
+    SEXPTYPE type;
+    int idxChange;
+    /*
             if idxChange is y then
                 nCols will represent how many indexes changed
                 and vector will be the new value for that index
@@ -45,67 +48,83 @@
                 what the name says (the number of columns in the vector)
                 while vector will be the vector totality (1,2,3, ...)
         */
-        int nCols;
-        int * idxs;
-        void * vector;
-    }ABD_VEC_OBJ;
+    int nCols;
+    int *idxs;
+    void *vector;
+} ABD_VEC_OBJ;
 
-    typedef struct abd_mtrx_obj{
-        SEXP type;
-        int nRows;
-        int nCols;
-        void * matrix;
-    }ABD_MTRX_OBJ;
+typedef struct abd_mtrx_obj
+{
+    SEXP type;
+    int nRows;
+    int nCols;
+    void *matrix;
+} ABD_MTRX_OBJ;
 
-    typedef struct abd_obj_mod{
-        int id;
-        ABD_OBJ_VALUE_TYPE valueType;
-        union{
-            ABD_MTRX_OBJ * mtrx_value;
-            ABD_VEC_OBJ * vec_value;
-            char * str_value;
-        }value;
-        OBJ_STATE remotion;
-        struct abd_obj_mod * prevMod;
-        struct abd_obj_mod * nextMod;
-    }ABD_OBJECT_MOD;
+typedef struct abd_obj_mod
+{
+    int id;
+    ABD_OBJ_VALUE_TYPE valueType;
+    union {
+        ABD_MTRX_OBJ *mtrx_value;
+        ABD_VEC_OBJ *vec_value;
+        char *str_value;
+    } value;
+    OBJ_STATE remotion;
+    struct abd_obj_mod *prevMod;
+    struct abd_obj_mod *nextMod;
+} ABD_OBJECT_MOD;
 
-    typedef struct abd_obj{
-        int id;
-        char * name;
-        unsigned int usages;
-        OBJ_STATE state;
-        SEXP createdEnv;
-        char * createdAt;
-        //on CF_OBJ will be NULL
-        ABD_OBJECT_MOD * modList;
-        //pointer to the end of the list (first mod) 
-        //will require double linked list to then go up (to persist)
-        ABD_OBJECT_MOD * modListStart;
-        //pointers to neighbours
-        struct abd_obj * prevObj;
-        struct abd_obj * nextObj;
-    }ABD_OBJECT;
+typedef struct abd_obj
+{
+    int id;
+    char *name;
+    unsigned int usages;
+    OBJ_STATE state;
+    SEXP createdEnv;
+    char *createdAt;
+    //on CF_OBJ will be NULL
+    ABD_OBJECT_MOD *modList;
+    //pointer to the end of the list (first mod)
+    //will require double linked list to then go up (to persist)
+    ABD_OBJECT_MOD *modListStart;
+    //pointers to neighbours
+    struct abd_obj *prevObj;
+    struct abd_obj *nextObj;
+} ABD_OBJECT;
 
-    typedef enum abd_storage{
-        ABD_CF_STORAGE,
-        ABD_CMN_STORAGE
-    }OBJ_STORAGE;
+typedef enum abd_storage
+{
+    ABD_CF_STORAGE,
+    ABD_CMN_STORAGE
+} OBJ_STORAGE;
 
-    static ABD_OBJECT * cmnObjReg, * cfObjReg;
-    static ABD_OBJECT * cmnObjRegTail, * cmnObjRegTail; 
+static ABD_OBJECT *cmnObjReg, *cfObjReg;
+static ABD_OBJECT *cmnObjRegTail, *cmnObjRegTail;
 
-    static int numCfObj;
-    static int numCmnObj;
+static int numCfObj;
+static int numCmnObj;
 
-    static int waitingIdxChange;
+static int waitingIdxChange;
 
-    //vectors
-    static int nIdxChanges;
-    static int * idxChanges;
+//vectors
+typedef struct changeElem
+{
+    SEXPTYPE type;
+    int idx;
+    void *data;
+} CHANGE_ELEMENT;
 
+typedef struct
+{
+    int nIdxChanges;
+    int *idxs;
+    ABD_OBJECT *varChanged;
+} IDX_CHANGE;
 
-    #define ABD_OBJECT_NOT_FOUND NULL
+static IDX_CHANGE *idxChanges;
+
+#define ABD_OBJECT_NOT_FOUND NULL
 #endif
 /*
     The prototypes regarding the manipulation of
@@ -123,14 +142,14 @@
     generic
 */
 void initObjsRegs();
-ABD_OBJECT * memAllocBaseObj();
-char * memAllocForString(int strSize);
-ABD_OBJECT * doSwap(ABD_OBJECT * objReg, ABD_OBJECT * obj, ABD_OBJECT * node_RHS);
-void copyStr(char * dest, char * src, int strSize);
+ABD_OBJECT *memAllocBaseObj();
+char *memAllocForString(int strSize);
+ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS);
+void copyStr(char *dest, char *src, int strSize);
 /*
     CMN_OBJ specifics
 */
-ABD_OBJECT_MOD * memAllocMod();
+ABD_OBJECT_MOD *memAllocMod();
 
 /*
     CF_OBJ specifics
@@ -142,21 +161,20 @@ ABD_OBJECT_MOD * memAllocMod();
    ####################################
 */
 
-void setObjBaseValues(ABD_OBJECT * obj, char * name, SEXP createdEnv);
-ABD_OBJECT * addEmptyObjToReg(ABD_OBJECT * objReg );
-ABD_OBJECT * findObj(ABD_OBJECT * objReg, char * name, SEXP createdEnv);
-ABD_OBJECT * findRHS(ABD_OBJECT * objReg, ABD_OBJECT * obj);
-void changeNeighbours(ABD_OBJECT * obj);
-ABD_OBJECT * rankObjByUsages(ABD_OBJECT * objReg, ABD_OBJECT * obj);
+void setObjBaseValues(ABD_OBJECT *obj, char *name, SEXP createdEnv);
+ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg);
+ABD_OBJECT *findObj(ABD_OBJECT *objReg, char *name, SEXP createdEnv);
+ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj);
+void changeNeighbours(ABD_OBJECT *obj);
+ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 void newCmnObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
 void newCfObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
-char * envToStr(SEXP rho);
-ABD_OBJECT_MOD * setModValues(ABD_OBJECT_MOD * newModification, SEXP newValue, ABD_OBJECT_MOD * (*func)(ABD_OBJECT_MOD *,SEXP) );
-ABD_OBJECT_MOD * addEmptyModToObj(ABD_OBJECT * obj, SEXPTYPE type);
-ABD_OBJECT_MOD * createRealVector(ABD_OBJECT_MOD * mod,SEXP rhs);
-ABD_OBJECT_MOD * createRealVectorIdxChange(ABD_OBJECT_MOD * newMod, SEXP rhs);
-ABD_OBJECT * getCmnObj(char * name, SEXP rho);
-ABD_OBJECT * getCfObj(char * name, SEXP rho);
-ABD_OBJECT * findFuncObj(char * name, SEXP  callingEnv);
-
-void commitIdxChanges(int, int * );
+char *envToStr(SEXP rho);
+ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD_OBJECT_MOD *(*func)(ABD_OBJECT_MOD *, SEXP));
+ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, SEXPTYPE type);
+ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *mod, SEXP rhs);
+ABD_OBJECT_MOD *createRealVectorIdxChange(ABD_OBJECT_MOD *newMod, SEXP rhs);
+ABD_OBJECT *getCmnObj(char *name, SEXP rho);
+ABD_OBJECT *getCfObj(char *name, SEXP rho);
+ABD_OBJECT *findFuncObj(char *name, SEXP callingEnv);
+void prepForIdxChange(SEXP var);

@@ -14,10 +14,10 @@ eval.o: eval.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/abd_tool/obj_manager.h \
   ../../src/include/abd_tool/event_manager_defn.h \
   ../../src/include/abd_tool/obj_manager_defn.h \
-  ../../src/include/abd_tool/events_defn.h ../../src/include/Print.h \
+  ../../src/include/abd_tool/events_defn.h \
+  ../../src/include/abd_tool/env_stack_defn.h ../../src/include/Print.h \
   ../../src/include/R_ext/PrtUtil.h \
   ../../src/include/abd_tool/event_manager.h \
-  ../../src/include/abd_tool/env_stack_defn.h \
   ../../src/include/Rembedded.h ../../src/include/R_ext/Parse.h \
   ../../src/include/abd_tool/json_helpers_defn.h \
   ../../src/include/abd_tool/json_helpers.h \

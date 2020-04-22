@@ -247,6 +247,7 @@ void begincontext(RCNTXT * cptr, int flags,
 		  SEXP syscall, SEXP env, SEXP sysp,
 		  SEXP promargs, SEXP callfun)
 {
+    
     cptr->cstacktop = R_PPStackTop;
     cptr->gcenabled = R_GCEnabled;
     cptr->bcpc = R_BCpc;
@@ -273,7 +274,7 @@ void begincontext(RCNTXT * cptr, int flags,
     cptr->returnValue = NULL;
     cptr->jumptarget = NULL;
     cptr->jumpmask = 0;
-
+    
     R_GlobalContext = cptr;
 }
 
