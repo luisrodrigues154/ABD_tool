@@ -6787,7 +6787,7 @@ SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case 1:
 		// start_watcher() issued
-		abd_start();
+		abd_start(rho);
 		Rprintf("\n\t[ABD_TOOL] Watcher state: Running\n\n");
 		break;
 	case 2:

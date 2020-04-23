@@ -7,27 +7,27 @@
 #include <abd_tool/obj_manager_defn.h>
 
 #ifndef loaded_stack
-    #define loaded_stack
-       
-    typedef struct abd_env_stack{
-        SEXP rho;
-        ABD_OBJECT * funcObj;
-        struct abd_env_stack * prev;
-    }ABD_ENV_STACK;
+#define loaded_stack
 
-    //control the function calls and restrict defineVars() that are not intended to be registered
-    static ABD_ENV_STACK * envStack;
+typedef struct abd_env_stack
+{
+    SEXP rho;
+    ABD_OBJECT *funcObj;
+    struct abd_env_stack *prev;
+} ABD_ENV_STACK;
 
-    //constants
-    #define ABD_ENV_NOT_FOUND NULL
+//control the function calls and restrict defineVars() that are not intended to be registered
+static ABD_ENV_STACK *envStack;
+
+//constants
+#define ABD_ENV_NOT_FOUND NULL
 #endif
 
-
-void initEnvStack();
-void freeEnv(ABD_ENV_STACK * env);
-ABD_ENV_STACK * memAllocEnvStack();
-void envPush(SEXP newRho, ABD_OBJECT * funcObj);
+void initEnvStack(SEXP rho);
+void freeEnv(ABD_ENV_STACK *env);
+ABD_ENV_STACK *memAllocEnvStack();
+void envPush(SEXP newRho, ABD_OBJECT *funcObj);
 void envPop();
 ABD_SEARCH cmpToCurrEnv(SEXP rho);
 SEXP getCurrentEnv();
-ABD_OBJECT * getCurrFuncObj();
+ABD_OBJECT *getCurrFuncObj();

@@ -774,6 +774,28 @@ ABD_EVENT *createMainEvent()
     return createNewEvent(MAIN_EVENT);
 }
 
+int getCurrScriptLn()
+{
+    /* If we have a valid srcref, use it */
+    SEXP srcref = R_Srcref;
+    if (srcref && srcref != R_NilValue)
+    {
+        if (TYPEOF(srcref) == VECSXP)
+            srcref = VECTOR_ELT(srcref, 0);
+        SEXP srcfile = getAttrib(srcref, R_SrcfileSymbol);
+        if (TYPEOF(srcfile) == ENVSXP)
+        {
+            SEXP filename = findVar(install("filename"), srcfile);
+            if (isString(filename) && length(filename))
+            {
+                return asInteger(srcref);
+            }
+        }
+    }
+    /* default: */
+    // this happens running Rscript or interactively outside of a function
+    return 0;
+}
 void eventPrint(ABD_EVENT *event)
 {
 

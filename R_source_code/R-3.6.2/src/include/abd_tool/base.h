@@ -31,12 +31,12 @@
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
-void abd_start()
+void abd_start(SEXP rho)
 {
     checkSettings();
     initObjsRegs();
     initEventsReg();
-    initEnvStack();
+    initEnvStack(rho);
     watcherState = ABD_ENABLE;
 }
 
@@ -69,27 +69,6 @@ void abd_help()
 void prepVarIdxChange(SEXP var)
 {
     prepForIdxChange(var);
-}
-int getCurrScriptLn()
-{
-    /* If we have a valid srcref, use it */
-    SEXP srcref = R_Srcref;
-    if (srcref && srcref != R_NilValue)
-    {
-        if (TYPEOF(srcref) == VECSXP)
-            srcref = VECTOR_ELT(srcref, 0);
-        SEXP srcfile = getAttrib(srcref, R_SrcfileSymbol);
-        if (TYPEOF(srcfile) == ENVSXP)
-        {
-            SEXP filename = findVar(install("filename"), srcfile);
-            if (isString(filename) && length(filename))
-            {
-                return asInteger(srcref);
-            }
-        }
-    }
-    /* default: */
-    return 0;
 }
 
 void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)

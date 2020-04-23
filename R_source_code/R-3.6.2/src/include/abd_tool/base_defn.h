@@ -46,7 +46,7 @@ static SEXP cmp;
     General tool methods prototypes are declared below
 */
 void abd_help();
-void abd_start();
+void abd_start(SEXP rho);
 void abd_stop();
 ABD_STATE isRunning();
 void regVarChange(SEXP, SEXP, SEXP);
