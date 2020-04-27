@@ -1,9 +1,9 @@
 #!/bin/sh
 # Shell wrapper for R executable.
 
-R_HOME_DIR="/Users/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2"
+R_HOME_DIR="/Users/antoniorodrigues/Documents/Repos/ABD_tool/R_source_code/R-3.6.2"
 if test "${R_HOME_DIR}" = "/usr/local/lib/R"; then
-   case "darwin19.3.0" in
+   case "darwin19.4.0" in
    linux*)
      run_arch=`uname -m`
      case "$run_arch" in

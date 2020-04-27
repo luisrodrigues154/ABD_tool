@@ -1065,10 +1065,10 @@
 /* #undef R_MEMORY_PROFILING */
 
 /* Define this to be the name of the OS of your system. */
-#define R_OS "darwin19.3.0"
+#define R_OS "darwin19.4.0"
 
 /* Define this to be the canonical name (cpu-vendor-os) of your system. */
-#define R_PLATFORM "x86_64-apple-darwin19.3.0"
+#define R_PLATFORM "x86_64-apple-darwin19.4.0"
 
 /* Define this to be printing command on your system. */
 #define R_PRINTCMD "lpr"

@@ -31,13 +31,17 @@
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
+void setWatcherState(ABD_STATE state)
+{
+    watcherState = state;
+}
 void abd_start(SEXP rho)
 {
     checkSettings();
     initObjsRegs();
     initEventsReg();
     initEnvStack(rho);
-    watcherState = ABD_ENABLE;
+    setWatcherState(ABD_ENABLE);
 }
 
 void abd_stop()
@@ -45,7 +49,7 @@ void abd_stop()
     if (isRunning())
     {
         checkSettings();
-        watcherState = ABD_DISABLE;
+        setWatcherState(ABD_DISABLE);
         persistInformation();
     }
 }
@@ -81,14 +85,36 @@ void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)
     printf("Index Changed at line %d\n", getCurrScriptLn());
     newObjUsage(R_NilValue, newValues, rho);
 }
+static void PrintDaCall(SEXP call, SEXP rho)
+{
+    int old_bl = R_BrowseLines,
+        blines = asInteger(GetOption1(install("deparse.max.lines")));
+    if (blines != NA_INTEGER && blines > 0)
+        R_BrowseLines = blines;
 
-void regVarChange(SEXP lhs, SEXP rhs, SEXP rho)
+    R_PrintData pars;
+    PrintInit(&pars, rho);
+    PrintValueRec(call, &pars);
+
+    R_BrowseLines = old_bl;
+}
+
+void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 {
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
+    //need to extract the rhs from the call
+    SEXP rhs2 = CAR(CDR(CDR(call)));
+    ABD_EVENT *fromEvent = ABD_EVENT_NOT_FOUND;
 
-    printf("Assignment at line %d\n", getCurrScriptLn());
-    newObjUsage(lhs, rhs, rho);
+    //createNewEvent(ASGN_EVENT);
+    ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
+
+    if (!((fromEvent = checkPendings(rhs, ABD_OBJECT_NOT_FOUND)) == ABD_EVENT_NOT_FOUND))
+    {
+        /* has precedence from another event */
+        puts("Assignment from pending event...");
+    }
 }
 
 /*
@@ -113,9 +139,11 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
     if (objFound == ABD_OBJECT_NOT_FOUND)
         return ABD_NOT_EXIST;
 
-    printf("FunCall at line %d\n", getCurrScriptLn());
+    //printf("FunCall at line %d\n", getCurrScriptLn());
+
     createNewEvent(FUNC_EVENT);
     setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
+
     return ABD_EXIST;
 }
 
@@ -124,10 +152,21 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    printf("If stmt at line %d\n", getCurrScriptLn());
+    //printf("If stmt at line %d\n", getCurrScriptLn());
     if (!isWaitingElseIf())
         createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
+}
+
+void regArith(SEXP call, SEXP ans, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+
+    puts("will register the call... V");
+    PrintDaCall(call, rho);
+    puts(" ");
+    tmpStoreArith(call, ans);
 }
 
 void storeIsWaitingIf(int isWaiting, SEXP rho)
@@ -151,5 +190,19 @@ ABD_STATE isRunning()
 
 void storeCompareResult(SEXP cmpr)
 {
+    puts("Storing");
     cmp = cmpr;
+}
+
+int getSt()
+{
+    return st;
+}
+
+int cmpStoredArithAns(SEXP arg1, SEXP arg2)
+{
+    if (arg1 == getSavedArithAns() || arg2 == getSavedArithAns())
+        return 1;
+
+    return 0;
 }

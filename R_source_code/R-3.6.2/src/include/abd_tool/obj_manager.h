@@ -357,7 +357,7 @@ char *envToStr(SEXP rho)
     if (rho == R_GlobalEnv)
         sprintf(ch, "GlobalEnv");
     else if (rho == R_BaseEnv)
-        sprintf(ch, "Base");
+        sprintf(ch, "BaseEnv");
     else if (rho == R_EmptyEnv)
         sprintf(ch, "EmptyEnv");
     else if (R_IsPackageEnv(rho))
@@ -483,10 +483,10 @@ ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, ABD_OBJ_VALUE_TYPE type)
 }
 
 //below is used to all (except closures)
-void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
+ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 {
     if (!isalpha(CHAR(PRINTNAME(lhs))[0]) && !waitingIdxChange)
-        return;
+        return ABD_OBJECT_NOT_FOUND;
 
     //name extraction from lhs
     char *name;
@@ -498,12 +498,6 @@ void newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
     }
     else
         name = idxChanges->varChanged->name;
-    // if ((waitingIdxChange && cmnObjReg == ABD_NOT_FOUND) || (waitingIdxChange && nIdxChanges == 0))
-    // {
-    //     puts("Setting w8 to 0");
-    //     waitingIdxChange = 0;
-    //     return;
-    // }
 
     ABD_OBJECT *obj = ABD_OBJECT_NOT_FOUND;
     if (TYPEOF(rhs) == CLOSXP)
@@ -545,6 +539,8 @@ clearIdxChanges:;
     }
     idxChanges = ABD_OBJECT_NOT_FOUND;
     waitingIdxChange = 0;
+
+    return obj;
 }
 
 /*

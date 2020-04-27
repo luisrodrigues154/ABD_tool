@@ -3,7 +3,7 @@
 
 R_HOME_DIR=
 if test "${R_HOME_DIR}" = "/usr/local/lib/R"; then
-   case "darwin19.3.0" in
+   case "darwin19.4.0" in
    linux*)
      run_arch=`uname -m`
      case "$run_arch" in

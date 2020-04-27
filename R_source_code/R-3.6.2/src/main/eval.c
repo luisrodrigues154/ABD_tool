@@ -3137,7 +3137,7 @@ SEXP attribute_hidden do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
 		else /* <-, = */
 			defineVar(lhs, rhs, rho);
 
-		regVarChange(lhs, rhs, rho);
+		regVarChange(call, lhs, rhs, rho);
 
 		R_Visible = FALSE;
 		return rhs;

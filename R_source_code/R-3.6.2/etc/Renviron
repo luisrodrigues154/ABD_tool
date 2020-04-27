@@ -4,7 +4,7 @@
 ###
 ### Record R system environment variables.
 
-R_PLATFORM=${R_PLATFORM-'x86_64-apple-darwin19.3.0'}
+R_PLATFORM=${R_PLATFORM-'x86_64-apple-darwin19.4.0'}
 ## Default printer paper size: first record if user set R_PAPERSIZE
 R_PAPERSIZE_USER=${R_PAPERSIZE}
 R_PAPERSIZE=${R_PAPERSIZE-'a4'}
@@ -43,7 +43,7 @@ R_SYSTEM_ABI='osx,gcc,gxx,gfortran,gfortran'
 R_STRIP_SHARED_LIB=${R_STRIP_SHARED_LIB-'strip -x'}
 R_STRIP_STATIC_LIB=${R_STRIP_STATIC_LIB-'strip -S'}
 
-#R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-apple-darwin19.3.0-library/3.6'}
+#R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-apple-darwin19.4.0-library/3.6'}
 R_LIBS_USER=${R_LIBS_USER-'~/Library/R/3.6/library'}
 
 ### Local Variables: ***

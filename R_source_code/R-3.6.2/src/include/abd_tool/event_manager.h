@@ -4,6 +4,7 @@
 #include <abd_tool/event_manager_defn.h>
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/env_stack_defn.h>
+#include <abd_tool/base_defn.h>
 #include <Rembedded.h>
 #include <R_ext/Parse.h>
 
@@ -12,13 +13,22 @@ void initEventsReg()
     eventsReg = ABD_EVENT_NOT_FOUND;
     eventsRegTail = ABD_EVENT_NOT_FOUND;
     lastRetValue = ABD_EVENT_NOT_FOUND;
+    lastArithEvent = ABD_EVENT_NOT_FOUND;
+    finalArithAns = R_NilValue;
+    finalArithCall = R_NilValue;
+    arithScriptLn = 0;
+    currArithIndex = -1;
+    arithResults = ABD_NOT_FOUND;
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
     waitingElseIF = 0;
+    eventCounter = 0;
 }
 
 ABD_EVENT *initBaseEvent(ABD_EVENT *newBaseEvent)
 {
+    newBaseEvent->id = ++eventCounter;
+    newBaseEvent->scriptLn = getCurrScriptLn();
     newBaseEvent->data.if_event = ABD_NOT_FOUND;
     newBaseEvent->data.func_event = ABD_NOT_FOUND;
     newBaseEvent->data.ret_event = ABD_NOT_FOUND;
@@ -43,6 +53,14 @@ ABD_FUNC_EVENT *memAllocFuncEvent()
     return (ABD_FUNC_EVENT *)malloc(sizeof(ABD_FUNC_EVENT));
 }
 
+ABD_ASSIGN_EVENT *memAllocAssignEvent()
+{
+    return (ABD_ASSIGN_EVENT *)malloc(sizeof(ABD_ASSIGN_EVENT));
+}
+ABD_ARITH_EVENT *memAllocArithEvent()
+{
+    return (ABD_ARITH_EVENT *)malloc(sizeof(ABD_ARITH_EVENT));
+}
 ABD_EVENT_ARG *memAllocEventArg()
 {
     return (ABD_EVENT_ARG *)malloc(sizeof(ABD_EVENT_ARG));
@@ -452,7 +470,6 @@ SEXP getResult(char *expr)
 {
     SEXP e, tmp, retValue;
     ParseStatus status;
-    int i;
 
     PROTECT(tmp = mkString(expr));
     PROTECT(e = R_ParseVector(tmp, -1, &status, R_NilValue));
@@ -525,7 +542,7 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
         sprintf(stmtStr, "%s)", stmtStr);
 }
 
-IF_EXPRESSION *processIfStmt(SEXP st)
+IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
 {
 
     IF_EXPRESSION *newExpr = memAllocIfExp();
@@ -560,7 +577,7 @@ IF_EXPRESSION *processIfStmt(SEXP st)
                     goto jump1;
                 }
                 newExpr->left_type = IF_EXPR;
-                newExpr->left_data = processIfStmt(lElem);
+                newExpr->left_data = processIfStmt(lElem, 1);
             }
             else
             {
@@ -587,7 +604,7 @@ IF_EXPRESSION *processIfStmt(SEXP st)
                     goto jump2;
                 }
                 newExpr->right_type = IF_EXPR;
-                newExpr->right_data = processIfStmt(rElem);
+                newExpr->right_data = processIfStmt(rElem, 1);
             }
             else
             {
@@ -616,14 +633,26 @@ IF_EXPRESSION *processIfStmt(SEXP st)
     }
 
     mkStrForCmp(newExpr, stmtStr);
-    SEXP result = getResult(stmtStr);
-    SEXPTYPE resType = TYPEOF(result);
+    setWatcherState(ABD_DISABLE);
+    if (withEval)
+    {
+        SEXP result = getResult(stmtStr);
+        SEXPTYPE resType = TYPEOF(result);
 
-    if (resType == LGLSXP)
-        newExpr->result = LOGICAL(result)[0];
-    else if (resType == REALSXP)
-        newExpr->result = REAL(result)[0];
-
+        if (resType == LGLSXP)
+            newExpr->result = LOGICAL(result)[0];
+        else if (resType == REALSXP)
+            newExpr->result = REAL(result)[0];
+    }
+    else
+    {
+        if (lastArithEvent != ABD_EVENT_NOT_FOUND)
+        {
+            /* pick from the results array */
+            newExpr->result = REAL(arithResults[++currArithIndex])[0];
+        }
+    }
+    setWatcherState(ABD_DISABLE);
     //printf("\nStatement %s\nResult %s\n", stmtStr, (newExpr->result) ? "TRUE" : "FALSE");
     free(stmtStr);
     return newExpr;
@@ -639,9 +668,15 @@ void printExpression(IF_EXPRESSION *expr)
         printExpression(expr->left_data);
     else
     {
-        ABD_OBJECT_MOD *objValue = ((IF_ABD_OBJ *)expr->left_data)->objValue;
-        double value = ((double *)objValue->value.vec_value->vector)[0];
-        printf("%.2f", value);
+        ABD_OBJECT *obj = ((IF_ABD_OBJ *)expr->left_data)->objPtr;
+        if (obj->id == -1)
+        {
+            // hardcoded, get value
+            ABD_OBJECT_MOD *objValue = ((IF_ABD_OBJ *)expr->left_data)->objValue;
+            printf("%.4f", ((double *)objValue->value.vec_value->vector)[0]);
+        }
+        else
+            printf("%s", getObjStr((IF_ABD_OBJ *)expr->left_data));
     }
 
     printf(" %s ", expr->operator);
@@ -650,9 +685,15 @@ void printExpression(IF_EXPRESSION *expr)
         printExpression(expr->right_data);
     else
     {
-        ABD_OBJECT_MOD *objValue = ((IF_ABD_OBJ *)expr->right_data)->objValue;
-        double value = ((double *)objValue->value.vec_value->vector)[0];
-        printf("%.2f", value);
+        ABD_OBJECT *obj = ((IF_ABD_OBJ *)expr->right_data)->objPtr;
+        if (obj->id == -1)
+        {
+            // hardcoded, get value
+            ABD_OBJECT_MOD *objValue = ((IF_ABD_OBJ *)expr->right_data)->objValue;
+            printf("%.4f", ((double *)objValue->value.vec_value->vector)[0]);
+        }
+        else
+            printf("%s", getObjStr((IF_ABD_OBJ *)expr->right_data));
     }
 
     if (expr->isConfined)
@@ -693,7 +734,7 @@ void setIfEventValues(SEXP statement, Rboolean result)
         {
             //is an else if
             currEvent->else_if = memAllocIfEvent();
-            currEvent->else_if->expr = processIfStmt(statement);
+            currEvent->else_if->expr = processIfStmt(statement, 1);
             currEvent->else_if->isElse = 0;
             currEvent->else_if->globalResult = result;
         }
@@ -703,9 +744,9 @@ void setIfEventValues(SEXP statement, Rboolean result)
         currEvent->else_if = ABD_EVENT_NOT_FOUND;
         currEvent->isElse = 0;
         currEvent->globalResult = result;
-        currEvent->expr = processIfStmt(statement);
+        currEvent->expr = processIfStmt(statement, 1);
     }
-
+    clearPendingArith();
     puts("WILL PRINT THE IF");
     printf("%sif(", (waitingElseIF) ? "else " : "");
     printExpression(eventsRegTail->data.if_event->expr);
@@ -715,7 +756,6 @@ void setIfEventValues(SEXP statement, Rboolean result)
 void setFuncEventValues(ABD_OBJECT *callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
     eventsRegTail->data.func_event->toEnv = newRho;
-    eventsRegTail->data.func_event->fromEnv = getCurrentEnv();
     eventsRegTail->data.func_event->caller = getCurrFuncObj();
     eventsRegTail->data.func_event->called = callingObj;
     eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs);
@@ -729,8 +769,83 @@ void setRetEventValue(SEXP value)
     valueABD->id = -1;
     eventsRegTail->data.ret_event->toObj = ABD_OBJECT_NOT_FOUND;
     eventsRegTail->data.ret_event->from = getCurrFuncObj();
-    eventsRegTail->data.ret_event->retEnv = getCurrentEnv();
     eventsRegTail->data.ret_event->retValue = valueABD;
+}
+
+void setAsgnEventValues(ABD_OBJECT *toObj, SEXP value)
+{
+    ABD_OBJECT_MOD *valueABD = memAllocMod();
+
+    /*
+        The value needs to be compared to the stored from multiple
+        types of events (sum, mult, div, etc..) so that
+        the data that the from variable knows the origin of this
+        assignment
+    */
+}
+
+static void PrintIt(SEXP call, SEXP rho)
+{
+    int old_bl = R_BrowseLines,
+        blines = asInteger(GetOption1(install("deparse.max.lines")));
+    if (blines != NA_INTEGER && blines > 0)
+        R_BrowseLines = blines;
+
+    R_PrintData pars;
+    PrintInit(&pars, rho);
+    PrintValueRec(call, &pars);
+
+    R_BrowseLines = old_bl;
+}
+
+SEXP getSavedArithAns()
+{
+    return finalArithAns;
+}
+
+void setArithEventValues(SEXP call, SEXP ans, SEXP arg1, SEXP arg2, int withPre)
+{
+    // PrintIt(call, getCurrentEnv());
+
+    // SEXP _arg1 = CAR(CDR(call));
+    // SEXP _arg2 = CAR(CDR(CDR(call)));
+    // int withIndex = 0;
+    // int opSize = strlen(CHAR(PRINTNAME(CAR(call))));
+    // char *operator= memAllocForString(opSize);
+    // memset(operator, 0, opSize);
+    // copyStr(operator, CHAR(PRINTNAME(CAR(call))), opSize);
+    // if (!withPre)
+    // {
+
+    //     lastArithAns = ans;
+    // }
+    // else
+    // {
+    //     /* one pending ARITH  */
+    //     if (lastArithAns == arg1)
+    //     {
+    //         /* precedence in arg1*/
+    //         printf("Arg1 is from last evaluated portion\n");
+    //     }
+    //     else if (lastArithAns == arg2)
+    //     {
+    //         /* precedence in arg2 */
+    //         printf("Arg2 is from last evaluated portion\n");
+    //     }
+}
+
+void tmpStoreArith(SEXP call, SEXP ans)
+{
+    if (arithResults == ABD_NOT_FOUND)
+    {
+        arithResults = (SEXP *)malloc(sizeof(SEXP) * 10);
+        for (int i = 0; i < 10; i++)
+            arithResults[i] = R_NilValue;
+    }
+    arithResults[++currArithIndex] = ans;
+    finalArithAns = ans;
+    finalArithCall = call;
+    arithScriptLn = getCurrScriptLn();
 }
 
 ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
@@ -749,9 +864,17 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
         newBaseEvent->data.ret_event = memAllocRetEvent();
         lastRetEvent = newBaseEvent->data.ret_event;
         break;
+    case ASGN_EVENT:
+        newBaseEvent->data.asgn_event = memAllocAssignEvent();
+        break;
+    case ARITH_EVENT:
+        newBaseEvent->data.arith_event = memAllocArithEvent();
+        lastArithEvent = newBaseEvent->data.arith_event;
+        break;
     default:
         break;
     }
+    newBaseEvent->env = getCurrentEnv();
     newBaseEvent->type = type;
     return newBaseEvent;
 }
@@ -767,6 +890,72 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         eventsRegTail = eventsRegTail->nextEvent;
     }
     return newEvent;
+}
+
+void clearPendingArith()
+{
+    /* Reset ARITH_EVENT*/
+    lastArithEvent = ABD_EVENT_NOT_FOUND;
+    finalArithAns = R_NilValue;
+    finalArithCall = R_NilValue;
+    arithScriptLn = 0;
+}
+
+void clearPendingVars()
+{
+    /* reset the pending variables values */
+    clearPendingArith();
+
+    /* Reset RET_EVENT */
+    lastRetEvent = ABD_EVENT_NOT_FOUND;
+    lastRetValue = R_NilValue;
+}
+
+ABD_EVENT *checkPendingArith(SEXP rhs)
+{
+    /* Pending arithmetic event to register */
+
+    /* check if the values are NULL, if so, no pending, return NULL*/
+    if ((finalArithCall == R_NilValue && finalArithAns == R_NilValue))
+        return ABD_EVENT_NOT_FOUND;
+
+    /* 
+        check if the answer from the arith is being used, if not, create the event and return NULL 
+        otherwise return the lastArithEvent
+    */
+
+    createNewEvent(ARITH_EVENT);
+
+    lastArithEvent->globalResult = REAL(finalArithAns)[0];
+    currArithIndex = -1;
+
+    lastArithEvent->expr = processIfStmt(finalArithCall, 0);
+    eventsRegTail->scriptLn = arithScriptLn;
+
+    if (finalArithAns == rhs)
+        return eventsRegTail;
+
+    return ABD_EVENT_NOT_FOUND;
+}
+ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
+{
+    /* Pending ret event to assign object */
+}
+ABD_EVENT *checkPendings(SEXP rhs, ABD_OBJECT *obj)
+{
+    /* Check if exist an arithmetic event pending */
+    ABD_EVENT *retValue = ABD_EVENT_NOT_FOUND;
+
+    retValue = checkPendingArith(rhs);
+    if (retValue != ABD_EVENT_NOT_FOUND)
+        return retValue;
+
+    puts("Returned NULL from arith...");
+    retValue = checkPendingRet(rhs, obj);
+    if (retValue != ABD_EVENT_NOT_FOUND)
+        return retValue;
+
+    return retValue;
 }
 
 ABD_EVENT *createMainEvent()
@@ -788,7 +977,8 @@ int getCurrScriptLn()
             SEXP filename = findVar(install("filename"), srcfile);
             if (isString(filename) && length(filename))
             {
-                return asInteger(srcref);
+                int line = asInteger(srcref);
+                return (R_Interactive) ? line : line + 1;
             }
         }
     }

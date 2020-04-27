@@ -1,8 +1,8 @@
 PACKAGE = R
 VERSION = 3.6.2
 
-abs_top_srcdir = /Users/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
-abs_top_builddir = /Users/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
+abs_top_srcdir = /Users/antoniorodrigues/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
+abs_top_builddir = /Users/antoniorodrigues/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
 
 include $(top_srcdir)/share/make/vars.mk
 
@@ -81,7 +81,7 @@ R_OPENMP_CFLAGS =
 R_OPENMP_FFLAGS = -fopenmp
 R_OSTYPE = unix
 R_PKGS = $(R_PKGS_BASE)  $(R_PKGS_RECOMMENDED)
-R_PLATFORM = x86_64-apple-darwin19.3.0
+R_PLATFORM = x86_64-apple-darwin19.4.0
 R_XTRA_CFLAGS =  
 R_XTRA_CPPFLAGS =  -I. -I$(top_builddir)/src/include -I$(top_srcdir)/src/include
 R_XTRA_FFLAGS = -fno-optimize-sibling-calls

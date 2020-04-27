@@ -1,23 +1,11 @@
 
+abd_start()
 
+b <- c(1,2,3,4) 
 
-
-run <- function(){
-
-    abd_start()
-
-    a <- c(10,12,13,14)
-    b <- c(22,23,24,25)
-
-
-    a[1] <- 10
-    a[2] <- 13
-    print("aint")
-    b[1] <- 20
-    b <- 25
-
-    abd_stop()
+f1 <- function(){
+    f1_a <- 10
 }
 
-run()
-
+f1()
+abd_stop()

@@ -4,6 +4,7 @@
 #include <Rinternals.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/events_defn.h>
 
@@ -14,21 +15,36 @@
 //EVENTS LIST
 typedef struct abd_event
 {
+  int id;
+  int scriptLn;
   ABD_EVENT_TYPE type;
-  int scriptLine;
   union {
     ABD_IF_EVENT *if_event;
     ABD_FUNC_EVENT *func_event;
     ABD_RET_EVENT *ret_event;
+    ABD_ASSIGN_EVENT *asgn_event;
+    ABD_ARITH_EVENT *arith_event;
   } data;
+  SEXP env;
   struct abd_event *nextEvent;
 } ABD_EVENT;
 static int waitingElseIF;
 
+/* Stores Return value related */
 static ABD_RET_EVENT *lastRetEvent;
 static SEXP lastRetValue;
+
+/* Stores Arithmetic values related */
+static ABD_ARITH_EVENT *lastArithEvent;
+static SEXP finalArithAns;
+static SEXP finalArithCall;
+static SEXP *arithResults;
+static int currArithIndex;
+static int arithScriptLn;
+
 static ABD_EVENT *eventsReg;
 static ABD_EVENT *eventsRegTail;
+static int eventCounter;
 #endif
 
 //PROTOS
@@ -51,4 +67,10 @@ void setFuncEventValues(ABD_OBJECT *callingObj, SEXP newRho, SEXP passedArgs, SE
 ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs);
 ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int);
 ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *arg, ABD_OBJECT *objPtr, char *rcvdName, ABD_OBJECT_MOD *objValue);
+void clearPendingArith();
+void setArithEventValues(SEXP call, SEXP ans, SEXP arg1, SEXP arg2, int withPre);
+void tmpStoreArith(SEXP call, SEXP ans);
+ABD_EVENT *checkPendings(SEXP rhs, ABD_OBJECT *obj);
+void setAsgnEventValues(ABD_OBJECT *toObj, SEXP value);
 int getCurrScriptLn();
+SEXP getSavedArithAns();

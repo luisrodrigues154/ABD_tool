@@ -45,15 +45,25 @@ static SEXP cmp;
 /*
     General tool methods prototypes are declared below
 */
+void setWatcherState(ABD_STATE state);
 void abd_help();
 void abd_start(SEXP rho);
 void abd_stop();
 ABD_STATE isRunning();
-void regVarChange(SEXP, SEXP, SEXP);
+
+/* Functions used to register events */
+void regVarChange(SEXP, SEXP, SEXP, SEXP);
 ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 void regFunRet(SEXP lhs, SEXP rho, SEXP val);
+void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho);
+void regIf(SEXP Stmt, Rboolean result, SEXP rho);
+void regArith(SEXP call, SEXP ans, SEXP rho);
+
+/* Misc functions */
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();
 void prepVarIdxChange(SEXP var);
 void storeCompareResult(SEXP cmpr);
-void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho);
+int cmpStoredArithAns(SEXP arg1, SEXP arg2);
+
+int getSt();
