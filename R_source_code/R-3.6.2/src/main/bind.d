@@ -7,4 +7,7 @@ bind.o: bind.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/R_ext/PrtUtil.h ../../src/include/R_ext/Itermacros.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h \
   RBufferUtils.h duplicate.h

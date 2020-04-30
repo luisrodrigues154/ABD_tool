@@ -8,5 +8,7 @@ builtin.o: builtin.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/Print.h ../../src/include/R_ext/PrtUtil.h \
   ../../src/include/Fileio.h ../../src/include/Rconnections.h \
-  ../../src/include/R_ext/Connections.h ../../src/include/R_ext/RS.h \
-  ../../src/include/Rconfig.h
+  ../../src/include/R_ext/Connections.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h

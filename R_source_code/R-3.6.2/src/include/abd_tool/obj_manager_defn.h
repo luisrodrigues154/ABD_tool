@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -145,7 +144,7 @@ void initObjsRegs();
 ABD_OBJECT *memAllocBaseObj();
 char *memAllocForString(int strSize);
 ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS);
-void copyStr(char *dest, char *src, int strSize);
+void copyStr(char *dest, const char *src, int strSize);
 /*
     CMN_OBJ specifics
 */
@@ -161,9 +160,9 @@ ABD_OBJECT_MOD *memAllocMod();
    ####################################
 */
 
-void setObjBaseValues(ABD_OBJECT *obj, char *name, SEXP createdEnv);
+void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv);
 ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg);
-ABD_OBJECT *findObj(ABD_OBJECT *objReg, char *name, SEXP createdEnv);
+ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv);
 ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 void changeNeighbours(ABD_OBJECT *obj);
 ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj);
@@ -175,5 +174,5 @@ ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *mod, SEXP rhs);
 ABD_OBJECT_MOD *createRealVectorIdxChange(ABD_OBJECT_MOD *newMod, SEXP rhs);
 ABD_OBJECT *getCmnObj(char *name, SEXP rho);
 ABD_OBJECT *getCfObj(char *name, SEXP rho);
-ABD_OBJECT *findFuncObj(char *name, SEXP callingEnv);
+ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv);
 void prepForIdxChange(SEXP var);

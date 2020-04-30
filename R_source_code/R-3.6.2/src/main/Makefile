@@ -365,6 +365,9 @@ bind.o: bind.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/R_ext/PrtUtil.h ../../src/include/R_ext/Itermacros.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h \
   RBufferUtils.h duplicate.h
 builtin.o: builtin.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/R_ext/Complex.h ../../src/include/Rinternals.h \
@@ -376,8 +379,10 @@ builtin.o: builtin.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/Print.h ../../src/include/R_ext/PrtUtil.h \
   ../../src/include/Fileio.h ../../src/include/Rconnections.h \
-  ../../src/include/R_ext/Connections.h ../../src/include/R_ext/RS.h \
-  ../../src/include/Rconfig.h
+  ../../src/include/R_ext/Connections.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h
 character.o: character.c ../../src/include/config.h \
   ../../src/include/Defn.h ../../src/include/R_ext/Complex.h \
   ../../src/include/Rinternals.h ../../src/include/R_ext/Arith.h \
@@ -1031,6 +1036,9 @@ seq.o: seq.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/Rmath.h ../../src/include/R_ext/Itermacros.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h \
   RBufferUtils.h
 serialize.o: serialize.c ../../src/include/config.h \
   ../../src/include/Defn.h ../../src/include/R_ext/Complex.h \
@@ -1121,7 +1129,10 @@ subset.o: subset.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
   ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
   ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
-  ../../src/include/libintl.h ../../src/include/Internal.h
+  ../../src/include/libintl.h ../../src/include/Internal.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h
 summary.o: summary.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/R_ext/Complex.h ../../src/include/Rinternals.h \
   ../../src/include/R_ext/Arith.h ../../src/include/R_ext/libextern.h \

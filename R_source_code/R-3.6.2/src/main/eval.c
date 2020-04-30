@@ -3116,7 +3116,6 @@ static SEXP applydefine(SEXP call, SEXP op, SEXP args, SEXP rho)
 SEXP attribute_hidden do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	SEXP lhs, rhs;
-
 	if (args == R_NilValue ||
 		CDR(args) == R_NilValue ||
 		CDDR(args) != R_NilValue)
@@ -6786,19 +6785,18 @@ SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho)
 	switch (PRIMVAL(op))
 	{
 	case 1:
-		// start_watcher() issued
+		// abd_start() issued
 		abd_start(rho);
 		Rprintf("\n\t[ABD_TOOL] Watcher state: Running\n\n");
 		break;
 	case 2:
-		// stop_watcher() issued
+		// abd_stop() issued
 		abd_stop();
 		Rprintf("\n\t[ABD_TOOL] Watcher state: Stopped\n\n");
 		break;
 	case 0:
-		// ABD_help() issued
+		// abd_help() issued
 		abd_help();
-
 		break;
 	default:
 		errorcall(call, _("invalid usage for ABD_tool. Issue ABD_help() for more info.\n"));
@@ -8919,7 +8917,6 @@ SEXP attribute_hidden do_returnValue(SEXP call, SEXP op, SEXP args, SEXP rho)
 #include <Parse.h>
 SEXP R_ParseEvalString(const char *str, SEXP env)
 {
-	printf("called");
 	SEXP s = PROTECT(mkString(str));
 
 	ParseStatus status;

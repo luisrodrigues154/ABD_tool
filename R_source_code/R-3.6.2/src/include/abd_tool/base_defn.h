@@ -65,5 +65,5 @@ void printEventReg();
 void prepVarIdxChange(SEXP var);
 void storeCompareResult(SEXP cmpr);
 int cmpStoredArithAns(SEXP arg1, SEXP arg2);
-
+void regVecCreation(SEXP vector, SEXP rho);
 int getSt();

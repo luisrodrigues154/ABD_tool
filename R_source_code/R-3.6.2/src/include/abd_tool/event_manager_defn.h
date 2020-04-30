@@ -24,6 +24,7 @@ typedef struct abd_event
     ABD_RET_EVENT *ret_event;
     ABD_ASSIGN_EVENT *asgn_event;
     ABD_ARITH_EVENT *arith_event;
+    ABD_VEC_EVENT *vec_event;
   } data;
   SEXP env;
   struct abd_event *nextEvent;
@@ -42,6 +43,10 @@ static SEXP *arithResults;
 static int currArithIndex;
 static int arithScriptLn;
 
+/* Stores Vector creation values related*/
+static SEXP vecValues;
+
+/* Stores events registry */
 static ABD_EVENT *eventsReg;
 static ABD_EVENT *eventsRegTail;
 static int eventCounter;
@@ -66,11 +71,12 @@ void eventPrint(ABD_EVENT *event);
 void setFuncEventValues(ABD_OBJECT *callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs);
 ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int);
-ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *arg, ABD_OBJECT *objPtr, char *rcvdName, ABD_OBJECT_MOD *objValue);
+ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *arg, ABD_OBJECT *objPtr, const char *rcvdName, ABD_OBJECT_MOD *objValue);
 void clearPendingArith();
 void setArithEventValues(SEXP call, SEXP ans, SEXP arg1, SEXP arg2, int withPre);
 void tmpStoreArith(SEXP call, SEXP ans);
-ABD_EVENT *checkPendings(SEXP rhs, ABD_OBJECT *obj);
+ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj);
 void setAsgnEventValues(ABD_OBJECT *toObj, SEXP value);
 int getCurrScriptLn();
+SEXP getResult(const char *expr);
 SEXP getSavedArithAns();

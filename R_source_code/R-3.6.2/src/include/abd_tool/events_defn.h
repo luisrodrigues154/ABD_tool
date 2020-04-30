@@ -9,7 +9,8 @@ typedef enum abd_event_types
     FUNC_EVENT = 2,
     RET_EVENT = 3,
     ASGN_EVENT = 4,
-    ARITH_EVENT = 5
+    ARITH_EVENT = 5,
+    VEC_EVENT = 6
 } ABD_EVENT_TYPE;
 
 //describe a if statement and its else ifs
@@ -23,18 +24,17 @@ typedef struct if_abd_obj
 {
     ABD_OBJECT *objPtr;
     /* 
-            the objValue can assume different things depending on the flag that it has inside it.
-            the flag itself is idxChange
-            if(idxChange)
-                - objValue.id translates to the the state the object was used and not the actual modList value
-                - the idxs vector will indicate which index was used (always size 1)
-                - the vector index will indicate which was the value for that position doing the needed roolbacks
-                    * the roll is basically, find the effective value for that index based on the history 
-                    * which means that if, going back until the declaration of the whole vector,
-                    * there'is no changes to that index, the value assumed is the initially declared one,
-                    * otherwise the value is is the first modifcation found
-             
-         */
+        the objValue can assume different things depending on the flag that it has inside it.
+        the flag itself is idxChange
+        if(idxChange)
+            - objValue.id translates to the the state the object was used and not the actual modList value
+            - the idxs vector will indicate which index was used (always size 1)
+            - the vector index will indicate which was the value for that position doing the needed roolbacks
+                * the roll is basically, find the effective value for that index based on the history 
+                * which means that if, going back until the declaration of the whole vector,
+                * there'is no changes to that index, the value assumed is the initially declared one,
+                * otherwise the value is is the first modifcation found      
+    */
     ABD_OBJECT_MOD *objValue;
 } IF_ABD_OBJ;
 
@@ -91,14 +91,34 @@ typedef struct abd_return
 typedef enum
 {
     ABD_O = 0, /* is an ABD_OBJECT */
-    ABD_E = 1, /* is an ABD_EVENT */
-    ABD_N = 2  /* NONE (Hardcoded values, Not mapped variables) */
+    ABD_E = 1  /* is an ABD_EVENT */
 } ASSIGN_DATA_TYPE;
 
 typedef struct abd_assign
 {
     ABD_OBJECT *toObj;
-    ASSIGN_DATA_TYPE dataType;
+    ASSIGN_DATA_TYPE fromType;
+    /*
+        The variable fromObj will contain either a poiter to an ABD_EVENT or an ABD_OBJECT.
+
+        Denoting that, for example, if we have the following expression (ex:1):
+
+        ex 1: a <- 10
+
+        The ABD_OBJECT that *fromObj will point to will have an id -1 indicating that it was
+        hardcoded in script.
+
+        In other hand we can have an assignment from a variable that was not declared 
+        inside the tool itself, so, in this case (ex:2), the ABD_OBJECT id will be -2.
+
+        ex 2: a <- b
+
+        finally we can have a pointer to an actual mapped object, in this case
+        the fromObj ABD_OBJECT will have a id>0 value.
+
+        The pointer value (ABD_OBJECT_MOD *) will point to the state in which the object was used
+        and so, to view the actual value in that state, it might need to be reconstructed (vectors/matrices)
+    */
     void *fromObj;
     /* 
         The variable below stores the state in which the value was used.
@@ -127,10 +147,29 @@ typedef struct arith_event
             a <- (2+3) * 2
     */
 
-    double globalResult;     // the final result that
-    IF_EXPRESSION *expr;     // from example this would be 2+3
-    struct if_event *precOf; // from example this would be IF_EXPR * 2
+    double globalResult; // the final result that
+    IF_EXPRESSION *expr; // from example this would be 2+3
 } ABD_ARITH_EVENT;
 
+typedef struct vec_event
+{
+    int nElements;
+    /* 
+        if created by hand, fromObj = ABD_OBJECT_NOT_FOUND 
+        if unscoped, fromOBJ->id = -2
+        if legit obj, fromOBJ->id > 0
+    */
+    ABD_OBJECT *fromObj;
+    /* 
+        The vars below are useful to express the following: vec[1:3]
+        rangeL = 1
+        rangeR = 3
+     */
+    int rangeL; // inclusive
+    int rangeR; // inclusive
+
+    /* what was the state when the object was used... (state==ID)*/
+    ABD_OBJECT_MOD *fromState;
+} ABD_VEC_EVENT;
 #define ABD_EVENT_NOT_FOUND NULL
 #endif

@@ -40,6 +40,7 @@
 
 #include <Defn.h>
 #include <Internal.h>
+#include <abd_tool/base_defn.h>
 
 /* JMC convinced MM that this was not a good idea: */
 #undef _S4_subsettable
@@ -750,7 +751,6 @@ SEXP attribute_hidden do_subset_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 	int drop, i, nsubs, type;
 
 	/* By default we drop extents of length 1 */
-
 	/* Handle cases of extracting a single element from a simple vector
        or matrix directly to improve speed for these simple cases. */
 	SEXP cdrArgs = CDR(args);
@@ -971,6 +971,7 @@ SEXP attribute_hidden do_subset_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 			setAttrib(ans, R_ClassSymbol, R_NilValue);
 	}
 	UNPROTECT(4);
+	regVecCreation(ans, rho);
 	return ans;
 }
 

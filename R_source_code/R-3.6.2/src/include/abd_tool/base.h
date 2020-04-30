@@ -16,6 +16,7 @@
 #include <abd_tool/settings_manager_defn.h>
 #include <Print.h>
 #include <Defn.h>
+#include <math.h>
 
 /*
     Methods to start and stop the tool, helper function also here
@@ -104,17 +105,15 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
     //need to extract the rhs from the call
+    ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
     SEXP rhs2 = CAR(CDR(CDR(call)));
-    ABD_EVENT *fromEvent = ABD_EVENT_NOT_FOUND;
+    // puts("rhs2 V");
+    // PrintDaCall(rhs2, getCurrentEnv());
 
-    //createNewEvent(ASGN_EVENT);
+    /* store the new information for the object */
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
-    if (!((fromEvent = checkPendings(rhs, ABD_OBJECT_NOT_FOUND)) == ABD_EVENT_NOT_FOUND))
-    {
-        /* has precedence from another event */
-        puts("Assignment from pending event...");
-    }
+    genAsgnEvent(objUsed, rhs, rhs2, rho);
 }
 
 /*
@@ -147,6 +146,13 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
     return ABD_EXIST;
 }
 
+void regVecCreation(SEXP vector, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+    storeNewVecValues(vector);
+}
+
 void regIf(SEXP Stmt, Rboolean result, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
@@ -163,9 +169,6 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    puts("will register the call... V");
-    PrintDaCall(call, rho);
-    puts(" ");
     tmpStoreArith(call, ans);
 }
 
@@ -198,7 +201,6 @@ int getSt()
 {
     return st;
 }
-
 int cmpStoredArithAns(SEXP arg1, SEXP arg2)
 {
     if (arg1 == getSavedArithAns() || arg2 == getSavedArithAns())
