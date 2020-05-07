@@ -36,6 +36,10 @@ void setWatcherState(ABD_STATE state)
 {
     watcherState = state;
 }
+void setVerboseMode(ABD_STATE state)
+{
+    verbose = state;
+}
 void abd_start(SEXP rho)
 {
     checkSettings();
@@ -43,6 +47,7 @@ void abd_start(SEXP rho)
     initEventsReg();
     initEnvStack(rho);
     setWatcherState(ABD_ENABLE);
+    setVerboseMode(ABD_ENABLE);
 }
 
 void abd_stop()
@@ -105,6 +110,8 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
     //need to extract the rhs from the call
+    printf("In assignment at line %d\n", getCurrScriptLn());
+    printf("TYPEOF value %d\n", TYPEOF(rhs));
     ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
     SEXP rhs2 = CAR(CDR(CDR(call)));
     // puts("rhs2 V");
@@ -113,7 +120,9 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     /* store the new information for the object */
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
-    genAsgnEvent(objUsed, rhs, rhs2, rho);
+    createAsgnEvent(objUsed, rhs, rhs2, rho);
+
+    clearPendingVars();
 }
 
 /*
@@ -121,7 +130,6 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     This verification is done because if the user did not declared an object with that symbol
     name, then, the function being called should not be tracked.
 */
-
 ABD_SEARCH checkToReg(SEXP rho)
 {
     if (!isRunning())
@@ -182,13 +190,20 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val)
 {
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
-    lastRetValue = val;
     envPop();
 }
 
 ABD_STATE isRunning()
 {
     return watcherState;
+}
+ABD_STATE isVerbose()
+{
+    return verbose;
+}
+
+void printFormatedString(const char *strToDisplay)
+{
 }
 
 void storeCompareResult(SEXP cmpr)

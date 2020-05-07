@@ -32,7 +32,7 @@ typedef struct abd_event
 static int waitingElseIF;
 
 /* Stores Return value related */
-static ABD_RET_EVENT *lastRetEvent;
+static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;
 
 /* Stores Arithmetic values related */
@@ -72,7 +72,6 @@ void setFuncEventValues(ABD_OBJECT *callingObj, SEXP newRho, SEXP passedArgs, SE
 ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs);
 ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int);
 ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *arg, ABD_OBJECT *objPtr, const char *rcvdName, ABD_OBJECT_MOD *objValue);
-void clearPendingArith();
 void setArithEventValues(SEXP call, SEXP ans, SEXP arg1, SEXP arg2, int withPre);
 void tmpStoreArith(SEXP call, SEXP ans);
 ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj);

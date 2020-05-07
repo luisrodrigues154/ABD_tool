@@ -132,6 +132,7 @@ typedef struct abd_assign
         - For posterior analysis, the vector (currently being [10,2,3]) needs to be reconstructed    
 
     */
+    int withIndex;
     ABD_OBJECT_MOD *value;
 } ABD_ASSIGN_EVENT;
 

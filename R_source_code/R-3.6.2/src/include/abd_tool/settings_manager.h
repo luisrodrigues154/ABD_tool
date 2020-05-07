@@ -103,7 +103,7 @@ void createDefaults(FILE *settingsFile)
     int objOutSize = strlen("/objects.json");
     int folderPathLen = strlen(folderPath);
     settings = (ABD_SETTINGS *)malloc(sizeof(ABD_SETTINGS));
-
+    settings->verbose = ABD_ENABLE;
     settings->eventsOutPath[0] = '\0';
     settings->objOutPath[0] = '\0';
 

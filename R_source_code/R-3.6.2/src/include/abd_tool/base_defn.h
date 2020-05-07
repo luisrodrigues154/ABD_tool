@@ -36,6 +36,7 @@ typedef enum abd_search
 } ABD_SEARCH;
 
 static ABD_STATE watcherState = ABD_DISABLE;
+static ABD_STATE verbose = ABD_DISABLE;
 static int st = 0;
 //constants
 #define ABD_NOT_FOUND NULL
@@ -46,10 +47,12 @@ static SEXP cmp;
     General tool methods prototypes are declared below
 */
 void setWatcherState(ABD_STATE state);
+void setVerboseMode(ABD_STATE state);
 void abd_help();
 void abd_start(SEXP rho);
 void abd_stop();
 ABD_STATE isRunning();
+ABD_STATE isVerbose();
 
 /* Functions used to register events */
 void regVarChange(SEXP, SEXP, SEXP, SEXP);

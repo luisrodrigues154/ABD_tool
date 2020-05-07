@@ -29,14 +29,42 @@ ABD_ENV_STACK *memAllocEnvStack()
 void envPush(SEXP newRho, ABD_OBJECT *funcObj)
 {
     ABD_ENV_STACK *newEnv = memAllocEnvStack();
+    if (isVerbose())
+    {
+        puts("Env pushed to the stack...");
+        printf("Old env: %s\n", envToStr(envStack->rho));
+        printf("New env: %s\n", envToStr(newRho));
+    }
     newEnv->rho = newRho;
     newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
 }
+char *envToStr(SEXP rho)
+{
+    const void *vmax = vmaxget();
+    static char ch[1000];
+    if (rho == R_GlobalEnv)
+        sprintf(ch, "GlobalEnv");
+    else if (rho == R_BaseEnv)
+        sprintf(ch, "BaseEnv");
+    else if (rho == R_EmptyEnv)
+        sprintf(ch, "EmptyEnv");
+    else if (R_IsPackageEnv(rho))
+        snprintf(ch, 1000, "%s", translateChar(STRING_ELT(R_PackageEnvName(rho), 0)));
+    else
+        snprintf(ch, 1000, "%p", (void *)rho);
 
+    return ch;
+}
 void envPop()
 {
+    if (isVerbose())
+    {
+        puts("Env popped from the stack...");
+        printf("Pop'ed env: %s\n", envToStr(envStack->rho));
+        printf("Curr env: %s\n", envToStr(envStack->prev->rho));
+    }
     ABD_ENV_STACK *elementToPop = envStack;
     envStack = envStack->prev;
     freeEnv(elementToPop);

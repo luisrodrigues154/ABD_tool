@@ -167,7 +167,6 @@ ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 void changeNeighbours(ABD_OBJECT *obj);
 ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
-char *envToStr(SEXP rho);
 ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD_OBJECT_MOD *(*func)(ABD_OBJECT_MOD *, SEXP));
 ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, SEXPTYPE type);
 ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *mod, SEXP rhs);

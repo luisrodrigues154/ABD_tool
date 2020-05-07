@@ -31,3 +31,4 @@ void envPop();
 ABD_SEARCH cmpToCurrEnv(SEXP rho);
 SEXP getCurrentEnv();
 ABD_OBJECT *getCurrFuncObj();
+char *envToStr(SEXP rho);

@@ -347,26 +347,10 @@ ABD_OBJECT *getCfObj(char *name, SEXP rho)
         setObjBaseValues(objectFound, name, rho);
     }
 
+    objectFound->modList = ABD_OBJECT_NOT_FOUND;
     return objectFound;
 }
 
-char *envToStr(SEXP rho)
-{
-    const void *vmax = vmaxget();
-    static char ch[1000];
-    if (rho == R_GlobalEnv)
-        sprintf(ch, "GlobalEnv");
-    else if (rho == R_BaseEnv)
-        sprintf(ch, "BaseEnv");
-    else if (rho == R_EmptyEnv)
-        sprintf(ch, "EmptyEnv");
-    else if (R_IsPackageEnv(rho))
-        snprintf(ch, 1000, "%s", translateChar(STRING_ELT(R_PackageEnvName(rho), 0)));
-    else
-        snprintf(ch, 1000, "%p", (void *)rho);
-
-    return ch;
-}
 /*
     CMN_OBJ specifics
 */
@@ -571,15 +555,6 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
         obj->modList = newMod;
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
-    }
-
-    if (rhs == lastRetValue)
-    {
-        lastRetEvent->toObj = obj;
-        free(lastRetEvent->retValue);
-        lastRetEvent->retValue = obj->modList;
-        lastRetEvent = ABD_EVENT_NOT_FOUND;
-        lastRetValue = ABD_NOT_FOUND;
     }
 
 clearIdxChanges:;

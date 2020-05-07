@@ -10,4 +10,4 @@ Imports: grDevices, utils
 Suggests: lattice
 License: Part of R 3.6.2
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-04-30 18:31:29 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-01 19:26:56 UTC; unix
