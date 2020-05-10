@@ -731,6 +731,9 @@ SEXP eval(SEXP e, SEXP rho)
 
 		if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
 		{
+			printf("the call ");
+			PrintIt(e, rho);
+			printf("The car: %s at line %d\n", CHAR(PRINTNAME(CAR(e))), getCurrScriptLn());
 			if (isWaitingElseIf() && (strcmp(CHAR(PRINTNAME(CAR(e))), "{") == 0))
 			{
 				//its an else, does not come from eval to here, need to hack

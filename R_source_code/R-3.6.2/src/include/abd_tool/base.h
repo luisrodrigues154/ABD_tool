@@ -83,7 +83,7 @@ void prepVarIdxChange(SEXP var)
 
 void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)
 {
-
+    printf("Index Changed called\n");
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && waitingIdxChange))
         return;
 
@@ -107,11 +107,10 @@ static void PrintDaCall(SEXP call, SEXP rho)
 
 void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 {
+
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
     //need to extract the rhs from the call
-    printf("In assignment at line %d\n", getCurrScriptLn());
-    printf("TYPEOF value %d\n", TYPEOF(rhs));
     ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
     SEXP rhs2 = CAR(CDR(CDR(call)));
     // puts("rhs2 V");

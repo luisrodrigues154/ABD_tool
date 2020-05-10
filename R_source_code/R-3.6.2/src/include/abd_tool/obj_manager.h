@@ -218,7 +218,7 @@ ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv)
         result2 = (currentObject->createdEnv == createdEnv);
         if (result2 == 1)
         {
-            result = strncmp(currentObject->name, name, strlen(name) * sizeof(char));
+            result = strcmp(currentObject->name, name);
             if (result == 0)
             {
                 objectFound = currentObject;
@@ -573,11 +573,11 @@ clearIdxChanges:;
 */
 void prepForIdxChange(SEXP var)
 {
-
     ABD_OBJECT *varChanged = ABD_OBJECT_NOT_FOUND;
     if ((varChanged = findObj(cmnObjReg, CHAR(PRINTNAME(var)), getCurrentEnv())) != ABD_OBJECT_NOT_FOUND)
     {
         //object mapped
+
         waitingIdxChange = 1;
         idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
         idxChanges->varChanged = varChanged;

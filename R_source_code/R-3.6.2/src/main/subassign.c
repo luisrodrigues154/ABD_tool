@@ -673,6 +673,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 	/* try for quick return for simple scalar case */
 	if (ATTRIB(s) == R_NilValue)
 	{
+
 		if (TYPEOF(x) == REALSXP && IS_SCALAR(y, REALSXP))
 		{
 			/* 
@@ -688,6 +689,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 				{
 					REAL(x)
 					[ival - 1] = SCALAR_DVAL(y);
+					puts("will regIdxChange 1");
 					regVarIdxChange(s, y, rho);
 					return x;
 				}
@@ -797,6 +799,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		int *px = INTEGER(x);
+		regVarIdxChange(s, y, rho);
 		VECTOR_ASSIGN_LOOP(px[ii] = INTEGER_ELT(y, iny););
 	}
 	break;
@@ -822,6 +825,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		double *px = REAL(x);
+		puts("will execute coersion INTEGER <- REAL");
 		VECTOR_ASSIGN_LOOP(px[ii] = REAL_ELT(y, iny););
 	}
 	break;
@@ -1818,7 +1822,6 @@ SEXP attribute_hidden do_subassign_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 			x = VectorAssign(call, rho, x, R_MissingArg, y);
 			break;
 		case 1:
-
 			x = VectorAssign(call, rho, x, CAR(subs), y);
 			break;
 		case 2:

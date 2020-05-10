@@ -9,4 +9,4 @@ License: Part of R 3.6.2
 Imports: utils, grDevices, graphics
 Suggests: MASS, Matrix, SuppDists, methods, stats4
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-01 19:26:53 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-10 15:28:46 UTC; unix

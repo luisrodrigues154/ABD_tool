@@ -62,7 +62,7 @@ typedef enum
 FILE *openFile(char *filePath);
 int closeFile(FILE *outputFile);
 char *getStrFromIndent(JSON_INDENT indent);
-void writeRealVector(FILE *out, ABD_VEC_OBJ *vecObj);
+void writeVector(FILE *out, ABD_VEC_OBJ *vecObj);
 void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart);
 void writeObjToFile(FILE *out, ABD_OBJECT *obj);
 void saveObjects(FILE *out);

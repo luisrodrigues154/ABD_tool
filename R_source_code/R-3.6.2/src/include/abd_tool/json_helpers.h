@@ -28,8 +28,9 @@ char *getStrFromIndent(JSON_INDENT indent)
     return ret;
 }
 
-void writeRealVector(FILE *out, ABD_VEC_OBJ *vecObj)
+void writeVector(FILE *out, ABD_VEC_OBJ *vecObj)
 {
+    SEXPTYPE type = vecObj->type;
     if (vecObj->idxChange)
     {
         fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
@@ -40,7 +41,18 @@ void writeRealVector(FILE *out, ABD_VEC_OBJ *vecObj)
         for (int i = 0; i < vecObj->nCols; i++)
         {
             fprintf(out, "\n%s{ \"index\" : %d, ", getStrFromIndent(INDENT_6), vecObj->idxs[i]);
-            fprintf(out, "\"newValue\" : %.2f }", ((double *)vecObj->vector)[i]);
+            switch (type)
+            {
+            case REALSXP:
+                fprintf(out, "\"newValue\" : %.2f }", ((double *)vecObj->vector)[i]);
+                break;
+            case INTSXP:
+                fprintf(out, "\"newValue\" : %d }", ((int *)vecObj->vector)[i]);
+                break;
+            default:
+                break;
+            }
+
             if (i + 1 != vecObj->nCols)
                 fprintf(out, ",");
         }
@@ -58,21 +70,22 @@ void writeRealVector(FILE *out, ABD_VEC_OBJ *vecObj)
             fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
             fprintf(out, "\n%s\"vector\" : [", getStrFromIndent(INDENT_5));
             for (int i = 0; i < vecObj->nCols; i++)
-                fprintf(out, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+            {
+                switch (type)
+                {
+                case REALSXP:
+                    fprintf(out, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                    break;
+                case INTSXP:
+                    fprintf(out, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                    break;
+                default:
+                    break;
+                }
+            }
+
             fprintf(out, "]");
         }
-    }
-}
-void writeVectorForType(FILE *out, ABD_VEC_OBJ *vecObj)
-{
-    switch (vecObj->type)
-    {
-    case REALSXP:
-        //vector can be size 1 (single number)
-        writeRealVector(out, vecObj);
-        break;
-    case STRSXP:
-        break;
     }
 }
 
@@ -87,7 +100,7 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart)
         switch (currMod->valueType)
         {
         case ABD_VECTOR:
-            writeVectorForType(out, currMod->value.vec_value);
+            writeVector(out, currMod->value.vec_value);
             break;
         case ABD_MATRIX:
             break;
@@ -307,7 +320,7 @@ void saveExpression(FILE *out, int id, IF_EXPRESSION *expr)
         fprintf(out, "(");
 
     if (expr->left_type == IF_EXPR)
-        saveExpression(out, expr->left_data);
+        saveExpression(out, id, expr->left_data);
     else
     {
         ABD_OBJECT *obj = ((IF_ABD_OBJ *)expr->left_data)->objPtr;
@@ -324,7 +337,7 @@ void saveExpression(FILE *out, int id, IF_EXPRESSION *expr)
     fprintf(out, " %s ", expr->operator);
 
     if (expr->right_type == IF_EXPR)
-        saveExpression(out, expr->right_data);
+        saveExpression(out, id, expr->right_data);
     else
     {
         ABD_OBJECT *obj = ((IF_ABD_OBJ *)expr->right_data)->objPtr;
