@@ -1,0 +1,44 @@
+{
+	"1" : {
+		"line" : 7,
+		"atEnv" : "0x7fcf083b0618",
+		"type" : "assign_event",
+		"data" : {
+			"toObj" : 1,
+			"origin" : "obj",
+			"toState" : 1,
+			"fromObj" : "HC",
+			"withIndex" : -1
+		}
+	},
+	"2" : {
+		"line" : 8,
+		"atEnv" : "0x7fcf083b0618",
+		"type" : "assign_event",
+		"data" : {
+			"toObj" : 2,
+			"origin" : "obj",
+			"toState" : 1,
+			"fromObj" : "HC",
+			"withIndex" : -1
+		}
+	},
+	"3" : {
+		"line" : 9,
+		"atEnv" : "0x7fcf083b0618",
+		"type" : "vector_event",
+		"data" : {
+		}
+	},
+	"4" : {
+		"line" : 9,
+		"atEnv" : "0x7fcf083b0618",
+		"type" : "assign_event",
+		"data" : {
+			"toObj" : 3,
+			"origin" : "event",
+			"toState" : 1,
+			"fromEvent" : 3
+		}
+	}
+}

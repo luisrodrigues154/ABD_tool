@@ -1,0 +1,17 @@
+#content {
+    height: 0 !important; /* hack :) */
+}
+
+#wrapper {
+    height: 100%;
+    width: 100%;
+}
+
+[data-path] {
+    background-color: white;
+}
+
+div[data-path="/1/1"], div[data-path="/2/1"], div[data-path="/2/2/1"], div[data-path="/2/2/2"] {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
