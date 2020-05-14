@@ -8,4 +8,7 @@ version.o: version.c ../../src/include/config.h ../../src/include/Defn.h \
   ../../src/include/libintl.h ../../src/include/Internal.h \
   ../../src/include/Rversion.h \
   ../../src/include/abd_tool/settings_manager_defn.h \
+  ../../src/include/abd_tool/base_defn.h ../../src/include/R.h \
+  ../../src/include/Rconfig.h ../../src/include/R_ext/Constants.h \
+  ../../src/include/R_ext/Random.h ../../src/include/R_ext/RS.h \
   ../../src/include/abd_tool/settings_manager.h

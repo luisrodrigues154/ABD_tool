@@ -10,4 +10,4 @@ Description: Regression spline functions and classes.
 License: Part of R 3.6.2
 Suggests: Matrix, methods
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-10 15:28:49 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-14 20:57:32 UTC; unix

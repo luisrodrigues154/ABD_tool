@@ -49,6 +49,9 @@ void abd_start(SEXP rho)
     setWatcherState(ABD_ENABLE);
     setVerboseMode(ABD_ENABLE);
 }
+void mkCopiesToDisplayer()
+{
+}
 
 void abd_stop()
 {
@@ -57,6 +60,9 @@ void abd_stop()
         checkSettings();
         setWatcherState(ABD_DISABLE);
         persistInformation();
+
+        //open the browser
+        system(getCommand());
     }
 }
 void abd_help()
@@ -73,7 +79,6 @@ void abd_help()
     // SrcRefState ParseState;
     // ParseState = src
     // printf("At line... %d\n", ParseState.xxlineno);
-    st = 1;
 }
 
 void prepVarIdxChange(SEXP var)

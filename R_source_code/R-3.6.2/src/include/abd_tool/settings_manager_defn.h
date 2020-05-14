@@ -11,15 +11,16 @@ typedef struct sett
     char eventsOutPath[100];
     ABD_STATE verbose;
 } ABD_SETTINGS;
-
-static ABD_SETTINGS *settings = NULL;
-static char *userPath = NULL;
-static char *folderPath = NULL;
-static char *filePath = NULL;
+#define NO_PATH NULL
+static ABD_SETTINGS *settings = NO_PATH;
+static char *userPath = NO_PATH;
+static char *folderPath = NO_PATH;
+static char *filePath = NO_PATH;
+static char *displayerPath = NO_PATH;
 #endif
 
 int writeCurrSettings(FILE *settingsFile);
-int loadSettings();
+void loadSettings();
 int load(FILE *settingsFile);
 int closeSetFile(FILE *file);
 FILE *openSetFile();
@@ -30,3 +31,7 @@ void createDefaults(FILE *settingsFile);
 char *getObjPath();
 char *getEventsPath();
 void checkSettings();
+void buildDisplayerPath();
+char *getDisplayerPath();
+char *getCommand();
+char *getJSpath(char *jsFileName);

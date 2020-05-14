@@ -62,16 +62,16 @@ typedef enum
 FILE *openFile(char *filePath);
 int closeFile(FILE *outputFile);
 char *getStrFromIndent(JSON_INDENT indent);
-void writeVector(FILE *out, ABD_VEC_OBJ *vecObj);
-void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart);
-void writeObjToFile(FILE *out, ABD_OBJECT *obj);
-void saveObjects(FILE *out);
+void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut);
+void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut);
+void writeObjToFile(FILE *out, ABD_OBJECT *obj, FILE *dispOut);
+void saveObjects(FILE *out, FILE *dispOut);
 void persistInformation();
 
-void writeArgVector(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent);
-void writeArgValueToFile(FILE *out, ABD_OBJECT_MOD *value, JSON_INDENT indent);
-void saveFuncArgs(FILE *out, ABD_EVENT_ARG *argsList);
-void saveFuncEvent(FILE *out, ABD_FUNC_EVENT *funcEvent);
-void saveRetEvent(FILE *out, ABD_RET_EVENT *retEvent);
-void saveEvents(FILE *out);
-void saveExpression(FILE *out, int id, IF_EXPRESSION *expr);
+void writeArgVector(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent, FILE *dispOut);
+void writeArgValueToFile(FILE *out, ABD_OBJECT_MOD *value, JSON_INDENT indent, FILE *dispOut);
+void saveFuncArgs(FILE *out, ABD_EVENT_ARG *argsList, FILE *dispOut);
+void saveFuncEvent(FILE *out, ABD_FUNC_EVENT *funcEvent, FILE *dispOut);
+void saveRetEvent(FILE *out, ABD_RET_EVENT *retEvent, FILE *dispOut);
+void saveEvents(FILE *out, FILE *dispOut);
+void saveExpression(FILE *out, int id, IF_EXPRESSION *expr, FILE *dispOut);

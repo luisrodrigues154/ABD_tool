@@ -35,6 +35,7 @@
         "memory": "cpp",
         "random": "cpp",
         "ratio": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "*.tcc": "cpp"
     }
 }
