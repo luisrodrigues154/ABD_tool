@@ -25,15 +25,17 @@
             <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/2/2"
                     data-toggle="button" type="button">Events
             </button>
-            
+
             <button aria-pressed="false" class="btn btn-outline-dark" data-path="/1/1" data-toggle="button"
                     type="button">Execution Flow
             </button>
             <label class="float-right menu-title my-auto">[ABD_Tool]</label>
         </div>
-        <div class="flex-fill position-relative" id="content" >
-            <div class="position-absolute w-100 h-100 d-flex pane-opacity" style="z-index: -1">
-                <span class="m-auto">No panes selected.</span>
+        <div class="flex-fill position-relative" id="content">
+            <div class="position-absolute w-100 h-100 pane-opacity" data-path="/0">
+                <div class="w-100 h-100 d-flex">
+                    <span class="m-auto">No panes selected.</span>
+                </div>
             </div>
             <div class="h-100 w-100 pane-opacity" data-path="/1">
                 <div class="w-100 h-100 d-block p-1 pane-opacity" data-path="/1/1">
@@ -44,7 +46,7 @@
                 <div class="container-fluid h-100">
                     <div class="row h-100">
                         <div class="col-lg h-100 p-3 border overflow-auto" data-path="/2/1">
-                            <div class="row flex-grow-1 overflow-hidden" >
+                            <div class="row flex-grow-1 overflow-hidden">
                                 <div class="container-fluid mt-1">
                                     <label class="inner-title" for="dropdownMenuButton">Code</label>
                                 </div>
@@ -85,7 +87,8 @@
                                         <label class="inner-title" for="dropdownMenuButton">Objects</label>
                                         <div class="dropdown float-right">
                                             <button aria-expanded="false" aria-haspopup="true"
-                                                    class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton"
+                                                    class="btn btn-secondary btn-sm dropdown-toggle"
+                                                    data-toggle="dropdown" id="dropdownMenuButton"
                                                     type="button">
                                                 Select
                                             </button>
@@ -166,9 +169,9 @@
                                 </div>
                                 <div class="row flex-grow-1 border-top overflow-hidden" data-path="/2/2/2">
                                     <div class="container-fluid mt-1">
-                                        <label class="inner-title" >Events</label>
+                                        <label class="inner-title">Events</label>
                                     </div>
-                                    <div class="col-lg h-100 p-3 overflow-auto">                                        
+                                    <div class="col-lg h-100 p-3 overflow-auto">
                                         <p>Some code</p>
                                         <p>Some code</p>
                                         <p>Some code</p>
