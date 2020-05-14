@@ -2,11 +2,21 @@
 	--title-color: #0b3c5d;
 	--bto-color: #d9b310;
 	--back-color: #1d2731;
+	--pane-opacity: rgba(29, 39, 49, 0.3);
+	--full-aplha: rgba(255, 255, 255, 0);
+}
+
+.pane-opacity {
+	background: var(--pane-opacity);
+	color: white;
+}
+.pane-opacity div {
+	background: var(--full-aplha);
 }
 
 .inner-title {
 	font-size: 14pt;
-	color: var(--title-color);
+	color: var(--bto-color);
 	font-weight: bold;
 }
 

@@ -23,3 +23,6 @@ div[data-path="/2/2/2"] {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+div {
+	background: rgba(255, 255, 255, 0);
+}

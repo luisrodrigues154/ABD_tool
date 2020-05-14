@@ -12,103 +12,76 @@
     <link href="custom/css/fonts.css" rel="stylesheet">
 </head>
 <body>
-<div class="container-fluid vh-100 p-0 p-xl-5">
+<div class="container-fluid vh-100 p-0 p-xl-3">
     <div class="m-auto border border-light rounded-lg d-flex flex-column overflow-auto" id="wrapper">
-        <div class="justify-content-start align-content-center p-3 border-bottom border-dark sticky-top bg-white"
+        <div class="justify-content-start align-content-center p-1 border-bottom border-dark sticky-top bg-white"
              id="header">
+            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/1"
+                    data-toggle="button" type="button">Code
+            </button>
+            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/2/1"
+                    data-toggle="button" type="button">Objects
+            </button>
+            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/2/2"
+                    data-toggle="button" type="button">Events
+            </button>
+            
             <button aria-pressed="false" class="btn btn-outline-dark" data-path="/1/1" data-toggle="button"
                     type="button">Execution Flow
             </button>
-            <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/2/1"
-                    data-toggle="button" type="button">Code
-            </button>
-            <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/2/2/1"
-                    data-toggle="button" type="button">Objects
-            </button>
-            <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/2/2/2"
-                    data-toggle="button" type="button">Events
-            </button>
             <label class="float-right menu-title my-auto">[ABD_Tool]</label>
         </div>
-        <div class="flex-fill position-relative" id="content">
-            <div class="position-absolute w-100 h-100  d-flex" style="z-index: -1">
-                <span class="m-auto" style="color:white">No panes selected.</span>
+        <div class="flex-fill position-relative" id="content" >
+            <div class="position-absolute w-100 h-100 d-flex pane-opacity" style="z-index: -1">
+                <span class="m-auto">No panes selected.</span>
             </div>
-            <div class="h-100 w-100" data-path="/1">
-                <div class="w-100 h-100 d-block p-3" data-path="/1/1">
+            <div class="h-100 w-100 pane-opacity" data-path="/1">
+                <div class="w-100 h-100 d-block p-1 pane-opacity" data-path="/1/1">
                     <p>Execution flow</p>
-                    <img alt="Walk" src="img/background.jpg">
                 </div>
             </div>
-            <div class="h-100 w-100" data-path="/2">
-                <div class="container-fluid h-100 overflow-auto">
+            <div class="h-100 w-100 pane-opacity" data-path="/2">
+                <div class="container-fluid h-100">
                     <div class="row h-100">
-                        <div class="col-lg h-100 p-3 border" data-path="/2/1">
-                            <p>Code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
-                            <p>Some code</p>
+                        <div class="col-lg h-100 p-3 border overflow-auto" data-path="/2/1">
+                            <div class="row flex-grow-1 overflow-hidden" >
+                                <div class="container-fluid mt-1">
+                                    <label class="inner-title" for="dropdownMenuButton">Code</label>
+                                </div>
+                                <div class="col-lg h-100 p-3 overflow-auto">
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                    <p>Some code</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-lg h-100 border" data-path="/2/2">
+                        <div class="col-lg h-100 border " data-path="/2/2">
                             <div class="d-flex flex-column h-100">
-                                <div class="row flex-grow-1" data-path="/2/2/1">
-                                    <div class="container-fluid mt-2">
+                                <div class="row flex-grow-1 overflow-hidden" data-path="/2/2/1">
+                                    <div class="container-fluid mt-1">
                                         <label class="inner-title" for="dropdownMenuButton">Objects</label>
                                         <div class="dropdown float-right">
                                             <button aria-expanded="false" aria-haspopup="true"
@@ -132,8 +105,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg h-100 p-3">
-                                        <p>Objects</p>
+                                    <div class="col-lg h-100 p-3 overflow-auto">
                                         <p>Some code</p>
                                         <p>Some code</p>
                                         <p>Some code</p>
@@ -192,9 +164,11 @@
                                         <p>Some code</p>
                                     </div>
                                 </div>
-                                <div class="row flex-grow-1 border-top" data-path="/2/2/2">
-                                    <div class="col-lg h-100 p-3">
-                                        <p>Events</p>
+                                <div class="row flex-grow-1 border-top overflow-hidden" data-path="/2/2/2">
+                                    <div class="container-fluid mt-1">
+                                        <label class="inner-title" >Events</label>
+                                    </div>
+                                    <div class="col-lg h-100 p-3 overflow-auto">                                        
                                         <p>Some code</p>
                                         <p>Some code</p>
                                         <p>Some code</p>
