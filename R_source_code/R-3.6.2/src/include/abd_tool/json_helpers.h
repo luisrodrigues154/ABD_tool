@@ -178,7 +178,7 @@ void saveObjects(FILE *out, FILE *dispOut)
 {
     ABD_OBJECT *currObj = cmnObjReg;
     fprintf(out, "{");
-    fprintf(dispOut, "objects='{");
+    fprintf(dispOut, "var objects=JSON.parse('{");
     if (cmnObjReg != ABD_NOT_FOUND)
     {
         //common objects
@@ -224,7 +224,7 @@ void saveObjects(FILE *out, FILE *dispOut)
     }
 
     fprintf(out, "\n}");
-    fprintf(dispOut, "}'");
+    fprintf(dispOut, "}')");
 }
 
 //EVENTS HELPERS
@@ -530,7 +530,7 @@ void saveEvents(FILE *out, FILE *dispOut)
 
     ABD_EVENT *currEvent = eventsReg->nextEvent;
     fprintf(out, "{");
-    fprintf(dispOut, "events='{");
+    fprintf(dispOut, "var events=JSON.parse('{");
     do
     {
         //write to the json file
@@ -604,7 +604,7 @@ void saveEvents(FILE *out, FILE *dispOut)
     } while (currEvent != ABD_EVENT_NOT_FOUND);
 
     fprintf(out, "\n}");
-    fprintf(dispOut, "}'");
+    fprintf(dispOut, "}')");
 }
 
 void persistInformation()

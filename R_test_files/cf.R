@@ -3,6 +3,10 @@ run <- function(){
     a <- 1
     abd_start()
     
+    f1 <- function(){
+        1+1
+    }
+
     b <- 10
     c <- 30
     vec2 <- c(1,2,3,4)
