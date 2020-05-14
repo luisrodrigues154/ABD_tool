@@ -27,6 +27,9 @@ $(function () {
                 cachedVisiblePathTree = new Set(visiblePathTree);
                 hidePath('/2');
             }
+
+            // Remove the main pane from the cache.
+            visiblePathTree.delete('/0');
         }
 
         if (visiblePath(path)) hidePath(path);
