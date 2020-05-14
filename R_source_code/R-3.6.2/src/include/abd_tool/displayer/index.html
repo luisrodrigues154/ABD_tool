@@ -13,13 +13,10 @@
 </head>
 <body>
 <div class="container-fluid vh-100 p-0 p-xl-5">
-    <div class="m-auto border border-dark rounded-lg d-flex flex-column overflow-auto" id="wrapper">
+    <div class="m-auto border border-light rounded-lg d-flex flex-column overflow-auto" id="wrapper">
         <div class="justify-content-start align-content-center p-3 border-bottom border-dark sticky-top bg-white"
              id="header">
-            <button aria-pressed="true" class="btn btn-outline-dark active" data-path="/3/1"
-                    data-toggle="button" type="button">Load JSON files
-            </button>
-            <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/1/1" data-toggle="button"
+            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/1/1" data-toggle="button"
                     type="button">Execution Flow
             </button>
             <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/2/1"
@@ -31,7 +28,7 @@
             <button aria-pressed="false" class="btn btn-outline-dark ml-3" data-path="/2/2/2"
                     data-toggle="button" type="button">Events
             </button>
-            <label class="float-right menu-title">[ABD_Tool]</label>
+            <label class="float-right menu-title my-auto">[ABD_Tool]</label>
         </div>
         <div class="flex-fill position-relative" id="content">
             <div class="position-absolute w-100 h-100  d-flex" style="z-index: -1">
@@ -114,21 +111,23 @@
                                     <div class="container-fluid mt-2">
                                         <label class="inner-title" for="dropdownMenuButton">Objects</label>
                                         <div class="dropdown float-right">
-                                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            Select
+                                            <button aria-expanded="false" aria-haspopup="true"
+                                                    class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton"
+                                                    type="button">
+                                                Select
                                             </button>
-                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <div aria-labelledby="dropdownMenuButton" class="dropdown-menu">
                                                 <div class="dropdown-item">
                                                     <input type="checkbox" value="">
-                                                    <lable>a</lable>
+                                                    <label>a</label>
                                                 </div>
                                                 <div class="dropdown-item">
                                                     <input type="checkbox" value="">
-                                                    <lable>b</lable>
+                                                    <label>b</label>
                                                 </div>
                                                 <div class="dropdown-item">
                                                     <input type="checkbox" value="">
-                                                    <lable>result</lable>
+                                                    <label>result</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -249,21 +248,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="h-100 w-100" data-path="/3">
-                <div class="w-100 h-100 d-block p-3" data-path="/3/1">
-                    <form>
-                        <div class="custom-file">
-                            <input class="custom-file-input" id="objectsFile" type="file">
-                            <label class="custom-file-label" for="objectsFile">Objects JSON</label>
-                        </div>
-                        <div class="custom-file mt-2">
-                            <input class="custom-file-input" id="eventsFile" type="file">
-                            <label class="custom-file-label" for="eventsFile">Events JSON</label>
-                        </div>
-                        <button class="btn btn-primary mt-2 mx-auto" type="submit">Submit</button>
-                    </form>
                 </div>
             </div>
         </div>

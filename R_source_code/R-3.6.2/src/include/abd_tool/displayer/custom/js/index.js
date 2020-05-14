@@ -16,22 +16,9 @@ $(function() {
 	$('button[data-path]').on('click', function() {
 		const path = $(this).data('path');
 
-		if (visiblePath('/3') && !path.startsWith('/3')) return false;
 		if (visiblePath('/1') && !path.startsWith('/1')) return false;
 		if (path.startsWith('/1')) {
 			if (visiblePath('/1')) {
-				// Show paths from cache.
-				for (const _path of cachedVisiblePathTree) {
-					showPath(_path);
-				}
-			} else {
-				cachedVisiblePathTree = new Set(visiblePathTree);
-				hidePath('/2');
-			}
-		}
-
-		if (path.startsWith('/3')) {
-			if (visiblePath('/3')) {
 				// Show paths from cache.
 				for (const _path of cachedVisiblePathTree) {
 					showPath(_path);
