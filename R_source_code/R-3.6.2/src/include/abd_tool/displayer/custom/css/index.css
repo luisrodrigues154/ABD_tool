@@ -1,28 +1,33 @@
 body {
-	background-image: url('../../img/bg.jpg');
-	background-repeat: round;
+    background-image: url('../../img/bg.jpg');
+    background-repeat: round;
 }
 
 #content {
-	height: 0 !important; /* hack :) */
+    height: 0 !important; /* hack :) */
 }
 
 #wrapper {
-	height: 100%;
-	width: 100%;
+    height: 100%;
+    width: 100%;
 }
 
 [data-path] {
-	background-color: white;
+    background-color: white;
 }
 
 div[data-path="/1/1"],
 div[data-path="/2/1"],
 div[data-path="/2/2/1"],
 div[data-path="/2/2/2"] {
-	overflow-x: hidden;
-	overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
+
+div[data-path="/2/2/1"].limit-max-height {
+    max-height: 70% !important;
+}
+
 div {
-	background: rgba(255, 255, 255, 0);
+    background: rgba(255, 255, 255, 0);
 }
