@@ -833,7 +833,7 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
         break;
     }
     newBaseEvent->env = getCurrentEnv();
-    newBaseEvent->type = type;
+
     return newBaseEvent;
 }
 
@@ -847,6 +847,7 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
     }
+    newEvent->type = newEventType;
     return newEvent;
 }
 

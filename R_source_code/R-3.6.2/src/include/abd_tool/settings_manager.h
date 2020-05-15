@@ -16,6 +16,7 @@ char *getDisplayerPath()
 {
     return displayerPath;
 }
+
 char *getCommand()
 {
     int partialPathSize = strlen(displayerPath);
@@ -28,6 +29,7 @@ char *getCommand()
     strcat(htmlPath, "index.html");
     return htmlPath;
 }
+
 char *getJSpath(char *jsFileName)
 {
     int partialPathSize = strlen(displayerPath);
@@ -40,6 +42,7 @@ char *getJSpath(char *jsFileName)
     strcat(finalPath, ".js");
     return finalPath;
 }
+
 void mergePaths(const char *path, int oldPathSize)
 {
     int overflow = strlen("bin/exec/R");

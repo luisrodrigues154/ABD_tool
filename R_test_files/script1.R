@@ -1,13 +1,13 @@
-start_watcher()
+options("keep.source"=TRUE)
+run <- function(){
+    abd_start()
+    a <- 20
+    x <- 99
 
-f1 <- function(){
-    xxx <- 30
+    b <- c(1,2,3,4)
+    abd_stop()
+
+
 }
-
-
-f1()
-print("---------------------");
-f1()
-print("---------------------");
-f1()
+run()
 

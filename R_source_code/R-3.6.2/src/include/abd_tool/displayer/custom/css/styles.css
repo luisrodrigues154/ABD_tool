@@ -2,6 +2,7 @@
 	--title-color: #0b3c5d;
 	--bto-color: #d9b310;
 	--back-color: #1d2731;
+	--selected-background: rgba(217, 179, 16, 0.5);
 	--pane-opacity: rgba(29, 39, 49, 0.3);
 	--full-aplha: rgba(255, 255, 255, 0);
 }
@@ -15,7 +16,7 @@
 }
 
 .inner-title {
-	font-size: 14pt;
+	font-size: 15pt;
 	color: var(--bto-color);
 	font-weight: bold;
 }
@@ -23,5 +24,27 @@
 .menu-title {
 	color: var(--title-color);
 	font-weight: bold;
-	font-size: 18pt;
+	font-size: 19pt;
+}
+
+.clickable-content {
+	cursor: pointer;
+}
+
+.selected-content {
+	font-size: 14pt;
+	background: var(--selected-background);
+	color: white;
+	font-weight: bold;
+}
+
+.content {
+	font-size: 10pt;
+	color: white;
+	white-space: pre;
+	font-weight: normal;
+}
+
+.teste {
+	display: inline-block;
 }

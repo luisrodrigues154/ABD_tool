@@ -7,16 +7,107 @@
 #include <abd_tool/settings_manager_defn.h>
 #include <unistd.h>
 
-FILE *openFile(char *filePath)
+FILE *openFile(char *filePath, char *mode)
 {
-    return fopen(filePath, FILE_OPEN_MODE);
+    return fopen(filePath, mode);
 }
 
 int closeFile(FILE *outputFile)
 {
     return fclose(outputFile);
 }
+char *getScriptPath()
+{
+    SEXP e, tmp, retValue;
+    ParseStatus status;
+    char *fullPath;
+    char *cmd1 = "cmdArgs <- commandArgs(trailingOnly = FALSE)";
+    char *cmd2 = "needle <- \"--file=\"";
+    char *cmd3 = "match <- grep(needle, cmdArgs)";
+    char *cmd4 = "length(match)";
+    char *cmd6 = "normalizePath(sub(needle, \"\", cmdArgs[match]))";
 
+    char *cmd8 = "normalizePath(sys.frames()[[1]]$ofile)";
+
+    PROTECT(tmp = mkString(cmd1));
+    PROTECT(e = R_ParseVector(tmp, -1, &status, R_NilValue));
+    PROTECT(retValue = R_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, NULL));
+
+    tmp = mkString(cmd2);
+    e = R_ParseVector(tmp, -1, &status, R_NilValue);
+    retValue = R_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, NULL);
+
+    tmp = mkString(cmd3);
+    e = R_ParseVector(tmp, -1, &status, R_NilValue);
+    retValue = R_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, NULL);
+
+    tmp = mkString(cmd4);
+    e = R_ParseVector(tmp, -1, &status, R_NilValue);
+    retValue = R_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, NULL);
+
+    if (TYPEOF(retValue) == INTSXP)
+    {
+        if (INTEGER(retValue)[0] > 0)
+            tmp = mkString(cmd6);
+        else
+            tmp = mkString(cmd8);
+
+        e = R_ParseVector(tmp, -1, &status, R_NilValue);
+        retValue = R_tryEval(VECTOR_ELT(e, 0), R_GlobalEnv, NULL);
+    }
+    UNPROTECT(3);
+
+    int pathSize = strlen(CHAR(asChar(retValue)));
+    fullPath = memAllocForString(pathSize);
+    copyStr(fullPath, CHAR(asChar(retValue)), pathSize);
+
+    return fullPath;
+}
+void writeCharByCharToFile(FILE *out, char *string, int withComma)
+{
+    if (withComma)
+        fprintf(out, ",");
+
+    fprintf(out, "\"");
+
+    for (int i = 0; string[i] != '\n'; i++)
+    {
+        if (string[i] == '\"')
+            fprintf(out, "\\'");
+        else if (string[i] == '\'')
+            fprintf(out, "\\'");
+        else
+            fprintf(out, "%c", string[i]);
+    }
+
+    fprintf(out, "\"");
+}
+
+void dupScript()
+{
+    char *dupPath = getJSpath("code");
+    char *oriPath = getScriptPath();
+    char readLine[1024];
+    int first = 1;
+    FILE *ori;
+    FILE *dup;
+    if ((ori = openFile(oriPath, FILE_OPEN_READ)) != FILE_NOT_FOUND)
+    {
+        if ((dup = openFile(dupPath, FILE_OPEN_WRITE)) != FILE_NOT_FOUND)
+        {
+            puts("will print the script");
+            rewind(ori);
+            fprintf(dup, "code=JSON.parse('[");
+            fgets(readLine, sizeof(readLine), ori);
+            writeCharByCharToFile(dup, readLine, 0);
+            while (fgets(readLine, sizeof(readLine), ori))
+                writeCharByCharToFile(dup, readLine, 1);
+            fprintf(dup, "]')");
+            closeFile(dup);
+        }
+        closeFile(ori);
+    }
+}
 char *getStrFromIndent(JSON_INDENT indent)
 {
     if (indent == INDENT_0)
@@ -611,10 +702,10 @@ void persistInformation()
 {
     FILE *outputFile;
     FILE *dispOutFile;
-
-    outputFile = openFile(getObjPath());
-    dispOutFile = openFile(getJSpath("objects"));
-    if (outputFile == NULL || dispOutFile == NULL)
+    dupScript();
+    outputFile = openFile(getObjPath(), FILE_OPEN_WRITE);
+    dispOutFile = openFile(getJSpath("objects"), FILE_OPEN_WRITE);
+    if (outputFile == FILE_NOT_FOUND || dispOutFile == FILE_NOT_FOUND)
     {
         //unable to open file
         //check destination path
@@ -630,10 +721,10 @@ void persistInformation()
     closeFile(dispOutFile);
 
     //open events file
-    puts("Will persist events...");
-    outputFile = openFile(getEventsPath());
-    dispOutFile = openFile(getJSpath("events"));
-    if (outputFile == NULL || dispOutFile == NULL)
+    outputFile = openFile(getEventsPath(), FILE_OPEN_WRITE);
+    dispOutFile = openFile(getJSpath("events"), FILE_OPEN_WRITE);
+
+    if (outputFile == FILE_NOT_FOUND || dispOutFile == FILE_NOT_FOUND)
     {
         //unable to open file
         //check destination path

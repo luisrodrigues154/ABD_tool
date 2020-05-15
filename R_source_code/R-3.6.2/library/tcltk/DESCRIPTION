@@ -8,4 +8,4 @@ Description: Interface and language bindings to Tcl/Tk GUI elements.
 License: Part of R 3.6.2
 Imports: utils
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-14 21:01:53 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-15 20:27:30 UTC; unix

@@ -65,8 +65,10 @@ void abd_stop()
         system(getCommand());
     }
 }
+
 void abd_help()
 {
+    //checkSettings();
     // printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
     // printf("\t##################################################\n");
     // printf("\t-> Start the watcher: abd_start()\n");
@@ -74,11 +76,7 @@ void abd_help()
     // printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
     // printf("\t-> Display current output file path: abd_path()\n");
     // printf("\t##################################################\n\n\n");
-    //checkSettings();
-    // cntx
-    // SrcRefState ParseState;
-    // ParseState = src
-    // printf("At line... %d\n", ParseState.xxlineno);
+    //
 }
 
 void prepVarIdxChange(SEXP var)

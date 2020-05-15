@@ -27,7 +27,9 @@
 #define loaded_jm
 
 #define FILE_NOT_FOUND NULL
-#define FILE_OPEN_MODE "w"
+#define FILE_OPEN_WRITE "w"
+#define FILE_OPEN_READ "r"
+
 typedef enum
 {
     INDENT_0 = 0,
@@ -59,7 +61,7 @@ typedef enum
 
 */
 
-FILE *openFile(char *filePath);
+FILE *openFile(char *filePath, char *mode);
 int closeFile(FILE *outputFile);
 char *getStrFromIndent(JSON_INDENT indent);
 void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut);
@@ -75,3 +77,6 @@ void saveFuncEvent(FILE *out, ABD_FUNC_EVENT *funcEvent, FILE *dispOut);
 void saveRetEvent(FILE *out, ABD_RET_EVENT *retEvent, FILE *dispOut);
 void saveEvents(FILE *out, FILE *dispOut);
 void saveExpression(FILE *out, int id, IF_EXPRESSION *expr, FILE *dispOut);
+void dupScript();
+char *getScriptPath();
+void writeCharByCharToFile(FILE *out, char *string, int withComma);
