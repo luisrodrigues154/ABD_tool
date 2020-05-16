@@ -18,6 +18,7 @@ typedef struct abd_event
   int id;
   int scriptLn;
   ABD_EVENT_TYPE type;
+
   union {
     ABD_IF_EVENT *if_event;
     ABD_FUNC_EVENT *func_event;
@@ -26,6 +27,7 @@ typedef struct abd_event
     ABD_ARITH_EVENT *arith_event;
     ABD_VEC_EVENT *vec_event;
   } data;
+  ABD_OBJECT *atFunc;
   SEXP env;
   struct abd_event *nextEvent;
 } ABD_EVENT;

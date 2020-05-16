@@ -13,7 +13,7 @@ void initEnvStack(SEXP startingEnv)
     envStack = (ABD_ENV_STACK *)malloc(sizeof(ABD_ENV_STACK));
     envStack->rho = startingEnv;
     envStack->prev = ABD_NOT_FOUND;
-    envStack->funcObj = ABD_NOT_FOUND;
+    envStack->funcObj = ABD_OBJECT_NOT_FOUND;
 }
 
 void freeEnv(ABD_ENV_STACK *env)

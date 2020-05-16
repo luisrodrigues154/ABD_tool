@@ -27,6 +27,18 @@
 	font-size: 19pt;
 }
 
+.dialog-title {
+	color: var(--title-color);
+	font-weight: bold;
+	font-size: 16pt;
+}
+
+.dialog-text {
+	color: var(--title-color);
+	font-weight: normal;
+	font-size: 12pt;
+}
+
 .clickable-content {
 	cursor: pointer;
 }
@@ -82,6 +94,22 @@
 
 hr {
 	background: white;
+}
+
+.modal-settings {
+	overflow-y: initial !important;
+	width: 25%;
+}
+
+.modal-settings-body {
+	max-height: 300px;
+	overflow-y: auto;
+	width: auto;
+}
+
+.modal-track-bto {
+	background: var(--back-color);
+	color: var(--bto-color);
 }
 
 .bar-rhs {

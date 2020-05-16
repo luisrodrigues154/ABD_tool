@@ -1,7 +1,7 @@
 var cmnObj = objects['commonObj'];
+var cfObj = objects['codeFlowObj'];
 
 //will not really be needed, cannot perform anything on code flow objects
-var cfObj = objects['codeFlowObj'];
 
 var trackObjects = [];
 
@@ -15,22 +15,37 @@ function clearObjectPane() {
 
 function populateObjects() {
 	var htmlProduced = '';
+	var containerHead = '<div class="container-fluid clickable-content" id="trackContainer-';
+	var containerTail = '" onclick="setCheckBoxForId(this.id)">';
+	var checkBoxHead = '<input type="checkbox" value="" id="cBoxId-';
+	var checkBoxTail = '" onChange="objTrackStatusChanged(this.id);"/>';
+	var labelHead = '<label class="ml-2 clickable-content dialog-text" id="objTrackLbl-';
+	var labelTail = '" onclick="setCheckBoxForId(this.id)">';
+
 	var comObj = objects['commonObj'];
 	var numObjs = Object.keys(comObj).length;
 	var i;
 	//alert('Num obj: ' + numObjs);
 	for (i = 1; i <= numObjs; i++) {
-		htmlProduced += '<div class="dropdown-item">';
-		htmlProduced +=
-			'<input type="checkbox" value="huehue" id="' + i + '" onChange="objTackStatusChanged(this.id);">';
-		htmlProduced += '<label class="ml-2">' + comObj[i]['name'] + '</label>';
+		htmlProduced += containerHead + i + containerTail;
+		htmlProduced += checkBoxHead + i + checkBoxTail;
+		htmlProduced += labelHead + i + labelTail;
+		htmlProduced += comObj[i]['name'];
+		htmlProduced += '</label>';
 		htmlProduced += '</div>';
 	}
 
-	document.getElementById('objDropDown').innerHTML = htmlProduced;
+	document.getElementById('modal_body').innerHTML = htmlProduced;
 }
+function setCheckBoxForId(labelId) {
+	var cbId = 'cBoxId-' + labelId.split('-')[1];
 
-function objTackStatusChanged(id) {
+	document.getElementById(cbId).checked = !document.getElementById(cbId).checked;
+	objTrackStatusChanged(cbId);
+}
+function objTrackStatusChanged(id) {
+	id = id.split('-')[1];
+	console.log('called');
 	var ret = trackObjects.indexOf(id);
 
 	if (ret > -1)
@@ -39,9 +54,6 @@ function objTackStatusChanged(id) {
 	else
 		//add
 		trackObjects.push(id);
-
-	//here update the object view
-	updateDisplay();
 }
 
 var wantDisplay = [];
@@ -88,6 +100,7 @@ function generateObjContent(objName, objId, objState, toIndex) {
 	return htmlProduced;
 }
 function updateDisplay() {
+	$('#track_modal').modal('hide');
 	if (trackObjects.length == 0) return;
 	var htmlProduced = '';
 	var num = 0;
@@ -130,10 +143,18 @@ function clearWantDisplay() {
 	clearPanes();
 }
 
-function getObjById(id) {
+function getCommonObjById(id) {
 	return cmnObj[id];
 }
 
-function getObjNameById(id) {
+function getCommonObjNameById(id) {
 	return cmnObj[id]['name'];
+}
+
+function getCodeFlowObjNameById(id) {
+	return cfObj[id]['name'];
+}
+
+function getUpperLabelData(line) {
+	line = line.split('-')[1];
 }

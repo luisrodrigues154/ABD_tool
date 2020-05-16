@@ -651,11 +651,13 @@ void saveEvents(FILE *out, FILE *dispOut)
         //write to the json file
         fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_1), currEvent->id);
         fprintf(out, "\n%s\"line\" : %d,", getStrFromIndent(INDENT_2), currEvent->scriptLn);
+        fprintf(out, "\n%s\"atFunc\" : %d,", getStrFromIndent(INDENT_2), (currEvent->atFunc == ABD_OBJECT_NOT_FOUND) ? -1 : currEvent->atFunc->id);
         fprintf(out, "\n%s\"atEnv\" : \"%s\",", getStrFromIndent(INDENT_2), envToStr(currEvent->env));
         fprintf(out, "\n%s\"type\" : ", getStrFromIndent(INDENT_2));
 
         fprintf(dispOut, "\"%d\" : {", currEvent->id);
         fprintf(dispOut, "\"line\" : %d,", currEvent->scriptLn);
+        fprintf(dispOut, "\"atFunc\" : %d,", (currEvent->atFunc == ABD_OBJECT_NOT_FOUND) ? -1 : currEvent->atFunc->id);
         fprintf(dispOut, "\"atEnv\" : \"%s\",", envToStr(currEvent->env));
         fprintf(dispOut, "\"type\" : ");
 

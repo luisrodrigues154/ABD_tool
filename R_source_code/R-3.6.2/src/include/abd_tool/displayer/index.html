@@ -29,8 +29,8 @@
             <button aria-pressed="false" class="btn btn-outline-dark" data-path="/1/1" data-toggle="button"
                     type="button">Execution Flow
             </button>
-            <label class="ml-5 mt-2">At Function: <label class="ml-1 bar-rhs">NA</label></label>
-            <label class="ml-4">Environemnt:<label class="ml-1 bar-rhs">NA</label></label> </label>
+            <label class="ml-5 mt-2">At Function: <label class="ml-1 bar-rhs" id="func_name_label">NA</label></label>
+            <label class="ml-4">Environemnt:<label class="ml-1 bar-rhs" id="env_label">NA</label></label> </label>
             <label class="float-right d-block menu-title my-auto">[ABD_Tool]</label>
             
         </div>
@@ -63,14 +63,27 @@
                             <div class="d-flex flex-column h-100">
                                 <div class="row flex-grow-1 overflow-hidden" data-path="/2/2/1">
                                     <div class="container-fluid mt-1">
-                                        <label class="inner-title" for="dropdownMenuButton">Objects</label>
-                                        <div class="dropdown float-right">
-                                            <button aria-expanded="false" aria-haspopup="true"
-                                                    class="btn btn-secondary btn-sm dropdown-toggle"
-                                                    data-toggle="dropdown" id="dropdownMenuButton"
-                                                    type="button">Select</button>
-                                            <div aria-labelledby="dropdownMenuButton" class="dropdown-menu bg-white" style="max-height: 300px; overflow-y: auto;" id="objDropDown">
-
+                                        <label class="inner-title">Objects</label>
+                                        <button type="button" class="btn btn-secondary btn-sm float-right" data-toggle="modal" data-target="#track_modal">
+                                            Track objects
+                                        </button>
+                                        
+                                        <div class="modal fade" id="track_modal" tabindex="-1" role="dialog" aria-labelledby="trackModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-width modal-settings bg-white" role="document">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title dialog-title" id="modalTitle" >Select objects to track</h5>
+                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                  </button>
+                                                </div>
+                                                <div class="modal-body modal-settings-body" id="modal_body">
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                  <button type="button" class="btn btn-primary modal-track-bto" onclick="updateDisplay();">Track</button>
+                                                </div>
+                                              </div>
                                             </div>
                                         </div>
                                     </div>

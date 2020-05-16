@@ -832,8 +832,6 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
     default:
         break;
     }
-    newBaseEvent->env = getCurrentEnv();
-
     return newBaseEvent;
 }
 
@@ -847,6 +845,8 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
     }
+    newEvent->atFunc = getCurrFuncObj();
+    newEvent->env = getCurrentEnv();
     newEvent->type = newEventType;
     return newEvent;
 }

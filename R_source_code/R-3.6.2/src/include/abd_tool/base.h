@@ -44,8 +44,8 @@ void abd_start(SEXP rho)
 {
     checkSettings();
     initObjsRegs();
-    initEventsReg();
     initEnvStack(rho);
+    initEventsReg();
     setWatcherState(ABD_ENABLE);
     setVerboseMode(ABD_ENABLE);
 }

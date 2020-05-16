@@ -29,6 +29,12 @@ function loadCode() {
 		htmlProduced += '</label>';
 		line++;
 	});
+	var foundEvents = findFirstEvent();
+	if (foundEvents.length > 0) {
+		populateUpperLabels(foundEvents[0]['atFunc'], foundEvents[0]['atEnv']);
+	} else {
+		populateUpperLabels(-1, startingEnv);
+	}
 
 	document.getElementById('code_container').innerHTML = htmlProduced;
 }
@@ -53,10 +59,11 @@ function setSelected(line) {
 	}
 
 	//now invoke the events processor
-	processForLine(line);
+	if (selectedLine != '') processForLine(line);
 }
 
 function clearPanes() {
+	populateUpperLabels(-1, startingEnv);
 	clearEventPane();
 	clearObjectPane();
 }
