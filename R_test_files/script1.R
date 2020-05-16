@@ -2,8 +2,14 @@ options("keep.source"=TRUE)
 run <- function(){
     abd_start()
     a <- 20
-    x <- 99
+    a <- 40
+    x <- a
 
+    f1 <- function(){
+        f1_a <- 10
+        f1_a
+    }
+    z <- f1()
     b <- c(1,2,3,4)
     abd_stop()
 

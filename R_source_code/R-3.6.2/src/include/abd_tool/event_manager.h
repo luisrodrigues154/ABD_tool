@@ -1024,6 +1024,7 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         /* has precedence from another event */
         currAssign->fromType = ABD_E;
         currAssign->fromObj = fromEvent;
+        currAssign->fromState = ABD_OBJECT_NOT_FOUND;
     }
     else
     {
@@ -1056,13 +1057,18 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
                 withIndex = (withIndex == 0) ? 1 : withIndex;
                 fromObj = createUnscopedObj(CHAR(PRINTNAME(rhs2)), -2, -2, R_NilValue, 0);
                 currAssign->withIndex = withIndex;
+                currAssign->fromState = ABD_OBJECT_NOT_FOUND;
             }
             else
+            {
+                currAssign->fromState = fromObj->modList;
                 currAssign->withIndex = withIndex - 1;
+            }
         }
         else
         {
             fromObj = createUnscopedObj("NA", -1, -1, R_NilValue, 0);
+            currAssign->fromState = ABD_OBJECT_NOT_FOUND;
             currAssign->withIndex = -1;
         }
 

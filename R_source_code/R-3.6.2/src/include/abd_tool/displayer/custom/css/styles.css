@@ -16,7 +16,7 @@
 }
 
 .inner-title {
-	font-size: 15pt;
+	font-size: 16pt;
 	color: var(--bto-color);
 	font-weight: bold;
 }
@@ -32,19 +32,60 @@
 }
 
 .selected-content {
-	font-size: 14pt;
+	font-size: 15pt;
 	background: var(--selected-background);
 	color: white;
 	font-weight: bold;
 }
 
 .content {
-	font-size: 10pt;
+	font-size: 12pt;
 	color: white;
 	white-space: pre;
 	font-weight: normal;
 }
 
-.teste {
-	display: inline-block;
+.event-title {
+	font-size: 12pt;
+	color: white;
+	font-weight: bold;
+}
+
+.event-content {
+	font-size: 11pt;
+	color: white;
+	font-weight: bold;
+}
+
+.event-rhs {
+	color: var(--bto-color);
+	font-size: 11pt;
+}
+
+.object-lhs {
+	font-size: 11pt;
+	color: white;
+	font-weight: bold;
+}
+
+.object-rhs-special {
+	font-size: 11pt;
+	color: var(--bto-color);
+	font-weight: normal;
+}
+
+.object-rhs-normal {
+	font-size: 10pt;
+	color: white;
+	font-weight: normal;
+}
+
+hr {
+	background: white;
+}
+
+.bar-rhs {
+	color: var(--back-color);
+	font-weight: bold;
+	text-decoration: underline;
 }

@@ -134,6 +134,7 @@ typedef struct abd_assign
     */
     int withIndex;
     ABD_OBJECT_MOD *value;
+    ABD_OBJECT_MOD *fromState;
 } ABD_ASSIGN_EVENT;
 
 //arithmetic event

@@ -33,23 +33,30 @@ function loadCode() {
 	document.getElementById('code_container').innerHTML = htmlProduced;
 }
 
-function setSelected(id) {
-	var clickedElement = document.getElementById(id);
-
+function setSelected(line) {
+	var clickedElement = document.getElementById(line);
+	clearWantDisplay();
 	//when user selects a new line
-	if (selectedLine == id) {
+	if (selectedLine == line) {
 		selectedLine = '';
 		clickedElement.className = setUnselectedCSS;
 		//clear panes
+		clearPanes();
 	} else if (selectedLine == '') {
 		//no need to clear, nothing selected
-		selectedLine = id;
+		selectedLine = line;
 		clickedElement.className = setSelectedCSS;
 	} else {
 		document.getElementById(selectedLine).className = setUnselectedCSS;
-		selectedLine = id;
+		selectedLine = line;
 		clickedElement.className = setSelectedCSS;
 	}
 
 	//now invoke the events processor
+	processForLine(line);
+}
+
+function clearPanes() {
+	clearEventPane();
+	clearObjectPane();
 }

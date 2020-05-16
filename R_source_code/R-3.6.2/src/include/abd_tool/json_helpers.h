@@ -119,16 +119,33 @@ char *getStrFromIndent(JSON_INDENT indent)
     ret[indent] = '\0';
     return ret;
 }
-
+char *getStrForType(SEXPTYPE type)
+{
+    switch (type)
+    {
+    case REALSXP:
+        return "REALSXP";
+        break;
+    case INTSXP:
+        return "INTSXP";
+        break;
+    default:
+        return "";
+        break;
+    }
+}
 void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
 {
     SEXPTYPE type = vecObj->type;
     if (vecObj->idxChange)
     {
+        fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
+        fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
         fprintf(out, "\n%s\"numMods\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
         fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5));
 
+        fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(dispOut, "\"vecMod\" : true,");
         fprintf(dispOut, "\"numMods\" : %d,", vecObj->nCols);
         fprintf(dispOut, "\"mods\" : [");
@@ -160,6 +177,8 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
     }
     else
     {
+        fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
+        fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"vecMod\" : false,");
         if (vecObj->nCols == 1)
@@ -204,14 +223,17 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
     do
     {
         fprintf(out, "\n%s{", getStrFromIndent(INDENT_4));
-        fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_4), currMod->id);
+        fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), currMod->id);
+        fprintf(out, "\n%s\"structType\" : ", getStrFromIndent(INDENT_5));
 
         fprintf(dispOut, "{");
         fprintf(dispOut, "\"id\" : %d,", currMod->id);
-
+        fprintf(dispOut, "\"structType\" : ");
         switch (currMod->valueType)
         {
         case ABD_VECTOR:
+            fprintf(out, "\"Vector\",");
+            fprintf(dispOut, "\"Vector\",");
             writeVector(out, currMod->value.vec_value, dispOut);
             break;
         case ABD_MATRIX:
@@ -223,7 +245,7 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
         fprintf(dispOut, "}");
 
-        currMod = currMod->nextMod;
+        currMod = currMod->prevMod;
         if (currMod != ABD_NOT_FOUND)
         {
             fprintf(out, ",");
@@ -255,7 +277,7 @@ void writeObjToFile(FILE *out, ABD_OBJECT *obj, FILE *dispOut)
         fprintf(dispOut, ",");
         fprintf(dispOut, "\"modList\" : [");
 
-        writeObjModsToFile(out, obj->modListStart, dispOut);
+        writeObjModsToFile(out, obj->modList, dispOut);
 
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "]");
@@ -501,10 +523,12 @@ void saveAssignEvent(FILE *out, ABD_ASSIGN_EVENT *event, FILE *dispOut)
         {
             //object in registry
             fprintf(out, "\"ABD\",");
-            fprintf(out, "\n%s\"name\" : \"%s\",", getStrFromIndent(INDENT_3), obj->name);
+            fprintf(out, "\n%s\"fromId\" : %d,", getStrFromIndent(INDENT_3), obj->id);
+            fprintf(out, "\n%s\"fromState\" : %d,", getStrFromIndent(INDENT_3), event->fromState->id);
 
             fprintf(dispOut, "\"ABD\",");
-            fprintf(dispOut, "\"name\" : \"%s\",", obj->name);
+            fprintf(dispOut, "\"fromId\" : %d,", obj->id);
+            fprintf(dispOut, "\"fromState\" : %d,", event->fromState->id);
         }
         fprintf(out, "\n%s\"withIndex\" : %d", getStrFromIndent(INDENT_3), event->withIndex);
         fprintf(dispOut, "\"withIndex\" : %d", event->withIndex);
