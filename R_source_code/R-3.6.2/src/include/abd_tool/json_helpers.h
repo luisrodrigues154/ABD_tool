@@ -70,8 +70,9 @@ void writeCharByCharToFile(FILE *out, char *string, int withComma)
 
     fprintf(out, "\"");
 
-    for (int i = 0; string[i] != '\n'; i++)
+    for (int i = 0; string[i] != '\n' && string[i] != '\r' && string[i] != '\0'; i++)
     {
+
         if (string[i] == '\"')
             fprintf(out, "\\'");
         else if (string[i] == '\'')
@@ -95,8 +96,8 @@ void dupScript()
     {
         if ((dup = openFile(dupPath, FILE_OPEN_WRITE)) != FILE_NOT_FOUND)
         {
-            puts("will print the script");
             rewind(ori);
+            rewind(dup);
             fprintf(dup, "code=JSON.parse('[");
             fgets(readLine, sizeof(readLine), ori);
             writeCharByCharToFile(dup, readLine, 0);

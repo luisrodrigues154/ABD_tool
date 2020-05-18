@@ -7,6 +7,9 @@ var trackObjects = [];
 
 $(function() {
 	populateObjects();
+	$('#track_modal').on('hidden.bs.modal', function() {
+		updateDisplay();
+	});
 });
 
 function clearObjectPane() {
@@ -15,21 +18,21 @@ function clearObjectPane() {
 
 function populateObjects() {
 	var htmlProduced = '';
-	var containerHead = '<div class="container-fluid clickable-content" id="trackContainer-';
-	var containerTail = '" onclick="setCheckBoxForId(this.id)">';
+	var containerHead = '<div class="container-fluid" id="trackContainer-';
+	var containerTail = '">';
 	var checkBoxHead = '<input type="checkbox" value="" id="cBoxId-';
 	var checkBoxTail = '" onChange="objTrackStatusChanged(this.id);"/>';
 	var labelHead = '<label class="ml-2 clickable-content dialog-text" id="objTrackLbl-';
-	var labelTail = '" onclick="setCheckBoxForId(this.id)">';
+	var labelTail = '" for="cBoxId-';
 
 	var comObj = objects['commonObj'];
 	var numObjs = Object.keys(comObj).length;
 	var i;
-	//alert('Num obj: ' + numObjs);
+
 	for (i = 1; i <= numObjs; i++) {
 		htmlProduced += containerHead + i + containerTail;
 		htmlProduced += checkBoxHead + i + checkBoxTail;
-		htmlProduced += labelHead + i + labelTail;
+		htmlProduced += labelHead + i + labelTail + i + '">';
 		htmlProduced += comObj[i]['name'];
 		htmlProduced += '</label>';
 		htmlProduced += '</div>';
@@ -45,7 +48,6 @@ function setCheckBoxForId(labelId) {
 }
 function objTrackStatusChanged(id) {
 	id = id.split('-')[1];
-	console.log('called');
 	var ret = trackObjects.indexOf(id);
 
 	if (ret > -1)
@@ -100,11 +102,8 @@ function generateObjContent(objName, objId, objState, toIndex) {
 	return htmlProduced;
 }
 function updateDisplay() {
-	$('#track_modal').modal('hide');
 	if (trackObjects.length == 0) return;
 	var htmlProduced = '';
-	var num = 0;
-	var wantDisplayLen = wantDisplay.length;
 	wantDisplay.forEach((obj) => {
 		if (trackObjects.indexOf(String(obj.id)) > -1) {
 			htmlProduced += generateObjContent(obj.name, obj.id, obj.state, obj.withIndex);

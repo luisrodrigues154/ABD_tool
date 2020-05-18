@@ -9,11 +9,8 @@ $(function() {
 	loadCode();
 });
 
-//<label class="container-fluid overflow-auto clickable-content content" onClick="setSelected(this.id)" id="line-1">1:&nbsp;&nbsp;&nbsp;a <- 30</label> </label>
 function loadCode() {
 	var htmlProduced = '';
-	// var codeArray = code['code'];
-	// alert('code len: ' + codeArray.length);
 	var line = 1;
 	code.forEach((element) => {
 		//add the head
@@ -42,17 +39,21 @@ function loadCode() {
 function setSelected(line) {
 	var clickedElement = document.getElementById(line);
 	clearWantDisplay();
-	//when user selects a new line
+	//when user interacts with some line
+
 	if (selectedLine == line) {
+		//selected the same
 		selectedLine = '';
 		clickedElement.className = setUnselectedCSS;
 		//clear panes
 		clearPanes();
 	} else if (selectedLine == '') {
+		// selected without anything selected
 		//no need to clear, nothing selected
 		selectedLine = line;
 		clickedElement.className = setSelectedCSS;
 	} else {
+		//changed the selected line (with one already selected)
 		document.getElementById(selectedLine).className = setUnselectedCSS;
 		selectedLine = line;
 		clickedElement.className = setSelectedCSS;

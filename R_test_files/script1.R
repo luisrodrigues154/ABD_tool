@@ -1,4 +1,5 @@
-
+options("keep.source"=TRUE)
+run <- function(){
     abd_start()
     a <- 20
     a <- 40
@@ -14,3 +15,6 @@
     b <- c(1,2,3,4)
     abd_stop()
 
+}
+
+run()
