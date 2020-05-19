@@ -13,6 +13,7 @@ typedef struct abd_env_stack
 {
     SEXP rho;
     ABD_OBJECT *funcObj;
+    ABD_EVENT_ARG *args;
     struct abd_env_stack *prev;
 } ABD_ENV_STACK;
 

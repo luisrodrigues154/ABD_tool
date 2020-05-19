@@ -14,6 +14,7 @@ void initEnvStack(SEXP startingEnv)
     envStack->rho = startingEnv;
     envStack->prev = ABD_NOT_FOUND;
     envStack->funcObj = ABD_OBJECT_NOT_FOUND;
+    envStack->args = ABD_OBJECT_NOT_FOUND;
 }
 
 void freeEnv(ABD_ENV_STACK *env)

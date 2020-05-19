@@ -86,7 +86,6 @@ void prepVarIdxChange(SEXP var)
 
 void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)
 {
-    printf("Index Changed called\n");
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && waitingIdxChange))
         return;
 
