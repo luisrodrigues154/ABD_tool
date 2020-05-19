@@ -5,13 +5,13 @@ run <- function(){
     a <- 40
     x <- a
 
-    f1 <- function(){
-        f1_a <- 10
+    f1 <- function(x){
+        f1_a <- x
         f1_a
     }
     #
-    z <- f1() 
-    z2 <- f1()
+    z <- f1(10) 
+    z2 <- f1(12)
     b <- c(1,2,3,4)
     abd_stop()
 

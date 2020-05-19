@@ -168,6 +168,7 @@ function processForLine(line) {
 	} else {
 		currContext = foundContexts[0];
 		checkContextChange();
+		applyContext();
 	}
 }
 
@@ -240,8 +241,9 @@ function produceASSIGNhtml(event) {
 		withIndex: '',
 		state: ''
 	};
+
 	toObjToDisplay.id = event['data']['toObj'];
-	toObjToDisplay.name = getCommonObjNameById(toObjToDisplay.id);
+	toObjToDisplay.name = getCommonObjNameById(String(toObjToDisplay.id));
 	toObjToDisplay.state = event['data']['toState'];
 	toObjToDisplay.withIndex = -1;
 
@@ -267,7 +269,7 @@ function produceASSIGNhtml(event) {
 		htmlProduced += labelRhs;
 		if (event['data']['fromObj'] == 'HC') {
 			htmlProduced += HC_text;
-		} else if (event['data']['fromObj'] == 'HC') {
+		} else if (event['data']['fromObj'] == 'R') {
 			htmlProduced += R_text;
 		} else {
 			fromObjToDisplay.id = event['data']['fromId'];

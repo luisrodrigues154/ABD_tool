@@ -59,8 +59,7 @@ function toggleLineSelect(line, select) {
 function setSelected(line) {
 	clearWantDisplay();
 	//when user interacts with some line
-	console.log('inside: ' + line);
-	console.log('selected: ' + selectedLine);
+
 	if (selectedLine == line) {
 		//selected the same
 		selectedLine = '';
@@ -77,10 +76,8 @@ function setSelected(line) {
 	} else {
 		//changed the selected line (with one already selected)
 		toggleLineSelect(selectedLine, 0);
-		console.log('got here');
 		selectedLine = line;
 		toggleLineSelect(selectedLine, 1);
-		console.log('Selected line: ' + selectedLine);
 	}
 
 	//now invoke the events processor
