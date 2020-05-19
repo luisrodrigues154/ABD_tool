@@ -1,12 +1,10 @@
 var cmnObj = objects['commonObj'];
 var cfObj = objects['codeFlowObj'];
 
-//will not really be needed, cannot perform anything on code flow objects
-
-var trackObjects = [];
-
 $(function() {
-	populateObjects();
+	//populateObjects();
+
+	concatObjIds();
 	$('#track_modal').on('hidden.bs.modal', function() {
 		updateDisplay();
 	});
@@ -16,46 +14,92 @@ function clearObjectPane() {
 	document.getElementById('objects_container').innerHTML = '';
 }
 
-function populateObjects() {
-	var htmlProduced = '';
-	var containerHead = '<div class="container-fluid" id="trackContainer-';
-	var containerTail = '">';
-	var checkBoxHead = '<input type="checkbox" value="" id="cBoxId-';
-	var checkBoxTail = '" onChange="objTrackStatusChanged(this.id);"/>';
-	var labelHead = '<label class="ml-2 clickable-content dialog-text" id="objTrackLbl-';
-	var labelTail = '" for="cBoxId-';
+var trackObjects = [];
+var objIdsByName = [];
 
+function objNameSeen(name) {
+	var i;
+	for (i = 0; i < objIdsByName.length; i++) {
+		if (objIdsByName[i].name == name) return i;
+	}
+	return -1;
+}
+function concatObjIds() {
 	var comObj = objects['commonObj'];
 	var numObjs = Object.keys(comObj).length;
 	var i;
+	for (i = 1; i < numObjs; i++) {
+		var obj = {
+			name: '',
+			ids: []
+		};
+		obj.name = cmnObj[i]['name'];
+		var found = objNameSeen(obj.name);
+		if (found == -1) {
+			//not found
+			obj.ids.push(String(i));
+			objIdsByName.push(obj);
+		} else {
+			//found == id
+			objIdsByName[found].ids.push(String(i));
+		}
+	}
 
-	for (i = 1; i <= numObjs; i++) {
-		htmlProduced += containerHead + i + containerTail;
-		htmlProduced += checkBoxHead + i + checkBoxTail;
-		htmlProduced += labelHead + i + labelTail + i + '">';
-		htmlProduced += comObj[i]['name'];
+	populateObjects();
+}
+function objIdsToString(index) {
+	var ret = '';
+	var first = 1;
+	objIdsByName[index].ids.forEach((element) => {
+		if (first) {
+			first = 0;
+			ret += element;
+		} else {
+			ret += '-' + element;
+		}
+	});
+
+	return ret;
+}
+function populateObjects() {
+	//html generics
+	var htmlProduced = '';
+	var containerHead = '<div class="container-fluid">';
+	var cBoxHead = '<input type="checkbox" value="" id="cBoxId-';
+	var cBoxTail = ' onChange="objTrackStatusChanged(this.name, this.id);"/>';
+	var cBoxName = '" name="';
+	var lblHead = '<label class="ml-2 clickable-content dialog-text" id="objTrackLbl-';
+	var lblTail = '" for="cBoxId-';
+	var index = -1;
+	objIdsByName.forEach((obj) => {
+		var ids = objIdsToString(++index);
+		htmlProduced += containerHead;
+		htmlProduced += cBoxHead + ids + cBoxName + obj.name + '"' + cBoxTail;
+		htmlProduced += lblHead + ids + lblTail + ids + '">';
+		htmlProduced += obj.name;
 		htmlProduced += '</label>';
 		htmlProduced += '</div>';
-	}
+	});
 
 	document.getElementById('modal_body').innerHTML = htmlProduced;
 }
-function setCheckBoxForId(labelId) {
-	var cbId = 'cBoxId-' + labelId.split('-')[1];
 
-	document.getElementById(cbId).checked = !document.getElementById(cbId).checked;
-	objTrackStatusChanged(cbId);
-}
-function objTrackStatusChanged(id) {
-	id = id.split('-')[1];
-	var ret = trackObjects.indexOf(id);
+function objTrackStatusChanged(name, ids) {
+	ids = ids.split('-');
 
-	if (ret > -1)
-		//remove
-		trackObjects.splice(ret, 1);
-	else
-		//add
-		trackObjects.push(id);
+	for (i = 1; i < ids.length; i++) {
+		var ret = trackObjects.indexOf(ids[i]);
+
+		if (ret > -1)
+			//remove
+			trackObjects.splice(ret, 1);
+		else {
+			//add
+
+			trackObjects.push(ids[i]);
+		}
+	}
+	console.log(trackObjects);
 }
 
 var wantDisplay = [];
@@ -105,6 +149,9 @@ function updateDisplay() {
 	if (trackObjects.length == 0) return;
 	var htmlProduced = '';
 	wantDisplay.forEach((obj) => {
+		console.log('update display...');
+		console.log('WantDisplay obj.id: ' + obj.id);
+		console.log('track: ' + trackObjects);
 		if (trackObjects.indexOf(String(obj.id)) > -1) {
 			htmlProduced += generateObjContent(obj.name, obj.id, obj.state, obj.withIndex);
 			htmlProduced += hr;

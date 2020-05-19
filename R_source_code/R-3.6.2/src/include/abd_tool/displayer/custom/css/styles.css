@@ -3,6 +3,7 @@
 	--bto-color: #d9b310;
 	--back-color: #1d2731;
 	--selected-background: rgba(217, 179, 16, 0.5);
+	--selected-predecessor-background: rgba(247, 58, 58, 0.384);
 	--pane-opacity: rgba(29, 39, 49, 0.3);
 	--full-aplha: rgba(255, 255, 255, 0);
 }
@@ -46,6 +47,13 @@
 .selected-content {
 	font-size: 15pt;
 	background: var(--selected-background);
+	color: white;
+	font-weight: bold;
+}
+
+.selected-predecessor {
+	font-size: 15pt;
+	background: var(--selected-predecessor-background);
 	color: white;
 	font-weight: bold;
 }
@@ -108,7 +116,7 @@ hr {
 }
 
 .modal-track-bto {
-	background: var(--back-color);
+	background: var(--title-color);
 	color: var(--bto-color);
 }
 

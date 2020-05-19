@@ -1,9 +1,15 @@
 var startingEnv;
 var baseFunction;
+
+var currContext = '';
+var currFunc = '';
 var requestDisplay = [];
 
 $(function() {
 	//loading function
+	$('#context_modal').on('hidden.bs.modal', function() {
+		applyContext();
+	});
 });
 function clearEventPane() {
 	document.getElementById('events_container').innerHTML = '';
@@ -13,7 +19,6 @@ function getUpperLabelInit() {
 	var data = [];
 	data.push(baseFunction);
 	data.push(startingEnv);
-
 	return data;
 }
 
@@ -27,20 +32,143 @@ function findFirstEvent() {
 		startingEnv = 'NA';
 		baseFunction = 'NA';
 	}
+
+	currContext = startingEnv;
+	predecessorContext = currContext;
 	return foundEvents;
 }
 
-function findEvents(line) {
-	var numEvents = Object.keys(events).length;
-	var foundEvents = [];
-	var i;
+function radioSelected(radioLine, radioContext) {
+	modalSelectedLine = radioLine;
+	modalSelectedContext = radioContext;
+}
+var predecessorLine = '';
+var requestLine = '';
+var modalShown = 0;
+var foundEvents = [];
+var modalSelectedLine = '';
+var modalSelectedContext = '';
+var predecessorContext = '';
 
-	for (i = 1; i <= numEvents; i++) {
-		var currentLine = events[i]['line'];
-		if (currentLine == line) foundEvents.push(events[i]);
+function clearModalInfo() {
+	if (predecessorLine != '') {
+		togglePredecessorSelect(predecessorLine, 0);
+	}
+	if (modalSelectedLine != '') {
+		toggleLineSelect(modalSelectedLine, 0);
+	}
+	predecessorLine = '';
+	modalSelectedLine = '';
+	requestLine = '';
+	modalShown = 0;
+	foundEvents = [];
+}
+function checkContextChange() {
+	if (currContext != predecessorContext && checkedLine != '') {
+		document.getElementById('line-' + checkedLine).className = setUnselectedCSS;
+		predecessorContext = currContext;
 	}
 
-	return foundEvents;
+	if (currContext === undefined) {
+		findFirstEvent();
+
+		predecessorContext = currContext;
+		if (requestingLine != '') {
+			document.getElementById('line-' + requestingLine).className = setUnselectedCSS;
+		}
+	}
+}
+
+function applyContext() {
+	var htmlProduced = '';
+	if (modalShown) {
+		if (modalSelectedLine == '') {
+			console.log('here');
+			toggleLineSelect(requestLine, 0);
+			clearModalInfo();
+			findFirstEvent();
+			return;
+		} else {
+			togglePredecessorSelect(modalSelectedLine, 1);
+			currContext = modalSelectedContext;
+		}
+	}
+
+	requestDisplay = [];
+	if (foundEvents.length > 0) {
+		populateUpperLabels(foundEvents[0]['atFunc'], currContext);
+	}
+	foundEvents.forEach((event) => {
+		if (event['atEnv'] == currContext) {
+			htmlProduced = processEventByType(event);
+		}
+	});
+	verifyTrack(requestDisplay);
+	document.getElementById('events_container').innerHTML = htmlProduced;
+}
+
+function produceRadioButton(line, id, context) {
+	var htmlProduced = '';
+	htmlProduced += '<div class="form-check">';
+	htmlProduced += '<label class="form-check-label" for="ctxtRadio-' + id + '" >';
+	htmlProduced += '<input class="form-check-input" type="radio" name="contextRadio"';
+	htmlProduced += ' id="ctxtRadio-' + id + '" value="option' + id;
+	htmlProduced += '" onclick="radioSelected(\'line-' + line + "', '" + String(context) + '\')">';
+	htmlProduced += 'line ' + document.getElementById('line-' + line).textContent.replace(/\s/g, '');
+	htmlProduced += '</label>';
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function findFuncEventsForId(funcId, currEnv) {
+	//returns the line numbers
+	var numEvents = Object.keys(events).length;
+	var i;
+	var count = 0;
+	var htmlProduced = '';
+	for (i = 1; i <= numEvents; i++) {
+		if (events[i]['type'] == types.FUNC && events[i]['atEnv'] == currEnv) {
+			if (events[i]['data']['toId'] == funcId) {
+				count++;
+				htmlProduced += produceRadioButton(String(events[i]['line']), count, events[i]['data']['toEnv']);
+			}
+		}
+	}
+	return htmlProduced;
+}
+
+function promptForContext(funcId, contexts) {
+	var htmlProduced = findFuncEventsForId(funcId, currContext);
+	document.getElementById('context_modal_body').innerHTML = htmlProduced;
+	modalShown = 1;
+	$('#context_modal').modal('show');
+}
+
+function processForLine(line) {
+	var trimLine = line.split('-')[1];
+	var numEvents = Object.keys(events).length;
+	var foundContexts = [];
+
+	var i;
+	clearModalInfo();
+	requestLine = line;
+	for (i = 1; i <= numEvents; i++) {
+		var currentLine = events[i]['line'];
+		if (currentLine == trimLine) {
+			foundEvents.push(events[i]);
+			if (!foundContexts.includes(events[i]['atEnv'])) {
+				foundContexts.push(events[i]['atEnv']);
+			}
+		}
+	}
+
+	if (foundContexts.length > 1) {
+		//prompt to choose
+		promptForContext(foundEvents[0]['atFunc'], foundContexts);
+	} else {
+		currContext = foundContexts[0];
+		checkContextChange();
+	}
 }
 
 function populateUpperLabels(funcId, env) {
@@ -53,19 +181,6 @@ function populateUpperLabels(funcId, env) {
 	document.getElementById('env_label').innerHTML = env;
 }
 
-function processForLine(line) {
-	var foundEvents = findEvents(line.split('-')[1]);
-	var htmlProduced = '';
-	requestDisplay = [];
-	if (foundEvents.length > 0) {
-		populateUpperLabels(foundEvents[0]['atFunc'], foundEvents[0]['atEnv']);
-	}
-	foundEvents.forEach((event) => {
-		htmlProduced = processEventByType(event);
-	});
-	verifyTrack(requestDisplay);
-	document.getElementById('events_container').innerHTML = htmlProduced;
-}
 const types = {
 	ASSIGN: 'assign_event',
 	IF: 'if_event',
