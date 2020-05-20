@@ -885,7 +885,7 @@ SEXP attribute_hidden do_c(SEXP call, SEXP op, SEXP args, SEXP env)
 	PROTECT(ans);
 	SEXP res = do_c_dflt(call, op, ans, env);
 	UNPROTECT(1);
-	regVecCreation(res, env);
+	regVecCreation(call, res, env);
 	return res;
 }
 

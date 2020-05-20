@@ -58,6 +58,7 @@ void abd_stop()
     if (isRunning())
     {
         checkSettings();
+        checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
         persistInformation();
 
@@ -155,11 +156,12 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
     return ABD_EXIST;
 }
 
-void regVecCreation(SEXP vector, SEXP rho)
+void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    storeNewVecValues(vector);
+    checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
+    storeNewVecValues(vector, call);
 }
 
 void regIf(SEXP Stmt, Rboolean result, SEXP rho)

@@ -12,4 +12,4 @@ References: John M. Chambers (2008) ``Software for Data Analysis:
 License: Part of R 3.6.2
 Suggests: codetools
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-19 17:43:22 UTC; unix
+Built: R 3.6.2; x86_64-apple-darwin19.4.0; 2020-05-20 03:16:55 UTC; unix

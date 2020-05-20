@@ -1,20 +1,12 @@
 options("keep.source"=TRUE)
 run <- function(){
-    a <- 1
+    
     abd_start()
     
-    f1 <- function(){
-        1+1
-    }
-
-    b <- 10
-    c <- 30
-    vec2 <- c(1,2,3,4)
-    vec <- 1:10
-
-    vec[2] <- as.integer(999)
-    print("############")
-    vec2[1] <- 9999
+    b <- c(1,2,3,4)
+    c <- 1:7
+    c(1,2,3,5)
+    d <- c[1:3]
 
     abd_stop()
 }

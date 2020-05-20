@@ -28,7 +28,7 @@ function concatObjIds() {
 	var comObj = objects['commonObj'];
 	var numObjs = Object.keys(comObj).length;
 	var i;
-	for (i = 1; i < numObjs; i++) {
+	for (i = 1; i <= numObjs; i++) {
 		var obj = {
 			name: '',
 			ids: []
@@ -99,59 +99,103 @@ function objTrackStatusChanged(name, ids) {
 			trackObjects.push(ids[i]);
 		}
 	}
-	console.log(trackObjects);
 }
 
 var wantDisplay = [];
 var fakeBottomHr =
 	'<hr class="mt-2 mb-3" style="visibility: hidden"/><hr class="mt-2 mb-3" style="visibility: hidden"/><hr class="mt-2 mb-3" style="visibility: hidden"/>';
 var hr = '<hr class="mt-2 mb-3"/>';
-var lhsLabel = '<label class="d-block object-lhs ml-2">';
-var rhsLabel = '<label class="object-rhs-special ml-2">';
-var tailLabel = '</label>';
-function generateObjContent(objName, objId, objState, toIndex) {
+
+function genObjCol(colName, colContent) {
 	var htmlProduced = '';
+
+	htmlProduced += '<div class="col col-md-auto col1">';
+	htmlProduced += '<label class="event-content">' + colName + '</label>';
+	console.log('size: ' + colContent.length);
+	colContent.forEach((element) => {
+		console.log('element: ' + element);
+		htmlProduced += '<label class="event-rhs d-block ">' + element + '</label>';
+	});
+
+	htmlProduced += '</div>';
+
+	return htmlProduced;
+}
+
+function generateObjRow(objName, objContent) {
+	var htmlProduced = '';
+	htmlProduced +=
+		'<label class="event-title" id="obj_title">Name: <label class="object-rhs-special">' +
+		objName +
+		'</label></label>';
+	htmlProduced += '<div class="container-fluid" id="obj_content">';
+	htmlProduced += '<div class="row">';
+	htmlProduced += objContent;
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+function getDisplayForBigVectors(vector) {
+	var counter = 1;
+
+	var strList = [];
+	var strAux = '';
+	var len = vector.length;
+	var i;
+	var space = '&nbsp';
+	strAux += '[' + space + space;
+	for (i = 0; i < len; i++, counter++) {
+		strAux += vector[i] + (i + 1 < len ? ',' : '');
+		strAux += space;
+		if (counter == 4) {
+			strList.push(strAux);
+			counter = 0;
+			strAux = '';
+			strAux += space + space;
+		}
+	}
+	for (i = counter; i <= 4; i++) strAux += space;
+	strAux += space + ']';
+	strList.push(strAux);
+
+	return strList;
+}
+function generateObjContent(objName, objId, objState, toIndex) {
 	var currObjValue = getObjCurrValue(objId, objState, toIndex);
+	var colContent = [];
+	var objContent = '';
+
 	//generate name row
-	htmlProduced += lhsLabel;
-	htmlProduced += 'Name: ';
-	htmlProduced += rhsLabel;
-	htmlProduced += objName;
-	htmlProduced += tailLabel;
-	htmlProduced += tailLabel;
+	// colContent.push(objName);
+	// objContent += genObjCol('Name', colContent);
+	// colContent = [];
 
 	//generate struct type
-	htmlProduced += lhsLabel;
-	htmlProduced += 'Structure: ';
-	htmlProduced += rhsLabel;
-	htmlProduced += currObjValue[0];
-	htmlProduced += tailLabel;
-	htmlProduced += tailLabel;
+	colContent.push(currObjValue[0]);
+	objContent += genObjCol('Structure', colContent);
+	colContent = [];
 
 	//generate data type
-	htmlProduced += lhsLabel;
-	htmlProduced += 'Data Type: ';
-	htmlProduced += rhsLabel;
-	htmlProduced += currObjValue[1];
-	htmlProduced += tailLabel;
-	htmlProduced += tailLabel;
+	colContent.push(currObjValue[1]);
+	objContent += genObjCol('Data type', colContent);
+	colContent = [];
+
+	//generate data type
+	colContent.push(currObjValue[2]);
+	objContent += genObjCol('Size', colContent);
+	colContent = [];
 
 	//generate current value
-	htmlProduced += lhsLabel;
-	htmlProduced += 'Current Value: ';
-	htmlProduced += rhsLabel;
-	htmlProduced += currObjValue[2];
-	htmlProduced += tailLabel;
-	htmlProduced += tailLabel;
-	return htmlProduced;
+	colContent = getDisplayForBigVectors(currObjValue[3]);
+	objContent += genObjCol('Current value', colContent);
+	colContent = [];
+
+	return generateObjRow(objName, objContent);
 }
 function updateDisplay() {
 	if (trackObjects.length == 0) return;
 	var htmlProduced = '';
 	wantDisplay.forEach((obj) => {
-		console.log('update display...');
-		console.log('WantDisplay obj.id: ' + obj.id);
-		console.log('track: ' + trackObjects);
 		if (trackObjects.indexOf(String(obj.id)) > -1) {
 			htmlProduced += generateObjContent(obj.name, obj.id, obj.state, obj.withIndex);
 			htmlProduced += hr;
@@ -176,7 +220,8 @@ function getObjCurrValue(id, state, index) {
 			if (mod['vecMod'] == false) {
 				currentValue.push(mod['structType']);
 				currentValue.push(mod['dataType']);
-				currentValue.push(mod['value']);
+				currentValue.push(mod['nElements']);
+				currentValue.push(mod['vector']);
 				return currentValue;
 			}
 		}

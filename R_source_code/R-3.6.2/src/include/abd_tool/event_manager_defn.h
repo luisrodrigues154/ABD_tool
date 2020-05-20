@@ -47,6 +47,8 @@ static int arithScriptLn;
 
 /* Stores Vector creation values related*/
 static SEXP vecValues;
+static SEXP auxVecCall;
+static int auxVecLine;
 
 /* Stores events registry */
 static ABD_EVENT *eventsReg;

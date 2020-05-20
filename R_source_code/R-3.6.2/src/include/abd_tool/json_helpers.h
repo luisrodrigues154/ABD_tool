@@ -182,39 +182,32 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"vecMod\" : false,");
-        if (vecObj->nCols == 1)
-        {
-            fprintf(out, "\n%s\"value\" : %.2f", getStrFromIndent(INDENT_5), ((double *)vecObj->vector)[0]);
-            fprintf(dispOut, "\"value\" : %.2f", ((double *)vecObj->vector)[0]);
-        }
-        else
-        {
-            fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
-            fprintf(out, "\n%s\"vector\" : [", getStrFromIndent(INDENT_5));
 
-            fprintf(dispOut, "\"nElements\" : %d,", vecObj->nCols);
-            fprintf(dispOut, "\"vector\" : [");
+        fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
+        fprintf(out, "\n%s\"vector\" : [", getStrFromIndent(INDENT_5));
 
-            for (int i = 0; i < vecObj->nCols; i++)
+        fprintf(dispOut, "\"nElements\" : %d,", vecObj->nCols);
+        fprintf(dispOut, "\"vector\" : [");
+
+        for (int i = 0; i < vecObj->nCols; i++)
+        {
+            switch (type)
             {
-                switch (type)
-                {
-                case REALSXP:
-                    fprintf(out, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                    fprintf(dispOut, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                    break;
-                case INTSXP:
-                    fprintf(out, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                    fprintf(dispOut, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                    break;
-                default:
-                    break;
-                }
+            case REALSXP:
+                fprintf(out, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                fprintf(dispOut, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                break;
+            case INTSXP:
+                fprintf(out, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                fprintf(dispOut, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+                break;
+            default:
+                break;
             }
-
-            fprintf(out, "]");
-            fprintf(dispOut, "]");
         }
+
+        fprintf(out, "]");
+        fprintf(dispOut, "]");
     }
 }
 
@@ -634,6 +627,22 @@ void saveRetEvent(FILE *out, ABD_RET_EVENT *retEvent, FILE *dispOut)
         writeArgValueToFile(out, retEvent->retValue, INDENT_3, dispOut);
 }
 
+void saveVecEvent(FILE *out, ABD_VEC_EVENT *vecEvent, FILE *dispOut)
+{
+    fprintf(out, "\n%s\"size\" : %d,", getStrFromIndent(INDENT_3), vecEvent->nElements);
+    fprintf(out, "\n%s\"toObj\" : %s,", getStrFromIndent(INDENT_3), (vecEvent->toObj == ABD_OBJECT_NOT_FOUND) ? "false" : "true");
+    fprintf(out, "\n%s\"fromObj\" : %d,", getStrFromIndent(INDENT_3), (vecEvent->fromObj == ABD_OBJECT_NOT_FOUND) ? 0 : vecEvent->fromObj->id);
+    fprintf(out, "\n%s\"fromState\" : %d,", getStrFromIndent(INDENT_3), (vecEvent->fromState == ABD_OBJECT_NOT_FOUND) ? 0 : vecEvent->fromState->id);
+    fprintf(out, "\n%s\"rangeL\" : %d,", getStrFromIndent(INDENT_3), vecEvent->rangeL);
+    fprintf(out, "\n%s\"rangeR\" : %d", getStrFromIndent(INDENT_3), vecEvent->rangeR);
+
+    fprintf(dispOut, "\"size\" : %d,", vecEvent->nElements);
+    fprintf(dispOut, "\"toObj\" : %s,", (vecEvent->toObj == ABD_OBJECT_NOT_FOUND) ? "false" : "true");
+    fprintf(dispOut, "\"fromObj\" : %d,", (vecEvent->fromObj == ABD_OBJECT_NOT_FOUND) ? 0 : vecEvent->fromObj->id);
+    fprintf(dispOut, "\"fromState\" : %d,", (vecEvent->fromState == ABD_OBJECT_NOT_FOUND) ? 0 : vecEvent->fromState->id);
+    fprintf(dispOut, "\"rangeL\" : %d,", vecEvent->rangeL);
+    fprintf(dispOut, "\"rangeR\" : %d", vecEvent->rangeR);
+}
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -704,6 +713,7 @@ void saveEvents(FILE *out, FILE *dispOut)
 
             fprintf(dispOut, "\"vector_event\",");
             fprintf(dispOut, "\"data\" : {");
+            saveVecEvent(out, currEvent->data.vec_event, dispOut);
             break;
         default:
             break;

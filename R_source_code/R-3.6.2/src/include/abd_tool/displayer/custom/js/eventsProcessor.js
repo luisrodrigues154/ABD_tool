@@ -64,8 +64,8 @@ function clearModalInfo() {
 	foundEvents = [];
 }
 function checkContextChange() {
-	if (currContext != predecessorContext && checkedLine != '') {
-		document.getElementById('line-' + checkedLine).className = setUnselectedCSS;
+	if (currContext != predecessorContext && requestLine != '') {
+		document.getElementById('line-' + requestLine).className = setUnselectedCSS;
 		predecessorContext = currContext;
 	}
 
@@ -73,8 +73,8 @@ function checkContextChange() {
 		findFirstEvent();
 
 		predecessorContext = currContext;
-		if (requestingLine != '') {
-			document.getElementById('line-' + requestingLine).className = setUnselectedCSS;
+		if (requestLine != '') {
+			document.getElementById('line-' + requestLine).className = setUnselectedCSS;
 		}
 	}
 }
@@ -83,7 +83,6 @@ function applyContext() {
 	var htmlProduced = '';
 	if (modalShown) {
 		if (modalSelectedLine == '') {
-			console.log('here');
 			toggleLineSelect(requestLine, 0);
 			clearModalInfo();
 			findFirstEvent();
@@ -98,13 +97,14 @@ function applyContext() {
 	if (foundEvents.length > 0) {
 		populateUpperLabels(foundEvents[0]['atFunc'], currContext);
 	}
+
 	foundEvents.forEach((event) => {
 		if (event['atEnv'] == currContext) {
-			htmlProduced = processEventByType(event);
+			htmlProduced += processEventByType(event);
 		}
 	});
 	verifyTrack(requestDisplay);
-	document.getElementById('events_container').innerHTML = htmlProduced;
+	document.getElementById('events_container').innerHTML = htmlProduced + fakeBottomHr;
 }
 
 function produceRadioButton(line, id, context) {
@@ -156,7 +156,7 @@ function processForLine(line) {
 		var currentLine = events[i]['line'];
 		if (currentLine == trimLine) {
 			foundEvents.push(events[i]);
-			if (!foundContexts.includes(events[i]['atEnv'])) {
+			if (!foundContexts.includes(events[i]['atEnv']) && events[i]['type'] != types.RET) {
 				foundContexts.push(events[i]['atEnv']);
 			}
 		}
@@ -165,10 +165,12 @@ function processForLine(line) {
 	if (foundContexts.length > 1) {
 		//prompt to choose
 		promptForContext(foundEvents[0]['atFunc'], foundContexts);
-	} else {
+	} else if (foundContexts.length > 0) {
 		currContext = foundContexts[0];
 		checkContextChange();
 		applyContext();
+	} else {
+		toggleLineSelect(line, 0);
 	}
 }
 
@@ -190,25 +192,56 @@ const types = {
 	ARITH: 'arithmetic_event',
 	VEC: 'vector_event'
 };
+var processMe = 0;
+
+function checkMoreVectorsForSameLine(line, context) {
+	var i;
+	var count = 0;
+	for (i = 1; i <= Object.keys(events).length; i++) {
+		//fast check the line
+		if (events[i]['line'] == line) {
+			//check if first if vector (cost less than compare the context first)
+			if (events[i]['type'] == types.VEC) {
+				//finally check the context
+				if (events[i]['atEnv'] == context) {
+					count++;
+					if (count == 2) return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 
 function processEventByType(event) {
 	var htmlProduced = '';
 
 	switch (event['type']) {
 		case types.ASSIGN:
-			htmlProduced = produceASSIGNhtml(event);
+			htmlProduced += processAssignEvent(event) + hr;
 			break;
 		case types.IF:
 			break;
 		case types.FUNC:
+			htmlProduced += processFunCallEvent(event) + hr;
 			break;
 		case types.RET:
+			htmlProduced += processReturnEvent(event);
 			break;
 		case types.ARITH:
 			break;
 		case types.VEC:
+			if (
+				(event['data']['toObj'] == false && !checkMoreVectorsForSameLine(event['line'], event['atEnv'])) ||
+				(event['data']['toObj'] == true && processMe)
+			) {
+				htmlProduced += processVecEvent(event);
+				if (event['data']['toObj'] == false) {
+					htmlProduced += hr;
+				}
+			}
+			processMe = 0;
 			break;
-
 		default:
 			break;
 	}
@@ -216,17 +249,136 @@ function processEventByType(event) {
 	return htmlProduced;
 }
 
-var labelHeadTitle = '<label class="d-block event-title">';
-
-var labelRhs = '<label class="event-rhs">';
-var labelHeadContent = '<label class="d-block event-content ml-2">';
-var labelTail = '</label>';
-
 var HC_text = 'User-Typed';
 var R_text = 'Non-Tracked Object';
 
-function produceASSIGNhtml(event) {
+function genEventCol(colName, colContent) {
 	var htmlProduced = '';
+
+	htmlProduced += '<div class="col col-md-auto col1">';
+	htmlProduced += '<label class="event-content">' + colName + '</label>';
+	colContent.forEach((element) => {
+		htmlProduced += '<label class="event-rhs d-block ">' + element + '</label>';
+	});
+
+	htmlProduced += '</div>';
+
+	return htmlProduced;
+}
+
+function generateEventRow(eventTitle, eventContent) {
+	var htmlProduced = '';
+	htmlProduced += '<label class="d-block event-title" id="event_title">' + eventTitle + '</label>';
+	htmlProduced += '<div class="container-fluid" id="event_content">';
+	htmlProduced += '<div class="row">';
+	htmlProduced += eventContent;
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function getEventById(eventId) {
+	return events[eventId];
+}
+
+function processVecEvent(event) {
+	var eventContent = '';
+	var colContent = [];
+	var rangeL = event['data']['rangeL'];
+	var rangeR = event['data']['rangeR'];
+	var toObj = event['data']['toObj'];
+	var fromObj = event['data']['fromObj'];
+
+	let toObjToDisplay = {
+		id: '',
+		name: '',
+		withIndex: '',
+		state: ''
+	};
+
+	if (!toObj) {
+		colContent.push('Creation');
+		eventContent += genEventCol('Action', colContent);
+		colContent = [];
+		colContent.push(String(event['data']['size']));
+		eventContent += genEventCol('Size', colContent);
+		colContent = [];
+	} else {
+		colContent.push('Vector Creation');
+		eventContent += genEventCol('From event', colContent);
+		colContent = [];
+		colContent.push(String(event['data']['size']));
+		eventContent += genEventCol('Size', colContent);
+		colContent = [];
+	}
+
+	if (fromObj != 0) {
+		//from obj
+		var objName = getCommonObjNameById(fromObj);
+		colContent.push(objName);
+		eventContent += genEventCol('Created from', colContent);
+		colContent = [];
+
+		toObjToDisplay.id = fromObj;
+		toObjToDisplay.name = objName;
+		toObjToDisplay.state = event['data']['fromState'];
+		toObjToDisplay.withIndex = -1;
+
+		requestObjDisplay(toObjToDisplay);
+	}
+
+	if (!(rangeL == -1001 && rangeR == -1001)) {
+		colContent.push(String(rangeL) + ':' + String(rangeR));
+		eventContent += genEventCol('With range', colContent);
+		colContent = [];
+	}
+
+	if (!toObj) {
+		return generateEventRow('Vector creation', eventContent);
+	} else {
+		return eventContent;
+	}
+}
+function processFunCallEvent(event) {
+	var eventContent = '';
+	var funName = getCodeFlowObjNameById(event['data']['toId']);
+	var colContent = [];
+	//funtion
+	colContent.push(String(funName) + '()');
+	eventContent += genEventCol('Name', colContent);
+
+	colContent = [];
+	//arguments
+
+	colContent.push('12');
+	colContent.push('99');
+	colContent.push('123');
+	eventContent += genEventCol('Arg passed', colContent);
+	colContent = [];
+
+	colContent.push('x');
+	colContent.push('y');
+	colContent.push('z');
+	eventContent += genEventCol('Arg Received', colContent);
+	colContent = [];
+	//generate event
+
+	return generateEventRow('Function Call', eventContent);
+}
+
+function processReturnEvent(event) {
+	var funcName = getCodeFlowObjNameById(event['data']['fromId']);
+	var colContent = [];
+
+	//return is integrated with assignment, so just need to generate its column
+	colContent.push(String(funcName) + ' () return');
+
+	return genEventCol('From', colContent);
+}
+
+function processAssignEvent(event) {
+	var eventContent = '';
+	var colContent = [];
 
 	let toObjToDisplay = {
 		id: '',
@@ -247,48 +399,42 @@ function produceASSIGNhtml(event) {
 	toObjToDisplay.state = event['data']['toState'];
 	toObjToDisplay.withIndex = -1;
 
-	//title
-	htmlProduced += labelHeadTitle;
-	htmlProduced += 'Assignment';
-	htmlProduced += labelTail;
-
 	//to
-	htmlProduced += labelHeadContent;
-	htmlProduced += 'To Object: ';
-	htmlProduced += labelRhs;
-
-	htmlProduced += toObjToDisplay.name;
-	htmlProduced += labelTail;
-	htmlProduced += labelTail;
+	colContent.push(toObjToDisplay.name);
+	eventContent += genEventCol('To object', colContent);
+	colContent = [];
 
 	//from
-	htmlProduced += labelHeadContent;
 
 	if (event['data']['origin'] == 'obj') {
-		htmlProduced += 'From Object: ';
-		htmlProduced += labelRhs;
 		if (event['data']['fromObj'] == 'HC') {
-			htmlProduced += HC_text;
+			colContent.push(HC_text);
 		} else if (event['data']['fromObj'] == 'R') {
-			htmlProduced += R_text;
+			colContent.push(R_text);
 		} else {
 			fromObjToDisplay.id = event['data']['fromId'];
 			fromObjToDisplay.state = event['data']['fromState'];
 			fromObjToDisplay.name = getCommonObjNameById(fromObjToDisplay.id);
 			fromObjToDisplay.withIndex = event['data']['withIndex'];
-			htmlProduced += fromObjToDisplay.name;
+			colContent.push(fromObjToDisplay.name);
 		}
+		eventContent += genEventCol('From object', colContent);
 	} else {
-		htmlProduced += 'From Event: ';
-		htmlProduced += labelRhs;
+		var event = getEventById(event['data']['fromEvent']);
+		processMe = 1;
+		eventContent += processEventByType(event);
 	}
 
 	if (fromObjToDisplay.id != 0) {
-		requestDisplay.push(fromObjToDisplay);
+		requestObjDisplay(fromObjToDisplay);
 	}
-	requestDisplay.push(toObjToDisplay);
+	requestObjDisplay(toObjToDisplay);
 
-	htmlProduced += labelTail;
-	htmlProduced += labelTail;
-	return htmlProduced;
+	return generateEventRow('Assignment', eventContent);
+}
+
+function requestObjDisplay(id) {
+	if (!requestDisplay.includes(id)) {
+		requestDisplay.push(id);
+	}
 }

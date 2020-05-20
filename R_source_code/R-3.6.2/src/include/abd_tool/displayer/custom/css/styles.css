@@ -5,6 +5,7 @@
 	--selected-background: rgba(217, 179, 16, 0.5);
 	--selected-predecessor-background: rgba(247, 58, 58, 0.384);
 	--pane-opacity: rgba(29, 39, 49, 0.3);
+	--hr-opacity: rgba(255, 255, 255, .3);
 	--full-aplha: rgba(255, 255, 255, 0);
 }
 
@@ -89,9 +90,9 @@
 }
 
 .object-rhs-special {
-	font-size: 11pt;
+	font-size: 12pt;
 	color: var(--bto-color);
-	font-weight: normal;
+	font-weight: bold;
 }
 
 .object-rhs-normal {
@@ -99,9 +100,17 @@
 	color: white;
 	font-weight: normal;
 }
+.table td.fit,
+.table th.fit {
+	white-space: nowrap;
+	width: 1%;
+}
 
 hr {
-	background: white;
+	border: 0 none;
+	border-top: 1px dotted var(--hr-opacity);
+	background: none;
+	height: 0;
 }
 
 .modal-settings {

@@ -971,7 +971,7 @@ SEXP attribute_hidden do_subset_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 			setAttrib(ans, R_ClassSymbol, R_NilValue);
 	}
 	UNPROTECT(4);
-	regVecCreation(ans, rho);
+	regVecCreation(call, ans, rho);
 	return ans;
 }
 

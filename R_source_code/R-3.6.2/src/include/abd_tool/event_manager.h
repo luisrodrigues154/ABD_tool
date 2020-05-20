@@ -25,6 +25,8 @@ void initEventsReg()
 
     /* VEC VARS*/
     vecValues = R_NilValue;
+    auxVecCall = R_NilValue;
+    auxVecLine = 0;
 
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
@@ -851,9 +853,11 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
     return newEvent;
 }
 
-void storeNewVecValues(SEXP values)
+void storeNewVecValues(SEXP values, SEXP call)
 {
     vecValues = values;
+    auxVecCall = call;
+    auxVecLine = getCurrScriptLn();
 }
 
 void clearPendingVars()
@@ -869,6 +873,11 @@ void clearPendingVars()
     /* Reset RET_EVENT */
     lastRetEvent = ABD_EVENT_NOT_FOUND;
     lastRetValue = R_NilValue;
+
+    /* reset vec */
+    vecValues = R_NilValue;
+    auxVecCall = R_NilValue;
+    auxVecLine = 0;
 }
 
 ABD_EVENT *checkPendingArith(SEXP rhs)
@@ -903,25 +912,39 @@ ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
     if ((lastRetValue == R_NilValue) || (lastRetEvent == ABD_EVENT_NOT_FOUND))
         return ABD_EVENT_NOT_FOUND;
 
-    puts("starting ret");
     lastRetEvent->data.ret_event->toObj = obj;
-    puts("freeing value");
     free(lastRetEvent->data.ret_event->retValue);
-    puts("setting value");
     lastRetEvent->data.ret_event->retValue = obj->modList;
-    puts("returning ret");
+
     return lastRetEvent;
 }
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
 {
-    if ((vecValues == R_NilValue) || (vecVal != vecValues))
+    int mFlag = 0;
+    if (vecValues == R_NilValue)
         return ABD_EVENT_NOT_FOUND;
 
-    /* not null and have the same rhs */
-    createNewEvent(VEC_EVENT);
+    /* not null  */
 
+    createNewEvent(VEC_EVENT);
+    if (rhs2 == R_NilValue)
+    {
+        if (auxVecCall == R_NilValue)
+        {
+            puts("aux vec null");
+            return ABD_EVENT_NOT_FOUND;
+        }
+        mFlag = 1;
+        puts("have pendings");
+        rhs2 = auxVecCall;
+        vecVal = vecValues;
+        eventsRegTail->scriptLn = auxVecLine;
+    }
     ABD_VEC_EVENT *vecEvent = eventsRegTail->data.vec_event;
     vecEvent->nElements = Rf_nrows(vecVal);
+    vecEvent->toObj = ABD_OBJECT_NOT_FOUND;
+    vecEvent->rangeL = -1001;
+    vecEvent->rangeR = -1001;
     SEXP obj = R_NilValue;
     if (TYPEOF(rhs2) == LANGSXP)
     {
@@ -979,8 +1002,10 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
         vecEvent->fromObj = ABD_OBJECT_NOT_FOUND;
         vecEvent->fromState = ABD_OBJECT_NOT_FOUND;
     }
-
-    return eventsRegTail;
+    if (vecVal != vecValues || mFlag)
+        return ABD_EVENT_NOT_FOUND;
+    else
+        return eventsRegTail;
 }
 ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj)
 {
@@ -1025,6 +1050,10 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         currAssign->fromType = ABD_E;
         currAssign->fromObj = fromEvent;
         currAssign->fromState = ABD_OBJECT_NOT_FOUND;
+        if (fromEvent->type == VEC_EVENT)
+        {
+            fromEvent->data.vec_event->toObj = objUsed;
+        }
     }
     else
     {

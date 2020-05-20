@@ -172,6 +172,7 @@ typedef struct vec_event
 
     /* what was the state when the object was used... (state==ID)*/
     ABD_OBJECT_MOD *fromState;
+    ABD_OBJECT *toObj;
 } ABD_VEC_EVENT;
 #define ABD_EVENT_NOT_FOUND NULL
 #endif

@@ -186,7 +186,7 @@ SEXP attribute_hidden do_colon(SEXP call, SEXP op, SEXP args, SEXP rho)
 	if (ISNAN(n1) || ISNAN(n2))
 		errorcall(call, _("NA/NaN argument"));
 	SEXP ans = seq_colon(n1, n2, call);
-	regVecCreation(ans, rho);
+	regVecCreation(call, ans, rho);
 	return ans;
 }
 
