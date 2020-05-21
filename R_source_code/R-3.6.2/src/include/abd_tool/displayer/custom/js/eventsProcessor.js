@@ -65,16 +65,15 @@ function clearModalInfo() {
 }
 function checkContextChange() {
 	if (currContext != predecessorContext && requestLine != '') {
-		document.getElementById('line-' + requestLine).className = setUnselectedCSS;
+		toggleLineSelect('line-' + requestLine, 1);
 		predecessorContext = currContext;
 	}
 
 	if (currContext === undefined) {
 		findFirstEvent();
-
 		predecessorContext = currContext;
 		if (requestLine != '') {
-			document.getElementById('line-' + requestLine).className = setUnselectedCSS;
+			toggleLineSelect('line-' + requestLine, 0);
 		}
 	}
 }
@@ -103,6 +102,7 @@ function applyContext() {
 			htmlProduced += processEventByType(event);
 		}
 	});
+
 	verifyTrack(requestDisplay);
 	document.getElementById('events_container').innerHTML = htmlProduced + fakeBottomHr;
 }
@@ -151,22 +151,23 @@ function processForLine(line) {
 
 	var i;
 	clearModalInfo();
-	requestLine = line;
+	requestLine = trimLine;
 	for (i = 1; i <= numEvents; i++) {
 		var currentLine = events[i]['line'];
-		if (currentLine == trimLine) {
+		if (currentLine == requestLine) {
 			foundEvents.push(events[i]);
 			if (!foundContexts.includes(events[i]['atEnv']) && events[i]['type'] != types.RET) {
 				foundContexts.push(events[i]['atEnv']);
 			}
 		}
 	}
-
+	console.log('foundContexts: ' + foundContexts.length);
 	if (foundContexts.length > 1) {
 		//prompt to choose
 		promptForContext(foundEvents[0]['atFunc'], foundContexts);
 	} else if (foundContexts.length > 0) {
 		currContext = foundContexts[0];
+
 		checkContextChange();
 		applyContext();
 	} else {
@@ -323,7 +324,6 @@ function processVecEvent(event) {
 		toObjToDisplay.name = objName;
 		toObjToDisplay.state = event['data']['fromState'];
 		toObjToDisplay.withIndex = -1;
-
 		requestObjDisplay(toObjToDisplay);
 	}
 
@@ -343,25 +343,52 @@ function processFunCallEvent(event) {
 	var eventContent = '';
 	var funName = getCodeFlowObjNameById(event['data']['toId']);
 	var colContent = [];
+	var rcvdArgs = [];
 	//funtion
 	colContent.push(String(funName) + '()');
 	eventContent += genEventCol('Name', colContent);
-
 	colContent = [];
+
 	//arguments
+	var args = event['data']['args'];
 
-	colContent.push('12');
-	colContent.push('99');
-	colContent.push('123');
-	eventContent += genEventCol('Arg passed', colContent);
+	args.forEach((arg) => {
+		let toObjToDisplay = {
+			id: '',
+			name: '',
+			withIndex: '',
+			state: ''
+		};
+		let fromObjToDisplay = {
+			id: '',
+			name: '',
+			withIndex: '',
+			state: ''
+		};
+		var fromId = arg['fromId'];
+		if (fromId == -1) {
+			colContent.push(HC_text);
+		} else if (fromId == -2) {
+			colContent.push(R_text);
+		} else {
+			var objName = getCommonObjNameById(fromId);
+			fromObjToDisplay.id = arg['fromId'];
+			fromObjToDisplay.name = objName;
+			fromObjToDisplay.withIndex = -1;
+			fromObjToDisplay.state = arg['fromState'];
+			colContent.push(objName);
+			requestObjDisplay(fromObjToDisplay);
+		}
+		toObjToDisplay.id = arg['toId'];
+		toObjToDisplay.name = getCommonObjNameById(toObjToDisplay.id);
+		toObjToDisplay.withIndex = -1;
+		toObjToDisplay.state = arg['toState'];
+		rcvdArgs.push(toObjToDisplay.name);
+		requestObjDisplay(toObjToDisplay);
+	});
+	eventContent += genEventCol('Args passed', colContent);
 	colContent = [];
-
-	colContent.push('x');
-	colContent.push('y');
-	colContent.push('z');
-	eventContent += genEventCol('Arg Received', colContent);
-	colContent = [];
-	//generate event
+	eventContent += genEventCol('Args Received', rcvdArgs);
 
 	return generateEventRow('Function Call', eventContent);
 }
@@ -369,7 +396,6 @@ function processFunCallEvent(event) {
 function processReturnEvent(event) {
 	var funcName = getCodeFlowObjNameById(event['data']['fromId']);
 	var colContent = [];
-
 	//return is integrated with assignment, so just need to generate its column
 	colContent.push(String(funcName) + ' () return');
 

@@ -159,7 +159,7 @@ ABD_OBJECT_MOD *memAllocMod();
     Registries Management prototypes
    ####################################
 */
-
+ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt);
 void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv);
 ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg);
 ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv);
@@ -171,7 +171,7 @@ ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD
 ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, SEXPTYPE type);
 ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *mod, SEXP rhs);
 ABD_OBJECT_MOD *createRealVectorIdxChange(ABD_OBJECT_MOD *newMod, SEXP rhs);
-ABD_OBJECT *getCmnObj(char *name, SEXP rho);
-ABD_OBJECT *getCfObj(char *name, SEXP rho);
+ABD_OBJECT *getCmnObj(const char *name, SEXP rho);
+ABD_OBJECT *getCfObj(const char *name, SEXP rho);
 ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv);
 void prepForIdxChange(SEXP var);

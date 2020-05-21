@@ -88,6 +88,7 @@ void dupScript()
 {
     char *dupPath = getJSpath("code");
     char *oriPath = getScriptPath();
+    printf("Script path: %s\n", oriPath);
     char readLine[1024];
     int first = 1;
     FILE *ori;
@@ -135,13 +136,38 @@ char *getStrForType(SEXPTYPE type)
         break;
     }
 }
+
+int baseVecSize;
+void *baseVecValues;
+void writeVectorValues(FILE *out, int indent, SEXPTYPE type, void *vector, int nElements, FILE *dispOut)
+{
+    fprintf(out, "[");
+    fprintf(dispOut, "[");
+    for (int i = 0; i < nElements; i++)
+    {
+        switch (type)
+        {
+        case REALSXP:
+            fprintf(out, "%.2f%s", ((double *)vector)[i], (i + 1 == nElements) ? "" : ",");
+            fprintf(dispOut, "%.2f%s", ((double *)vector)[i], (i + 1 == nElements) ? "" : ",");
+            break;
+        case INTSXP:
+            fprintf(out, "%d%s", ((int *)vector)[i], (i + 1 == nElements) ? "" : ",");
+            fprintf(dispOut, "%d%s", ((int *)vector)[i], (i + 1 == nElements) ? "" : ",");
+            break;
+        default:
+            break;
+        }
+    }
+    fprintf(out, "]");
+    fprintf(dispOut, "]");
+}
 void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
 {
     SEXPTYPE type = vecObj->type;
     if (vecObj->idxChange)
     {
         fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
-        fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : true,", getStrFromIndent(INDENT_5));
         fprintf(out, "\n%s\"numMods\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
         fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5));
@@ -154,60 +180,55 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         //nCols represent number of modifications
         for (int i = 0; i < vecObj->nCols; i++)
         {
-            fprintf(out, "\n%s{ \"index\" : %d, ", getStrFromIndent(INDENT_6), vecObj->idxs[i]);
-            fprintf(dispOut, "{ \"index\" : %d,", vecObj->idxs[i]);
+            int idx = vecObj->idxs[i];
+            fprintf(out, "\n%s{\n%s\"index\" : %d, ", getStrFromIndent(INDENT_6), getStrFromIndent(INDENT_7), idx);
+            fprintf(dispOut, "{ \"index\" : %d,", idx);
             switch (type)
             {
             case REALSXP:
-                fprintf(out, "\"newValue\" : %.2f }", ((double *)vecObj->vector)[i]);
-                fprintf(dispOut, "\"newValue\" : %.2f }", ((double *)vecObj->vector)[i]);
+                fprintf(out, "\n%s\"newValue\" : %.2f", getStrFromIndent(INDENT_7), ((double *)vecObj->vector)[i]);
+                fprintf(dispOut, "\"newValue\" : %.2f", ((double *)vecObj->vector)[i]);
+                ((double *)baseVecValues)[idx] = ((double *)vecObj->vector)[i];
                 break;
             case INTSXP:
-                fprintf(out, "\"newValue\" : %d }", ((int *)vecObj->vector)[i]);
-                fprintf(dispOut, "\"newValue\" : %d }", ((int *)vecObj->vector)[i]);
+                fprintf(out, "\n%s\"newValue\" : %d", getStrFromIndent(INDENT_7), ((int *)vecObj->vector)[i]);
+                fprintf(dispOut, "\"newValue\" : %d", ((int *)vecObj->vector)[i]);
+                ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
                 break;
             default:
                 break;
             }
-
+            fprintf(out, "\n%s}", getStrFromIndent(INDENT_6));
+            fprintf(dispOut, "}");
             if (i + 1 != vecObj->nCols)
+            {
                 fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
         }
+        fprintf(out, ",");
+        fprintf(dispOut, ",");
+        //save the changed vector
+        fprintf(out, "\n%s", getStrFromIndent(INDENT_6));
+        writeVectorValues(out, INDENT_7, type, baseVecValues, baseVecSize, dispOut);
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "]");
     }
     else
     {
+        baseVecSize = vecObj->nCols;
+        baseVecValues = vecObj->vector;
+
         fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
         fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"vecMod\" : false,");
 
         fprintf(out, "\n%s\"nElements\" : %d,", getStrFromIndent(INDENT_5), vecObj->nCols);
-        fprintf(out, "\n%s\"vector\" : [", getStrFromIndent(INDENT_5));
-
         fprintf(dispOut, "\"nElements\" : %d,", vecObj->nCols);
-        fprintf(dispOut, "\"vector\" : [");
-
-        for (int i = 0; i < vecObj->nCols; i++)
-        {
-            switch (type)
-            {
-            case REALSXP:
-                fprintf(out, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                fprintf(dispOut, "%.2f%s", ((double *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                break;
-            case INTSXP:
-                fprintf(out, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                fprintf(dispOut, "%d%s", ((int *)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
-                break;
-            default:
-                break;
-            }
-        }
-
-        fprintf(out, "]");
-        fprintf(dispOut, "]");
+        fprintf(out, "\n%s\"values\" : ", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"values\" : ");
+        writeVectorValues(out, INDENT_5, type, baseVecValues, baseVecSize, dispOut);
     }
 }
 
@@ -216,12 +237,10 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
     ABD_OBJECT_MOD *currMod = listStart;
     do
     {
-        fprintf(out, "\n%s{", getStrFromIndent(INDENT_4));
-        fprintf(out, "\n%s\"id\" : %d,", getStrFromIndent(INDENT_5), currMod->id);
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), currMod->id);
         fprintf(out, "\n%s\"structType\" : ", getStrFromIndent(INDENT_5));
 
-        fprintf(dispOut, "{");
-        fprintf(dispOut, "\"id\" : %d,", currMod->id);
+        fprintf(dispOut, "\"%d\" : {", currMod->id);
         fprintf(dispOut, "\"structType\" : ");
         switch (currMod->valueType)
         {
@@ -233,13 +252,14 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
         case ABD_MATRIX:
             break;
         default:
+            puts("default in persist");
             break;
         }
 
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
         fprintf(dispOut, "}");
 
-        currMod = currMod->prevMod;
+        currMod = currMod->nextMod;
         if (currMod != ABD_NOT_FOUND)
         {
             fprintf(out, ",");
@@ -266,15 +286,15 @@ void writeObjToFile(FILE *out, ABD_OBJECT *obj, FILE *dispOut)
     if (obj->modListStart != ABD_NOT_FOUND)
     {
         fprintf(out, ",");
-        fprintf(out, "\n%s\"modList\" : [", getStrFromIndent(INDENT_3));
+        fprintf(out, "\n%s\"modList\" : {", getStrFromIndent(INDENT_3));
 
         fprintf(dispOut, ",");
-        fprintf(dispOut, "\"modList\" : [");
+        fprintf(dispOut, "\"modList\" : {");
 
-        writeObjModsToFile(out, obj->modList, dispOut);
+        writeObjModsToFile(out, obj->modListStart, dispOut);
 
-        fprintf(out, "\n%s]", getStrFromIndent(INDENT_3));
-        fprintf(dispOut, "]");
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+        fprintf(dispOut, "}");
     }
 
     fprintf(out, "\n%s}", getStrFromIndent(INDENT_2));
@@ -422,47 +442,17 @@ void saveFuncArgs(FILE *out, ABD_EVENT_ARG *argsList, FILE *dispOut)
     {
 
         fprintf(out, "\n%s{", getStrFromIndent(INDENT_4));
-        fprintf(out, "\n%s\"type\" : ", getStrFromIndent(INDENT_5));
-
         fprintf(dispOut, "{");
-        fprintf(dispOut, "\"type\" : ");
-        if (currArg->objPtr->id == -1)
-        {
-            //hardcoded value
-            fprintf(out, "\"HC\",");
-            fprintf(out, "\n%s\"passedAs\" : \"NA\",", getStrFromIndent(INDENT_5));
-            fprintf(out, "\n%s\"receivedAs\" : \"%s\",", getStrFromIndent(INDENT_5), currArg->rcvdName);
 
-            fprintf(dispOut, "\"HC\",");
-            fprintf(dispOut, "\"passedAs\" : \"NA\",");
-            fprintf(dispOut, "\"receivedAs\" : \"%s\",", currArg->rcvdName);
-            writeArgValueToFile(out, currArg->objValue, INDENT_5, dispOut);
-        }
-        else if (currArg->objPtr->id == -2)
-        {
-            //object not in registry
-            fprintf(out, "\"R\",");
-            fprintf(out, "\n%s\"passedAs\" : \"%s\",", getStrFromIndent(INDENT_5), currArg->objPtr->name);
-            fprintf(out, "\n%s\"receivedAs\" : \"%s\",", getStrFromIndent(INDENT_5), currArg->rcvdName);
+        fprintf(out, "\n%s\"fromId\" : %d,", getStrFromIndent(INDENT_5), currArg->fromObj->id);
+        fprintf(out, "\n%s\"fromState\" : %d,", getStrFromIndent(INDENT_5), currArg->passedValue->id);
+        fprintf(out, "\n%s\"toId\" : %d,", getStrFromIndent(INDENT_5), currArg->toObj->id);
+        fprintf(out, "\n%s\"toState\" : %d", getStrFromIndent(INDENT_5), currArg->rcvdValue->id);
 
-            fprintf(dispOut, "\"R\",");
-            fprintf(dispOut, "\"passedAs\" : \"%s\",", currArg->objPtr->name);
-            fprintf(dispOut, "\"receivedAs\" : \"%s\",", currArg->rcvdName);
-            writeArgValueToFile(out, currArg->objValue, INDENT_5, dispOut);
-        }
-        else
-        {
-            //object in registry
-            fprintf(out, "\"ABD\",");
-            fprintf(out, "\n%s\"objId\" : \"%d\",", getStrFromIndent(INDENT_5), currArg->objPtr->id);
-            fprintf(out, "\n%s\"receivedAs\" : \"%s\",", getStrFromIndent(INDENT_5), currArg->rcvdName);
-            fprintf(out, "\n%s\"valueId\" : \"%d\"", getStrFromIndent(INDENT_5), currArg->objValue->id);
-
-            fprintf(dispOut, "\"ABD\",");
-            fprintf(dispOut, "\"objId\" : \"%d\",", currArg->objPtr->id);
-            fprintf(dispOut, "\"receivedAs\" : \"%s\",", currArg->rcvdName);
-            fprintf(dispOut, "\"valueId\" : \"%d\"", currArg->objValue->id);
-        }
+        fprintf(dispOut, "\"fromId\" : %d,", currArg->fromObj->id);
+        fprintf(dispOut, "\"fromState\" : %d,", currArg->passedValue->id);
+        fprintf(dispOut, "\"toId\" : %d,", currArg->toObj->id);
+        fprintf(dispOut, "\"toState\" : %d", currArg->rcvdValue->id);
 
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
         fprintf(dispOut, "}");

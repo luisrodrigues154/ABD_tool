@@ -36,6 +36,8 @@
         "random": "cpp",
         "ratio": "cpp",
         "vector": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "cstdio": "cpp",
+        "fstream": "cpp"
     }
 }

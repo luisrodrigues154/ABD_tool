@@ -57,12 +57,14 @@ void abd_stop()
 {
     if (isRunning())
     {
+
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
         persistInformation();
 
-        //open the browser
+        //open the browser with the displayer
+
         system(getCommand());
     }
 }
@@ -113,6 +115,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
+
     //need to extract the rhs from the call
     ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
     SEXP rhs2 = CAR(CDR(CDR(call)));
@@ -141,14 +144,13 @@ ABD_SEARCH checkToReg(SEXP rho)
 
 ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
+
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return ABD_NOT_EXIST;
 
     ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
     if (objFound == ABD_OBJECT_NOT_FOUND)
         return ABD_NOT_EXIST;
-
-    //printf("FunCall at line %d\n", getCurrScriptLn());
 
     createNewEvent(FUNC_EVENT);
     setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);

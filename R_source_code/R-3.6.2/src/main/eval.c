@@ -731,9 +731,7 @@ SEXP eval(SEXP e, SEXP rho)
 
 		if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
 		{
-			printf("the call ");
-			PrintIt(e, rho);
-			printf("The car: %s at line %d\n", CHAR(PRINTNAME(CAR(e))), getCurrScriptLn());
+
 			if (isWaitingElseIf() && (strcmp(CHAR(PRINTNAME(CAR(e))), "{") == 0))
 			{
 				//its an else, does not come from eval to here, need to hack
@@ -1796,6 +1794,7 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 								   SEXP rho, SEXP arglist, SEXP op);
 
 /* Apply SEXP op of type CLOSXP to actuals */
+SEXP ABD_CALL_NO_JIT;
 SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 {
 	SEXP formals, actuals, savedrho, newrho;
@@ -1912,15 +1911,7 @@ SEXP getLoc(SEXP srcref)
 	UNPROTECT(7);
 	return result;
 }
-void showP()
-{
-	SEXP p_call;
-	PROTECT(p_call = lang2(install("attributes(f)"), R_NilValue));
 
-	// Execute the function
-	int errorOccurred;
-	SEXP ret = R_tryEval(p_call, R_GlobalEnv, &errorOccurred);
-}
 static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 								   SEXP rho, SEXP arglist, SEXP op)
 {
@@ -1931,24 +1922,21 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 	begincontext(&cntxt, CTXT_RETURN, call, newrho, sysparent, arglist, op);
 
 	body = BODY(op);
-	if (R_CheckJIT(op))
-	{
-		int old_enabled = R_jit_enabled;
-		R_jit_enabled = 0;
-		R_cmpfun(op);
-		body = BODY(op);
-		R_jit_enabled = old_enabled;
-	}
+
+	// 	if (R_CheckJIT(op))
+	// 	{
+	// 		int old_enabled = R_jit_enabled;
+	// 		R_jit_enabled = 0;
+	// 		R_cmpfun(op);
+	// 		body = BODY(op);
+	// 		R_jit_enabled = old_enabled;
+	// 	}
 
 	/* Get the srcref record from the closure object. The old srcref was
        saved in cntxt. */
 
 	R_Srcref = getAttrib(op, R_SrcrefSymbol);
-	// if (st && strcmp(CHAR(PRINTNAME(CAR(call))), "f") == 0)
-	// {
-	// 	SrcrefPrompt("debug f: ", R_Srcref);
-	// 	puts(" ");
-	// }
+
 	/* Debugging */
 
 	if ((RDEBUG(op) && R_current_debug_state()) || RSTEP(op) || (RDEBUG(rho) && R_BrowserLastCommand == 's'))

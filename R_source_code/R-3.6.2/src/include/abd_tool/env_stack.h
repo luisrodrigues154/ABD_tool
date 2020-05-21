@@ -30,16 +30,12 @@ ABD_ENV_STACK *memAllocEnvStack()
 void envPush(SEXP newRho, ABD_OBJECT *funcObj)
 {
     ABD_ENV_STACK *newEnv = memAllocEnvStack();
-    if (isVerbose())
-    {
-        puts("Env pushed to the stack...");
-        printf("Old env: %s\n", envToStr(envStack->rho));
-        printf("New env: %s\n", envToStr(newRho));
-    }
+
     newEnv->rho = newRho;
     newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
+    puts("env pushed");
 }
 char *envToStr(SEXP rho)
 {
@@ -60,15 +56,10 @@ char *envToStr(SEXP rho)
 }
 void envPop()
 {
-    if (isVerbose())
-    {
-        puts("Env popped from the stack...");
-        printf("Pop'ed env: %s\n", envToStr(envStack->rho));
-        printf("Curr env: %s\n", envToStr(envStack->prev->rho));
-    }
     ABD_ENV_STACK *elementToPop = envStack;
     envStack = envStack->prev;
     freeEnv(elementToPop);
+    puts("env popped");
 }
 SEXP getCurrentEnv()
 {

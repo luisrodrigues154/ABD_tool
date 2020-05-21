@@ -87,17 +87,13 @@ IF_EXPRESSION *memAllocIfExp()
     return (IF_EXPRESSION *)malloc(sizeof(IF_EXPRESSION));
 }
 
-ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *currArg, ABD_OBJECT *objPtr, const char *rcvdName, ABD_OBJECT_MOD *objValue)
+ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *currArg, ABD_OBJECT *fromObj, ABD_OBJECT *toObj, ABD_OBJECT_MOD *passedValue)
 {
+    currArg->fromObj = fromObj;
+    currArg->toObj = toObj;
+    currArg->passedValue = passedValue;
+    currArg->rcvdValue = toObj->modList;
 
-    int rcvdNameSize = strlen(rcvdName);
-
-    currArg->objPtr = objPtr;
-
-    currArg->rcvdName = memAllocForString(rcvdNameSize);
-    copyStr(currArg->rcvdName, rcvdName, rcvdNameSize);
-
-    currArg->objValue = objValue;
     return currArg;
 }
 SEXP getValueFromPROMSXP(SEXP symbol)
@@ -210,13 +206,13 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
     due to the fact that it is an arbitrary number of arguments
     might apply the same procedure as 17 to the 18 (anysxp)
 */
-ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs)
+ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_OBJECT *targetFunc)
 {
     ABD_EVENT_ARG *argsList = ABD_NOT_FOUND;
     ABD_EVENT_ARG *currentArg = ABD_NOT_FOUND;
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT_MOD *objValue = ABD_NOT_FOUND;
-
+    SEXP rcvdValue = R_NilValue;
     for (; passedArgs != R_NilValue; passedArgs = CDR(passedArgs), receivedArgs = CDR(receivedArgs))
     {
         if (argsList == ABD_NOT_FOUND)
@@ -249,21 +245,21 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs)
         case REALSXP:
             objectFound = createUnscopedObj("NA", -1, -1, symbol, 0);
             objValue = objectFound->modList;
+            rcvdValue = symbol;
             break;
         case SYMSXP:
         {
             //its a variable
             const char *passedName = CHAR(PRINTNAME(symbol));
+            SEXP rStrName = mkString(passedName);
+            rcvdValue = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
             //printf("\nPassed name: %s\nReceived name: %s\n", passedName, rcvdName);
             objectFound = findObj(cmnObjReg, passedName, getCurrentEnv());
             if (objectFound == ABD_OBJECT_NOT_FOUND)
             {
                 //object not in registry
-                SEXP rStrName = mkString(passedName);
                 //request R for the object (not hardcoded)
-
-                SEXP symbValue = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
-                objectFound = createUnscopedObj(passedName, -2, -2, symbValue, 0);
+                objectFound = createUnscopedObj(passedName, -2, -2, rcvdValue, 0);
             }
             objValue = objectFound->modList;
 
@@ -297,7 +293,9 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs)
             //Rprintf("[%d] '%s' R type\n", i+1, rcvdName);
         }
         const char *rcvdName = isNull(TAG(receivedArgs)) ? "" : CHAR(PRINTNAME(TAG(receivedArgs)));
-        currentArg = setArgValues(currentArg, objectFound, rcvdName, objValue);
+        ABD_OBJECT *toObj = createLocalVariable(rcvdName, newRho, rcvdValue, targetFunc);
+        currentArg = setArgValues(currentArg, objectFound, toObj, objValue);
+
         objectFound = ABD_OBJECT_NOT_FOUND;
         objValue = ABD_OBJECT_NOT_FOUND;
     }
@@ -732,13 +730,13 @@ void setIfEventValues(SEXP statement, Rboolean result)
     }
 }
 
-void setFuncEventValues(ABD_OBJECT *callingObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
+void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
     eventsRegTail->data.func_event->toEnv = newRho;
     eventsRegTail->data.func_event->caller = getCurrFuncObj();
-    eventsRegTail->data.func_event->called = callingObj;
-    eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs);
-    envPush(newRho, callingObj);
+    eventsRegTail->data.func_event->called = calledObj;
+    eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs, newRho, calledObj);
+    envPush(newRho, calledObj);
 }
 
 void setRetEventValue(SEXP value)
@@ -909,7 +907,7 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
 ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
 {
     /* Pending ret event to assign object */
-    if ((lastRetValue == R_NilValue) || (lastRetEvent == ABD_EVENT_NOT_FOUND))
+    if ((lastRetValue == R_NilValue) || (lastRetEvent == ABD_EVENT_NOT_FOUND) || (obj == ABD_OBJECT_NOT_FOUND))
         return ABD_EVENT_NOT_FOUND;
 
     lastRetEvent->data.ret_event->toObj = obj;
@@ -925,21 +923,19 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
         return ABD_EVENT_NOT_FOUND;
 
     /* not null  */
-
-    createNewEvent(VEC_EVENT);
     if (rhs2 == R_NilValue)
     {
-        if (auxVecCall == R_NilValue)
+        if (auxVecCall == R_NilValue || auxVecLine == 0)
         {
-            puts("aux vec null");
             return ABD_EVENT_NOT_FOUND;
         }
         mFlag = 1;
-        puts("have pendings");
         rhs2 = auxVecCall;
         vecVal = vecValues;
         eventsRegTail->scriptLn = auxVecLine;
     }
+    createNewEvent(VEC_EVENT);
+
     ABD_VEC_EVENT *vecEvent = eventsRegTail->data.vec_event;
     vecEvent->nElements = Rf_nrows(vecVal);
     vecEvent->toObj = ABD_OBJECT_NOT_FOUND;
@@ -1079,7 +1075,6 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         }
         if (TYPEOF(rhs2) == SYMSXP)
         {
-            printf("rhs -> %s\n", CHAR(PRINTNAME(rhs2)));
             if ((fromObj = findObj(cmnObjReg, CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
             {
                 //not mapped obj

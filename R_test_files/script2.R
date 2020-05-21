@@ -1,17 +1,16 @@
-objOut <- 33
+options("keep.source"=TRUE)
+run <- function(){
+abd_start()
 
-start_watcher()
-
-f1 <- function(x, y){
-    print("here")
-    f1_a <- x+10
+f1 <-function(){
+    f1_a <- 10
+    f1_a
 }
-f2 <- function(x){
-    print("executed")
-    30
+a <- f1()
+b <- f1()
+
+abd_stop()
 }
 
-main_a <- f2()
-f1(main_a, 10)
+run()
 
-stop_watcher()

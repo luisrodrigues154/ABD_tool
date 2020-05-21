@@ -300,7 +300,7 @@ ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj)
     return objReg;
 }
 
-ABD_OBJECT *getCmnObj(char *name, SEXP rho)
+ABD_OBJECT *getCmnObj(const char *name, SEXP rho)
 {
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
@@ -324,7 +324,7 @@ ABD_OBJECT *getCmnObj(char *name, SEXP rho)
     }
     return objectFound;
 }
-ABD_OBJECT *getCfObj(char *name, SEXP rho)
+ABD_OBJECT *getCfObj(const char *name, SEXP rho)
 {
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
@@ -517,7 +517,19 @@ ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId, SEXP value
 
     return hcObj;
 }
+ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt)
+{
+    ABD_OBJECT *obj = getCmnObj(name, rho);
+    free(obj->createdAt);
+    obj->createdAt = createdAt->name;
+    ABD_OBJECT_MOD *newMod = addEmptyModToObj(obj, getObjStructType(rhs));
 
+    newMod = processByType(rhs, newMod, 0);
+    obj->modList = newMod;
+    obj->usages++;
+    cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+    return obj;
+}
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 {
     if (!isalpha(CHAR(PRINTNAME(lhs))[0]) && !waitingIdxChange)

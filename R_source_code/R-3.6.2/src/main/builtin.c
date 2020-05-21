@@ -883,8 +883,6 @@ SEXP attribute_hidden do_makevector(SEXP call, SEXP op, SEXP args, SEXP rho)
 	R_xlen_t len;
 	SEXP s;
 	SEXPTYPE mode;
-	if (isRunning())
-		puts("creating vector....");
 	checkArity(op, args);
 	if (length(CADR(args)) != 1)
 		error(_("invalid '%s' argument"), "length");

@@ -95,7 +95,7 @@ function objTrackStatusChanged(name, ids) {
 			trackObjects.splice(ret, 1);
 		else {
 			//add
-
+			console.log('adding id: ' + ids[i]);
 			trackObjects.push(ids[i]);
 		}
 	}
@@ -111,9 +111,7 @@ function genObjCol(colName, colContent) {
 
 	htmlProduced += '<div class="col col-md-auto col1">';
 	htmlProduced += '<label class="event-content">' + colName + '</label>';
-	console.log('size: ' + colContent.length);
 	colContent.forEach((element) => {
-		console.log('element: ' + element);
 		htmlProduced += '<label class="event-rhs d-block ">' + element + '</label>';
 	});
 
@@ -165,11 +163,6 @@ function generateObjContent(objName, objId, objState, toIndex) {
 	var colContent = [];
 	var objContent = '';
 
-	//generate name row
-	// colContent.push(objName);
-	// objContent += genObjCol('Name', colContent);
-	// colContent = [];
-
 	//generate struct type
 	colContent.push(currObjValue[0]);
 	objContent += genObjCol('Structure', colContent);
@@ -195,7 +188,10 @@ function generateObjContent(objName, objId, objState, toIndex) {
 function updateDisplay() {
 	if (trackObjects.length == 0) return;
 	var htmlProduced = '';
+	console.log('want display');
+
 	wantDisplay.forEach((obj) => {
+		console.log(obj);
 		if (trackObjects.indexOf(String(obj.id)) > -1) {
 			htmlProduced += generateObjContent(obj.name, obj.id, obj.state, obj.withIndex);
 			htmlProduced += hr;
@@ -213,19 +209,18 @@ function verifyTrack(objList) {
 
 function getObjCurrValue(id, state, index) {
 	var currentValue = [];
-	cmnObj[id]['modList'].forEach((mod) => {
-		//resolve
+	currentValue.push(cmnObj[id]['modList'][state]['structType']);
+	currentValue.push(cmnObj[id]['modList'][state]['dataType']);
 
-		if (mod['id'] == state) {
-			if (mod['vecMod'] == false) {
-				currentValue.push(mod['structType']);
-				currentValue.push(mod['dataType']);
-				currentValue.push(mod['nElements']);
-				currentValue.push(mod['vector']);
-				return currentValue;
-			}
-		}
-	});
+	if (cmnObj[id]['modList'][state]['vecMod'] == false) {
+		currentValue.push(cmnObj[id]['modList'][state]['nElements']);
+		currentValue.push(cmnObj[id]['modList'][state]['values']);
+	} else {
+		var numMods = cmnObj[id]['modList'][state]['numMods'];
+		currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods].length);
+		currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods]);
+	}
+
 	return currentValue;
 }
 

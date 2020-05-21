@@ -64,9 +64,10 @@ typedef struct if_event
 //describe a function call and its arguments
 typedef struct abd_event_arg
 {
-    ABD_OBJECT *objPtr;
-    char *rcvdName;
-    ABD_OBJECT_MOD *objValue;
+    ABD_OBJECT *fromObj;
+    ABD_OBJECT *toObj;
+    ABD_OBJECT_MOD *passedValue;
+    ABD_OBJECT_MOD *rcvdValue;
     struct abd_event_arg *nextArg;
 } ABD_EVENT_ARG;
 
