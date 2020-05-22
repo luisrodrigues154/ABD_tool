@@ -1,1 +1,1 @@
-code=JSON.parse('["abd_start()","","a <- 1","b <- 2","c <- 3","vec <- c(1,2,3,4,77)","vec[1] <- 10","","f1 <- function(x,y){","    f1_a <- x","    f1_b <- y","    f1_b","}","","ret <- f1(10, b)","ret2 <- f1(a,b)","xxx <- 30","","value <- vec","abd_stop()"]')
+code=JSON.parse('["options(\'keep.source\'=TRUE)","run <- function(){","    abd_start()","    newValue <- 30","    a <- c(30,2,3,4,5)","","    a[1] <- 10","    a[2:4] <- newValue","","","    abd_stop()","}","run()"]')

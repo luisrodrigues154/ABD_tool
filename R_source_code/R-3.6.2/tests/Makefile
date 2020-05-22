@@ -11,15 +11,15 @@ subdir = tests
 all check: test-all-basics
 check-devel: check test-all-devel
 check-all: check-devel check-recommended
-check-recommended: test-Packages-Recommended
-#check-recommended:
-#	@$(ECHO) "Recommended packages are not installed so cannot be tested"
+#check-recommended: test-Packages-Recommended
+check-recommended:
+	@$(ECHO) "Recommended packages are not installed so cannot be tested"
 
 
 include $(top_builddir)/Makeconf
 include $(srcdir)/Makefile.common
 
-#test-src-reg3 = reg-plot-latin1.R reg-S4.R
+test-src-reg3 = reg-plot-latin1.R reg-S4.R
 
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)

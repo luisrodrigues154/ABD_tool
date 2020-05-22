@@ -410,36 +410,36 @@ ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
 ABD_OBJECT_MOD *intVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
     ABD_OBJECT_MOD *firstMod = newMod;
-    newMod->value.vec_value = memAllocVecObj();
-    newMod->value.vec_value->idxChange = 1;
-    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
-    newMod->value.vec_value->vector = memAllocIntVector(idxChanges->nIdxChanges);
-    newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
+    // newMod->value.vec_value = memAllocVecObj();
+    // newMod->value.vec_value->idxChange = 1;
+    // newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+    // newMod->value.vec_value->vector = memAllocIntVector(idxChanges->nIdxChanges);
+    // newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
 
-    for (int i = 0; i < idxChanges->nIdxChanges; i++)
-    {
-        int idxMod = idxChanges->idxs[i];
-        newMod->value.vec_value->idxs[i] = idxMod;
-        ((int *)newMod->value.vec_value->vector)[i] = INTEGER(rhs)[i];
-    }
+    // for (int i = 0; i < idxChanges->nIdxChanges; i++)
+    // {
+    //     int idxMod = idxChanges->idxs[i];
+    //     newMod->value.vec_value->idxs[i] = idxMod;
+    //     ((int *)newMod->value.vec_value->vector)[i] = INTEGER(rhs)[i];
+    // }
 
     return newMod;
 }
 ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
     ABD_OBJECT_MOD *firstMod = newMod;
-    newMod->value.vec_value = memAllocVecObj();
-    newMod->value.vec_value->idxChange = 1;
-    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
-    newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
-    newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
+    // newMod->value.vec_value = memAllocVecObj();
+    // newMod->value.vec_value->idxChange = 1;
+    // newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+    // newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
+    // newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
 
-    for (int i = 0; i < idxChanges->nIdxChanges; i++)
-    {
-        int idxMod = idxChanges->idxs[i];
-        newMod->value.vec_value->idxs[i] = idxMod;
-        ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
-    }
+    // for (int i = 0; i < idxChanges->nIdxChanges; i++)
+    // {
+    //     int idxMod = idxChanges->idxs[i];
+    //     newMod->value.vec_value->idxs[i] = idxMod;
+    //     ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
+    // }
 
     return newMod;
 }
@@ -532,19 +532,15 @@ ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT
 }
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 {
-    if (!isalpha(CHAR(PRINTNAME(lhs))[0]) && !waitingIdxChange)
+    if (!isalpha(CHAR(PRINTNAME(lhs))[0]))
         return ABD_OBJECT_NOT_FOUND;
 
     //name extraction from lhs
     char *name;
-    if (!waitingIdxChange)
-    {
-        int nameSize = strlen(CHAR(PRINTNAME(lhs)));
-        name = memAllocForString(nameSize);
-        copyStr(name, CHAR(PRINTNAME(lhs)), nameSize);
-    }
-    else
-        name = idxChanges->varChanged->name;
+
+    int nameSize = strlen(CHAR(PRINTNAME(lhs)));
+    name = memAllocForString(nameSize);
+    copyStr(name, CHAR(PRINTNAME(lhs)), nameSize);
 
     ABD_OBJECT *obj = ABD_OBJECT_NOT_FOUND;
     if (TYPEOF(rhs) == CLOSXP)
@@ -556,52 +552,16 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
     else
     {
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
-        if (waitingIdxChange)
-            obj = idxChanges->varChanged;
-        else
-            obj = getCmnObj(name, rho);
+
+        obj = getCmnObj(name, rho);
 
         newMod = addEmptyModToObj(obj, getObjStructType(rhs));
 
-        newMod = processByType(rhs, newMod, waitingIdxChange);
+        newMod = processByType(rhs, newMod, 0);
         obj->modList = newMod;
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
     }
 
-clearIdxChanges:;
-    if (idxChanges != ABD_OBJECT_NOT_FOUND)
-    {
-        free(idxChanges->idxs);
-        free(idxChanges);
-    }
-    idxChanges = ABD_OBJECT_NOT_FOUND;
-    waitingIdxChange = 0;
     return obj;
-}
-
-/*
-    stage the index changes before the next attribution
-*/
-void prepForIdxChange(SEXP var)
-{
-    ABD_OBJECT *varChanged = ABD_OBJECT_NOT_FOUND;
-    if ((varChanged = findObj(cmnObjReg, CHAR(PRINTNAME(var)), getCurrentEnv())) != ABD_OBJECT_NOT_FOUND)
-    {
-        //object mapped
-
-        waitingIdxChange = 1;
-        idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
-        idxChanges->varChanged = varChanged;
-    }
-    else
-        waitingIdxChange = 0;
-}
-
-void storeIdxChange(SEXP indexes)
-{
-    // abstract to use multi indexes
-    idxChanges->nIdxChanges = 1;
-    idxChanges->idxs = memAllocIntVector(idxChanges->nIdxChanges);
-    idxChanges->idxs[0] = asInteger(indexes) - 1;
 }

@@ -98,8 +98,8 @@ Rdfiles:
 	done
 
 PDFLATEX = 
- vignettes: vignettes-lattice
-# vignettes: vignettes-no-lattice
+# vignettes: vignettes-lattice
+ vignettes: vignettes-no-lattice
 
 vignettes-lattice:
 	@if test -z "$(PDFLATEX)"; then \
@@ -167,14 +167,14 @@ install-tests:
 	    done; \
 	  fi; \
 	done
-	@(cd Recommended && $(MAKE) $@)
+#	@(cd Recommended && $(MAKE) $@)
 
 uninstall-tests:
 	@$(ECHO) "uninstalling package tests"
 	@for pkg in $(R_PKGS_BASE); do \
 	 rm -Rf "$(DESTDIR)$(rhome)/library/$${pkg}/tests" ; \
 	done
-	@(cd Recommended && $(MAKE) $@)
+#	@(cd Recommended && $(MAKE) $@)
 
 mostlyclean: clean
 clean:

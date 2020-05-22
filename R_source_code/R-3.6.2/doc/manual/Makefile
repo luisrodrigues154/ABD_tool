@@ -67,7 +67,7 @@ R_RD4PDF = times,inconsolata,hyper
 texinputs_BASE = $(R_PKGS_BASE:=-pkg.tex)
 texinputs_RECOMMENDED = $(R_PKGS_RECOMMENDED:=-pkg.tex)
 refman_DEPENDENCIES = version.tex $(top_srcdir)/share/texmf/tex/latex/Rd.sty
-fullrefman_TEXINPUTS = $(texinputs_BASE)  $(texinputs_RECOMMENDED)
+fullrefman_TEXINPUTS = $(texinputs_BASE) # $(texinputs_RECOMMENDED)
 SVN_REV = $(top_builddir)/SVN-REVISION
 
 texiincludes = version.texi $(srcdir)/R-defs.texi
@@ -278,7 +278,7 @@ fullrefman.pdf: $(refman_DEPENDENCIES) $(fullrefman_TEXINPUTS)
 	  $(ECHO) "\\usepackage[$${opt}]{Rd}"; \
 	  $(ECHO) "\\usepackage[utf8]{inputenc}"; \
 	  cat $(srcdir)/refman.top; \
-	  if test -z ""; then \
+	  if test -z "#"; then \
 	    $(ECHO) "\\part{}"; \
 	    texinputs=`(for f in $(texinputs_BASE); \
 	      do $(ECHO) $${f}; done) | LC_COLLATE=C $(SORT)`; \

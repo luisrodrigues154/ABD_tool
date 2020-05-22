@@ -916,6 +916,155 @@ ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
 
     return lastRetEvent;
 }
+int toDiscard()
+{
+    return idxChanges->discard;
+}
+
+void storeVecForIdxChange(SEXP vec)
+{
+    //
+    if (idxChanges->srcIdxsVec)
+    {
+        idxChanges->srcIdxsVec = 0;
+        waitingIdxChange--;
+        return;
+    }
+
+    if (idxChanges->srcVec)
+    {
+        idxChanges->srcVec = 0;
+        waitingIdxChange--;
+        return;
+    }
+
+    if (idxChanges->destIdxsVec)
+    {
+        idxChanges->destIdxsVec = 0;
+        waitingIdxChange--;
+        return;
+    }
+}
+
+void initIdxChangeAuxVars()
+{
+    idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
+    idxChanges->srcVec = 0;
+    idxChanges->destIdxs = 0;
+    idxChanges->discard = 0;
+    idxChanges->destIdxsVec = 0;
+    idxChanges->srcIdxsVec = 0;
+    idxChanges->srcObj = ABD_OBJECT_NOT_FOUND;
+    idxChanges->destObj = ABD_OBJECT_NOT_FOUND;
+}
+void preProcessDest(SEXP call)
+{
+    //process destination
+    SEXP destIdxs = CAR(CDR(CDR(CAR(CDR(call)))));
+    if (TYPEOF(destIdxs) == LANGSXP)
+    {
+        if ((strcmp(CHAR(PRINTNAME(CAR(destIdxs))), ":") == 0) || (strcmp(CHAR(PRINTNAME(CAR(destIdxs))), "c")))
+        {
+            //just to know that this will create a vector with the indexes being changed
+            idxChanges->destIdxsVec = 1;
+            waitingIdxChange++;
+        }
+    }
+    else
+    {
+        if (!toDiscard())
+        {
+            if (TYPEOF(destIdxs) == SYMSXP)
+            {
+                //symbol refering to index
+                // example a[c] <- b .... even if len(c) > 1, does not create vector
+                // changed idxs are the values contained in C...
+                // c <- (1,4,6) ... indexes 1, 4 and 6 being changed
+            }
+            else
+            {
+                //not generating vector (may be hardcoded value)
+            }
+        }
+    }
+}
+
+void preProcessSrc(SEXP call)
+{
+    SEXP rhs = CAR(CDR(CDR(call)));
+    SEXP srcObj = R_NilValue;
+rollback:
+    if (TYPEOF(rhs) == LANGSXP)
+    {
+
+        if (strcmp(CHAR(PRINTNAME(CAR(rhs))), "[") == 0)
+        {
+            //uses another object content
+            srcObj = CAR(CDR(rhs));
+            rhs = CAR(CDR(CDR(rhs)));
+            if (!toDiscard())
+            {
+                idxChanges->srcObj = findObj(cmnObjReg, CHAR(PRINTNAME(srcObj)), getCurrentEnv());
+            }
+            goto rollback;
+        }
+
+        if ((strcmp(CHAR(PRINTNAME(CAR(rhs))), ":") == 0) || (strcmp(CHAR(PRINTNAME(CAR(rhs))), "c") == 0))
+        {
+            //will need to wait for a vector of indexes
+            if (srcObj != R_NilValue)
+            {
+                idxChanges->srcIdxsVec = 1;
+                waitingIdxChange++;
+            }
+            //     printf("used a range or a combine from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
+
+            idxChanges->srcVec = 1;
+            waitingIdxChange++;
+        }
+        else
+        {
+            //its just an index
+            //printf("used just an index from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
+        }
+    }
+    else
+    {
+        if (TYPEOF(rhs) == SYMSXP)
+        {
+            //uses the entire object to assign to the indexes
+            //if the lengt(src)<length(dest), repeat until reaches the end of
+            if (!toDiscard() && idxChanges->srcObj == ABD_OBJECT_NOT_FOUND)
+                idxChanges->srcObj = findObj(cmnObjReg, CHAR(PRINTNAME(srcObj)), getCurrentEnv());
+
+            // printf("uses the entire object [%s]\n", CHAR(PRINTNAME(rhs)));
+        }
+        else
+        {
+            //we'll assume that's a harcoded value being stored at index
+            // puts("Hardcoded value being used");
+        }
+    }
+}
+
+void preProcessVarIdxChange(SEXP call)
+{
+    initIdxChangeAuxVars();
+    puts("The call expression");
+    PrintIt(call, getCurrentEnv());
+    puts(" ");
+
+    preProcessDest(call);
+
+    preProcessSrc(call);
+
+    printf("FINISHED...\n");
+    printf("waitingIDXchange %d\n", waitingIdxChange);
+    printf("srcIDXvec %d\n", idxChanges->srcIdxsVec);
+    printf("destIDXvec %d\n", idxChanges->destIdxsVec);
+    printf("srcVec %d\n", idxChanges->srcVec);
+}
+
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
 {
     int mFlag = 0;

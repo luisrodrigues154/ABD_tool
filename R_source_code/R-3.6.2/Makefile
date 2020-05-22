@@ -22,7 +22,7 @@ SUBDIRS = m4 tools doc etc share src tests
 SUBDIRS_WITH_NO_BUILD = po
 
 all: Makefile Makeconf R docs recommended vignettes javaconf
-recommended:  stamp-recommended
+recommended: # stamp-recommended
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $@

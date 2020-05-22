@@ -689,8 +689,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 				{
 					REAL(x)
 					[ival - 1] = SCALAR_DVAL(y);
-					puts("will regIdxChange 1");
-					regVarIdxChange(s, y, rho);
+					//regVarIdxChange(s, y, rho);
 					return x;
 				}
 			}
@@ -704,7 +703,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 					{
 						REAL(x)
 						[ival - 1] = SCALAR_DVAL(y);
-						regVarIdxChange(s, y, rho);
+						//regVarIdxChange(s, y, rho);
 						return x;
 					}
 				}
@@ -799,7 +798,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		int *px = INTEGER(x);
-		regVarIdxChange(s, y, rho);
+		//regVarIdxChange(s, y, rho);
 		VECTOR_ASSIGN_LOOP(px[ii] = INTEGER_ELT(y, iny););
 	}
 	break;

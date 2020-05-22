@@ -33,6 +33,22 @@ typedef struct abd_event
 } ABD_EVENT;
 static int waitingElseIF;
 
+/* struct to manage idx changes*/
+
+static int waitingIdxChange;
+typedef struct
+{
+  int srcVec, destIdxsVec, srcIdxsVec, discard;
+  int nIdxChanges;
+  SEXP newValues;
+  int *srcIdxs;
+  int *destIdxs;
+  ABD_OBJECT *destObj;
+  ABD_OBJECT *srcObj;
+} IDX_CHANGE;
+
+static IDX_CHANGE *idxChanges;
+
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;
@@ -83,3 +99,5 @@ void setAsgnEventValues(ABD_OBJECT *toObj, SEXP value);
 int getCurrScriptLn();
 SEXP getResult(const char *expr);
 SEXP getSavedArithAns();
+void storeVecsForIdxChange(SEXP vec);
+int toDiscard();

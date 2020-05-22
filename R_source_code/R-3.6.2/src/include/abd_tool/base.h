@@ -42,6 +42,7 @@ void setVerboseMode(ABD_STATE state)
 }
 void abd_start(SEXP rho)
 {
+    puts("foda-seeeee");
     checkSettings();
     initObjsRegs();
     initEnvStack(rho);
@@ -82,20 +83,6 @@ void abd_help()
     //
 }
 
-void prepVarIdxChange(SEXP var)
-{
-    prepForIdxChange(var);
-}
-
-void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && waitingIdxChange))
-        return;
-
-    storeIdxChange(indexes);
-    printf("Index Changed at line %d\n", getCurrScriptLn());
-    newObjUsage(R_NilValue, newValues, rho);
-}
 static void PrintDaCall(SEXP call, SEXP rho)
 {
     int old_bl = R_BrowseLines,
@@ -108,6 +95,36 @@ static void PrintDaCall(SEXP call, SEXP rho)
     PrintValueRec(call, &pars);
 
     R_BrowseLines = old_bl;
+}
+
+void regVarIdxChange(SEXP call, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+    initIdxChangeAuxVars();
+
+    // puts("at call");
+    // PrintDaCall(call, rho);
+    //find the object
+
+    SEXP toObj = CAR(CDR(CAR(CDR(call))));
+    //if matrix, toObj will remain langsxp, just a pair of brackets more
+
+    idxChanges->destObj = findObj(cmnObjReg, CHAR(PRINTNAME(toObj)), rho);
+
+    //this will just discard the the vectors that will arrive, because the object is not tracked
+    if (idxChanges->destObj == ABD_OBJECT_NOT_FOUND)
+        idxChanges->discard = 1;
+
+    //pre-process
+    preProcessVarIdxChange(call);
+
+    //now wait ...
+    /*
+    SEXP idxs = CAR(CDR(CDR(CAR(CDR(call)))));
+    storeIdxChange(indexes);
+    printf("Index Changed at line %d\n", getCurrScriptLn());
+    newObjUsage(R_NilValue, newValues, rho); */
 }
 
 void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
@@ -126,7 +143,6 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
     createAsgnEvent(objUsed, rhs, rhs2, rho);
-
     clearPendingVars();
 }
 
@@ -162,6 +178,17 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+
+    if (waitingIdxChange)
+    {
+        if (toDiscard())
+        {
+            waitingIdxChange--;
+            return;
+        }
+        storeVecForIdxChange(vector);
+        return;
+    }
     checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
     storeNewVecValues(vector, call);
 }

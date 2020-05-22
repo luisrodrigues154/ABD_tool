@@ -39,7 +39,7 @@ test-Examples-Base: Makefile
 
 ## <NOTE>
 ## We do *not* want this to be added to test-Examples conditional on
-## .
+## #.
 ## 'make check-all' is used for running test-Examples-Recommended in
 ## addition to 'make check'.
 ## nlme suggests 'Hmisc'

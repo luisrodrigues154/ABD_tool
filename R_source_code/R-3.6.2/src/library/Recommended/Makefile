@@ -30,7 +30,7 @@ DISTCLEANFILES = Makefile
 .SUFFIXES:
 .SUFFIXES: .tgz .ts
 
-all: Makefile R  recommended-packages
+all: Makefile R # recommended-packages
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

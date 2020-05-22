@@ -4,7 +4,7 @@
 #
 # R was configured using the following call
 # (not including env. vars and site configuration)
-# configure 
+# configure  '--without-recommended-packages'
 
 ## This fails if it contains spaces, or if it is quoted
 include $(R_SHARE_DIR)/make/vars.mk
@@ -57,16 +57,16 @@ FLIBS =  -L/usr/local/Cellar/gcc/9.3.0/lib/gcc/9/gcc/x86_64-apple-darwin19/9.3.0
 FPICFLAGS = -fPIC
 FOUNDATION_CPPFLAGS = 
 FOUNDATION_LIBS = -framework Foundation
-JAR = 
-JAVA = 
-JAVAC = 
-JAVAH = 
+JAR = /usr/bin/jar
+JAVA = /usr/bin/java
+JAVAC = /usr/bin/javac
+JAVAH = /usr/bin/javah
 ## JAVA_HOME might be used in the next three.  
 ## They are for packages 'JavaGD' and 'rJava'
-JAVA_HOME = 
-JAVA_CPPFLAGS = 
-JAVA_LIBS = 
-JAVA_LD_LIBRARY_PATH = 
+JAVA_HOME = /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre
+JAVA_CPPFLAGS = -I$(JAVA_HOME)/../include -I$(JAVA_HOME)/../include/darwin
+JAVA_LIBS = -L$(JAVA_HOME)/lib/server -ljvm
+JAVA_LD_LIBRARY_PATH = $(JAVA_HOME)/lib/server
 LAPACK_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRlapack
 LDFLAGS = -L/usr/local/lib
 ## we only need this is if it is external, as otherwise link to R

@@ -58,14 +58,13 @@ ABD_STATE isVerbose();
 void regVarChange(SEXP, SEXP, SEXP, SEXP);
 ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 void regFunRet(SEXP lhs, SEXP rho, SEXP val);
-void regVarIdxChange(SEXP indexes, SEXP newValues, SEXP rho);
+void regVarIdxChange(SEXP call, SEXP rho);
 void regIf(SEXP Stmt, Rboolean result, SEXP rho);
 void regArith(SEXP call, SEXP ans, SEXP rho);
 
 /* Misc functions */
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();
-void prepVarIdxChange(SEXP var);
 void storeCompareResult(SEXP cmpr);
 int cmpStoredArithAns(SEXP arg1, SEXP arg2);
 void regVecCreation(SEXP call, SEXP vector, SEXP rho);

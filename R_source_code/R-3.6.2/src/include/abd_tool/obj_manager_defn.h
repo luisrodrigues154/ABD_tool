@@ -104,25 +104,6 @@ static ABD_OBJECT *cmnObjRegTail, *cmnObjRegTail;
 static int numCfObj;
 static int numCmnObj;
 
-static int waitingIdxChange;
-
-//vectors
-typedef struct changeElem
-{
-    SEXPTYPE type;
-    int idx;
-    void *data;
-} CHANGE_ELEMENT;
-
-typedef struct
-{
-    int nIdxChanges;
-    int *idxs;
-    ABD_OBJECT *varChanged;
-} IDX_CHANGE;
-
-static IDX_CHANGE *idxChanges;
-
 #define ABD_OBJECT_NOT_FOUND NULL
 #endif
 /*
@@ -174,4 +155,3 @@ ABD_OBJECT_MOD *createRealVectorIdxChange(ABD_OBJECT_MOD *newMod, SEXP rhs);
 ABD_OBJECT *getCmnObj(const char *name, SEXP rho);
 ABD_OBJECT *getCfObj(const char *name, SEXP rho);
 ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv);
-void prepForIdxChange(SEXP var);
