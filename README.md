@@ -49,6 +49,6 @@ options("keep.source"=TRUE)
 	#your code here
 })()
 ```
-**Note 1:** Notice that between the first two lines there's no space. The first line should be at the first line of the script (literally)
+**Note 1:** Notice that between the first two lines there's no space. The first line should be at the first line of the script (literally)</br>
 **Note 2:** Using the function source("script.R"), there's no need to have this kind of structure.
 
