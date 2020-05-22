@@ -8,7 +8,7 @@
 #include <string.h>
 #include <abd_tool/settings_manager_defn.h>
 
-#ifdef __LINUX__
+#ifdef __linux__
 #include <unistd.h>
 #endif
 
@@ -22,11 +22,22 @@ char *getCommand()
     int partialPathSize = strlen(displayerPath);
     int htmlPathSize = strlen("index.html");
     int openSize = 5;
+    char *htmlPath;
+#ifdef __APPLE__
     char open[] = "open ";
-    char *htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 1));
+    htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 1));
     strcpy(htmlPath, open);
     strcat(htmlPath, displayerPath);
     strcat(htmlPath, "index.html");
+#elif defined __linux__
+    char open[] = "nohup xdg-open ";
+    htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 3));
+    strcpy(htmlPath, open);
+    strcat(htmlPath, displayerPath);
+    strcat(htmlPath, "index.html");
+    strcat(htmlPath, " &");
+#endif
+
     return htmlPath;
 }
 
@@ -34,8 +45,9 @@ char *getJSpath(char *jsFileName)
 {
     int partialPathSize = strlen(displayerPath);
     int jsPathSize = strlen("custom/js/");
-    jsPathSize += strlen(jsFileName) + 2;
+    jsPathSize += strlen(jsFileName) + 3;
     char *finalPath = (char *)malloc(sizeof(char) * (partialPathSize + jsPathSize + 1));
+    finalPath[0] = '\0';
     strcat(finalPath, displayerPath);
     strcat(finalPath, "custom/js/");
     strcat(finalPath, jsFileName);
@@ -73,10 +85,10 @@ void mergePaths(const char *path, int oldPathSize)
 }
 void buildDisplayerPath()
 {
-
     char path[1024];
-#ifdef __APPLE__
     uint32_t size = sizeof(path);
+#ifdef __APPLE__
+
     if (_NSGetExecutablePath(path, &size) == 0)
     {
         //path is valid, and retrieved
@@ -84,7 +96,12 @@ void buildDisplayerPath()
         mergePaths(path, size);
     }
 
-#elif __LINUX__
+#elif defined __linux__
+    if (readlink("/proc/self/exe", path, size))
+    {
+        size = strlen(path);
+        mergePaths(path, size);
+    }
     //
 #endif
 }
@@ -118,7 +135,7 @@ int buildFolderPath()
 #ifdef __APPLE__
     userPathLen = strlen(login) + strlen("/Users/");
     folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
-#elif defined __LINUX__
+#elif defined __linux__
     userPathLen = strlen(login) + strlen("/home/");
     folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
 #endif
@@ -131,7 +148,7 @@ int buildFolderPath()
 
 #ifdef __APPLE__
     strncat(userPath, "/Users/", strlen("/Users/") * sizeof(char));
-#elif defined __LINUX__
+#elif defined __linux__
     strncat(userPath, "/home/", strlen("/home/") * sizeof(char));
 #endif
 
@@ -205,13 +222,13 @@ void loadSettings()
     buildDisplayerPath();
     if (checkFolderHierarchy())
     {
-        printf("[ABD_TOOL] Loading settings... ");
+        printf("\t[ABD_TOOL] Loading settings... ");
         if ((settingsFile = openSetFile()) != NO_PATH)
         {
             if (!load(settingsFile))
             {
                 puts("ERROR...");
-                printf("[ABD_TOOL] Creating default settings... ");
+                printf("\t[ABD_TOOL] Creating default settings... ");
                 createDefaults(settingsFile);
             }
 

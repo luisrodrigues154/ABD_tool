@@ -2,9 +2,9 @@ options("keep.source"=TRUE)
 run <- function(){
     abd_start()
     
-    #a <- c(1,2,3,4,5)
-    #b <- c(11,12,13)
-    #c <- 1:3
+    a <- c(1,2,3,4,5)
+    b <- c(11,12,13)
+    c <- 1:3
     #a[1:3] <- b[1]
     #a única coisa que faz, é gerar um vector para os indexes
     #que vao ser alterados
@@ -29,6 +29,8 @@ run <- function(){
     #vector 2: os indices usados do vector A
 
     #print(paste0("a: ", a))
+
+    abd_stop()
 
 }
 run()

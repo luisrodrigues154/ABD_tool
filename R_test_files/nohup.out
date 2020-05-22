@@ -1,0 +1,22 @@
+[32724:32724:0522/165756.200216:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0522/165756.315591:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[372:372:0522/165914.808527:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0522/165914.903002:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[2360:2360:0522/170256.400553:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0522/170256.490784:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[3814:3814:0522/170430.688264:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0522/170430.786731:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[5184:5184:0522/170716.445777:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[5220:5220:0522/170716.553675:ERROR:viz_main_impl.cc(152)] Exiting GPU process due to errors during initialization
+[6662:6662:0522/170747.923452:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0522/170748.030890:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly

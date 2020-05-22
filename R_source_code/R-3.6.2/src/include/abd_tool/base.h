@@ -42,7 +42,6 @@ void setVerboseMode(ABD_STATE state)
 }
 void abd_start(SEXP rho)
 {
-    puts("foda-seeeee");
     checkSettings();
     initObjsRegs();
     initEnvStack(rho);
@@ -58,15 +57,13 @@ void abd_stop()
 {
     if (isRunning())
     {
-
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
         persistInformation();
-
         //open the browser with the displayer
 
-        system(getCommand());
+        //int ret = system(getCommand());
     }
 }
 

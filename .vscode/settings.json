@@ -38,6 +38,8 @@
         "vector": "cpp",
         "*.tcc": "cpp",
         "cstdio": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp"
     }
 }

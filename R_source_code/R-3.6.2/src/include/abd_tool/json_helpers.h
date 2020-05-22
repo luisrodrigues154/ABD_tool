@@ -60,7 +60,6 @@ char *getScriptPath()
     int pathSize = strlen(CHAR(asChar(retValue)));
     fullPath = memAllocForString(pathSize);
     copyStr(fullPath, CHAR(asChar(retValue)), pathSize);
-
     return fullPath;
 }
 void writeCharByCharToFile(FILE *out, char *string, int withComma)
@@ -88,9 +87,9 @@ void dupScript()
 {
     char *dupPath = getJSpath("code");
     char *oriPath = getScriptPath();
-    printf("Script path: %s\n", oriPath);
     char readLine[1024];
     int first = 1;
+    char *retJunk;
     FILE *ori;
     FILE *dup;
     if ((ori = openFile(oriPath, FILE_OPEN_READ)) != FILE_NOT_FOUND)
@@ -100,9 +99,9 @@ void dupScript()
             rewind(ori);
             rewind(dup);
             fprintf(dup, "code=JSON.parse('[");
-            fgets(readLine, sizeof(readLine), ori);
+            retJunk = fgets(readLine, sizeof(readLine), ori);
             writeCharByCharToFile(dup, readLine, 0);
-            while (fgets(readLine, sizeof(readLine), ori))
+            while (retJunk = fgets(readLine, sizeof(readLine), ori))
                 writeCharByCharToFile(dup, readLine, 1);
             fprintf(dup, "]')");
             closeFile(dup);
@@ -729,6 +728,7 @@ void persistInformation()
 {
     FILE *outputFile;
     FILE *dispOutFile;
+
     dupScript();
     outputFile = openFile(getObjPath(), FILE_OPEN_WRITE);
     dispOutFile = openFile(getJSpath("objects"), FILE_OPEN_WRITE);
