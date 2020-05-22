@@ -8,22 +8,24 @@ Files for the tool are all contained in a folder under the path:
 ../R_source_code/R-3.6.2/src/include/abd_tool
 
 ## How to run
+```
 cd ../R_source_code/R-3.6.2
 ./configure
 make
+```
 
 - add the folder R_source_code/R-3.6.2/bin to the PATH environment. 
 - Run by using Rscript (with code constraints) or using R (combined with source("yourScript.R"))
 ### Make errors
 If make'ing the source code throws an error, some flags need to be added to the ./configure step.
 
-- Ubuntu
+- Ubuntu</br>
  ./configure --without-recommended-packages -with-included-gettext
 
-- MacOs
+- MacOs</br>
  ./configure --without-recommended-packages
 
-- Make (both, Ubuntu and MacOs)
+- Make (both, Ubuntu and MacOs) </br>
  make clean all && make -j4
 
 ## How to Use
