@@ -5,11 +5,19 @@ run <- function(){
     a <- c(1,2,3,4,5)
     b <- c(11,12,13)
     c <- 1:3
-    #a[1:3] <- b[1]
+
+    
+    #
+    #
+    a[c] <- b[c]
+    # will create a vector with the new values
+    #
+    #
+    a[c] <- b[3]
     #a única coisa que faz, é gerar um vector para os indexes
     #que vao ser alterados
     #print("-------------")
-    #a[2] <- "10"
+    #a[2] <- 10
     # não cria nenhum vecotr
     #print("-------------")
     #a[c] <- b
@@ -30,7 +38,7 @@ run <- function(){
 
     #print(paste0("a: ", a))
 
-    abd_stop()
+    #abd_stop()
 
 }
 run()

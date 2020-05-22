@@ -7,4 +7,4 @@ Maintainer: R Core Team <R-core@r-project.org>
 Description: Base R functions.
 License: Part of R 3.6.2
 Suggests: methods
-Built: R 3.6.2; ; 2020-05-22 16:07:44 UTC; unix
+Built: R 3.6.2; ; 2020-05-22 19:55:46 UTC; unix

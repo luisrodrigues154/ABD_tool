@@ -824,7 +824,6 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		double *px = REAL(x);
-		puts("will execute coersion INTEGER <- REAL");
 		VECTOR_ASSIGN_LOOP(px[ii] = REAL_ELT(y, iny););
 	}
 	break;

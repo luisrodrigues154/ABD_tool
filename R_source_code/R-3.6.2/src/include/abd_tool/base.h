@@ -98,6 +98,12 @@ void regVarIdxChange(SEXP call, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+    puts("");
+    puts("");
+    puts("");
+    puts("call.....");
+    PrintDaCall(call, rho);
+
     initIdxChangeAuxVars();
 
     // puts("at call");
@@ -114,7 +120,7 @@ void regVarIdxChange(SEXP call, SEXP rho)
         idxChanges->discard = 1;
 
     //pre-process
-    preProcessVarIdxChange(call);
+    preProcessVarIdxChange(call, rho);
 
     //now wait ...
     /*
@@ -175,6 +181,13 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+    puts("");
+    puts("");
+    puts("reg vector....");
+    puts("with call....");
+    PrintDaCall(call, rho);
+    puts("with values....");
+    PrintDaCall(vector, rho);
 
     if (waitingIdxChange)
     {
@@ -184,6 +197,15 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
             return;
         }
         storeVecForIdxChange(vector);
+        if (waitingIdxChange == 0)
+        {
+            //processIndexChanges();
+            // printf("srcValues NULL? %s\n", idxChanges->srcValues == R_NilValue ? "yes" : "no");
+            // printf("srcIdxs NULL? %s\n", idxChanges->srcIdxs == R_NilValue ? "yes" : "no");
+            // printf("destIdxs NULL? %s\n", idxChanges->destIdxs == R_NilValue ? "yes" : "no");
+            printIdxChangeValues();
+        }
+
         return;
     }
     checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);

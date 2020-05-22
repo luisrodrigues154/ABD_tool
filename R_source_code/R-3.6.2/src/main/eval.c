@@ -738,11 +738,7 @@ SEXP eval(SEXP e, SEXP rho)
 				regIf(R_NilValue, 1, rho);
 			}
 			else if (strcmp(CHAR(PRINTNAME(CAR(e))), "<-") == 0 && TYPEOF(CAR(CDR(e))) == LANGSXP)
-			{
-				puts("call.....");
-				PrintE(CAR(CDR(e)), rho);
 				regVarIdxChange(e, rho);
-			}
 		}
 		if (TYPEOF(CAR(e)) == SYMSXP)
 		{
@@ -3494,7 +3490,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-		/* falls through */
+					/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;
