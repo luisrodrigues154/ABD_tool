@@ -17,11 +17,11 @@ ALL_FFLAGS = $(ALL_FFLAGS_LO)
 SOURCES = blas00.c blas.f cmplxblas.f
 
 Rblas_la = libRblas$(R_DYLIB_EXT)
-## -install_name libRblas.dylib -headerpad_max_install_names is used on macOS
+##  is used on macOS
 ## first for internal BLAS
-Rblas_la_LIBADD = -install_name libRblas.dylib -headerpad_max_install_names $(FLIBS_IN_SO)
+Rblas_la_LIBADD =  $(FLIBS_IN_SO)
 ## then external one
-Rblas_la_LIBADD0 = -install_name libRblas.dylib -headerpad_max_install_names
+Rblas_la_LIBADD0 = 
 
 all: Makefile  R
 

@@ -111,13 +111,13 @@ if test -z ${type}; then
     exit 1
 fi
 
-echo  "
-Tagging ${type} files under ${SRCDIR}; writing to ${ofile}"\c
+echo -n "
+Tagging ${type} files under ${SRCDIR}; writing to ${ofile}"
 if ! ${append}; then 
-    echo  " (overwriting)"\c
-    echo  "" > ${ofile}\c
+    echo -n " (overwriting)"
+    echo -n "" > ${ofile}
 else 
-    echo  " (appending)"\c
+    echo -n " (appending)"
     touch ${ofile}
 fi
 echo "...

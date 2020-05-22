@@ -20,7 +20,7 @@ RBLAS = make.blas
 LIBXDR =# make.xdr
 LIBINTL = make.intl
 LIBTRE = make.tre
-LIBTZONE =make.tzone
+LIBTZONE =#make.tzone
 EXTRAS = $(RBLAS) $(LIBXDR) $(LIBINTL) $(LIBTRE) $(LIBTZONE)
 
 all: Makefile R

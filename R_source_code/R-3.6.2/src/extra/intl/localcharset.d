@@ -1,2 +1,2 @@
 localcharset.o: localcharset.c ../../../src/include/config.h \
-  localcharset.h
+ localcharset.h charsetalias.h

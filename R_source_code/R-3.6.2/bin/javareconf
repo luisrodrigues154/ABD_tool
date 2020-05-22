@@ -239,8 +239,8 @@ if test "${JAVA_LIBS}" = "~autodetect~"; then
 	# replace occurrences of JAVA_HOME with $(JAVA_HOME)
 	# If JAVA_HOME was a link, it will be the canonical path we
 	# want to replace.  We need realpath to determine what that is.
-	if test "false" != "false"; then
-             java_home=`false "${JAVA_HOME}"`
+	if test "/usr/bin/realpath" != "false"; then
+             java_home=`/usr/bin/realpath "${JAVA_HOME}"`
 	else
        	    java_home="${JAVA_HOME}"
 	fi

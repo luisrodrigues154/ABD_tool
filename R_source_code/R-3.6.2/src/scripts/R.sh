@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 # Shell wrapper for R executable.
 
 R_HOME_DIR=
 if test "${R_HOME_DIR}" = "/usr/local/lib/R"; then
-   case "darwin19.4.0" in
+   case "linux-gnu" in
    linux*)
      run_arch=`uname -m`
      case "$run_arch" in
@@ -119,7 +119,7 @@ Report bugs at <https://bugs.R-project.org>."
 
 ## some systems have a more portable sed, e.g. /usr/xpg4/bin/sed on Solaris,
 ## so make sure that is used.
-SED=/usr/bin/sed
+SED=/bin/sed
 export SED
 
 error () {

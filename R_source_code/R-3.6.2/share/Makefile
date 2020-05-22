@@ -24,7 +24,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 R: FORCE
 	@if test "$(BUILDDIR_IS_SRCDIR)" = "no" ; then \
 	  $(MAKE) rsharedir=$(top_builddir)/share install-sources; \
-	elif test "x" = "x";  then \
+	elif test "x#" = "x";  then \
           $(MAKE) rsharedir=. install-zoneinfo; \
 	fi
 FORCE:
@@ -49,7 +49,7 @@ installdirs:
 	@$(MKINSTALLDIRS) "$(DESTDIR)$(rsharedir)/texmf/tex/latex"
 install-message:
 	@$(ECHO) "installing share ..."
-install-sources: installdirs   install-zoneinfo
+install-sources: installdirs  # install-zoneinfo
 	@for f in $(srcdir)/R/*.R; do \
 	  $(INSTALL_DATA) $${f} "$(DESTDIR)$(rsharedir)/R"; \
 	done

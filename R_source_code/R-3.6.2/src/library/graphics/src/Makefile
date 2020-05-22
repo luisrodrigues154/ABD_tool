@@ -57,87 +57,78 @@ maintainer-clean: distclean
 
 ## Automagically generated dependencies:
 init.o: init.c ../../../include/config.h ../../../../include/R.h \
-  ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h \
-  ../../../../include/R_ext/Complex.h \
-  ../../../../include/R_ext/Constants.h \
-  ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Random.h \
-  ../../../../include/R_ext/Utils.h ../../../../include/R_ext/RS.h \
-  ../../../../include/Rinternals.h ../../../../include/R_ext/Rdynload.h \
-  graphics.h ../../../../include/libintl.h \
-  ../../../../include/R_ext/Visibility.h
+ ../../../../include/Rconfig.h ../../../../include/R_ext/Arith.h \
+ ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
+ ../../../../include/R_ext/Constants.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Print.h \
+ ../../../../include/R_ext/Random.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/RS.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Rdynload.h graphics.h \
+ ../../../../include/libintl.h ../../../../include/R_ext/Visibility.h
 base.o: base.c ../../../include/config.h ../../../include/Defn.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
-  ../../../../include/libintl.h ../../../include/Graphics.h \
-  ../../../../include/R_ext/GraphicsEngine.h \
-  ../../../../include/R_ext/GraphicsDevice.h \
-  ../../../include/Rgraphics.h ../../../include/GraphicsBase.h
+ ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+ ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+ ../../../../include/libintl.h ../../../include/Graphics.h \
+ ../../../../include/R_ext/GraphicsEngine.h \
+ ../../../../include/R_ext/GraphicsDevice.h ../../../include/Rgraphics.h \
+ ../../../include/GraphicsBase.h
 graphics.o: graphics.c ../../../include/config.h ../../../include/Defn.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
-  ../../../../include/libintl.h ../../../include/Graphics.h \
-  ../../../../include/R_ext/GraphicsEngine.h \
-  ../../../../include/R_ext/GraphicsDevice.h \
-  ../../../include/Rgraphics.h ../../../include/GraphicsBase.h \
-  ../../../../include/Rmath.h
+ ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+ ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+ ../../../../include/libintl.h ../../../include/Graphics.h \
+ ../../../../include/R_ext/GraphicsEngine.h \
+ ../../../../include/R_ext/GraphicsDevice.h ../../../include/Rgraphics.h \
+ ../../../include/GraphicsBase.h ../../../../include/Rmath.h
 par.o: par.c ../../../include/config.h ../../../include/Defn.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
-  ../../../../include/libintl.h ../../../../include/Rmath.h \
-  ../../../include/Graphics.h ../../../../include/R_ext/GraphicsEngine.h \
-  ../../../../include/R_ext/GraphicsDevice.h \
-  ../../../include/Rgraphics.h graphics.h par-common.c
+ ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+ ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+ ../../../../include/libintl.h ../../../../include/Rmath.h \
+ ../../../include/Graphics.h ../../../../include/R_ext/GraphicsEngine.h \
+ ../../../../include/R_ext/GraphicsDevice.h ../../../include/Rgraphics.h \
+ graphics.h par-common.c
 plot.o: plot.c ../../../include/config.h ../../../include/Defn.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
-  ../../../../include/libintl.h ../../../include/Graphics.h \
-  ../../../../include/R_ext/GraphicsEngine.h \
-  ../../../../include/R_ext/GraphicsDevice.h \
-  ../../../include/Rgraphics.h ../../../include/Print.h \
-  ../../../../include/R_ext/PrtUtil.h ../../../../include/Rmath.h \
-  graphics.h
+ ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+ ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+ ../../../../include/libintl.h ../../../include/Graphics.h \
+ ../../../../include/R_ext/GraphicsEngine.h \
+ ../../../../include/R_ext/GraphicsDevice.h ../../../include/Rgraphics.h \
+ ../../../include/Print.h ../../../include/Defn.h \
+ ../../../../include/R_ext/PrtUtil.h ../../../../include/Rmath.h \
+ graphics.h
 plot3d.o: plot3d.c ../../../include/config.h ../../../include/Defn.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
-  ../../../../include/libintl.h ../../../../include/Rmath.h \
-  ../../../include/Graphics.h ../../../../include/R_ext/GraphicsEngine.h \
-  ../../../../include/R_ext/GraphicsDevice.h \
-  ../../../include/Rgraphics.h ../../../include/Print.h \
-  ../../../../include/R_ext/PrtUtil.h graphics.h \
-  ../../../../src/main/contour-common.h
+ ../../../../include/R_ext/Complex.h ../../../../include/Rinternals.h \
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Error.h \
+ ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
+ ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
+ ../../../include/Rinlinedfuns.h ../../../include/Errormsg.h \
+ ../../../../include/libintl.h ../../../../include/Rmath.h \
+ ../../../include/Graphics.h ../../../../include/R_ext/GraphicsEngine.h \
+ ../../../../include/R_ext/GraphicsDevice.h ../../../include/Rgraphics.h \
+ ../../../include/Print.h ../../../include/Defn.h \
+ ../../../../include/R_ext/PrtUtil.h graphics.h \
+ ../../../../src/main/contour-common.h
 stem.o: stem.c ../../../include/config.h ../../../../include/Rinternals.h \
-  ../../../../include/R_ext/Arith.h \
-  ../../../../include/R_ext/libextern.h \
-  ../../../../include/R_ext/Boolean.h \
-  ../../../../include/R_ext/Complex.h ../../../../include/R_ext/Error.h \
-  ../../../../include/R_ext/Memory.h ../../../../include/R_ext/Utils.h \
-  ../../../../include/R_ext/Print.h ../../../../include/R_ext/Rdynload.h \
-  ../../../../include/Rmath.h ../../../../include/libintl.h
+ ../../../../include/R_ext/Arith.h ../../../../include/R_ext/libextern.h \
+ ../../../../include/R_ext/Boolean.h ../../../../include/R_ext/Complex.h \
+ ../../../../include/R_ext/Error.h ../../../../include/R_ext/Memory.h \
+ ../../../../include/R_ext/Utils.h ../../../../include/R_ext/Print.h \
+ ../../../../include/R_ext/Rdynload.h ../../../../include/Rmath.h \
+ ../../../../include/libintl.h

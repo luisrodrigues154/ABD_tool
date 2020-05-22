@@ -39,12 +39,12 @@ TEXI2ANY_TEXT_OPTS = --number-sections --fill-column=76 --no-split --no-headers
 TEXI2HTML = $(TEXI2ANY) $(TEXI2ANY_HTML_OPTS)
 TEXI2TEXT = $(TEXI2ANY) $(TEXI2ANY_TEXT_OPTS)
 ## some broken versions of texi2dvi need C collation.
-TEXI2DVI = LC_COLLATE=C /usr/bin/texi2dvi --texinfo="@set UseExternalXrefs "
+TEXI2DVI = LC_COLLATE=C  --texinfo="@set UseExternalXrefs "
 TEXI2PDF = $(TEXI2DVI) --pdf
 PDFLATEX = 
 ## These are used to check if there is a non-empty path to the
 ## texi2dvi script, and as it uses pdftex if that was detected.
-TEXI2DVI0 = /usr/bin/texi2dvi
+TEXI2DVI0 = 
 PDFTEX = 
 
 BATCHPDFLATEX = $(PDFLATEX) -interaction=nonstopmode

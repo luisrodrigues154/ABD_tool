@@ -48,19 +48,19 @@
 
 /* Define if you have the Aqua headers and libraries, and want to include
    support for R.app and for the quartz() device to be built. */
-#define HAVE_AQUA 1
+/* #undef HAVE_AQUA */
 
 /* Define to 1 if you have the `argz_count' function. */
-/* #undef HAVE_ARGZ_COUNT */
+#define HAVE_ARGZ_COUNT 1
 
 /* Define to 1 if you have the <argz.h> header file. */
-/* #undef HAVE_ARGZ_H */
+#define HAVE_ARGZ_H 1
 
 /* Define to 1 if you have the `argz_next' function. */
-/* #undef HAVE_ARGZ_NEXT */
+#define HAVE_ARGZ_NEXT 1
 
 /* Define to 1 if you have the `argz_stringify' function. */
-/* #undef HAVE_ARGZ_STRINGIFY */
+#define HAVE_ARGZ_STRINGIFY 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
@@ -115,11 +115,11 @@
 
 /* Define to 1 if you have the OS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. (For intl) */
-#define HAVE_CFLOCALECOPYCURRENT 1
+/* #undef HAVE_CFLOCALECOPYCURRENT */
 
 /* Define to 1 if you have the OS X function CFPreferencesCopyAppValue in the
    CoreFoundation framework. (For intl) */
-#define HAVE_CFPREFERENCESCOPYAPPVALUE 1
+/* #undef HAVE_CFPREFERENCESCOPYAPPVALUE */
 
 /* Define to 1 if you have the `chdir' function. */
 #define HAVE_CHDIR 1
@@ -134,7 +134,7 @@
 #define HAVE_CLOG 1
 
 /* Defined if framework CoreFoundation is present */
-#define HAVE_COREFOUNDATION_FW 1
+/* #undef HAVE_COREFOUNDATION_FW */
 
 /* Define to 1 if you have the `cospi' function. */
 /* #undef HAVE_COSPI */
@@ -182,7 +182,7 @@
 
 /* Define to 1 if you have the declaration of `fgets_unlocked', and to 0 if
    you don't. (For intl) */
-#define HAVE_DECL_FGETS_UNLOCKED 0
+#define HAVE_DECL_FGETS_UNLOCKED 1
 
 /* Define to 1 if you have the declaration of `getc_unlocked', and to 0 if you
    don't. (For intl) */
@@ -262,7 +262,7 @@
 #define HAVE_DLSYM 1
 
 /* Define to 1 if you have the <elf.h> header file. */
-/* #undef HAVE_ELF_H */
+#define HAVE_ELF_H 1
 
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1
@@ -271,7 +271,7 @@
 #define HAVE_EXECV 1
 
 /* Define to 1 if you have the `exp10' function. */
-/* #undef HAVE_EXP10 */
+#define HAVE_EXP10 1
 
 /* Define to 1 if you have the `expm1' function. */
 #define HAVE_EXPM1 1
@@ -293,7 +293,7 @@
 #define HAVE_FDOPEN 1
 
 /* Define to 1 if you have the <features.h> header file. */
-/* #undef HAVE_FEATURES_H */
+#define HAVE_FEATURES_H 1
 
 /* Define to 1 if you have the <floatingpoint.h> header file. */
 /* #undef HAVE_FLOATINGPOINT_H */
@@ -358,7 +358,7 @@
 
 /* Define if you have the GNU C library version >= 2. This is needed to fix a
    problem with getting the prototype of strptime(). */
-/* #undef HAVE_GLIBC2 */
+#define HAVE_GLIBC2 1
 
 /* Define to 1 if you have the `glob' function. */
 #define HAVE_GLOB 1
@@ -382,7 +382,7 @@
 #define HAVE_ICONV 1
 
 /* Define if you have the `iconvlist' function. */
-#define HAVE_ICONVLIST 1
+/* #undef HAVE_ICONVLIST */
 
 /* Define if `iconv' accepts "CP1252". */
 #define HAVE_ICONV_CP1252 1
@@ -426,7 +426,7 @@
 /* #undef HAVE_JPEG */
 
 /* Define if KERN_USRSTACK sysctl is supported. */
-#define HAVE_KERN_USRSTACK 1
+/* #undef HAVE_KERN_USRSTACK */
 
 /* Define if you have KeySym defined in X11. */
 #define HAVE_KEYSYM 1
@@ -447,13 +447,13 @@
 #define HAVE_LIBCURL 1
 
 /* Define if __libc_stack_end is visible. */
-/* #undef HAVE_LIBC_STACK_END */
+#define HAVE_LIBC_STACK_END 1
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
 
 /* Define to 1 if you have the `icucore' library (-licucore). */
-#define HAVE_LIBICUCORE 1
+/* #undef HAVE_LIBICUCORE */
 
 /* Define to 1 if you have the `m' library (-lm). */
 #define HAVE_LIBM 1
@@ -465,7 +465,7 @@
 #define HAVE_LIBREADLINE 1
 
 /* Define to 1 if you have the `rt' library (-lrt). */
-/* #undef HAVE_LIBRT */
+#define HAVE_LIBRT 1
 
 /* Define to 1 if you have the `sunmath' library (-lsunmath). */
 /* #undef HAVE_LIBSUNMATH */
@@ -516,7 +516,7 @@
 #define HAVE_LZMA_H 1
 
 /* Define to 1 if you have the `matherr' function. */
-#define HAVE_MATHERR 1
+/* #undef HAVE_MATHERR */
 
 /* Define to 1 if you have the `mbrtowc' function. */
 #define HAVE_MBRTOWC 1
@@ -531,7 +531,7 @@
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `mempcpy' function. */
-/* #undef HAVE_MEMPCPY */
+#define HAVE_MEMPCPY 1
 
 /* Define to 1 if you have the `mkdtemp' function. */
 #define HAVE_MKDTEMP 1
@@ -565,20 +565,20 @@
 
 /* Define if you have <langinfo.h> and it defines the NL_LOCALE_NAME macro if
    _GNU_SOURCE is defined. */
-/* #undef HAVE_NL_LOCALE_NAME */
+#define HAVE_NL_LOCALE_NAME 1
 
 /* Define if module-loading does not need an underscore to be prepended to
    external names. */
-#define HAVE_NO_SYMBOL_UNDERSCORE 1
+/* #undef HAVE_NO_SYMBOL_UNDERSCORE */
 
 /* Define if you have off_t, fseeko and ftello. */
 #define HAVE_OFF_T 1
 
 /* Define if you have C OpenMP support. */
-/* #undef HAVE_OPENMP */
+#define HAVE_OPENMP 1
 
 /* Define if your OpenMP 4 implementation fully supports SIMD reduction */
-/* #undef HAVE_OPENMP_SIMDRED */
+#define HAVE_OPENMP_SIMDRED 1
 
 /* Define to 1 if you have pangocairo. */
 /* #undef HAVE_PANGOCAIRO */
@@ -593,7 +593,7 @@
 /* #undef HAVE_PCRE_PCRE_H */
 
 /* Define if you have the PNG headers and libraries. */
-/* #undef HAVE_PNG */
+#define HAVE_PNG 1
 
 /* Define to 1 if you have the `popen' function. */
 #define HAVE_POPEN 1
@@ -629,7 +629,7 @@
 #define HAVE_PUTENV 1
 
 /* Define if putenv("FOO") can unset an environment variable */
-/* #undef HAVE_PUTENV_UNSET */
+#define HAVE_PUTENV_UNSET 1
 
 /* Define if putenv("FOO=") can unset an environment variable */
 /* #undef HAVE_PUTENV_UNSET2 */
@@ -653,25 +653,25 @@
 #define HAVE_RINTL 1
 
 /* Define to 1 if you have the `rl_callback_sigcleanup' function. */
-/* #undef HAVE_RL_CALLBACK_SIGCLEANUP */
+#define HAVE_RL_CALLBACK_SIGCLEANUP 1
 
 /* Define to 1 if you have the `rl_completion_matches' function. */
 #define HAVE_RL_COMPLETION_MATCHES 1
 
 /* Define to 1 if you have the `rl_resize_terminal' function. */
-/* #undef HAVE_RL_RESIZE_TERMINAL */
+#define HAVE_RL_RESIZE_TERMINAL 1
 
 /* Define to 1 if you have the `rl_sort_completion_matches' function. */
-/* #undef HAVE_RL_SORT_COMPLETION_MATCHES */
+#define HAVE_RL_SORT_COMPLETION_MATCHES 1
 
 /* Define to 1 if you have the `sched_getaffinity' function. */
-/* #undef HAVE_SCHED_GETAFFINITY */
+#define HAVE_SCHED_GETAFFINITY 1
 
 /* Define to 1 if you have the <sched.h> header file. */
 #define HAVE_SCHED_H 1
 
 /* Define to 1 if you have the `sched_setaffinity' function. */
-/* #undef HAVE_SCHED_SETAFFINITY */
+#define HAVE_SCHED_SETAFFINITY 1
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
@@ -756,13 +756,13 @@
 /* #undef HAVE_STRUCT_STAT_ST_ATIMENSEC */
 
 /* Define to 1 if `st_atimespec.tv_nsec' is a member of `struct stat'. */
-#define HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC 1
+/* #undef HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC */
 
 /* Define to 1 if `st_atim.st__tim.tv_nsec' is a member of `struct stat'. */
 /* #undef HAVE_STRUCT_STAT_ST_ATIM_ST__TIM_TV_NSEC */
 
 /* Define to 1 if `st_atim.tv_nsec' is a member of `struct stat'. */
-/* #undef HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC */
+#define HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC 1
 
 /* Define to 1 if you have the <sunmath.h> header file. */
 /* #undef HAVE_SUNMATH_H */
@@ -831,7 +831,7 @@
 /* #undef HAVE_TIFFIO_H */
 
 /* Define to 1 if you have the `tilde_expand_word' function. */
-/* #undef HAVE_TILDE_EXPAND_WORD */
+#define HAVE_TILDE_EXPAND_WORD 1
 
 /* Define to 1 if you have the `times' function. */
 #define HAVE_TIMES 1
@@ -903,7 +903,7 @@
 #define HAVE_VISIBILITY 1
 
 /* Define to 1 if __attribute__((visibility())) is supported */
-/* #undef HAVE_VISIBILITY_ATTRIBUTE */
+#define HAVE_VISIBILITY_ATTRIBUTE 1
 
 /* Define to 1 if you have the <wchar.h> header file. */
 #define HAVE_WCHAR_H 1
@@ -945,7 +945,7 @@
 #define HAVE_WINT_T 1
 
 /* Define if your mktime works correctly outside 1902-2037. */
-/* #undef HAVE_WORKING_64BIT_MKTIME */
+#define HAVE_WORKING_64BIT_MKTIME 1
 
 /* Define to 1 if you have cairo. */
 /* #undef HAVE_WORKING_CAIRO */
@@ -976,16 +976,16 @@
 #define HAVE_X11_Xmu 1
 
 /* Define to 1 if you have the `__cospi' function. */
-#define HAVE___COSPI 1
+/* #undef HAVE___COSPI */
 
 /* Define to 1 if you have the `__fsetlocking' function. */
-/* #undef HAVE___FSETLOCKING */
+#define HAVE___FSETLOCKING 1
 
 /* Define to 1 if you have the `__sinpi' function. */
-#define HAVE___SINPI 1
+/* #undef HAVE___SINPI */
 
 /* Define to 1 if you have the `__tanpi' function. */
-#define HAVE___TANPI 1
+/* #undef HAVE___TANPI */
 
 /* Define as const if the declaration of iconv() needs const. */
 #define ICONV_CONST 
@@ -994,7 +994,7 @@
 #define IEEE_754 1
 
 /* Define if integer division by zero raises signal SIGFPE. (For intl) */
-#define INTDIV0_RAISES_SIGFPE 0
+#define INTDIV0_RAISES_SIGFPE 1
 
 /* Define if you have 32 bit ints. */
 #define INT_32_BITS 1
@@ -1015,7 +1015,7 @@
 /* #undef OBJC_GNU_RUNTIME */
 
 /* Define if using NeXT/Apple-style Objective C runtime. */
-#define OBJC_NEXT_RUNTIME 1
+/* #undef OBJC_NEXT_RUNTIME */
 
 /* Name of package */
 #define PACKAGE "R"
@@ -1065,10 +1065,10 @@
 /* #undef R_MEMORY_PROFILING */
 
 /* Define this to be the name of the OS of your system. */
-#define R_OS "darwin19.4.0"
+#define R_OS "linux-gnu"
 
 /* Define this to be the canonical name (cpu-vendor-os) of your system. */
-#define R_PLATFORM "x86_64-apple-darwin19.4.0"
+#define R_PLATFORM "x86_64-pc-linux-gnu"
 
 /* Define this to be printing command on your system. */
 #define R_PRINTCMD "lpr"
@@ -1080,7 +1080,7 @@
 #define R_SOCKLEN_T socklen_t
 
 /* Define this to be the name of the vendor of your system. */
-#define R_VENDOR "apple"
+#define R_VENDOR "pc"
 
 /* Define this to be the extension used for shared objects on your system. */
 #define SHLIB_EXT ".so"
@@ -1119,23 +1119,23 @@
 #define STDC_HEADERS 1
 
 /* Define if you have C/C++/Fortran OpenMP support for package code. */
-/* #undef SUPPORT_OPENMP */
+#define SUPPORT_OPENMP 1
 
 /* Define to enable provoking compile errors on write barrier violation. */
 /* #undef TESTING_WRITE_BARRIER */
 
 /* Define to 1 if the type of the st_atim member of a struct stat is struct
    timespec. */
-/* #undef TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC */
+#define TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC 1
 
 /* Define to use ICU for collation. */
-#define USE_ICU 1
+/* #undef USE_ICU */
 
 /* Define to use Apple's ICU. */
-#define USE_ICU_APPLE 1
+/* #undef USE_ICU_APPLE */
 
 /* Define to use internal time-zone code */
-#define USE_INTERNAL_MKTIME 1
+/* #undef USE_INTERNAL_MKTIME */
 
 /* Define if the POSIX multithreading library can be used. (For intl) */
 /* #undef USE_POSIX_THREADS */

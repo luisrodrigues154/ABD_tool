@@ -16,9 +16,9 @@ HEADERS = tzfile.h
 
 DEPENDS = $(SOURCES:.c=.d)
 OBJECTS = $(SOURCES:.c=.o)
-#ALL_CFLAGS = $(R_XTRA_CFLAGS) $(CPICFLAGS) $(SHLIB_CFLAGS) $(CFLAGS) 
+#ALL_CFLAGS = $(R_XTRA_CFLAGS) $(CPICFLAGS) $(SHLIB_CFLAGS) $(CFLAGS) -fvisibility=hidden
 
-ALL_CPPFLAGS=$(R_XTRA_CPPFLAGS) -I$(srcdir) -I$(top_srcdir)/src/main $(CPPFLAGS) $(DEFS) -I/System/Library/Frameworks/CoreFoundation.framework/Headers
+ALL_CPPFLAGS=$(R_XTRA_CPPFLAGS) -I$(srcdir) -I$(top_srcdir)/src/main $(CPPFLAGS) $(DEFS) 
 
 R all: Makefile 
 	@$(MAKE) Makedeps
@@ -59,7 +59,3 @@ DISTFILES = Makefile.in Makefile.win \
   $(SOURCES) $(SOURCES_WIN) $(HEADERS)
 
 ## Automagically generated dependencies:
-localtime.o: localtime.c ../../../src/include/config.h \
-  ../../../src/main/datetime.h tzfile.h
-strftime.o: strftime.c ../../../src/include/config.h tzfile.h \
-  ../../../src/main/datetime.h
