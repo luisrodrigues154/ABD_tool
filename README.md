@@ -1,19 +1,54 @@
-# "Automatic" Bug Detection in R (ABD_tool)
-Tool to help in R debugging
+# [ABD_Tool] - "Automatic" Bug Detection for R
 
-##Tool files
-###All files src/include/abd_tool
-###Displayer path: ABD_tool\R_source_code\R-3.6.2\src\include\abd_tool\displayer
+This is an academic tool that aims to improve debugging in R scripts based on a one-time run.
 
-##Configuration
 
-Ubuntu:
-./configure --without-recommended-packages 
+# Files
+Files for the tool are all contained in a folder under the path:
+../R_source_code/R-3.6.2/src/include/abd_tool
 
-if gettext error thrown use flag: --with-included-gettext
+## How to run
+cd ../R_source_code/R-3.6.2
+./configure
+make
 
-MacOs:
-./configure --without-recommended-packages 
+- add the folder R_source_code/R-3.6.2/bin to the PATH environment. 
+- Run by using Rscript (with code constraints) or using R (combined with source("yourScript.R"))
+### Make errors
+If make'ing the source code throws an error, some flags need to be added to the ./configure step.
 
-Make
-make clean all && make -j4 
+- Ubuntu
+ ./configure --without-recommended-packages -with-included-gettext
+
+- MacOs
+ ./configure --without-recommended-packages
+
+- Make (both, Ubuntu and MacOs)
+ make clean all && make -j4
+
+## How to Use
+To use the tool, just use **abd_start()** and **abd_stop()** between the code that needs to be analyzed.
+
+Example:
+```
+abd_start()
+a<-20
+(...)
+abd_stop()
+```
+
+For more information about the functionalities, issue **abd_help()** at the terminal (after running R).
+## Code Constraints
+
+Due to R implementation, and to take full advantage of the tool, running the script with Rscript has its constraints.
+
+The code must contain the following structure :
+```
+options("keep.source"=TRUE)
+(function(){
+	#your code here
+})()
+```
+**Note 1:** Notice that between the first two lines there's no space. The first line should be at the first line of the script (literally)
+**Note 2:** Using the function source("script.R"), there's no need to have this kind of structure.
+
