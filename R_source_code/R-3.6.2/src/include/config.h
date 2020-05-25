@@ -87,13 +87,13 @@
 #define HAVE_CACOS 1
 
 /* Define to 1 if you have cairo-ps. */
-/* #undef HAVE_CAIRO_PDF */
+#define HAVE_CAIRO_PDF 1
 
 /* Define to 1 if you have cairo-pdf. */
-/* #undef HAVE_CAIRO_PS */
+#define HAVE_CAIRO_PS 1
 
 /* Define to 1 if you have cairo-svg. */
-/* #undef HAVE_CAIRO_SVG */
+#define HAVE_CAIRO_SVG 1
 
 /* Define to 1 if you have the `carg' function. */
 #define HAVE_CARG 1
@@ -581,7 +581,7 @@
 #define HAVE_OPENMP_SIMDRED 1
 
 /* Define to 1 if you have pangocairo. */
-/* #undef HAVE_PANGOCAIRO */
+#define HAVE_PANGOCAIRO 1
 
 /* Define if your system has pcre2. */
 /* #undef HAVE_PCRE2 */
@@ -948,7 +948,7 @@
 #define HAVE_WORKING_64BIT_MKTIME 1
 
 /* Define to 1 if you have cairo. */
-/* #undef HAVE_WORKING_CAIRO */
+#define HAVE_WORKING_CAIRO 1
 
 /* Define if calloc(0) returns a null pointer. */
 #define HAVE_WORKING_CALLOC 1
@@ -1129,7 +1129,7 @@
 #define TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC 1
 
 /* Define to use ICU for collation. */
-/* #undef USE_ICU */
+#define USE_ICU 1
 
 /* Define to use Apple's ICU. */
 /* #undef USE_ICU_APPLE */

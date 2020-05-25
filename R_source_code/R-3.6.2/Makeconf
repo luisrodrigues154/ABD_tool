@@ -7,10 +7,10 @@ abs_top_builddir = /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
 include $(top_srcdir)/share/make/vars.mk
 
 AR = ar
-ACLOCAL = $(SHELL) "$(abs_top_srcdir)/tools/missing" aclocal
-AUTOCONF = $(SHELL) "$(abs_top_srcdir)/tools/missing" autoconf
+ACLOCAL = aclocal
+AUTOCONF = autoconf
 AUTOMAKE = @AUTOMAKE@
-AUTOHEADER = $(SHELL) "$(abs_top_srcdir)/tools/missing" autoheader
+AUTOHEADER = autoheader
 BLAS_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRblas
 BUILDDIR_IS_SRCDIR = yes
 CC = gcc
@@ -56,7 +56,7 @@ LIBR =
 ## Many of these used to be optional: ICU libs still are.
 ## There may be platform-specific ones, e.g.
 ## -lrt -ldl on Linux, -lnsl -lsocket -lrt -lsunmath -ldl -liconv on Solaris.
-LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm
+LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
 LIBnn = lib
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 ## AFAICS unused

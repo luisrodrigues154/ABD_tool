@@ -14,6 +14,8 @@ run <- function(){
     #
     #
     a[c] <- b[3]
+    #tested and working
+    #test below
     #a única coisa que faz, é gerar um vector para os indexes
     #que vao ser alterados
     #print("-------------")

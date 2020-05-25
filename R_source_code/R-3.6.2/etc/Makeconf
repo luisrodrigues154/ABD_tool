@@ -75,7 +75,7 @@ LIBM = -lm
 LIBR0 = 
 LIBR1 = 
 LIBR =  
-LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm
+LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
 ## needed by R CMD config
 LIBnn = lib
 LIBTOOL = $(SHELL) "$(R_HOME)/bin/libtool"
