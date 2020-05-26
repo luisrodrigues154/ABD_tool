@@ -156,7 +156,7 @@ function processForLine(line) {
 		var currentLine = events[i]['line'];
 		if (currentLine == requestLine) {
 			foundEvents.push(events[i]);
-			if (!foundContexts.includes(events[i]['atEnv']) && events[i]['type'] != types.RET) {
+			if (!foundContexts.includes(events[i]['atEnv'])) {
 				foundContexts.push(events[i]['atEnv']);
 			}
 		}

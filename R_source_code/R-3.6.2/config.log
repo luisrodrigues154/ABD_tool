@@ -3054,7 +3054,7 @@ Using built-in specs.
 Target: x86_64-linux-gnu
 Thread model: posix
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
- /usr/lib/gcc/x86_64-linux-gnu/7/f951 conftest.f -ffixed-form -quiet -dumpbase conftest.f -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fintrinsic-modules-path /usr/lib/gcc/x86_64-linux-gnu/7/finclude -o /tmp/cc5qli3x.s
+ /usr/lib/gcc/x86_64-linux-gnu/7/f951 conftest.f -ffixed-form -quiet -dumpbase conftest.f -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fintrinsic-modules-path /usr/lib/gcc/x86_64-linux-gnu/7/finclude -o /tmp/ccxGIIAf.s
 GNU Fortran (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
@@ -3063,11 +3063,11 @@ GNU Fortran2008 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
- as -v --64 -o /tmp/cctuCWau.o /tmp/cc5qli3x.s
+ as -v --64 -o /tmp/cc3Ah3j9.o /tmp/ccxGIIAf.s
 GNU assembler version 2.30 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.30
 Reading specs from /usr/lib/gcc/x86_64-linux-gnu/7/libgfortran.spec
 rename spec lib to liborig
- /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccF7Gbjq.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/cctuCWau.o -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
+ /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccLELZ32.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/cc3Ah3j9.o -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
 configure:25067: result: -v
 configure:25069: checking for Fortran libraries of gfortran
 configure:25092: gfortran -o conftest -g -O2 -v -L/usr/local/lib conftest.f
@@ -3075,7 +3075,7 @@ Using built-in specs.
 Target: x86_64-linux-gnu
 Thread model: posix
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
- /usr/lib/gcc/x86_64-linux-gnu/7/f951 conftest.f -ffixed-form -quiet -dumpbase conftest.f -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fintrinsic-modules-path /usr/lib/gcc/x86_64-linux-gnu/7/finclude -o /tmp/ccyy62hC.s
+ /usr/lib/gcc/x86_64-linux-gnu/7/f951 conftest.f -ffixed-form -quiet -dumpbase conftest.f -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fintrinsic-modules-path /usr/lib/gcc/x86_64-linux-gnu/7/finclude -o /tmp/ccd5aCyl.s
 GNU Fortran (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
@@ -3084,11 +3084,11 @@ GNU Fortran2008 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
- as -v --64 -o /tmp/ccfAOfyy.o /tmp/ccyy62hC.s
+ as -v --64 -o /tmp/cc703Gqf.o /tmp/ccd5aCyl.s
 GNU assembler version 2.30 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.30
 Reading specs from /usr/lib/gcc/x86_64-linux-gnu/7/libgfortran.spec
 rename spec lib to liborig
- /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccQzM8Ou.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/ccfAOfyy.o -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
+ /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJtzpj9.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/cc703Gqf.o -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
 configure:25288: result:  -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lquadmath
 configure:25307: checking how to get verbose linking output from gcc
 configure:25323: gcc -c -g -O2 -I/usr/local/include conftest.c >&5
@@ -3104,7 +3104,7 @@ Configured with: ../src/configure -v --with-pkgversion='Ubuntu 7.5.0-3ubuntu1~18
 Thread model: posix
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/7/cc1 -quiet -v -I /usr/local/include -imultiarch x86_64-linux-gnu conftest.c -quiet -dumpbase conftest.c -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fstack-protector-strong -Wformat -Wformat-security -o /tmp/ccVOcMpG.s
+ /usr/lib/gcc/x86_64-linux-gnu/7/cc1 -quiet -v -I /usr/local/include -imultiarch x86_64-linux-gnu conftest.c -quiet -dumpbase conftest.c -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fstack-protector-strong -Wformat -Wformat-security -o /tmp/ccRkjW8r.s
 GNU C11 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
@@ -3127,12 +3127,12 @@ GNU C11 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: b62ed4a2880cd4159476ea8293b72fa8
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- as -v -I /usr/local/include --64 -o /tmp/cc20uDTC.o /tmp/ccVOcMpG.s
+ as -v -I /usr/local/include --64 -o /tmp/cczvgjem.o /tmp/ccRkjW8r.s
 GNU assembler version 2.30 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.30
 COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/
 LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../:/lib/:/usr/lib/
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmF33nz.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/cc20uDTC.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
+ /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccDt9jkg.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/cczvgjem.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
 configure:25391: result: -v
 configure:25393: checking for C libraries of gcc
@@ -3147,7 +3147,7 @@ Configured with: ../src/configure -v --with-pkgversion='Ubuntu 7.5.0-3ubuntu1~18
 Thread model: posix
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/7/cc1 -quiet -v -I /usr/local/include -imultiarch x86_64-linux-gnu conftest.c -quiet -dumpbase conftest.c -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fstack-protector-strong -Wformat -Wformat-security -o /tmp/ccd32OJL.s
+ /usr/lib/gcc/x86_64-linux-gnu/7/cc1 -quiet -v -I /usr/local/include -imultiarch x86_64-linux-gnu conftest.c -quiet -dumpbase conftest.c -mtune=generic -march=x86-64 -auxbase conftest -g -O2 -version -fstack-protector-strong -Wformat -Wformat-security -o /tmp/cc5qdIVu.s
 GNU C11 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 	compiled by GNU C version 7.5.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.19-GMP
 
@@ -3170,12 +3170,12 @@ GNU C11 (Ubuntu 7.5.0-3ubuntu1~18.04) version 7.5.0 (x86_64-linux-gnu)
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: b62ed4a2880cd4159476ea8293b72fa8
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- as -v -I /usr/local/include --64 -o /tmp/ccZLNNjI.o /tmp/ccd32OJL.s
+ as -v -I /usr/local/include --64 -o /tmp/ccns3E7o.o /tmp/cc5qdIVu.s
 GNU assembler version 2.30 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.30
 COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/
 LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../:/lib/:/usr/lib/
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
- /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/ccfzLmUE.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/ccZLNNjI.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
+ /usr/lib/gcc/x86_64-linux-gnu/7/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper -plugin-opt=-fresolution=/tmp/cctRxckj.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o conftest /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbeginS.o -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. /tmp/ccns3E7o.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/7/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/crtn.o
 COLLECT_GCC_OPTIONS='-o' 'conftest' '-g' '-O2' '-v' '-I' '/usr/local/include' '-L/usr/local/lib' '-mtune=generic' '-march=x86-64'
 configure:25571: result:  -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgcc_s
 configure:25670: checking for dummy main to link with Fortran libraries
@@ -3186,7 +3186,7 @@ configure:25782: checking for Fortran name-mangling scheme
 configure:25795: gfortran -c -g -O2  conftest.f >&5
 configure:25795: $? = 0
 configure:25836: gcc -o conftest -g -O2 -I/usr/local/include -L/usr/local/lib conftest.c cfortran_test.o -ldl -lm   -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lquadmath >&5
-/tmp/ccRx4oBU.o: In function `main':
+/tmp/ccDXNYWD.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:122: undefined reference to `foobar'
 collect2: error: ld returned 1 exit status
 configure:25836: $? = 1
@@ -4689,7 +4689,7 @@ configure: failed program was:
 configure:35494: result: no
 configure:35513: checking for atanpi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccco1HQk.o: In function `main':
+/tmp/cc39mADe.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:161: undefined reference to `atanpi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -4861,7 +4861,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for atan2pi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccg8dYFp.o: In function `main':
+/tmp/cclLjjBk.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:161: undefined reference to `atan2pi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5033,7 +5033,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for cospi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/cc6fyEnw.o: In function `main':
+/tmp/ccSJmPXf.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:161: undefined reference to `cospi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5212,7 +5212,7 @@ configure:35513: $? = 0
 configure:35513: result: yes
 configure:35513: checking for pown
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccSUwzHC.o: In function `main':
+/tmp/ccEqcokl.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `pown'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5385,7 +5385,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for sinpi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccy1l8CI.o: In function `main':
+/tmp/ccglM0rs.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `sinpi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5558,7 +5558,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for tanpi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccgsqdfN.o: In function `main':
+/tmp/ccstczGt.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `tanpi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5731,7 +5731,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for __cospi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccEUZYyO.o: In function `main':
+/tmp/ccQpD97x.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `__cospi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -5904,7 +5904,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for __sinpi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccWwY6iU.o: In function `main':
+/tmp/ccsmrmOE.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `__sinpi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -6077,7 +6077,7 @@ configure: failed program was:
 configure:35513: result: no
 configure:35513: checking for __tanpi
 configure:35513: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccRquaNW.o: In function `main':
+/tmp/cczFQceJ.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:162: undefined reference to `__tanpi'
 collect2: error: ld returned 1 exit status
 configure:35513: $? = 1
@@ -6258,7 +6258,7 @@ configure:35532: $? = 0
 configure:35532: result: yes
 configure:35532: checking for matherr
 configure:35532: gcc -o conftest  -g -O2 -I/usr/local/include  -L/usr/local/lib conftest.c -ldl -lm  >&5
-/tmp/ccGogRH8.o: In function `main':
+/tmp/ccMzsT4V.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:164: undefined reference to `matherr'
 collect2: error: ld returned 1 exit status
 configure:35532: $? = 1
@@ -8242,7 +8242,7 @@ conftest.c:246:1: warning: implicit declaration of function 'iconvlist'; did you
  iconvlist(count_one, NULL);
  ^~~~~~~~~
  iconv_close
-/tmp/cccHHV7o.o: In function `main':
+/tmp/ccAbr8xm.o: In function `main':
 /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2/conftest.c:246: undefined reference to `iconvlist'
 collect2: error: ld returned 1 exit status
 configure:39403: $? = 1
@@ -14958,6 +14958,7 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 on luis-VirtualBox
 
 config.status:1896: creating src/include/config.h
+config.status:2082: src/include/config.h is unchanged
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -15927,3 +15928,122 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 on luis-VirtualBox
 
 config.status:1896: creating src/library/Recommended/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile
+
+## ---------------------- ##
+## Running config.status. ##
+## ---------------------- ##
+
+This file was extended by R config.status 3.6.2, which was
+generated by GNU Autoconf 2.69.  Invocation command line was
+
+  CONFIG_FILES    = 
+  CONFIG_HEADERS  = 
+  CONFIG_LINKS    = 
+  CONFIG_COMMANDS = 
+  $ ./config.status src/main/Makefile
+
+on luis-VirtualBox
+
+config.status:1896: creating src/main/Makefile

@@ -32,6 +32,11 @@
             Constant: OBJECTS_FILE_PATH
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
+
+void storePossibleRet(SEXP value)
+{
+    storeRetValues(value);
+}
 void setWatcherState(ABD_STATE state)
 {
     watcherState = state;
@@ -63,7 +68,7 @@ void abd_stop()
         persistInformation();
         //open the browser with the displayer
 
-        //int ret = system(getCommand());
+        int ret = system(getCommand());
     }
 }
 
@@ -110,17 +115,20 @@ void regVarIdxChange(SEXP call, SEXP rho)
     // PrintDaCall(call, rho);
     //find the object
 
-    SEXP toObj = CAR(CDR(CAR(CDR(call))));
     //if matrix, toObj will remain langsxp, just a pair of brackets more
-
-    idxChanges->destObj = findObj(cmnObjReg, CHAR(PRINTNAME(toObj)), rho);
-
-    //this will just discard the the vectors that will arrive, because the object is not tracked
-    if (idxChanges->destObj == ABD_OBJECT_NOT_FOUND)
-        idxChanges->discard = 1;
-
+    idxChanges->dest = CAR(CDR(CAR(CDR(call))));
     //pre-process
     preProcessVarIdxChange(call, rho);
+
+    /*
+        if they are all 0, need to process now, otherwise
+        just wait for processIndexChanges() being triggered by the reaching vectors
+    */
+    if (!(idxChanges->srcVec || idxChanges->destIdxsVec || idxChanges->srcIdxsVec))
+    {
+        puts("will process");
+        processVarIdxChange();
+    }
 
     //now wait ...
     /*
@@ -181,13 +189,13 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    puts("");
-    puts("");
-    puts("reg vector....");
-    puts("with call....");
-    PrintDaCall(call, rho);
-    puts("with values....");
-    PrintDaCall(vector, rho);
+    // puts("");
+    // puts("");
+    // puts("reg vector....");
+    // puts("with call....");
+    // PrintDaCall(call, rho);
+    // puts("with values....");
+    // PrintDaCall(vector, rho);
 
     if (waitingIdxChange)
     {
@@ -203,7 +211,7 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
             // printf("srcValues NULL? %s\n", idxChanges->srcValues == R_NilValue ? "yes" : "no");
             // printf("srcIdxs NULL? %s\n", idxChanges->srcIdxs == R_NilValue ? "yes" : "no");
             // printf("destIdxs NULL? %s\n", idxChanges->destIdxs == R_NilValue ? "yes" : "no");
-            printIdxChangeValues();
+            processVarIdxChange();
         }
 
         return;

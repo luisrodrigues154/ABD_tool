@@ -7,4 +7,4 @@ Description: Statistical Functions using S4 classes.
 Maintainer: R Core Team <R-core@r-project.org>
 Imports: graphics, methods, stats
 License: Part of R 3.6.2
-Built: R 3.6.2; ; 2020-05-23 00:55:50 UTC; unix
+Built: R 3.6.2; ; 2020-05-26 01:22:35 UTC; unix

@@ -206,6 +206,7 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
         mod->valueType = ABD_MATRIX;
         break;
     default:
+        puts("fell to def");
         break;
     }
     return mod;
@@ -744,11 +745,23 @@ void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEX
 void setRetEventValue(SEXP value)
 {
     ABD_OBJECT_MOD *valueABD = memAllocMod();
-    valueABD = processByType(value, valueABD, 0);
+
+    if (checkRetStored(value) == ABD_EXIST)
+    {
+        printf("typeof stored value... %d\n", TYPEOF(possibleRet));
+        valueABD = processByType(possibleRet, valueABD, 0);
+
+        eventsRegTail->data.ret_event->retValue = valueABD;
+        eventsRegTail->scriptLn = possibleRetLine;
+    }
+    else
+    {
+        valueABD = processByType(value, valueABD, 0);
+        eventsRegTail->data.ret_event->retValue = valueABD;
+    }
     valueABD->id = -1;
     eventsRegTail->data.ret_event->toObj = ABD_OBJECT_NOT_FOUND;
     eventsRegTail->data.ret_event->from = getCurrFuncObj();
-    eventsRegTail->data.ret_event->retValue = valueABD;
     lastRetValue = value;
 }
 
@@ -963,7 +976,6 @@ void initIdxChangeAuxVars()
     idxChanges->srcIdxs = R_NilValue;
     idxChanges->destIdxs = R_NilValue;
     idxChanges->srcObj = ABD_OBJECT_NOT_FOUND;
-    idxChanges->destObj = ABD_OBJECT_NOT_FOUND;
 }
 void preProcessDest(SEXP call)
 {
@@ -1049,6 +1061,7 @@ rollback:
                 //rhs did not got into the langsxp brances, so, this is the actual obj
                 //will not create vector regardless of the src obj length
                 idxChanges->src = rhs;
+                idxChanges->srcValues = srcIdxs;
             }
         }
         else
@@ -1063,9 +1076,11 @@ rollback:
                 memset(requestValue, 0, nameSize);
                 sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(idxChanges->src)), index);
                 idxChanges->srcValues = getResult(requestValue);
+                idxChanges->srcIdxs = rhs;
                 free(requestValue);
             }
-            idxChanges->srcIdxs = rhs;
+            else
+                idxChanges->srcValues = rhs;
         }
     }
 }
@@ -1078,7 +1093,6 @@ void printVars()
 }
 void processIndexChanges()
 {
-
     puts("processIndexChanges() called");
     printVars();
 }
@@ -1107,7 +1121,6 @@ void printIdxChangeValues()
 
 void preProcessVarIdxChange(SEXP call, SEXP rho)
 {
-    initIdxChangeAuxVars();
     // puts("The call expression    int *needProcess = (int *)malloc(sizeof(int) * 2);");
     // PrintIt(call, getCurrentEnv());
     // puts(" ");
@@ -1115,18 +1128,7 @@ void preProcessVarIdxChange(SEXP call, SEXP rho)
     preProcessDest(call);
     preProcessSrc(call);
 
-    /*
-        if they are all 0, need to process now, otherwise
-        just wait for processIndexChanges() being triggered by the reaching vectors
-    */
-    printVars();
-    if (!(idxChanges->srcVec || idxChanges->destIdxsVec || idxChanges->srcIdxsVec))
-    {
-        processIndexChanges();
-        printIdxChangeValues();
-    }
-    else
-        puts("will wait...");
+    //done
 }
 
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
@@ -1337,6 +1339,18 @@ int getCurrScriptLn()
     // this happens running Rscript or interactively outside of a function
     return 0;
 }
+
+ABD_SEARCH checkRetStored(SEXP testValue)
+{
+    return (testValue == possibleRet) ? ABD_EXIST : ABD_NOT_EXIST;
+}
+
+void storeRetValues(SEXP value)
+{
+    possibleRetLine = getCurrScriptLn();
+    possibleRet = value;
+}
+
 void eventPrint(ABD_EVENT *event)
 {
 

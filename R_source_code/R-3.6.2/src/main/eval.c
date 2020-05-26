@@ -622,6 +622,8 @@ SEXP eval(SEXP e, SEXP rho)
 			used as values.  Setting NAMED to NAMEDMAX makes sure weird calls
 			to replacement functions won't modify constants in
 			expressions.  */
+		if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
+			storePossibleRet(e);
 		ENSURE_NAMEDMAX(e);
 		return e;
 	default:
@@ -705,6 +707,9 @@ SEXP eval(SEXP e, SEXP rho)
 		}
 		else
 			ENSURE_NAMED(tmp); /* should not really be needed - LT */
+
+		if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
+			storePossibleRet(tmp);
 		break;
 	case PROMSXP:
 		if (PRVALUE(e) == R_UnboundValue)
@@ -3490,7 +3495,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-					/* falls through */
+		/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;

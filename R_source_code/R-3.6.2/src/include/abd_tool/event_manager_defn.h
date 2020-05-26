@@ -41,7 +41,7 @@ typedef struct
   int srcVec, destIdxsVec, srcIdxsVec, discard;
   int nIdxChanges;
   SEXP srcValues, srcIdxs, destIdxs;
-  SEXP src;
+  SEXP src, dest;
   ABD_OBJECT *destObj;
   ABD_OBJECT *srcObj;
 
@@ -52,6 +52,8 @@ static IDX_CHANGE *idxChanges;
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;
+SEXP possibleRet;
+int possibleRetLine = 0;
 
 /* Stores Arithmetic values related */
 static ABD_ARITH_EVENT *lastArithEvent;
@@ -101,3 +103,5 @@ SEXP getResult(const char *expr);
 SEXP getSavedArithAns();
 void storeVecsForIdxChange(SEXP vec);
 int toDiscard();
+ABD_SEARCH checkRetStored(SEXP testValue);
+void storeRetValues(SEXP value);

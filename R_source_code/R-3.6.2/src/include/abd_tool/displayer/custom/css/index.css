@@ -31,3 +31,12 @@ div[data-path="/2/2/1"].limit-max-height {
 div {
 	background: rgba(255, 255, 255, 0);
 }
+
+#exec-flow-graph {
+	width: 100%;
+	height: 100%;
+}
+
+#exec-flow-graph.limit-max-width {
+	max-width: 80% !important;
+}

@@ -175,5 +175,15 @@ typedef struct vec_event
     ABD_OBJECT_MOD *fromState;
     ABD_OBJECT *toObj;
 } ABD_VEC_EVENT;
+
+typedef struct idx_change_event
+{
+    ABD_OBJECT *toObj;
+    //in the state contains the indexes
+    ABD_OBJECT_MOD *toState;
+    ABD_OBJECT *fromObj;
+    int *fromIdxs;
+} ABD_IDX_CHANGE_EVENT;
+
 #define ABD_EVENT_NOT_FOUND NULL
 #endif

@@ -218,6 +218,7 @@ ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv)
         result2 = (currentObject->createdEnv == createdEnv);
         if (result2 == 1)
         {
+
             result = strcmp(currentObject->name, name);
             if (result == 0)
             {
@@ -409,38 +410,88 @@ ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
 }
 ABD_OBJECT_MOD *intVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
+
     ABD_OBJECT_MOD *firstMod = newMod;
-    // newMod->value.vec_value = memAllocVecObj();
-    // newMod->value.vec_value->idxChange = 1;
-    // newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
-    // newMod->value.vec_value->vector = memAllocIntVector(idxChanges->nIdxChanges);
-    // newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
 
-    // for (int i = 0; i < idxChanges->nIdxChanges; i++)
-    // {
-    //     int idxMod = idxChanges->idxs[i];
-    //     newMod->value.vec_value->idxs[i] = idxMod;
-    //     ((int *)newMod->value.vec_value->vector)[i] = INTEGER(rhs)[i];
-    // }
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 1;
 
+    int srcSize = Rf_length(idxChanges->srcValues);
+    int destSize = Rf_length(idxChanges->destIdxs);
+
+    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+
+    //what indexes changed
+    newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
+
+    //the values themselves
+    newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
+    puts("0");
+    int repeater = Rf_length(idxChanges->srcValues);
+    puts("1");
+    int i, j;
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        int toIdx = 0;
+        if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+            toIdx = (int)REAL(idxChanges->destIdxs)[i];
+        else
+            //intsxp
+            toIdx = INTEGER(idxChanges->destIdxs)[i];
+
+        //because R is 1-n, c is 0-n-1
+        toIdx--;
+
+        newMod->value.vec_value->idxs[i] = toIdx;
+
+        if (j == repeater)
+            j = 0;
+
+        ((int *)newMod->value.vec_value->vector)[i] = INTEGER(rhs)[j];
+    }
     return newMod;
 }
 ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
+
     ABD_OBJECT_MOD *firstMod = newMod;
-    // newMod->value.vec_value = memAllocVecObj();
-    // newMod->value.vec_value->idxChange = 1;
-    // newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
-    // newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
-    // newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
 
-    // for (int i = 0; i < idxChanges->nIdxChanges; i++)
-    // {
-    //     int idxMod = idxChanges->idxs[i];
-    //     newMod->value.vec_value->idxs[i] = idxMod;
-    //     ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
-    // }
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 1;
 
+    int srcSize = Rf_length(idxChanges->srcValues);
+    int destSize = Rf_length(idxChanges->destIdxs);
+
+    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+
+    //what indexes changed
+    newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
+
+    //the values themselves
+    newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
+    puts("0");
+    int repeater = Rf_length(idxChanges->srcValues);
+    puts("1");
+    int i, j;
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        int toIdx = 0;
+        if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+            toIdx = (int)REAL(idxChanges->destIdxs)[i];
+        else
+            //intsxp
+            toIdx = INTEGER(idxChanges->destIdxs)[i];
+
+        //because R is 1-n, c is 0-n-1
+        toIdx--;
+
+        newMod->value.vec_value->idxs[i] = toIdx;
+
+        if (j == repeater)
+            j = 0;
+
+        ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[j];
+    }
     return newMod;
 }
 
@@ -461,6 +512,7 @@ ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD
 
 int getObjStructType(SEXP symbolValue)
 {
+
     if (isVector(symbolValue))
         return 1;
     else if (isMatrix(symbolValue))
@@ -564,4 +616,39 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
     }
 
     return obj;
+}
+
+void printReg()
+{
+    ABD_OBJECT *auxObject = cmnObjReg;
+    while (auxObject != ABD_OBJECT_NOT_FOUND)
+    {
+        printf("name: %s\n", auxObject->name);
+        printf("prev null: %s\n", auxObject->prevObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
+        printf("next null: %s\n", auxObject->nextObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
+        auxObject = auxObject->nextObj;
+    }
+}
+
+void processVarIdxChange()
+{
+
+    SEXP rhs = idxChanges->srcValues;
+
+    ABD_OBJECT *obj = idxChanges->destObj = findObj(cmnObjReg, CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
+    if (obj != ABD_OBJECT_NOT_FOUND)
+    {
+        //dest idxs vector will always say how many changes will be performed
+        idxChanges->nIdxChanges = Rf_length(idxChanges->destIdxs);
+        //the object was found in the registry, need to process new mod
+        ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
+
+        newMod = addEmptyModToObj(obj, getObjStructType(rhs));
+
+        newMod = processByType(rhs, newMod, 1);
+        obj->modList = newMod;
+        obj->usages++;
+        cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+    }
+    puts("finished");
 }

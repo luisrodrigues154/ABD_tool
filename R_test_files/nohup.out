@@ -166,3 +166,35 @@ Most likely you need to configure your SUID sandbox correctly
 [3398:3398:0522/180338.088021:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
 [0522/205651.374091:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
 Most likely you need to configure your SUID sandbox correctly
+[20218:20218:0525/192523.631443:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[20218:20218:0525/192523.631970:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0525/192523.734864:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[24876:24876:0526/014142.560324:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[24876:24876:0526/014142.560435:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0526/014142.637742:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[25086:25086:0526/014246.454731:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[25086:25086:0526/014246.455316:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0526/014246.529980:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[27086:27086:0526/020009.117525:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[27086:27086:0526/020009.117810:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0526/020009.229376:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[27130:27130:0526/020009.250459:ERROR:broker_posix.cc(43)] Invalid node channel message
+[27128:27128:0100/000000.327620:ERROR:broker_posix.cc(43)] Invalid node channel message
+[30272:30272:0526/020839.029378:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[30272:30272:0526/020839.029741:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0526/020839.114577:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[5492:5492:0526/022527.225112:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+[5492:5492:0526/022527.225595:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0526/022527.304373:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
