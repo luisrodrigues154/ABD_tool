@@ -5,6 +5,16 @@ var currContext = '';
 var currFunc = '';
 var requestDisplay = [];
 
+const types = {
+	ASSIGN: 'assign_event',
+	IF: 'if_event',
+	FUNC: 'func_event',
+	RET: 'ret_event',
+	ARITH: 'arithmetic_event',
+	VEC: 'vector_event'
+};
+var processMe = 0;
+
 $(function() {
 	//loading function
 	$('#context_modal').on('hidden.bs.modal', function() {
@@ -184,16 +194,6 @@ function populateUpperLabels(funcId, env) {
 
 	document.getElementById('env_label').innerHTML = env;
 }
-
-const types = {
-	ASSIGN: 'assign_event',
-	IF: 'if_event',
-	FUNC: 'func_event',
-	RET: 'ret_event',
-	ARITH: 'arithmetic_event',
-	VEC: 'vector_event'
-};
-var processMe = 0;
 
 function checkMoreVectorsForSameLine(line, context) {
 	var i;

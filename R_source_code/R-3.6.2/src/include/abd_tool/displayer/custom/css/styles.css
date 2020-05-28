@@ -134,3 +134,26 @@ hr {
 	font-weight: bold;
 	text-decoration: underline;
 }
+
+node {
+	background: var(--pane-opacity);
+	color: white;
+	width: 200px;
+	display: block;
+	border-radius: 10px;
+	border: 2px solid white;
+}
+node > label {
+	display: block;
+	font-size: 10pt;
+	margin-left: 10px;
+	margin-top: 10px;
+}
+.node-title {
+	margin-left: 10px;
+	color: var(--bto-color);
+}
+
+.node-content {
+	color: white;
+}
