@@ -198,3 +198,33 @@ Most likely you need to configure your SUID sandbox correctly
 Opening in existing browser session.
 [0526/022527.304373:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
 Most likely you need to configure your SUID sandbox correctly
+[6540:6540:0529/190706.227747:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/190706.318355:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[7808:7808:0529/205827.015749:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/205827.104861:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[8175:8175:0529/212512.892707:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/212512.996387:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[8340:8340:0529/214020.441952:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/214020.530547:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[8429:8429:0529/214104.391155:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/214104.483896:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[9960:9960:0529/214553.457947:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/214553.553250:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[11423:11423:0529/214832.617584:ERROR:edid_parser.cc(102)] Too short EDID data: manufacturer id
+Opening in existing browser session.
+[0529/214832.734287:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+[11466:11466:0529/214832.741849:ERROR:broker_posix.cc(43)] Invalid node channel message
+[11463:11463:0100/000000.868519:ERROR:broker_posix.cc(43)] Invalid node channel message

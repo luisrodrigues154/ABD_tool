@@ -68,7 +68,7 @@ void abd_stop()
         persistInformation();
         //open the browser with the displayer
 
-        int ret = system(getCommand());
+        //int ret = system(getCommand());
     }
 }
 
@@ -144,16 +144,20 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
 
-    //need to extract the rhs from the call
-    ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
-    SEXP rhs2 = CAR(CDR(CDR(call)));
     // puts("rhs2 V");
     // PrintDaCall(rhs2, getCurrentEnv());
 
     /* store the new information for the object */
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
-    createAsgnEvent(objUsed, rhs, rhs2, rho);
+    if (TYPEOF(rhs) != CLOSXP)
+    {
+        //need to extract the rhs from the call
+        ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
+        SEXP rhs2 = CAR(CDR(CDR(call)));
+        createAsgnEvent(objUsed, rhs, rhs2, rho);
+    }
+
     clearPendingVars();
 }
 
@@ -176,6 +180,7 @@ ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP rec
         return ABD_NOT_EXIST;
 
     ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
+
     if (objFound == ABD_OBJECT_NOT_FOUND)
         return ABD_NOT_EXIST;
 

@@ -143,7 +143,7 @@ ABD_OBJECT_MOD *memAllocMod();
 ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt);
 void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv);
 ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg);
-ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv);
+ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv);
 ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 void changeNeighbours(ABD_OBJECT *obj);
 ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj);

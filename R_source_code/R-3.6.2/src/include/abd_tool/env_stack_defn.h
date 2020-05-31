@@ -19,11 +19,11 @@ typedef struct abd_env_stack
 
 //control the function calls and restrict defineVars() that are not intended to be registered
 static ABD_ENV_STACK *envStack;
-
+static SEXP initialEnv;
 //constants
 #define ABD_ENV_NOT_FOUND NULL
 #endif
-
+SEXP getInitialEnv();
 void initEnvStack(SEXP rho);
 void freeEnv(ABD_ENV_STACK *env);
 ABD_ENV_STACK *memAllocEnvStack();

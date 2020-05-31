@@ -8,23 +8,27 @@ run <- function(){
     
     
 
-    f1 <- function(x,y){
+    f1 <- function(x,y,z,t,r,j){
         f1_a <- x
         f1_b <- y
-        f1_b
     }
 
     f2 <- function(z,b){
         a<-z
         b<-b
         c <- 10
-        c
     }
 
-    ret2 <- f1(a,b)
+    f3 <- function(xx){
+        a <- xx
+        b <- a
+        c <- f2(a,b)
+    }
+    ret2 <- f1(a,b,1,2,3,4)
 
-    #f2(10,11)
+    result <- f2(10,11)
 
+    result3 <- f3(10)
     abd_stop()
 }
 

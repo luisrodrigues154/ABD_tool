@@ -269,7 +269,7 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
             SEXP rStrName = mkString(passedName);
             rcvdValue = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
             //printf("\nPassed name: %s\nReceived name: %s\n", passedName, rcvdName);
-            objectFound = findObj(cmnObjReg, passedName, getCurrentEnv());
+            objectFound = findCmnObj(passedName, getCurrentEnv());
             if (objectFound == ABD_OBJECT_NOT_FOUND)
             {
                 //object not in registry
@@ -447,7 +447,7 @@ IF_ABD_OBJ *getAbdIfObj(SEXP symbol, int withIndex)
         //its a variable
         const char *objName = CHAR(PRINTNAME(symbol));
         //printf("\nPassed name: %s\nReceived name: %s\n", passedName, rcvdName);
-        objectFound = findObj(cmnObjReg, objName, getCurrentEnv());
+        objectFound = findCmnObj(objName, getCurrentEnv());
         if (objectFound == ABD_OBJECT_NOT_FOUND)
         {
             //object not in registry
@@ -748,7 +748,6 @@ void setRetEventValue(SEXP value)
 
     if (checkRetStored(value) == ABD_EXIST)
     {
-        printf("typeof stored value... %d\n", TYPEOF(possibleRet));
         valueABD = processByType(possibleRet, valueABD, 0);
 
         eventsRegTail->data.ret_event->retValue = valueABD;
@@ -1195,7 +1194,7 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
 
     if (obj != R_NilValue)
     {
-        ABD_OBJECT *auxObj = findObj(cmnObjReg, CHAR(PRINTNAME(obj)), getCurrentEnv());
+        ABD_OBJECT *auxObj = findCmnObj(CHAR(PRINTNAME(obj)), getCurrentEnv());
 
         if (auxObj == ABD_OBJECT_NOT_FOUND)
         {
@@ -1290,7 +1289,7 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         }
         if (TYPEOF(rhs2) == SYMSXP)
         {
-            if ((fromObj = findObj(cmnObjReg, CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
+            if ((fromObj = findCmnObj(CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
             {
                 //not mapped obj
                 withIndex = (withIndex == 0) ? 1 : withIndex;

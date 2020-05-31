@@ -176,63 +176,43 @@ ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv)
     //registry have elements
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT *currentObject = cfObjReg;
-    unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
     do
     {
         // line below mitigates recursion and calling functions declared
         // in the global env as well as declared in function scope
-        result2 = (currentObject->createdEnv == callingEnv) || (currentObject->createdEnv == R_GlobalEnv);
-        if (result2 == 1)
+
+        if ((strncmp(currentObject->name, name, strlen(name) * sizeof(char)) == 0) && (currentObject->createdEnv == getInitialEnv() || currentObject->createdEnv == callingEnv))
         {
-            result = strncmp(currentObject->name, name, strlen(name) * sizeof(char));
-            if (result == 0)
-            {
-                objectFound = currentObject;
-                found = 1;
-                break;
-            }
+            objectFound = currentObject;
+            break;
         }
+
         currentObject = currentObject->nextObj;
     } while (currentObject != ABD_OBJECT_NOT_FOUND);
 
-    if (found == 0)
-        //if not found
-        return ABD_OBJECT_NOT_FOUND;
-
     return objectFound;
 }
-ABD_OBJECT *findObj(ABD_OBJECT *objReg, const char *name, SEXP createdEnv)
+ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv)
 {
-    if (objReg == ABD_OBJECT_NOT_FOUND)
+    if (cmnObjReg == ABD_OBJECT_NOT_FOUND)
         //registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
 
     //registry have elements
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
-    ABD_OBJECT *currentObject = objReg;
+    ABD_OBJECT *currentObject = cmnObjReg;
     unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
     do
     {
-        result2 = (currentObject->createdEnv == createdEnv);
-        if (result2 == 1)
+        if ((currentObject->createdEnv == createdEnv) && (strcmp(currentObject->name, name) == 0))
         {
-
-            result = strcmp(currentObject->name, name);
-            if (result == 0)
-            {
-                objectFound = currentObject;
-                found = 1;
-                break;
-            }
+            objectFound = currentObject;
+            break;
         }
         currentObject = currentObject->nextObj;
     } while (currentObject != ABD_OBJECT_NOT_FOUND);
-
-    if (found == 0)
-        //if not found (new object)
-        return ABD_OBJECT_NOT_FOUND;
 
     return objectFound;
 }
@@ -314,7 +294,7 @@ ABD_OBJECT *getCmnObj(const char *name, SEXP rho)
         setObjBaseValues(objectFound, name, rho);
     }
     else
-        objectFound = findObj(cmnObjReg, name, rho);
+        objectFound = findCmnObj(name, rho);
 
     if (objectFound == ABD_OBJECT_NOT_FOUND)
     {
@@ -338,7 +318,7 @@ ABD_OBJECT *getCfObj(const char *name, SEXP rho)
         setObjBaseValues(objectFound, name, rho);
     }
     else
-        objectFound = findObj(cfObjReg, name, rho);
+        objectFound = findFuncObj(name, rho);
 
     if (objectFound == ABD_OBJECT_NOT_FOUND)
     {
@@ -572,7 +552,7 @@ ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId, SEXP value
 ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt)
 {
     ABD_OBJECT *obj = getCmnObj(name, rho);
-    free(obj->createdAt);
+
     obj->createdAt = createdAt->name;
     ABD_OBJECT_MOD *newMod = addEmptyModToObj(obj, getObjStructType(rhs));
 
@@ -596,11 +576,7 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 
     ABD_OBJECT *obj = ABD_OBJECT_NOT_FOUND;
     if (TYPEOF(rhs) == CLOSXP)
-    {
         obj = getCfObj(name, rho);
-        obj->usages++;
-        cfObjReg = rankObjByUsages(cfObjReg, obj);
-    }
     else
     {
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
@@ -620,7 +596,7 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 
 void printReg()
 {
-    ABD_OBJECT *auxObject = cmnObjReg;
+    ABD_OBJECT *auxObject = cfObjReg;
     while (auxObject != ABD_OBJECT_NOT_FOUND)
     {
         printf("name: %s\n", auxObject->name);
@@ -635,7 +611,7 @@ void processVarIdxChange()
 
     SEXP rhs = idxChanges->srcValues;
 
-    ABD_OBJECT *obj = idxChanges->destObj = findObj(cmnObjReg, CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
+    ABD_OBJECT *obj = idxChanges->destObj = findCmnObj(CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
     if (obj != ABD_OBJECT_NOT_FOUND)
     {
         //dest idxs vector will always say how many changes will be performed

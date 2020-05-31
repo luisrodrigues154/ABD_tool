@@ -3,9 +3,10 @@
 	--bto-color: #d9b310;
 	--back-color: #1d2731;
 	--selected-background: rgba(217, 179, 16, 0.5);
-	--selected-predecessor-background: rgba(247, 58, 58, 0.384);
+	--selected-predecessor-background: rgba(247, 59, 59, 0.384);
+
 	--pane-opacity: rgba(29, 39, 49, 0.3);
-	--hr-opacity: rgba(255, 255, 255, .3);
+	--hr-opacity: rgba(255, 255, 255, .45);
 	--full-aplha: rgba(255, 255, 255, 0);
 }
 
@@ -135,25 +136,29 @@ hr {
 	text-decoration: underline;
 }
 
+.main-node {
+	background: var(--title-color);
+	color: white;
+}
+
 node {
 	background: var(--pane-opacity);
 	color: white;
-	width: 200px;
 	display: block;
+	font-size: 13pt;
 	border-radius: 10px;
+	padding: 5px;
 	border: 2px solid white;
 }
-node > label {
-	display: block;
-	font-size: 10pt;
-	margin-left: 10px;
-	margin-top: 10px;
-}
-.node-title {
-	margin-left: 10px;
+
+.specialLabel {
 	color: var(--bto-color);
+	font-weight: bold;
 }
 
-.node-content {
-	color: white;
+.node-line {
+	color: var(--bto-color);
+	font-size: 11pt;
+	text-align: right;
+	width: 100%;
 }
