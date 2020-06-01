@@ -35,6 +35,8 @@ $(function() {
 	generateSVGgraph();
 });
 
+$(document).ready(function() {});
+
 String.prototype.format = function() {
 	var i = 0,
 		args = arguments;
@@ -69,7 +71,6 @@ function resolveEnvContents(env, funcName, calledFromLine) {
 	nodeHtml += '</div>';
 	nodeHtml += '</node>';
 	addNodeToDict(env, nodeHtml);
-	//console.log(graph);
 }
 
 function addNodeToDict(env, html) {
@@ -101,7 +102,7 @@ function mkBlockHeader(funcName, env, withFromLine) {
 	//Funtion name
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col col-5">';
-	htmlProduced += '<label class="float-right object-rhs-special">Function:</line>';
+	htmlProduced += '<label class="float-right object-rhs-special">Function:</label>';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col col-6">';
 	htmlProduced += '<label>' + funcName.trim() + '()</label>';
@@ -112,7 +113,7 @@ function mkBlockHeader(funcName, env, withFromLine) {
 
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col col-5">';
-	htmlProduced += '<label class="float-right object-rhs-special">Environment:</line>';
+	htmlProduced += '<label class="float-right object-rhs-special">Environment:</label>';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col col-6">';
 	htmlProduced += '<label>' + env + '</label>';
@@ -124,7 +125,7 @@ function mkBlockHeader(funcName, env, withFromLine) {
 		//
 		htmlProduced += '<div class="row">';
 		htmlProduced += '<div class="col col-5">';
-		htmlProduced += '<label class="float-right object-rhs-special">From Line:</line>';
+		htmlProduced += '<label class="float-right object-rhs-special">From Line:</label>';
 		htmlProduced += '</div>';
 		htmlProduced += '<div class="col col-6">';
 		htmlProduced += '<label>' + withFromLine + '</label>';
@@ -162,7 +163,10 @@ function addEventToEnvMap(env, line, eventContent) {
 	envContent.get(env).get(line).push(eventContent);
 }
 function genLabelHtml(id, text) {
-	return "<label id='{}' onclick='alert(this.id)'>{}</label>".format(id, text);
+	return "<label type='button' id='{}' onclick='processEventClick(this.id)' data-toggle='modal' data-target='#exec_flow_modal'>{}</label>".format(
+		id,
+		text
+	);
 }
 function getEventTypeHtml(event, nextEventId) {
 	let line = event['line'];
@@ -198,7 +202,10 @@ function getEventTypeHtml(event, nextEventId) {
 		case types.IF:
 			break;
 		case types.RET:
-			htmlProduced += "<ret id='eId-{}' onclick='alert(this.id)'> {} </ret>".format(nextEventId - 1, '(return)');
+			htmlProduced += "<ret id='eId-{}' onclick='processEventClick(this.id)'> {} </ret>".format(
+				nextEventId - 1,
+				'(return)'
+			);
 			break;
 		case types.ARITH:
 			break;
@@ -213,7 +220,6 @@ function addNodeLink(sourceEnv, targetEnv) {
 }
 
 function startBlock() {
-	console.log(stack);
 	if (stackSize == 1) {
 		return '<node class="container-fluid overflow-visible main-node" id="env-{}">'.format(stack[stackSize - 1]);
 	} else {
@@ -233,6 +239,233 @@ function popFromStack() {
 	currentEnv = stack[stackSize - 1];
 }
 
+/*
+
+
+            
+            
+           
+           
+
+            
+*/
+
+function mkTooltip(objCurrentValues) {
+	let valuesStr = structToStr(objCurrentValues);
+	return "<a href='#' type='button' data-placement='right' data-toggle='tooltip' data-html='true' title='Size: {}</br>{}'>Values here!</a>".format(
+		objCurrentValues[2],
+		valuesStr
+	);
+}
+
+function mkObjModalTopInfo(event) {
+	let htmlProduced = '';
+	let line = event['line'];
+	let objId = event['data']['toObj'];
+	let objState = event['data']['toState'];
+	let objCurrentValues = getObjCurrValue(objId, objState, 0);
+	console.log(objCurrentValues);
+	htmlProduced += '<div class="container-fluid">';
+
+	//first section header
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col-9 text-left dialog-title"> Current Status (Line: {})'.format(line);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj name info
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-right">Name:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-left">{}'.format(getCommonObjNameById(objId));
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj structure Type
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-right">Structure:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-left">{}'.format(objCurrentValues[0]);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj data Type
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-right">Data type:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-left">{}'.format(objCurrentValues[1]);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj size
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-right">Size:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-left">{}'.format(objCurrentValues[2]);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj value
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-right">Value:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-left">';
+
+	if (objCurrentValues[2] > 5) {
+		//create popover to display information
+		htmlProduced += mkTooltip(objCurrentValues);
+	} else {
+		htmlProduced += structToStr(objCurrentValues);
+	}
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	return htmlProduced;
+}
+let toSearch = [];
+let search = 0;
+function mkObjModalBotInfo(event, eventId) {
+	let htmlProduced = '';
+
+	//second section header
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">History';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//second section table start
+	htmlProduced += '<table class="table table-sm mt-2">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced += '<th class ="text-center" scope="col">Line</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Executed Code</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Values</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-center">';
+	//table rows
+
+	let currentEnv = event['atEnv'];
+	let i;
+	let objId = event['data']['toObj'];
+	let obj = getCommonObjById(objId);
+	if (obj['usages'] > 1 && eventId - 1 > 1) {
+		for (i = 1; i < eventId; i++) {
+			let currEvent = events[i];
+
+			if (currEvent['atEnv'] == currentEnv && currEvent['type'] == 'assign_event') {
+				if (currEvent['data']['toObj'] == objId) {
+					let objStateValues = getObjCurrValue(objId, currEvent['data']['toState']);
+					let strToAppend = '';
+					//create row here
+					htmlProduced += '<tr>';
+					htmlProduced += '<td class ="text-center" id="eId-{}" onclick="processEventClick(this.id)"><a href="#">{}</a></td>'.format(
+						i,
+						currEvent['line']
+					);
+					if (currEvent['data']['fromObj'] == 'ABD') {
+						//the value came from another object
+						let fromId = currEvent['data']['fromId'];
+						let fromState = currEvent['data']['fromState'];
+						addToSearch(fromId, fromState, 'hist-' + currEvent['line'] - 1);
+					}
+
+					htmlProduced += '<td class="text-center" id="hist-{}">{}</td>'.format(
+						currEvent['line'] - 1,
+						code[currEvent['line'] - 1]
+					);
+
+					if (objStateValues[2] > 4) {
+						//create popover to display information
+						strToAppend += mkTooltip(objStateValues);
+					} else {
+						strToAppend += structToStr(objStateValues);
+					}
+					htmlProduced += '<td class ="text-center">{}</td>'.format(strToAppend);
+					htmlProduced += '</tr>';
+				}
+			}
+		}
+	} else {
+		//no records to show
+		htmlProduced += '<tr>';
+		htmlProduced += '<td colspan="3" class="text-center" >No records to display!</td>';
+		htmlProduced += '</tr>';
+	}
+
+	if (search) doSearch();
+	//second section table finish
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+
+	//container close
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+function addToSearch(fromId, fromState, tdId) {
+	toSearch.push({
+		fromId: fromId,
+		fromState: fromState,
+		tdId: tdId
+	});
+	search++;
+}
+function doSearch() {
+	let i;
+	for (i = 1; search; i++) {
+		if (events[i]['type'] == types.ASSIGN) {
+			if (events[i]['data']['fromObj'] == 'ABD') {
+				if (
+					toSearch.some((e) => {
+						return (
+							(e.fromState == events[i]['data']['fromState'] ? true : false) &&
+							(e.fromId == events[i]['data']['fromId'] ? true : false)
+						);
+					})
+				) {
+					search--;
+					console.log('found event');
+					console.log(events[i]);
+				}
+			}
+		}
+		//
+	}
+}
+function produceModalContent(eventId) {
+	let content = {
+		title: '',
+		body: ''
+	};
+	eventId = eventId.split('-')[1];
+	let event = events[eventId];
+
+	switch (event['type']) {
+		case types.ASSIGN:
+			content.title = 'Object analysis';
+			content.body = mkObjModalTopInfo(event);
+			content.body += mkObjModalBotInfo(event, eventId);
+			break;
+
+		default:
+			content.title = 'Ups...';
+			content.body = 'Problem rendering event information';
+	}
+
+	//content.body = createTooltip(objId, objState);
+
+	return content;
+}
+function processEventClick(eventId) {
+	let producedContent = produceModalContent(eventId);
+
+	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
+	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
+	$('[data-toggle="tooltip"]').tooltip();
+	$('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
+	/*$('[data-toggle="tooltip"]').tooltip({ container: 'body' }); */
+	//$('[data-toggle="popover"]').popover();
+
+	/* $('.popover-dismiss').popover({
+		trigger: 'focus'
+	}); */
+}
 /*
 
 

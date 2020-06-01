@@ -3,9 +3,15 @@ run <- function(){
 
     abd_start()
 
+    j <- 30
     a <- 1
+    j <- 34
+    j <- a
+    j <- 32
+    j <- j
+    j <- 22:27
     b <- 2
-    
+    j <- 1:40
     
 
     f1 <- function(x,y,z,t,r,j){

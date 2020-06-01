@@ -1,6 +1,9 @@
 var cmnObj = objects['commonObj'];
 var cfObj = objects['codeFlowObj'];
-
+const structTypes = {
+	vec: 'Vector',
+	mtx: 'Matrix'
+};
 $(function() {
 	//populateObjects();
 
@@ -145,14 +148,14 @@ function getDisplayForBigVectors(vector) {
 	for (i = 0; i < len; i++, counter++) {
 		strAux += vector[i] + (i + 1 < len ? ',' : '');
 		strAux += space;
-		if (counter == 4) {
+		if (counter == 10) {
 			strList.push(strAux);
 			counter = 0;
 			strAux = '';
 			strAux += space + space;
 		}
 	}
-	for (i = counter; i <= 4; i++) strAux += space;
+	for (i = counter; i <= 10; i++) strAux += space;
 	strAux += space + ']';
 	strList.push(strAux);
 
@@ -223,7 +226,35 @@ function getObjCurrValue(id, state, index) {
 
 	return currentValue;
 }
-
+function vectorToStr(size, vector) {
+	let i;
+	let str = '[ ';
+	let breaker = 0;
+	for (i = 0; ; i++, breaker++) {
+		str += String(vector[i]);
+		if (i + 1 == size) {
+			str += ' ]';
+			break;
+		}
+		if (breaker == 7) {
+			str += '</br>';
+			breaker = 1;
+		} else {
+			str += ' ';
+		}
+	}
+	return str;
+}
+function structToStr(objCurrentValues) {
+	switch (objCurrentValues[0]) {
+		case structTypes.vec:
+			return vectorToStr(objCurrentValues[2], objCurrentValues[3]);
+		case structTypes.mtx:
+			return '';
+		default:
+			return '';
+	}
+}
 function clearWantDisplay() {
 	wantDisplay = [];
 	clearPanes();

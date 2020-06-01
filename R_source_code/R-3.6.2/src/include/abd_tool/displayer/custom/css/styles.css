@@ -42,6 +42,11 @@
 	font-size: 12pt;
 }
 
+.dialog-text-2 {
+	color: var(--title-color);
+	font-weight: normal;
+	font-size: 14pt;
+}
 .clickable-content {
 	cursor: pointer;
 }
@@ -117,6 +122,11 @@ hr {
 .modal-settings {
 	overflow-y: initial !important;
 	width: 25%;
+}
+
+.modal-settings-2 {
+	overflow-y: initial !important;
+	width: 35%;
 }
 
 .modal-settings-body {
