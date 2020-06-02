@@ -363,7 +363,7 @@ function mkObjModalBotInfo(event, eventId) {
 						//the value came from another object
 						let fromId = currEvent['data']['fromId'];
 						let fromState = currEvent['data']['fromState'];
-						addToSearch(fromId, fromState, 'hist-' + currEvent['line'] - 1);
+						addToSearch(fromId, fromState, 'hist-' + (currEvent['line'] - 1));
 					}
 
 					htmlProduced += '<td class="text-center" id="hist-{}">{}</td>'.format(
@@ -389,7 +389,6 @@ function mkObjModalBotInfo(event, eventId) {
 		htmlProduced += '</tr>';
 	}
 
-	if (search) doSearch();
 	//second section table finish
 	htmlProduced += '</tbody>';
 	htmlProduced += '</table>';
@@ -406,27 +405,35 @@ function addToSearch(fromId, fromState, tdId) {
 	});
 	search++;
 }
+function findEventId(toObj, toState) {
+	let i;
+	for (i = 1; i <= Object.keys(events).length; i++) {
+		if (events[i]['type'] == types.ASSIGN) {
+			if (events[i]['data']['toObj'] == toObj && events[i]['data']['toState'] == toState) return i;
+		}
+	}
+	return 0;
+}
 function doSearch() {
 	let i;
-	for (i = 1; search; i++) {
-		if (events[i]['type'] == types.ASSIGN) {
-			if (events[i]['data']['fromObj'] == 'ABD') {
-				if (
-					toSearch.some((e) => {
-						return (
-							(e.fromState == events[i]['data']['fromState'] ? true : false) &&
-							(e.fromId == events[i]['data']['fromId'] ? true : false)
-						);
-					})
-				) {
-					search--;
-					console.log('found event');
-					console.log(events[i]);
-				}
-			}
+
+	toSearch.forEach((searchable) => {
+		let eventId = 0;
+		console.log(searchable);
+		if ((eventId = findEventId(searchable.fromId, searchable.fromState))) {
+			let lineNum = searchable.tdId.split('-')[1];
+			let codeLine = code[lineNum].split('<-');
+
+			let html = '{} <- <a href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</a>'.format(
+				codeLine[0],
+				eventId,
+				codeLine[1]
+			);
+			document.getElementById(searchable.tdId).innerHTML = html;
 		}
-		//
-	}
+	});
+	search = 0;
+	toSearch = [];
 }
 function produceModalContent(eventId) {
 	let content = {
@@ -457,6 +464,7 @@ function processEventClick(eventId) {
 
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
+	if (search) doSearch();
 	$('[data-toggle="tooltip"]').tooltip();
 	$('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
 	/*$('[data-toggle="tooltip"]').tooltip({ container: 'body' }); */
