@@ -497,7 +497,7 @@ SEXP getResult(const char *expr)
 {
     SEXP e, tmp, retValue;
     ParseStatus status;
-    printf("GET_RESULT for [%s]\n", expr);
+    //printf("GET_RESULT for [%s]\n", expr);
     PROTECT(tmp = mkString(expr));
     PROTECT(e = R_ParseVector(tmp, -1, &status, R_NilValue));
     PROTECT(retValue = R_tryEval(VECTOR_ELT(e, 0), getCurrentEnv(), NULL));
@@ -568,11 +568,12 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
     if (newExpr->isConfined)
         sprintf(stmtStr, "%s)", stmtStr);
 }
-
+short exprId = 0;
 IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
 {
 
     IF_EXPRESSION *newExpr = memAllocIfExp();
+    newExpr->exprId = ++exprId;
     char *stmtStr = memAllocForString(100);
     memset(stmtStr, 0, 100);
     if (TYPEOF(st) == LANGSXP)
@@ -692,45 +693,71 @@ void setIsWaitingIf(int isWaiting)
 {
     waitingElseIF = isWaiting;
 }
-ABD_IF_EVENT *findLastElseIf()
-{
-    ABD_IF_EVENT *currEvent = eventsRegTail->data.if_event;
-    while (currEvent->else_if != ABD_EVENT_NOT_FOUND)
-        currEvent = currEvent->else_if;
-    return currEvent;
+
+char * getStrForStatement(SEXP s, R_PrintData *data){
+    int i;
+    char * retStr;
+    SEXP t = getAttrib(s, R_SrcrefSymbol);
+    Rboolean useSrc = data->useSource && isInteger(t);
+    if (useSrc) {
+	    PROTECT(t = lang2(R_AsCharacterSymbol, t));
+	    t = eval(t, R_BaseEnv);
+	    UNPROTECT(1);
+    } else {
+	    t = deparse1w(s, 0, data->useSource | DEFAULTDEPARSE);
+	    R_print = *data; /* Deparsing calls PrintDefaults() */
+    }
+    PROTECT(t);
+
+    int len = (int) strlen(translateChar(STRING_ELT(t, 0)));
+    retStr = memAllocForString(len);
+    copyStr(retStr, translateChar(STRING_ELT(t, 0)), len);
+    UNPROTECT(1);
+    return retStr;
 }
+
 void setIfEventValues(SEXP statement, Rboolean result)
 {
-    ABD_IF_EVENT *currEvent = findLastElseIf();
-
+    ABD_IF_EVENT *currEvent = eventsRegTail->data.if_event;
+    R_PrintData pars;
+    exprId = 0;
     if (isWaitingElseIf())
     {
         if (statement == R_NilValue)
         {
             //is an else
-            currEvent->else_if = memAllocIfEvent();
-            currEvent->else_if->else_if = ABD_EVENT_NOT_FOUND;
-            currEvent->else_if->expr = ABD_NOT_FOUND;
-            currEvent->else_if->globalResult = 1;
-            currEvent->else_if->isElse = 1;
+            currEvent->expr = ABD_NOT_FOUND;
+            currEvent->exprStr = ABD_NOT_FOUND;
+            currEvent->globalResult = 1;
+            currEvent->isElse = 1;
+            currEvent->isElseIf = 0;
             waitingElseIF = 0;
+            
         }
         else
         {
             //is an else if
-            currEvent->else_if = memAllocIfEvent();
-            currEvent->else_if->expr = processIfStmt(statement, 1);
-            currEvent->else_if->isElse = 0;
-            currEvent->else_if->globalResult = result;
+            currEvent->globalResult = result;
+            currEvent->isElse = 0;
+            currEvent->isElseIf = 1;
+            currEvent->expr = processIfStmt(statement, 1);
+            PrintInit(&pars, getCurrentEnv());
+            currEvent->exprStr=getStrForStatement(statement, &pars);
         }
     }
     else
     {
-        currEvent->else_if = ABD_EVENT_NOT_FOUND;
+        
         currEvent->isElse = 0;
+        currEvent->isElseIf = 0;
         currEvent->globalResult = result;
         currEvent->expr = processIfStmt(statement, 1);
+        PrintInit(&pars, getCurrentEnv());
+        currEvent->exprStr=getStrForStatement(statement, &pars);
     }
+
+    if(result)
+        setIsWaitingIf(0);
 }
 
 void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
@@ -828,7 +855,6 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
         break;
     case IF_EVENT:
         newBaseEvent->data.if_event = memAllocIfEvent();
-        newBaseEvent->data.if_event->else_if = ABD_EVENT_NOT_FOUND;
         break;
     case RET_EVENT:
         newBaseEvent->data.ret_event = memAllocRetEvent();

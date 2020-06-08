@@ -626,5 +626,4 @@ void processVarIdxChange()
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
     }
-    puts("finished");
 }

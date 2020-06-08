@@ -62,6 +62,7 @@ void abd_stop()
 {
     if (isRunning())
     {
+        
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
@@ -229,10 +230,8 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
-    //printf("If stmt at line %d\n", getCurrScriptLn());
-    if (!isWaitingElseIf())
-        createNewEvent(IF_EVENT);
+        
+    createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
 }
 
@@ -246,8 +245,11 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
 
 void storeIsWaitingIf(int isWaiting, SEXP rho)
 {
+    
     if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
         setIsWaitingIf(isWaiting);
+     
+    
 }
 
 void regFunRet(SEXP lhs, SEXP rho, SEXP val)

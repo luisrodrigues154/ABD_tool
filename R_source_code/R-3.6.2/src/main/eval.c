@@ -738,10 +738,8 @@ SEXP eval(SEXP e, SEXP rho)
 		{
 
 			if (isWaitingElseIf() && (strcmp(CHAR(PRINTNAME(CAR(e))), "{") == 0))
-			{
 				//its an else, does not come from eval to here, need to hack
 				regIf(R_NilValue, 1, rho);
-			}
 			else if (strcmp(CHAR(PRINTNAME(CAR(e))), "<-") == 0 && TYPEOF(CAR(CDR(e))) == LANGSXP)
 				regVarIdxChange(e, rho);
 		}
@@ -2318,52 +2316,13 @@ static R_INLINE Rboolean asLogicalNoNA(SEXP s, SEXP call, SEXP rho)
 		}                                                 \
 	} while (0)
 
-SEXP showArgs(SEXP args)
-{
-	//args = CDR(args); /* skip 'name' */
-	for (int i = 0; args != R_NilValue; i++, args = CDR(args))
-	{
-		const char *name =
-			isNull(TAG(args)) ? "" : CHAR(PRINTNAME(TAG(args)));
-		SEXP el = CAR(args);
-		if (length(el) == 0)
-		{
-			Rprintf("[%d] '%s' R type, length 0\n", i + 1, name);
-			continue;
-		}
-		switch (TYPEOF(el))
-		{
-		case REALSXP:
-			Rprintf("[%d] '%s' %f\n", i + 1, name, REAL(el)[0]);
-			break;
-		case LGLSXP:
-		case INTSXP:
-			Rprintf("[%d] '%s' %d\n", i + 1, name, INTEGER(el)[0]);
-			break;
-		case CPLXSXP:
-		{
-			Rcomplex cpl = COMPLEX(el)[0];
-			Rprintf("[%d] '%s' %f + %fi\n", i + 1, name, cpl.r, cpl.i);
-		}
-		break;
-		case STRSXP:
-			Rprintf("[%d] '%s' %s\n", i + 1, name,
-					CHAR(STRING_ELT(el, 0)));
-			break;
-		default:
-			Rprintf("[%d] '%s' R type\n", i + 1, name);
-		}
-	}
-	return R_NilValue;
-}
-
 SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	SEXP Cond, Stmt = R_NilValue;
 	int vis = 0;
 
 	PROTECT(Cond = eval(CAR(args), rho));
-
+	
 	Rboolean ans = asLogicalNoNA(Cond, call, rho);
 	regIf(CAR(args), ans, rho);
 	if (ans)
@@ -2389,6 +2348,7 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 		PrintValue(Stmt);
 		do_browser(call, op, R_NilValue, rho);
 	}
+	
 	UNPROTECT(1);
 	if (vis)
 	{

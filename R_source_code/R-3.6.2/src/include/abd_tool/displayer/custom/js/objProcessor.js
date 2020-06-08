@@ -212,16 +212,28 @@ function verifyTrack(objList) {
 
 function getObjCurrValue(id, state, index) {
 	var currentValue = [];
+
 	currentValue.push(cmnObj[id]['modList'][state]['structType']);
 	currentValue.push(cmnObj[id]['modList'][state]['dataType']);
 
-	if (cmnObj[id]['modList'][state]['vecMod'] == false) {
-		currentValue.push(cmnObj[id]['modList'][state]['nElements']);
-		currentValue.push(cmnObj[id]['modList'][state]['values']);
+	if (index == -1) {
+		if (cmnObj[id]['modList'][state]['vecMod'] == false) {
+			currentValue.push(cmnObj[id]['modList'][state]['nElements']);
+			currentValue.push(cmnObj[id]['modList'][state]['values']);
+		} else {
+			var numMods = cmnObj[id]['modList'][state]['numMods'];
+			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods].length);
+			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods]);
+		}
 	} else {
-		var numMods = cmnObj[id]['modList'][state]['numMods'];
-		currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods].length);
-		currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods]);
+		if (cmnObj[id]['modList'][state]['vecMod'] == false) {
+			currentValue.push(1);
+			currentValue.push(cmnObj[id]['modList'][state]['values'][index]);
+		} else {
+			var numMods = cmnObj[id]['modList'][state]['numMods'];
+			currentValue.push(1);
+			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods][index]);
+		}
 	}
 
 	return currentValue;

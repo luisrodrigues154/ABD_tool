@@ -61,7 +61,7 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val);
 void regVarIdxChange(SEXP call, SEXP rho);
 void regIf(SEXP Stmt, Rboolean result, SEXP rho);
 void regArith(SEXP call, SEXP ans, SEXP rho);
-
+void storeIsWaitingIf(int isWaiting, SEXP rho);
 /* Misc functions */
 ABD_SEARCH checkToReg(SEXP rho);
 void printEventReg();

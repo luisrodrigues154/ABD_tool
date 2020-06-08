@@ -632,6 +632,242 @@ void saveVecEvent(FILE *out, ABD_VEC_EVENT *vecEvent, FILE *dispOut)
     fprintf(dispOut, "\"rangeL\" : %d,", vecEvent->rangeL);
     fprintf(dispOut, "\"rangeR\" : %d", vecEvent->rangeR);
 }
+
+void writeIFobj(FILE *out, char *sideStr, IF_ABD_OBJ *obj, FILE *dispOut)
+{
+
+    fprintf(out, "\n%s\"%sObjId\" : %d,", getStrFromIndent(INDENT_5), sideStr, obj->objPtr->id);
+    fprintf(dispOut, "\"%sObjId\" : %d,", sideStr, obj->objPtr->id);
+
+    switch (obj->objValue->valueType)
+    {
+    case ABD_VECTOR:
+    {
+        if (obj->objPtr->id != -1)
+        {
+            fprintf(out, "\n%s\"%sWithIndex\" : %d,", getStrFromIndent(INDENT_5), sideStr, obj->objValue->value.vec_value->idxs[0]);
+            fprintf(dispOut, "\"%sWithIndex\" : %d,", sideStr, obj->objValue->value.vec_value->idxs[0]);
+            if (obj->objPtr->id > 0)
+            {
+                fprintf(out, "\n%s\"%sObjState\" : %d,", getStrFromIndent(INDENT_5), sideStr, obj->objValue->id);
+                fprintf(dispOut, "\"%sObjState\" : %d,", sideStr, obj->objValue->id);
+            }
+            else
+            {
+                fprintf(out, "\n%s\"%sObjName\" : \"%s\",", getStrFromIndent(INDENT_5), sideStr, obj->objPtr->name);
+                fprintf(dispOut, "\"%sObjName\" : \"%s\",", sideStr, obj->objPtr->name);
+            }
+        }
+        if (obj->objPtr->id < 0)
+        {
+            switch (obj->objValue->value.vec_value->type)
+            {
+            case REALSXP:
+                fprintf(out, "\n%s\"%sValue\" : %.2f,", getStrFromIndent(INDENT_5), sideStr, ((double *)obj->objValue->value.vec_value->vector)[0]);
+                fprintf(dispOut, "\"%sValue\" : %.2f,", sideStr, ((double *)obj->objValue->value.vec_value->vector)[0]);
+                break;
+            case INTSXP:
+                fprintf(out, "\n%s\"%sValue\" : %d,", getStrFromIndent(INDENT_5), sideStr, ((int *)obj->objValue->value.vec_value->vector)[0]);
+                fprintf(dispOut, "\"%sValue\" : %d,", sideStr, ((int *)obj->objValue->value.vec_value->vector)[0]);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    break;
+    case ABD_MATRIX:
+        break;
+    default:
+        break;
+    }
+}
+
+void writeExpression(FILE *out, IF_EXPRESSION *expr, FILE *dispOut)
+{
+    short root = 0;
+
+    if (expr->left_type == IF_EXPR)
+        writeExpression(out, expr->left_data, dispOut);
+    else
+        root = 1;
+
+    if (expr->right_type == IF_EXPR)
+        writeExpression(out, expr->right_data, dispOut);
+    else
+        root += 2;
+
+    /*
+        root == 0 -> expr OP expr ((a>b) == (b<a)) [in this case the center]
+        root == 1 -> reached end of left side
+        root == 2 -> reached end of right side
+        root == 3 -> reach end of both sides
+    */
+    switch (root)
+    {
+    case 1:
+    {
+        // left is obj
+        //right is expr
+        IF_ABD_OBJ *leftObj = ((IF_ABD_OBJ *)expr->left_data);
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), expr->exprId);
+        fprintf(out, "\n%s\"isConfined\" : %s,", getStrFromIndent(INDENT_5), expr->isConfined ? "true" : "false");
+
+        fprintf(dispOut, "\"%d\" : {", expr->exprId);
+        fprintf(dispOut, "\"isConfined\" : %s,", expr->isConfined ? "true" : "false");
+
+        writeIFobj(out, "l", leftObj, dispOut);
+        IF_EXPRESSION *rightExp = ((IF_EXPRESSION *)expr->right_data);
+        fprintf(out, "\n%s\"rType\" : \"expr\",", getStrFromIndent(INDENT_5));
+        fprintf(out, "\n%s\"rExpId\" : \"%d\",", getStrFromIndent(INDENT_5), ((IF_EXPRESSION *)expr->right_data)->exprId);
+        fprintf(out, "\n%s\"op\" : \"%s\",", getStrFromIndent(INDENT_5), expr->operator);
+        fprintf(out, "\n%s\"result\" : \"%.2f\"", getStrFromIndent(INDENT_5), expr->result);
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+
+        fprintf(dispOut, "\"rType\" : \"expr\",");
+        fprintf(dispOut, "\"rExpId\" : \"%d\",", ((IF_EXPRESSION *)expr->right_data)->exprId);
+        fprintf(dispOut, "\"op\" : \"%s\",", expr->operator);
+        fprintf(dispOut, "\"result\" : \"%.2f\"", expr->result);
+        fprintf(dispOut, "}");
+        break;
+    }
+    case 2:
+    {
+        // right is obj
+
+        IF_EXPRESSION *leftExp = ((IF_EXPRESSION *)expr->left_data);
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), expr->exprId);
+        fprintf(out, "\n%s\"isConfined\" : %s,", getStrFromIndent(INDENT_5), expr->isConfined ? "true" : "false");
+        fprintf(out, "\n%s\"lType\" : \"expr\",", getStrFromIndent(INDENT_5));
+        fprintf(out, "\n%s\"lExpId\" : \"%d\",", getStrFromIndent(INDENT_5), ((IF_EXPRESSION *)expr->left_data)->exprId);
+
+        fprintf(dispOut, "\"%d\" : {", expr->exprId);
+        fprintf(dispOut, "\"isConfined\" : %s,", expr->isConfined ? "true" : "false");
+        fprintf(dispOut, "\"lType\" : \"expr\",");
+        fprintf(dispOut, "\"lExpId\" : \"%d\",", ((IF_EXPRESSION *)expr->left_data)->exprId);
+
+        IF_ABD_OBJ *rightObj = ((IF_ABD_OBJ *)expr->right_data);
+        fprintf(out, "\n%s\"rType\" : \"obj\",", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"rType\" : \"obj\",");
+        writeIFobj(out, "r", rightObj, dispOut);
+        // left is expr
+        fprintf(out, "\n%s\"op\" : \"%s\",", getStrFromIndent(INDENT_5), expr->operator);
+        fprintf(out, "\n%s\"result\" : \"%.2f\"", getStrFromIndent(INDENT_5), expr->result);
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+
+        fprintf(dispOut, "\"op\" : \"%s\",", expr->operator);
+        fprintf(dispOut, "\"result\" : \"%.2f\"", expr->result);
+        fprintf(dispOut, "}");
+        break;
+    }
+    case 3:
+    {
+        IF_ABD_OBJ *leftObj = ((IF_ABD_OBJ *)expr->left_data);
+        IF_ABD_OBJ *rightObj = ((IF_ABD_OBJ *)expr->right_data);
+
+        //left obj
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), expr->exprId);
+        fprintf(out, "\n%s\"isConfined\" : %s,", getStrFromIndent(INDENT_5), expr->isConfined ? "true" : "false");
+        fprintf(out, "\n%s\"lType\" : \"obj\",", getStrFromIndent(INDENT_5));
+
+        fprintf(dispOut, "\"%d\" : {", expr->exprId);
+        fprintf(dispOut, "\"isConfined\" : %s,", expr->isConfined ? "true" : "false");
+        fprintf(dispOut, "\"lType\" : \"obj\",");
+
+        writeIFobj(out, "l", leftObj, dispOut);
+
+        //right obj
+        fprintf(out, "\n%s\"rType\" : \"obj\",", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"rType\" : \"obj\",");
+        writeIFobj(out, "r", rightObj, dispOut);
+        fprintf(out, "\n%s\"op\" : \"%s\",", getStrFromIndent(INDENT_5), expr->operator);
+        fprintf(out, "\n%s\"result\" : \"%.2f\"", getStrFromIndent(INDENT_5), expr->result);
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+
+        fprintf(dispOut, "\"op\" : \"%s\",", expr->operator);
+        fprintf(dispOut, "\"result\" : \"%.2f\"", expr->result);
+        fprintf(dispOut, "}");
+        break;
+    }
+    case 0:
+    {
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), expr->exprId);
+        fprintf(out, "\n%s\"isConfined\" : %s,", getStrFromIndent(INDENT_5), expr->isConfined ? "true" : "false");
+        fprintf(out, "\n%s\"lType\" : \"expr\",", getStrFromIndent(INDENT_5));
+        fprintf(out, "\n%s\"lExpId\" : \"%d\",", getStrFromIndent(INDENT_5), ((IF_EXPRESSION *)expr->left_data)->exprId);
+        fprintf(out, "\n%s\"rType\" : \"expr\",", getStrFromIndent(INDENT_5));
+        fprintf(out, "\n%s\"rExpId\" : \"%d\",", getStrFromIndent(INDENT_5), ((IF_EXPRESSION *)expr->right_data)->exprId);
+        fprintf(out, "\n%s\"op\" : \"%s\",", getStrFromIndent(INDENT_5), expr->operator);
+        fprintf(out, "\n%s\"result\" : \"%.2f\"", getStrFromIndent(INDENT_5), expr->result);
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+
+        fprintf(dispOut, "\"%d\" : {", expr->exprId);
+        fprintf(dispOut, "\"isConfined\" : %s,", expr->isConfined ? "true" : "false");
+        fprintf(dispOut, "\"lType\" : \"expr\",");
+        fprintf(dispOut, "\"lExpId\" : \"%d\",", ((IF_EXPRESSION *)expr->left_data)->exprId);
+        fprintf(dispOut, "\"rType\" : \"expr\",");
+        fprintf(dispOut, "\"rExpId\" : \"%d\",", ((IF_EXPRESSION *)expr->right_data)->exprId);
+        fprintf(dispOut, "\"op\" : \"%s\",", expr->operator);
+        fprintf(dispOut, "\"result\" : \"%.2f\"", expr->result);
+        fprintf(dispOut, "}");
+        break;
+    }
+    default:
+        break;
+    }
+    if (expr->exprId > 1)
+    {
+        fprintf(out, ",");
+        fprintf(dispOut, ",");
+    }
+}
+
+void saveIfEvent(FILE *out, ABD_IF_EVENT *if_event, FILE *dispOut)
+{
+    fprintf(out, "\n%s\"globalResult\" : %s,", getStrFromIndent(INDENT_3), (if_event->globalResult ? "true" : "false"));
+    fprintf(dispOut, "\"globalResult\" : %s,", (if_event->globalResult ? "true" : "false"));
+
+    if (if_event->isElse)
+    {
+        fprintf(out, "\n%s\"exprStr\" : \"else\",", getStrFromIndent(INDENT_3));
+        fprintf(out, "\n%s\"isElseIf\" : false,", getStrFromIndent(INDENT_3));
+        fprintf(out, "\n%s\"isElse\" : true", getStrFromIndent(INDENT_3));
+
+        fprintf(dispOut, "\"exprStr\" : \"else\",");
+        fprintf(dispOut, "\"isElseIf\" : false,");
+        fprintf(dispOut, "\"isElse\" : true");
+    }
+    else
+    {
+
+        if (if_event->isElseIf)
+        {
+            fprintf(out, "\n%s\"exprStr\" : \"%s\",", getStrFromIndent(INDENT_3), if_event->exprStr);
+            fprintf(out, "\n%s\"isElseIf\" : true,", getStrFromIndent(INDENT_3));
+            fprintf(out, "\n%s\"isElse\" : false,", getStrFromIndent(INDENT_3));
+
+            fprintf(dispOut, "\"exprStr\" : \"%s\",", if_event->exprStr);
+            fprintf(dispOut, "\"isElseIf\" : true,");
+            fprintf(dispOut, "\"isElse\" : false,");
+        }
+        else
+        {
+            fprintf(out, "\n%s\"exprStr\" : \"%s\",", getStrFromIndent(INDENT_3), if_event->exprStr);
+            fprintf(out, "\n%s\"isElseIf\" : false,", getStrFromIndent(INDENT_3));
+            fprintf(out, "\n%s\"isElse\" : false,", getStrFromIndent(INDENT_3));
+
+            fprintf(dispOut, "\"exprStr\" : \"%s\",", if_event->exprStr);
+            fprintf(dispOut, "\"isElseIf\" : false,");
+            fprintf(dispOut, "\"isElse\" : false,");
+        }
+        fprintf(out, "\n%s\"expressions\" : {", getStrFromIndent(INDENT_3));
+        fprintf(dispOut, "\"expressions\" : {");
+        writeExpression(out, if_event->expr, dispOut);
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+        fprintf(dispOut, "}");
+    }
+}
+
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -663,6 +899,14 @@ void saveEvents(FILE *out, FILE *dispOut)
         switch (currEvent->type)
         {
         case IF_EVENT:
+            fprintf(out, "\"if_event\",");
+            fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
+
+            fprintf(dispOut, "\"if_event\",");
+            fprintf(dispOut, "\"data\" : {");
+
+            saveIfEvent(out, currEvent->data.if_event, dispOut);
+
             break;
         case FUNC_EVENT:
             fprintf(out, "\"func_event\",");

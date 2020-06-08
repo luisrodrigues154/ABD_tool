@@ -8,7 +8,7 @@ run <- function(){
     j <- 34
     j <- a
     j <- 32
-    j <- j
+    j <- a
     j <- 22:27
     b <- 2
     j <- 1:40
@@ -30,11 +30,20 @@ run <- function(){
         b <- a
         c <- f2(a,b)
     }
-    ret2 <- f1(a,b,1,2,3,4)
+
+    f4 <- function(){
+        f4_abc <- 10
+        f4_abc
+    }
+
+    ret2 <- f1(a,b,1,2,j,4)
 
     result <- f2(10,11)
 
     result3 <- f3(10)
+
+    f4()
+
     abd_stop()
 }
 

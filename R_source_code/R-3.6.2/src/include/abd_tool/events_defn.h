@@ -33,13 +33,14 @@ typedef struct if_abd_obj
                 * the roll is basically, find the effective value for that index based on the history 
                 * which means that if, going back until the declaration of the whole vector,
                 * there'is no changes to that index, the value assumed is the initially declared one,
-                * otherwise the value is is the first modifcation found      
+                * otherwise the value is the first modifcation found      
     */
     ABD_OBJECT_MOD *objValue;
 } IF_ABD_OBJ;
 
 typedef struct if_expr
 {
+    short exprId;
     char *operator; // '>', '<', '|' , '+', '-' , (...)
     int isConfined; // 1 - True, 0 - False -> indicates if is inside parentheses
     double result;  // 1 - True; 0 - False (if operator is arith then is the result of arith)
@@ -55,10 +56,11 @@ typedef struct if_expr
 
 typedef struct if_event
 {
-    int globalResult;         // 'T' or 'F' for the statement as a whole
-    IF_EXPRESSION *expr;      // if or else if
-    struct if_event *else_if; // pointer to an else if that was originated from this if
-    int isElse;               // 'T' or 'F' indicates if the statement is an ELSE
+    short globalResult;         // 'T' or 'F' for the statement as a whole
+    short isElseIf;
+    short isElse;               // 'T' or 'F' indicates if the statement is an ELSE
+    IF_EXPRESSION *expr;        // if or else if
+    char * exprStr;
 } ABD_IF_EVENT;
 
 //describe a function call and its arguments
