@@ -601,15 +601,15 @@ void saveFuncEvent(FILE *out, ABD_FUNC_EVENT *funcEvent, FILE *dispOut)
 
 void saveRetEvent(FILE *out, ABD_RET_EVENT *retEvent, FILE *dispOut)
 {
-    fprintf(out, "\n%s\"fromId\" : %d,", getStrFromIndent(INDENT_3), retEvent->from->id);
+    fprintf(out, "\n%s\"toEnv\" : \"%s\",", getStrFromIndent(INDENT_3), envToStr(retEvent->toEnv));
     fprintf(out, "\n%s\"toId\" : %d,", getStrFromIndent(INDENT_3), (retEvent->toObj == ABD_OBJECT_NOT_FOUND) ? -1 : retEvent->toObj->id);
-    fprintf(dispOut, "\"fromId\" : %d,", retEvent->from->id);
+    fprintf(dispOut, "\"toEnv\" : \"%s\",", envToStr(retEvent->toEnv));
     fprintf(dispOut, "\"toId\" : %d,", (retEvent->toObj == ABD_OBJECT_NOT_FOUND) ? -1 : retEvent->toObj->id);
     if (retEvent->toObj != ABD_OBJECT_NOT_FOUND)
     {
         // returned to an object
-        fprintf(out, "\n%s\"valueId\" : %d", getStrFromIndent(INDENT_3), retEvent->retValue->id);
-        fprintf(dispOut, "\"valueId\" : %d", retEvent->retValue->id);
+        fprintf(out, "\n%s\"toState\" : %d", getStrFromIndent(INDENT_3), retEvent->retValue->id);
+        fprintf(dispOut, "\"toState\" : %d", retEvent->retValue->id);
     }
     else
         // return not assigned
@@ -888,12 +888,14 @@ void saveEvents(FILE *out, FILE *dispOut)
         fprintf(out, "\n%s\"line\" : %d,", getStrFromIndent(INDENT_2), currEvent->scriptLn);
         fprintf(out, "\n%s\"atFunc\" : %d,", getStrFromIndent(INDENT_2), (currEvent->atFunc == ABD_OBJECT_NOT_FOUND) ? -1 : currEvent->atFunc->id);
         fprintf(out, "\n%s\"atEnv\" : \"%s\",", getStrFromIndent(INDENT_2), envToStr(currEvent->env));
+        fprintf(out, "\n%s\"branchDepth\" : %d,", getStrFromIndent(INDENT_2), currEvent->branchDepth);
         fprintf(out, "\n%s\"type\" : ", getStrFromIndent(INDENT_2));
 
         fprintf(dispOut, "\"%d\" : {", currEvent->id);
         fprintf(dispOut, "\"line\" : %d,", currEvent->scriptLn);
         fprintf(dispOut, "\"atFunc\" : %d,", (currEvent->atFunc == ABD_OBJECT_NOT_FOUND) ? -1 : currEvent->atFunc->id);
         fprintf(dispOut, "\"atEnv\" : \"%s\",", envToStr(currEvent->env));
+        fprintf(dispOut, "\"branchDepth\" : %d,", currEvent->branchDepth);
         fprintf(dispOut, "\"type\" : ");
 
         switch (currEvent->type)
@@ -906,7 +908,6 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"data\" : {");
 
             saveIfEvent(out, currEvent->data.if_event, dispOut);
-
             break;
         case FUNC_EVENT:
             fprintf(out, "\"func_event\",");

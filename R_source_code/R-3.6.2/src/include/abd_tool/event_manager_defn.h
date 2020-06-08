@@ -18,7 +18,7 @@ typedef struct abd_event
   int id;
   int scriptLn;
   ABD_EVENT_TYPE type;
-
+  short branchDepth;
   union {
     ABD_IF_EVENT *if_event;
     ABD_FUNC_EVENT *func_event;
@@ -44,16 +44,19 @@ typedef struct
   SEXP src, dest;
   ABD_OBJECT *destObj;
   ABD_OBJECT *srcObj;
-
 } IDX_CHANGE;
 
 static IDX_CHANGE *idxChanges;
+
+/* branch depth for displayer */
+static short branchDepth;
+static Rboolean onBranch;
 
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;
 SEXP possibleRet;
-int possibleRetLine = 0;
+int possibleRetLine;
 
 /* Stores Arithmetic values related */
 static ABD_ARITH_EVENT *lastArithEvent;

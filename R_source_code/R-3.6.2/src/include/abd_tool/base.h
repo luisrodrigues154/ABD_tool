@@ -62,7 +62,7 @@ void abd_stop()
 {
     if (isRunning())
     {
-        
+
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
@@ -154,12 +154,23 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     if (TYPEOF(rhs) != CLOSXP)
     {
         //need to extract the rhs from the call
+        printf("Regging a variable... line %d\n", getCurrScriptLn());
         ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
         SEXP rhs2 = CAR(CDR(CDR(call)));
         createAsgnEvent(objUsed, rhs, rhs2, rho);
     }
 
     clearPendingVars();
+}
+
+void decrementBranchDepth(SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) && onBranch))
+        return;
+    branchDepth--;
+    if (!branchDepth)
+        onBranch = FALSE;
+    printf("branch depth %d\n", branchDepth);
 }
 
 /*
@@ -230,7 +241,7 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-        
+
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
 }
@@ -245,18 +256,15 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
 
 void storeIsWaitingIf(int isWaiting, SEXP rho)
 {
-    
+
     if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
         setIsWaitingIf(isWaiting);
-     
-    
 }
 
 void regFunRet(SEXP lhs, SEXP rho, SEXP val)
 {
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
-    envPop();
 }
 
 ABD_STATE isRunning()

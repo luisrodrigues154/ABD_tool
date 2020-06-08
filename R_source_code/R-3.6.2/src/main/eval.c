@@ -2322,7 +2322,7 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 	int vis = 0;
 
 	PROTECT(Cond = eval(CAR(args), rho));
-	
+
 	Rboolean ans = asLogicalNoNA(Cond, call, rho);
 	regIf(CAR(args), ans, rho);
 	if (ans)
@@ -2348,7 +2348,7 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 		PrintValue(Stmt);
 		do_browser(call, op, R_NilValue, rho);
 	}
-	
+
 	UNPROTECT(1);
 	if (vis)
 	{
@@ -2366,7 +2366,9 @@ SEXP attribute_hidden do_if(SEXP call, SEXP op, SEXP args, SEXP rho)
 	// 	printf("Returned value %.2f\n", REAL(ans)[0]);
 	// }
 	// printf("TYPEOF return %d\n", TYPEOF(ans));
-	return (eval(Stmt, rho));
+	SEXP answer = eval(Stmt, rho);
+
+	return answer;
 }
 
 static R_INLINE SEXP GET_BINDING_CELL(SEXP symbol, SEXP rho)
@@ -2632,6 +2634,7 @@ SEXP attribute_hidden do_begin(SEXP call, SEXP op, SEXP args, SEXP rho)
 		while (args != R_NilValue)
 		{
 			PROTECT(R_Srcref = getSrcref(srcrefs, i++));
+
 			if (RDEBUG(rho) && !R_GlobalContext->browserfinish)
 			{
 				SrcrefPrompt("debug", R_Srcref);
@@ -2645,6 +2648,9 @@ SEXP attribute_hidden do_begin(SEXP call, SEXP op, SEXP args, SEXP rho)
 		R_Srcref = R_NilValue;
 		UNPROTECT(1); /* srcrefs */
 	}
+
+	/* verify if leaving an else statement and update de branchDepth */
+	decrementBranchDepth(rho);
 	return s;
 }
 

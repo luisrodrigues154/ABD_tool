@@ -56,11 +56,11 @@ typedef struct if_expr
 
 typedef struct if_event
 {
-    short globalResult;         // 'T' or 'F' for the statement as a whole
+    short globalResult; // 'T' or 'F' for the statement as a whole
     short isElseIf;
-    short isElse;               // 'T' or 'F' indicates if the statement is an ELSE
-    IF_EXPRESSION *expr;        // if or else if
-    char * exprStr;
+    short isElse;        // 'T' or 'F' indicates if the statement is an ELSE
+    IF_EXPRESSION *expr; // if or else if
+    char *exprStr;
 } ABD_IF_EVENT;
 
 //describe a function call and its arguments
@@ -84,7 +84,7 @@ typedef struct abd_func_event
 //describe return events
 typedef struct abd_return
 {
-    ABD_OBJECT *from;
+    SEXP toEnv;
     ABD_OBJECT *toObj;
     ABD_OBJECT_MOD *retValue;
 } ABD_RET_EVENT;

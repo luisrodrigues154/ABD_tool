@@ -88,10 +88,12 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 	for (i = idxStart; i <= eventsLen; i++) {
 		if (events[i]['atEnv'] == env) {
 			let htmlRcvd = getEventTypeHtml(events[i], i + 1);
-			if (events[i]['type'] != 'if_event') {
+			if (events[i]['type'] != types.IF) {
 				lastLineGP = events[i]['line'];
+				addEventToEnvMap(env, lastLineGP, htmlRcvd);
+			} else {
+				i = htmlRcvd;
 			}
-			addEventToEnvMap(env, lastLineGP, htmlRcvd);
 		}
 	}
 	resolveEnvContents(env, funcName, calledFromLine);
@@ -163,9 +165,25 @@ function addEventToEnvMap(env, line, eventContent) {
 	if (eventContent.length == 0) return;
 	envContent.get(env).get(line).push(eventContent);
 }
-function genLabelHtml(id, text) {
-	return "<label type='button' id='{}' onclick='processEventClick(this.id)' data-toggle='modal' data-target='#exec_flow_modal'>{}</label>".format(
+function genLabelHtml(id, text, indent) {
+	return "<label type='button' id='{}' onclick='processEventClick(this.id)' style='margin-left:{}px' data-toggle='modal' data-target='#exec_flow_modal'>{}</label>".format(
 		id,
+		indent * 14,
+		text
+	);
+}
+function genLabelHtmlWithIndent(id, text, indent) {
+	return "<label type='button' id='{}' onclick='processEventClick(this.id)' data-toggle='modal' style='margin-left:{}px;' data-target='#exec_flow_modal'>{}{}</label>".format(
+		id,
+		indent * 14,
+		text
+	);
+}
+function genForMultiLabelsWithIdentAndColor(id, text, indent, result) {
+	return "<label type='button' id='{}' onclick='processEventClick(this.id)' data-toggle='modal' style='margin-left:{}px;display:block;color:{};' data-target='#exec_flow_modal'>{}{}</label>".format(
+		id,
+		indent * 14,
+		result == true ? 'lightgreen' : 'tomato',
 		text
 	);
 }
@@ -196,7 +214,8 @@ function getEventTypeHtml(event, nextEventId) {
 				'eId-{}'.format(nextEventId - 1),
 				codeLine
 					.substring(codeLine.indexOf(newFuncName), codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1)
-					.trim()
+					.trim(),
+				event['branchDepth']
 			);
 
 			break;
@@ -206,51 +225,51 @@ function getEventTypeHtml(event, nextEventId) {
 			let state = event['data']['toState'];
 			let origin = event['data']['origin'];
 			if (origin == 'obj') {
-				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim());
+				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
 			} else {
 				if (origin == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
 					// the vector creation do not have anything special worth a separated label
-					htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, objId, state), codeLine.trim());
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1, objId, state),
+						codeLine.trim(),
+						event['branchDepth']
+					);
 				} else {
 					//other event types
 					htmlProduced += genLabelHtml(
 						'eId-{}'.format(nextEventId - 1, objId, state),
-						codeLine.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj))).trim()
+						codeLine.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj))).trim(),
+						event['branchDepth']
 					);
 				}
 			}
 			break;
 		case types.IF:
-			let if_data = event['data'];
-			if (if_data['isElseIf'] == false && if_data['isElse'] == false) {
-				//initial if statement
-				codeLine = codeLine.substring(0, codeLine.indexOf('{'));
-				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim());
-				lastLineGP = event['line'];
-			} else if (if_data['isElseIf']) {
-				//is an else if
-				lastLineGP = findElseLine(if_data['exprStr'], lastLineGP, true);
-				codeLine = code[lastLineGP - 1].trim();
-
-				let curlyEnd = codeLine.indexOf('{');
-
-				codeLine = codeLine.substring(
-					codeLine.indexOf('}') + 1,
-					curlyEnd != -1 ? codeLine.indexOf('{') : codeLine.length
+			let env = event['atEnv'];
+			let startLine = event['line'];
+			let eventId = nextEventId - 1;
+			let statement;
+			while (event['type'] == types.IF) {
+				//collect all if statements below
+				if (event['data']['isElseIf']) {
+					statement = 'else if ( {} )'.format(event['data']['exprStr']);
+				} else if (event['data']['isElse']) {
+					statement = 'else';
+				} else {
+					statement = 'if ( {} )'.format(event['data']['exprStr']);
+				}
+				htmlProduced += genForMultiLabelsWithIdentAndColor(
+					'eId-{}'.format(eventId),
+					statement,
+					event['branchDepth'],
+					event['data']['globalResult']
 				);
-				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim());
-			} else {
-				//is an else
-				lastLineGP = findElseLine(if_data['exprStr'], lastLineGP, false);
-				codeLine = code[lastLineGP - 1].trim();
-				let curlyEnd = codeLine.indexOf('{');
 
-				codeLine = codeLine.substring(
-					codeLine.indexOf('}') + 1,
-					curlyEnd != -1 ? codeLine.indexOf('{') : codeLine.length
-				);
-				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim());
+				//pick next event
+				event = events[++eventId];
 			}
+			addEventToEnvMap(env, startLine, htmlProduced);
+			return eventId - 1;
 
 			break;
 		case types.RET:
@@ -268,6 +287,11 @@ function getEventTypeHtml(event, nextEventId) {
 					'(return)'
 				);
 			}
+
+			if (event['data']['toId'] > 0) {
+				addNodeLink(event['atEnv'], event['data']['toEnv']);
+			}
+
 			break;
 		case types.ARITH:
 			break;
@@ -336,24 +360,23 @@ function mkFuncModalInfo(event, eventId) {
 
 	//header
 	htmlProduced += '<div class="row">';
-	htmlProduced += '<div class="col-9 text-left dialog-title"> Name: {}()'.format(getCodeFlowObjNameById(targetFunc));
+	htmlProduced += '<div class="col-9 text-left dialog-title">Function Name: {}()'.format(
+		getCodeFlowObjNameById(targetFunc)
+	);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col-9 text-left dialog-title mt-5">Arguments';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
 	//contents (table)
 	htmlProduced += '<table class="table table-sm mt-4">';
 
 	//table head
 	htmlProduced += '<thead>';
-	htmlProduced += '<tr class="dialog-text">';
-	htmlProduced += '<div class="row">';
-	htmlProduced += '<th class ="text-center" scope="col" colspan="2">Arguments';
-	htmlProduced += '</div>';
-	htmlProduced += '<div class="row">';
-	htmlProduced += '<div class="col text-center">Passed</div>';
-	htmlProduced += '<div class="col text-center">Received</div>';
-	htmlProduced += '</div>';
-	htmlProduced += '</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Received</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Passed</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Value</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Previous change</th>';
 	htmlProduced += '</tr>';
@@ -395,7 +418,7 @@ function mkFuncModalInfo(event, eventId) {
 	} else {
 		//no args
 		htmlProduced += '<tr>';
-		htmlProduced += '<td colspan="4" class="text-center">No arguments stored</td>';
+		htmlProduced += '<td colspan="4" class="text-center">No arguments to display!</td>';
 		htmlProduced += '</tr>';
 	}
 
@@ -1021,7 +1044,7 @@ function positionLink2(d) {
 }
 
 function positionLink1(d) {
-	var dr = 0;
+	var dr = -500;
 	let min = Number.MAX_SAFE_INTEGER;
 	let best = {
 		s: { x: 0, y: 0 },
@@ -1058,7 +1081,7 @@ function positionLink1(d) {
 		' 0 0,1 ' +
 		(best.d.x == d.target.x ? best.d.x - 10 : best.d.x + 5) +
 		',' +
-		(best.d.y == d.target.y ? best.d.y - 20 : best.d.y + 10)
+		(best.d.y == d.target.y ? best.d.y - 10 : best.d.y + 10)
 	);
 }
 

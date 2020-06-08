@@ -27,7 +27,6 @@ void initEventsReg()
 {
     eventsReg = ABD_EVENT_NOT_FOUND;
     eventsRegTail = ABD_EVENT_NOT_FOUND;
-    lastRetValue = ABD_EVENT_NOT_FOUND;
 
     /* ARITH VARS */
     lastArithEvent = ABD_EVENT_NOT_FOUND;
@@ -42,6 +41,17 @@ void initEventsReg()
     auxVecCall = R_NilValue;
     auxVecLine = 0;
 
+    /* possible ret*/
+    lastRetValue = ABD_EVENT_NOT_FOUND;
+    lastRetEvent = ABD_EVENT_NOT_FOUND;
+    possibleRet = R_NilValue;
+    possibleRetLine = 0;
+
+    /* branchDepth */
+    branchDepth = 0;
+    onBranch = FALSE;
+
+    /* registry*/
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
     waitingElseIF = 0;
@@ -694,22 +704,26 @@ void setIsWaitingIf(int isWaiting)
     waitingElseIF = isWaiting;
 }
 
-char * getStrForStatement(SEXP s, R_PrintData *data){
+char *getStrForStatement(SEXP s, R_PrintData *data)
+{
     int i;
-    char * retStr;
+    char *retStr;
     SEXP t = getAttrib(s, R_SrcrefSymbol);
     Rboolean useSrc = data->useSource && isInteger(t);
-    if (useSrc) {
-	    PROTECT(t = lang2(R_AsCharacterSymbol, t));
-	    t = eval(t, R_BaseEnv);
-	    UNPROTECT(1);
-    } else {
-	    t = deparse1w(s, 0, data->useSource | DEFAULTDEPARSE);
-	    R_print = *data; /* Deparsing calls PrintDefaults() */
+    if (useSrc)
+    {
+        PROTECT(t = lang2(R_AsCharacterSymbol, t));
+        t = eval(t, R_BaseEnv);
+        UNPROTECT(1);
+    }
+    else
+    {
+        t = deparse1w(s, 0, data->useSource | DEFAULTDEPARSE);
+        R_print = *data; /* Deparsing calls PrintDefaults() */
     }
     PROTECT(t);
 
-    int len = (int) strlen(translateChar(STRING_ELT(t, 0)));
+    int len = (int)strlen(translateChar(STRING_ELT(t, 0)));
     retStr = memAllocForString(len);
     copyStr(retStr, translateChar(STRING_ELT(t, 0)), len);
     UNPROTECT(1);
@@ -732,7 +746,6 @@ void setIfEventValues(SEXP statement, Rboolean result)
             currEvent->isElse = 1;
             currEvent->isElseIf = 0;
             waitingElseIF = 0;
-            
         }
         else
         {
@@ -742,22 +755,26 @@ void setIfEventValues(SEXP statement, Rboolean result)
             currEvent->isElseIf = 1;
             currEvent->expr = processIfStmt(statement, 1);
             PrintInit(&pars, getCurrentEnv());
-            currEvent->exprStr=getStrForStatement(statement, &pars);
+            currEvent->exprStr = getStrForStatement(statement, &pars);
         }
     }
     else
     {
-        
+
         currEvent->isElse = 0;
         currEvent->isElseIf = 0;
         currEvent->globalResult = result;
         currEvent->expr = processIfStmt(statement, 1);
         PrintInit(&pars, getCurrentEnv());
-        currEvent->exprStr=getStrForStatement(statement, &pars);
+        currEvent->exprStr = getStrForStatement(statement, &pars);
     }
 
-    if(result)
+    if (result)
+    {
+        onBranch = TRUE;
+        branchDepth++;
         setIsWaitingIf(0);
+    }
 }
 
 void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
@@ -787,7 +804,8 @@ void setRetEventValue(SEXP value)
     }
     valueABD->id = -1;
     eventsRegTail->data.ret_event->toObj = ABD_OBJECT_NOT_FOUND;
-    eventsRegTail->data.ret_event->from = getCurrFuncObj();
+    envPop();
+    eventsRegTail->data.ret_event->toEnv = getCurrentEnv();
     lastRetValue = value;
 }
 
@@ -885,6 +903,7 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
     }
+    newEvent->branchDepth = branchDepth;
     newEvent->atFunc = getCurrFuncObj();
     newEvent->env = getCurrentEnv();
     newEvent->type = newEventType;
