@@ -428,6 +428,7 @@ ABD_OBJECT_MOD *intVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
             j = 0;
 
         ((int *)newMod->value.vec_value->vector)[i] = INTEGER(rhs)[j];
+        printf("stored %d\n", ((int *)newMod->value.vec_value->vector)[i]);
     }
     return newMod;
 }
@@ -449,9 +450,7 @@ ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 
     //the values themselves
     newMod->value.vec_value->vector = memAllocDoubleVector(idxChanges->nIdxChanges);
-    puts("0");
     int repeater = Rf_length(idxChanges->srcValues);
-    puts("1");
     int i, j;
     for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
     {
@@ -610,7 +609,7 @@ void processVarIdxChange()
 {
 
     SEXP rhs = idxChanges->srcValues;
-
+    puts("in process");
     ABD_OBJECT *obj = idxChanges->destObj = findCmnObj(CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
     if (obj != ABD_OBJECT_NOT_FOUND)
     {
@@ -620,10 +619,11 @@ void processVarIdxChange()
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
 
         newMod = addEmptyModToObj(obj, getObjStructType(rhs));
-
         newMod = processByType(rhs, newMod, 1);
         obj->modList = newMod;
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+        puts("will call");
+        createIndexChangeEvent(idxChanges->srcValues, obj);
     }
 }

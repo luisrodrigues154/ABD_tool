@@ -98,6 +98,12 @@ ABD_EVENT_ARG *memAllocEventArg()
 {
     return (ABD_EVENT_ARG *)malloc(sizeof(ABD_EVENT_ARG));
 }
+
+ABD_IDX_CHANGE_EVENT *memAllocIdxEvent()
+{
+    return (ABD_IDX_CHANGE_EVENT *)malloc(sizeof(ABD_IDX_CHANGE_EVENT));
+}
+
 ABD_VEC_EVENT *memAllocVecEvent()
 {
     return (ABD_VEC_EVENT *)malloc(sizeof(ABD_VEC_EVENT));
@@ -734,6 +740,7 @@ void setIfEventValues(SEXP statement, Rboolean result)
 {
     ABD_IF_EVENT *currEvent = eventsRegTail->data.if_event;
     R_PrintData pars;
+
     exprId = 0;
     if (isWaitingElseIf())
     {
@@ -887,6 +894,10 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
         break;
     case VEC_EVENT:
         newBaseEvent->data.vec_event = memAllocVecEvent();
+        break;
+    case IDX_EVENT:
+        newBaseEvent->data.idx_event = memAllocIdxEvent();
+        break;
     default:
         break;
     }
@@ -957,7 +968,9 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
 
     lastArithEvent->expr = processIfStmt(finalArithCall, 0);
     eventsRegTail->scriptLn = arithScriptLn;
-
+    R_PrintData pars;
+    PrintInit(&pars, getCurrentEnv());
+    lastArithEvent->exprStr = getStrForStatement(finalArithCall, &pars);
     if (finalArithAns == rhs)
         return eventsRegTail;
 
@@ -1286,6 +1299,48 @@ ABD_EVENT *createMainEvent()
     return createNewEvent(MAIN_EVENT);
 }
 
+void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
+{
+    puts("will check pendings");
+    ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
+
+    /* Create the new assignment event */
+    createNewEvent(IDX_EVENT);
+
+    /* get the tail from the events registry, to reduce code verbose */
+    ABD_IDX_CHANGE_EVENT *currIdxEvent = eventsRegTail->data.idx_event;
+
+    currIdxEvent->toObj = objUsed;
+    currIdxEvent->toState = objUsed->modList;
+    if (fromEvent != ABD_EVENT_NOT_FOUND)
+    {
+        /* has precedence from another event */
+        currIdxEvent->fromType = ABD_E;
+        currIdxEvent->fromObj = fromEvent;
+        currIdxEvent->fromState = ABD_OBJECT_NOT_FOUND;
+        if (fromEvent->type == VEC_EVENT)
+        {
+            fromEvent->data.vec_event->toObj = objUsed;
+        }
+        puts("from event");
+    }
+    else
+    {
+        currIdxEvent->fromState = ABD_OBJECT_NOT_FOUND;
+        currIdxEvent->fromType = ABD_O;
+        currIdxEvent->fromObj = idxChanges->srcObj;
+        if (idxChanges->srcObj != ABD_OBJECT_NOT_FOUND)
+            currIdxEvent->fromState = idxChanges->srcObj->modList;
+
+        int nSrcIdxs = Rf_length(idxChanges->srcValues);
+        currIdxEvent->fromIdxs = memAllocIntVector(nSrcIdxs);
+
+        //for(int i=0; i<nSrcIdxs; i++){
+        printf("TYPEOF %d\n", TYPEOF(idxChanges->srcIdxs));
+        //}
+    }
+}
+
 void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
 {
     /* check if the value origin */
@@ -1306,9 +1361,7 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         currAssign->fromObj = fromEvent;
         currAssign->fromState = ABD_OBJECT_NOT_FOUND;
         if (fromEvent->type == VEC_EVENT)
-        {
             fromEvent->data.vec_event->toObj = objUsed;
-        }
     }
     else
     {

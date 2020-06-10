@@ -26,6 +26,7 @@ typedef struct abd_event
     ABD_ASSIGN_EVENT *asgn_event;
     ABD_ARITH_EVENT *arith_event;
     ABD_VEC_EVENT *vec_event;
+    ABD_IDX_CHANGE_EVENT *idx_event;
   } data;
   ABD_OBJECT *atFunc;
   SEXP env;
@@ -108,3 +109,4 @@ void storeVecsForIdxChange(SEXP vec);
 int toDiscard();
 ABD_SEARCH checkRetStored(SEXP testValue);
 void storeRetValues(SEXP value);
+void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);

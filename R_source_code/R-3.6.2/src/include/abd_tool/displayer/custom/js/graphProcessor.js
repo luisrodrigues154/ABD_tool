@@ -294,6 +294,11 @@ function getEventTypeHtml(event, nextEventId) {
 
 			break;
 		case types.ARITH:
+			htmlProduced += genLabelHtml(
+				'eId-{}'.format(nextEventId - 1),
+				event['data']['exprStr'].trim(),
+				event['branchDepth']
+			);
 			break;
 		default:
 			break;
@@ -445,6 +450,9 @@ function mkObjModalTopInfo(event) {
 				sourceEvent = '{}() return'.format(
 					getCodeFlowObjNameById(events[event['data']['fromEvent']]['data']['fromId'])
 				);
+				break;
+			case types.ARITH:
+				sourceEvent = 'Arithmetic';
 				break;
 		}
 	} else {
@@ -637,7 +645,7 @@ function doSearch() {
 	toSearch = [];
 }
 
-function getHtmlForExpressions(event) {
+function getHtmlForExpressions(event, showLogical) {
 	let nExpr = Object.keys(event['data']['expressions']).length;
 	let exprs = event['data']['expressions'];
 	let i;
@@ -652,7 +660,10 @@ function getHtmlForExpressions(event) {
 
 		if (cE['lType'] == 'expr') {
 			// left is expr
-			let element = [ 'Result', exprs[cE['lExpId']]['result'] != 0 ? 'true' : 'false' ];
+			let element = [];
+			if (showLogical) element = [ 'Result', exprs[cE['lExpId']]['result'] != 0 ? 'true' : 'false' ];
+			else element = [ 'Result', exprs[cE['lExpId']]['result'] ];
+
 			let text = '#{}'.format(cE['lExpId']);
 			htmlProduced += mkTooltipOneLine(element, text);
 		} else {
@@ -693,8 +704,9 @@ function getHtmlForExpressions(event) {
 		htmlProduced += '<td>';
 		if (cE['rType'] == 'expr') {
 			// left is expr
-
-			let element = [ 'Result', exprs[cE['rExpId']]['result'] != 0 ? 'true' : 'false' ];
+			let element = [];
+			if (showLogical) element = [ 'Result', exprs[cE['rExpId']]['result'] != 0 ? 'true' : 'false' ];
+			else element = [ 'Result', exprs[cE['rExpId']]['result'] ];
 			let text = '#{}'.format(cE['rExpId']);
 			htmlProduced += mkTooltipOneLine(element, text);
 		} else {
@@ -727,7 +739,8 @@ function getHtmlForExpressions(event) {
 		}
 		htmlProduced += '</td>';
 		//result
-		htmlProduced += '<td>{} ({})</td>'.format(cE['result'], cE['result'] != 0 ? 'T' : 'F');
+		if (showLogical) htmlProduced += '<td>{} ({})</td>'.format(cE['result'], cE['result'] != 0 ? 'T' : 'F');
+		else htmlProduced += '<td>{}</td>'.format(cE['result']);
 
 		htmlProduced += '</tr>';
 	}
@@ -782,6 +795,49 @@ function mkFailedTestsHtml(failedTests) {
 
 	return htmlProduced;
 }
+function mkArithModalInfo(event, eventId) {
+	let htmlProduced = '';
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2">';
+	htmlProduced += '<div class="col text-left">Condition:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['exprStr']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj structure Type
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Result:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['result']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Operations';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//second section table start
+	htmlProduced += '<table class="table table-sm mt-2">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced += '<th class ="text-center" scope="col">ID</th>';
+	htmlProduced += '<th class ="text-center" scope="col">L-Operand</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Operator</th>';
+	htmlProduced += '<th class ="text-center" scope="col">R-Operand</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Result</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-center">';
+	htmlProduced += getHtmlForExpressions(event, false);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+	htmlProduced += '</div>';
+
+	return htmlProduced;
+}
 function mkIfModalInfo(event, eventId) {
 	//
 	let htmlProduced = '';
@@ -830,14 +886,14 @@ function mkIfModalInfo(event, eventId) {
 	} else {
 		if (event['data']['isElseIf']) {
 			// else if statement
-			htmlProduced += getHtmlForExpressions(event);
+			htmlProduced += getHtmlForExpressions(event, true);
 			htmlProduced += '</tbody>';
 			htmlProduced += '</table>';
 			let failedTests = findFailedTests(eventId).reverse();
 			htmlProduced += mkFailedTestsHtml(failedTests);
 		} else {
 			// normal if statement
-			htmlProduced += getHtmlForExpressions(event);
+			htmlProduced += getHtmlForExpressions(event, true);
 			htmlProduced += '</tbody>';
 			htmlProduced += '</table>';
 		}
@@ -869,6 +925,11 @@ function produceModalContent(eventId) {
 		case types.IF:
 			content.title = 'Branch analysis';
 			content.body = mkIfModalInfo(event, eventId);
+			break;
+
+		case types.ARITH:
+			content.title = 'Arithmetic analysis';
+			content.body = mkArithModalInfo(event, eventId);
 			break;
 		default:
 			content.title = 'Ups...';

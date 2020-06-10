@@ -68,7 +68,6 @@ void abd_stop()
         setWatcherState(ABD_DISABLE);
         persistInformation();
         //open the browser with the displayer
-
         //int ret = system(getCommand());
     }
 }
@@ -102,20 +101,11 @@ static void PrintDaCall(SEXP call, SEXP rho)
 
 void regVarIdxChange(SEXP call, SEXP rho)
 {
+
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    puts("");
-    puts("");
-    puts("");
-    puts("call.....");
-    PrintDaCall(call, rho);
 
     initIdxChangeAuxVars();
-
-    // puts("at call");
-    // PrintDaCall(call, rho);
-    //find the object
-
     //if matrix, toObj will remain langsxp, just a pair of brackets more
     idxChanges->dest = CAR(CDR(CAR(CDR(call))));
     //pre-process
@@ -126,17 +116,9 @@ void regVarIdxChange(SEXP call, SEXP rho)
         just wait for processIndexChanges() being triggered by the reaching vectors
     */
     if (!(idxChanges->srcVec || idxChanges->destIdxsVec || idxChanges->srcIdxsVec))
-    {
-        puts("will process");
         processVarIdxChange();
-    }
 
     //now wait ...
-    /*
-    SEXP idxs = CAR(CDR(CDR(CAR(CDR(call)))));
-    storeIdxChange(indexes);
-    printf("Index Changed at line %d\n", getCurrScriptLn());
-    newObjUsage(R_NilValue, newValues, rho); */
 }
 
 void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
@@ -154,7 +136,6 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     if (TYPEOF(rhs) != CLOSXP)
     {
         //need to extract the rhs from the call
-        printf("Regging a variable... line %d\n", getCurrScriptLn());
         ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
         SEXP rhs2 = CAR(CDR(CDR(call)));
         createAsgnEvent(objUsed, rhs, rhs2, rho);
@@ -170,7 +151,6 @@ void decrementBranchDepth(SEXP rho)
     branchDepth--;
     if (!branchDepth)
         onBranch = FALSE;
-    printf("branch depth %d\n", branchDepth);
 }
 
 /*
@@ -223,13 +203,7 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
         }
         storeVecForIdxChange(vector);
         if (waitingIdxChange == 0)
-        {
-            //processIndexChanges();
-            // printf("srcValues NULL? %s\n", idxChanges->srcValues == R_NilValue ? "yes" : "no");
-            // printf("srcIdxs NULL? %s\n", idxChanges->srcIdxs == R_NilValue ? "yes" : "no");
-            // printf("destIdxs NULL? %s\n", idxChanges->destIdxs == R_NilValue ? "yes" : "no");
             processVarIdxChange();
-        }
 
         return;
     }

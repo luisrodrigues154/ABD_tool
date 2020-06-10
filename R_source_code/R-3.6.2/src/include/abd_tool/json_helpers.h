@@ -564,15 +564,17 @@ void saveExpression(FILE *out, int id, IF_EXPRESSION *expr, FILE *dispOut)
 void saveArithEvent(FILE *out, ABD_ARITH_EVENT *event, FILE *dispOut)
 {
     fprintf(out, "\n%s\"result\" : %.4f,", getStrFromIndent(INDENT_3), event->globalResult);
-    fprintf(out, "\n%s\"expressions\" : [", getStrFromIndent(INDENT_3));
+    fprintf(out, "\n%s\"exprStr\" : \"%s\",", getStrFromIndent(INDENT_3), event->exprStr);
+    fprintf(out, "\n%s\"expressions\" : {", getStrFromIndent(INDENT_3));
 
     fprintf(dispOut, "\"result\" : %.4f,", event->globalResult);
-    fprintf(dispOut, "\"expressions\" : [");
+    fprintf(dispOut, "\"exprStr\" : \"%s\",", event->exprStr);
+    fprintf(dispOut, "\"expressions\" : {");
 
-    saveExpression(out, 0, event->expr, dispOut);
+    writeExpression(out, event->expr, dispOut);
 
-    fprintf(out, "\n%s]", getStrFromIndent(INDENT_3));
-    fprintf(dispOut, "]");
+    fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "}");
 }
 void saveFuncEvent(FILE *out, ABD_FUNC_EVENT *funcEvent, FILE *dispOut)
 {
@@ -934,10 +936,10 @@ void saveEvents(FILE *out, FILE *dispOut)
             saveAssignEvent(out, currEvent->data.asgn_event, dispOut);
             break;
         case ARITH_EVENT:
-            fprintf(out, "\"arithmetic_event\",");
+            fprintf(out, "\"arith_event\",");
             fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
 
-            fprintf(dispOut, "\"arithmetic_event\",");
+            fprintf(dispOut, "\"arith_event\",");
             fprintf(dispOut, "\"data\" : {");
             saveArithEvent(out, currEvent->data.arith_event, dispOut);
             break;

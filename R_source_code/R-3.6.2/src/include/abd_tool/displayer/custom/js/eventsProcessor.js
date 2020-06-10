@@ -10,7 +10,7 @@ const types = {
 	IF: 'if_event',
 	FUNC: 'func_event',
 	RET: 'ret_event',
-	ARITH: 'arithmetic_event',
+	ARITH: 'arith_event',
 	VEC: 'vector_event'
 };
 var processMe = 0;

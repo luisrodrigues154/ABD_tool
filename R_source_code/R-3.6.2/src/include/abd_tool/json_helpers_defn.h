@@ -80,3 +80,4 @@ void saveExpression(FILE *out, int id, IF_EXPRESSION *expr, FILE *dispOut);
 void dupScript();
 char *getScriptPath();
 void writeCharByCharToFile(FILE *out, char *string, int withComma);
+void writeExpression(FILE *out, IF_EXPRESSION *expr, FILE *dispOut);

@@ -10,7 +10,8 @@ typedef enum abd_event_types
     RET_EVENT = 3,
     ASGN_EVENT = 4,
     ARITH_EVENT = 5,
-    VEC_EVENT = 6
+    VEC_EVENT = 6,
+    IDX_EVENT = 7
 } ABD_EVENT_TYPE;
 
 //describe a if statement and its else ifs
@@ -154,6 +155,7 @@ typedef struct arith_event
 
     double globalResult; // the final result that
     IF_EXPRESSION *expr; // from example this would be 2+3
+    char *exprStr;
 } ABD_ARITH_EVENT;
 
 typedef struct vec_event
@@ -183,7 +185,9 @@ typedef struct idx_change_event
     ABD_OBJECT *toObj;
     //in the state contains the indexes
     ABD_OBJECT_MOD *toState;
-    ABD_OBJECT *fromObj;
+    ASSIGN_DATA_TYPE fromType;
+    void *fromObj;
+    ABD_OBJECT_MOD *fromState;
     int *fromIdxs;
 } ABD_IDX_CHANGE_EVENT;
 
