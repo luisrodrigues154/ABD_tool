@@ -825,41 +825,11 @@ SEXP getSavedArithAns()
     return finalArithAns;
 }
 
-void setArithEventValues(SEXP call, SEXP ans, SEXP arg1, SEXP arg2, int withPre)
-{
-    // PrintIt(call, getCurrentEnv());
-
-    // SEXP _arg1 = CAR(CDR(call));
-    // SEXP _arg2 = CAR(CDR(CDR(call)));
-    // int withIndex = 0;
-    // int opSize = strlen(CHAR(PRINTNAME(CAR(call))));
-    // char *operator= memAllocForString(opSize);
-    // memset(operator, 0, opSize);
-    // copyStr(operator, CHAR(PRINTNAME(CAR(call))), opSize);
-    // if (!withPre)
-    // {
-
-    //     lastArithAns = ans;
-    // }
-    // else
-    // {
-    //     /* one pending ARITH  */
-    //     if (lastArithAns == arg1)
-    //     {
-    //         /* precedence in arg1*/
-    //         printf("Arg1 is from last evaluated portion\n");
-    //     }
-    //     else if (lastArithAns == arg2)
-    //     {
-    //         /* precedence in arg2 */
-    //         printf("Arg2 is from last evaluated portion\n");
-    //     }
-}
-
 void tmpStoreArith(SEXP call, SEXP ans)
 {
     if (arithResults == ABD_NOT_FOUND)
     {
+        arithScriptLn = getCurrScriptLn();
         arithResults = (SEXP *)malloc(sizeof(SEXP) * 10);
         for (int i = 0; i < 10; i++)
             arithResults[i] = R_NilValue;
@@ -867,7 +837,6 @@ void tmpStoreArith(SEXP call, SEXP ans)
     arithResults[++currArithIndex] = ans;
     finalArithAns = ans;
     finalArithCall = call;
-    arithScriptLn = getCurrScriptLn();
 }
 
 ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
@@ -960,7 +929,6 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
         check if the answer from the arith is being used, if not, create the event and return NULL 
         otherwise return the lastArithEvent
     */
-
     createNewEvent(ARITH_EVENT);
 
     lastArithEvent->globalResult = REAL(finalArithAns)[0];
@@ -1006,6 +974,8 @@ void storeVecForIdxChange(SEXP vec)
 
     if (idxChanges->srcVec)
     {
+        puts("received");
+        PrintIt(vec, getCurrentEnv());
         idxChanges->srcValues = vec;
         idxChanges->srcVec = 0;
         waitingIdxChange--;
@@ -1184,8 +1154,8 @@ void preProcessVarIdxChange(SEXP call, SEXP rho)
 
     preProcessDest(call);
     preProcessSrc(call);
-
     //done
+    //puts("done");
 }
 
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
@@ -1299,9 +1269,40 @@ ABD_EVENT *createMainEvent()
     return createNewEvent(MAIN_EVENT);
 }
 
+ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
+{
+    if (idxChanges->srcIdxs == R_NilValue)
+    {
+        idxEvent->nIdxs = Rf_length(idxChanges->destIdxs);
+        idxEvent->fromIdxs = memAllocIntVector(idxEvent->nIdxs);
+        for (int i = 0; i < idxEvent->nIdxs; i++)
+            idxEvent->fromIdxs[i] = i;
+        return idxEvent;
+    }
+    int destIdxSize = Rf_length(idxChanges->destIdxs);
+    idxEvent->nIdxs = Rf_length(idxChanges->srcIdxs);
+    idxEvent->fromIdxs = memAllocIntVector(idxEvent->nIdxs);
+    for (int i = 0; i < idxEvent->nIdxs; i++)
+    {
+        switch (TYPEOF(idxChanges->srcIdxs))
+        {
+        case REALSXP:
+            idxEvent->fromIdxs[i] = (int)REAL(idxChanges->srcIdxs)[i];
+            break;
+        case INTSXP:
+            idxEvent->fromIdxs[i] = INTEGER(idxChanges->srcIdxs)[i];
+            break;
+        }
+    }
+
+    /* int *srcIdxsUsed = ABD_OBJECT_NOT_FOUND;
+    int nSrcIdxs = Rf_length(idxChanges->srcValues);
+    srcIdxsUsed = memAllocIntVector(nSrcIdxs); */
+    return idxEvent;
+}
+
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
 {
-    puts("will check pendings");
     ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
 
     /* Create the new assignment event */
@@ -1319,25 +1320,29 @@ void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
         currIdxEvent->fromObj = fromEvent;
         currIdxEvent->fromState = ABD_OBJECT_NOT_FOUND;
         if (fromEvent->type == VEC_EVENT)
-        {
             fromEvent->data.vec_event->toObj = objUsed;
-        }
-        puts("from event");
     }
     else
     {
         currIdxEvent->fromState = ABD_OBJECT_NOT_FOUND;
         currIdxEvent->fromType = ABD_O;
-        currIdxEvent->fromObj = idxChanges->srcObj;
-        if (idxChanges->srcObj != ABD_OBJECT_NOT_FOUND)
-            currIdxEvent->fromState = idxChanges->srcObj->modList;
+        if (idxChanges->src != R_NilValue)
+        {
 
-        int nSrcIdxs = Rf_length(idxChanges->srcValues);
-        currIdxEvent->fromIdxs = memAllocIntVector(nSrcIdxs);
-
-        //for(int i=0; i<nSrcIdxs; i++){
-        printf("TYPEOF %d\n", TYPEOF(idxChanges->srcIdxs));
-        //}
+            if ((currIdxEvent->fromObj = findCmnObj(CHAR(PRINTNAME(idxChanges->src)), getCurrentEnv())) == ABD_OBJECT_NOT_FOUND)
+            {
+                puts("src values");
+                PrintIt(idxChanges->srcValues, getCurrentEnv());
+                currIdxEvent->fromObj = createUnscopedObj(CHAR(PRINTNAME(idxChanges->src)), -2, -2, idxChanges->srcValues, 0);
+            }
+            currIdxEvent = setIdxList(currIdxEvent);
+        }
+        else
+        {
+            //hardcoded value???
+            currIdxEvent->fromObj = createUnscopedObj("NA", -1, -1, idxChanges->srcValues, 0);
+        }
+        currIdxEvent->fromState = ((ABD_OBJECT *)currIdxEvent->fromObj)->modList;
     }
 }
 

@@ -110,3 +110,4 @@ int toDiscard();
 ABD_SEARCH checkRetStored(SEXP testValue);
 void storeRetValues(SEXP value);
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);
+void clearPendingVars();

@@ -689,7 +689,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 				{
 					REAL(x)
 					[ival - 1] = SCALAR_DVAL(y);
-					//regVarIdxChange(s, y, rho);
+					finalizeVarIdxChange(y, rho);
 					return x;
 				}
 			}
@@ -703,7 +703,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 					{
 						REAL(x)
 						[ival - 1] = SCALAR_DVAL(y);
-						//regVarIdxChange(s, y, rho);
+						finalizeVarIdxChange(y, rho);
 						return x;
 					}
 				}
@@ -798,7 +798,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		int *px = INTEGER(x);
-		//regVarIdxChange(s, y, rho);
+		finalizeVarIdxChange(y, rho);
 		VECTOR_ASSIGN_LOOP(px[ii] = INTEGER_ELT(y, iny););
 	}
 	break;
@@ -808,6 +808,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		double *px = REAL(x);
+		finalizeVarIdxChange(y, rho);
 		VECTOR_ASSIGN_LOOP({
 			int iy = INTEGER_ELT(y, iny);
 			if (iy == NA_INTEGER)
@@ -824,6 +825,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 
 	{
 		double *px = REAL(x);
+		finalizeVarIdxChange(y, rho);
 		VECTOR_ASSIGN_LOOP(px[ii] = REAL_ELT(y, iny););
 	}
 	break;
@@ -906,7 +908,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 		/* case 1916:  vector     <- character  */
 
 	case 1919: /* vector     <- vector     */
-		//puts("GOT HEREEEEEEEE");
+
 		VECTOR_ASSIGN_LOOP({
 			/* set NAMED on RHS value to NAMEDMAX if used more than once
 			(PR15098) */

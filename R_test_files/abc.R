@@ -1,12 +1,17 @@
 options("keep.source"=TRUE)
 run <- function(){
-
+    
     abd_start()
+    
+    f1 <- function(x){
+        f1_a <- x*2
+        f1_a
+    }
 
-    a <- 10
 
-    x <- a*(30+40-100)
+    a <- 1:10
 
+    a[1] <- f1(2)
     abd_stop()
 }
 

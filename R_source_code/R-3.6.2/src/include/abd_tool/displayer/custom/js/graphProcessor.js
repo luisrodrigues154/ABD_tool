@@ -300,6 +300,33 @@ function getEventTypeHtml(event, nextEventId) {
 				event['branchDepth']
 			);
 			break;
+		case types.IDX:
+			let originIdx = event['data']['origin'];
+			let toId = event['data']['toId'];
+			let toState = event['data']['toState'];
+			let objIdx = getCommonObjById(toId);
+			if (originIdx == 'obj') {
+				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			} else {
+				if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+					// the vector creation do not have anything special worth a separated label
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1, toId, toState),
+						codeLine.trim(),
+						event['branchDepth']
+					);
+				} else {
+					//other event types
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1, toId, toState),
+						codeLine
+							.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+							.trim(),
+						event['branchDepth']
+					);
+				}
+			}
+			break;
 		default:
 			break;
 	}
@@ -930,6 +957,14 @@ function produceModalContent(eventId) {
 		case types.ARITH:
 			content.title = 'Arithmetic analysis';
 			content.body = mkArithModalInfo(event, eventId);
+			break;
+		case types.IDX:
+			content.title = 'Index change analysis';
+			content.body = '';
+			break;
+		case types.RET:
+			content.title = 'Return analysis';
+			content.body = 'nothing to show';
 			break;
 		default:
 			content.title = 'Ups...';

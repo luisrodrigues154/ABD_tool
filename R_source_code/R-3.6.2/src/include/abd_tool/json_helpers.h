@@ -870,6 +870,95 @@ void saveIfEvent(FILE *out, ABD_IF_EVENT *if_event, FILE *dispOut)
     }
 }
 
+void saveIdxChangeEvent(FILE *out, ABD_IDX_CHANGE_EVENT *idx_event, FILE *dispOut)
+{
+    fprintf(out, "\n%s\"toId\" : %d,", getStrFromIndent(INDENT_3), idx_event->toObj->id);
+    fprintf(out, "\n%s\"toState\" : %d,", getStrFromIndent(INDENT_3), idx_event->toState->id);
+    fprintf(out, "\n%s\"origin\" : \"%s\",", getStrFromIndent(INDENT_3), (idx_event->fromType == ABD_E) ? "event" : "obj");
+
+    fprintf(dispOut, "\"toId\" : %d,", idx_event->toObj->id);
+    fprintf(dispOut, "\"toState\" : %d,", idx_event->toState->id);
+    fprintf(dispOut, "\"origin\" : \"%s\",", (idx_event->fromType == ABD_E) ? "event" : "obj");
+
+    if (idx_event->fromType == ABD_E)
+    {
+        //
+        fprintf(out, "\n%s\"fromEvent\" : %d", getStrFromIndent(INDENT_3), ((ABD_EVENT *)idx_event->fromObj)->id);
+        fprintf(dispOut, "\"fromEvent\" : %d", ((ABD_EVENT *)idx_event->fromObj)->id);
+    }
+    else
+    {
+
+        ABD_OBJECT *obj = ((ABD_OBJECT *)idx_event->fromObj);
+        fprintf(out, "\n%s\"fromObj\" : ", getStrFromIndent(INDENT_3));
+        fprintf(dispOut, "\"fromObj\" : ");
+
+        if (obj->id == -1)
+        {
+            //hardcoded value
+            fprintf(out, "\"HC\",");
+            fprintf(dispOut, "\"HC\",");
+            writeArgValueToFile(out, idx_event->fromState, INDENT_3, dispOut);
+        }
+        else
+        {
+
+            if (obj->id == -2)
+            {
+                //object not in registry
+                fprintf(out, "\"R\",");
+                fprintf(out, "\n%s\"name\" : \"%s\",", getStrFromIndent(INDENT_3), obj->name);
+
+                fprintf(dispOut, "\"R\",");
+                fprintf(dispOut, "\"name\" : \"%s\",", obj->name);
+                fprintf(out, "\n%s\"fromIdxs\" : [", getStrFromIndent(INDENT_3));
+                fprintf(dispOut, "\"fromIdxs\" : [");
+
+                for (int i = 0; i < idx_event->nIdxs; i++)
+                {
+                    fprintf(out, "%d", idx_event->fromIdxs[i]);
+                    fprintf(dispOut, "%d", idx_event->fromIdxs[i]);
+                    if (i + 1 < idx_event->nIdxs)
+                    {
+                        fprintf(out, ",");
+                        fprintf(dispOut, ",");
+                    }
+                }
+                fprintf(out, "],");
+                fprintf(dispOut, "],");
+                writeArgValueToFile(out, idx_event->fromState, INDENT_3, dispOut);
+            }
+            else
+            {
+                //object in registry
+                fprintf(out, "\"ABD\",");
+                fprintf(out, "\n%s\"fromId\" : %d,", getStrFromIndent(INDENT_3), obj->id);
+                fprintf(out, "\n%s\"fromState\" : %d,", getStrFromIndent(INDENT_3), idx_event->fromState->id);
+
+                fprintf(dispOut, "\"ABD\",");
+                fprintf(dispOut, "\"fromId\" : %d,", obj->id);
+                fprintf(dispOut, "\"fromState\" : %d,", idx_event->fromState->id);
+
+                fprintf(out, "\n%s\"fromIdxs\" : [", getStrFromIndent(INDENT_3));
+                fprintf(dispOut, "\"fromIdxs\" : [");
+
+                for (int i = 0; i < idx_event->nIdxs; i++)
+                {
+                    fprintf(out, "%d", idx_event->fromIdxs[i]);
+                    fprintf(dispOut, "%d", idx_event->fromIdxs[i]);
+                    if (i + 1 < idx_event->nIdxs)
+                    {
+                        fprintf(out, ",");
+                        fprintf(dispOut, ",");
+                    }
+                }
+                fprintf(out, "]");
+                fprintf(dispOut, "]");
+            }
+        }
+    }
+}
+
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -950,6 +1039,14 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"vector_event\",");
             fprintf(dispOut, "\"data\" : {");
             saveVecEvent(out, currEvent->data.vec_event, dispOut);
+            break;
+        case IDX_EVENT:
+            fprintf(out, "\"idx_change_event\",");
+            fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
+
+            fprintf(dispOut, "\"idx_change_event\",");
+            fprintf(dispOut, "\"data\" : {");
+            saveIdxChangeEvent(out, currEvent->data.idx_event, dispOut);
             break;
         default:
             break;

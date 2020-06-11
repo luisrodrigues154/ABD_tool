@@ -57,12 +57,12 @@ void abd_start(SEXP rho)
 void mkCopiesToDisplayer()
 {
 }
-
+SEXP testStore;
 void abd_stop()
 {
     if (isRunning())
     {
-
+        puts("\n\nSTOPING PROCEDURE\n");
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
@@ -74,15 +74,14 @@ void abd_stop()
 
 void abd_help()
 {
-    //checkSettings();
-    // printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
-    // printf("\t##################################################\n");
-    // printf("\t-> Start the watcher: abd_start()\n");
-    // printf("\t-> Stop the watcher: abd_stop()\n");
-    // printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
-    // printf("\t-> Display current output file path: abd_path()\n");
-    // printf("\t##################################################\n\n\n");
-    //
+    checkSettings();
+    printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
+    printf("\t##################################################\n");
+    printf("\t-> Start the watcher: abd_start()\n");
+    printf("\t-> Stop the watcher: abd_stop()\n");
+    printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
+    printf("\t-> Display current output file path: abd_path()\n");
+    printf("\t##################################################\n\n\n");
 }
 
 static void PrintDaCall(SEXP call, SEXP rho)
@@ -98,7 +97,12 @@ static void PrintDaCall(SEXP call, SEXP rho)
 
     R_BrowseLines = old_bl;
 }
-
+void finalizeVarIdxChange(SEXP result, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+    processVarIdxChange(result);
+}
 void regVarIdxChange(SEXP call, SEXP rho)
 {
 
@@ -115,8 +119,6 @@ void regVarIdxChange(SEXP call, SEXP rho)
         if they are all 0, need to process now, otherwise
         just wait for processIndexChanges() being triggered by the reaching vectors
     */
-    if (!(idxChanges->srcVec || idxChanges->destIdxsVec || idxChanges->srcIdxsVec))
-        processVarIdxChange();
 
     //now wait ...
 }
@@ -186,13 +188,6 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    // puts("");
-    // puts("");
-    // puts("reg vector....");
-    // puts("with call....");
-    // PrintDaCall(call, rho);
-    // puts("with values....");
-    // PrintDaCall(vector, rho);
 
     if (waitingIdxChange)
     {
@@ -202,9 +197,6 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
             return;
         }
         storeVecForIdxChange(vector);
-        if (waitingIdxChange == 0)
-            processVarIdxChange();
-
         return;
     }
     checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
@@ -224,7 +216,7 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
+    puts("storing arith... ");
     tmpStoreArith(call, ans);
 }
 

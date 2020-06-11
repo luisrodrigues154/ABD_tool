@@ -11,7 +11,8 @@ const types = {
 	FUNC: 'func_event',
 	RET: 'ret_event',
 	ARITH: 'arith_event',
-	VEC: 'vector_event'
+	VEC: 'vector_event',
+	IDX: 'idx_change_event'
 };
 var processMe = 0;
 
