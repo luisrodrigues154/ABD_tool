@@ -1922,14 +1922,14 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 
 	body = BODY(op);
 
-	// if (R_CheckJIT(op))
-	// {
-	// 	int old_enabled = R_jit_enabled;
-	// 	R_jit_enabled = 0;
-	// 	R_cmpfun(op);
-	// 	body = BODY(op);
-	// 	R_jit_enabled = old_enabled;
-	// }
+	/* if (R_CheckJIT(op))
+	{
+		int old_enabled = R_jit_enabled;
+		R_jit_enabled = 0;
+		R_cmpfun(op);
+		body = BODY(op);
+		R_jit_enabled = old_enabled;
+	} */
 
 	/* Get the srcref record from the closure object. The old srcref was
        saved in cntxt. */
@@ -3461,7 +3461,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-					/* falls through */
+		/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;

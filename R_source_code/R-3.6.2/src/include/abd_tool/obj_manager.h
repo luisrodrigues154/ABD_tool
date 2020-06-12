@@ -556,6 +556,7 @@ ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT
     obj->modList = newMod;
     obj->usages++;
     cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+
     return obj;
 }
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)

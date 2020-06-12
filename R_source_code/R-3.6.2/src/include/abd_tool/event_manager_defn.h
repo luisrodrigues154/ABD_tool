@@ -49,10 +49,6 @@ typedef struct
 
 static IDX_CHANGE *idxChanges;
 
-/* branch depth for displayer */
-static short branchDepth;
-static Rboolean onBranch;
-
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;

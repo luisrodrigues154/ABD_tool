@@ -148,11 +148,11 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
 void decrementBranchDepth(SEXP rho)
 {
-    if (!(isRunning() && cmpToCurrEnv(rho) && onBranch))
+    if (!(isRunning() && cmpToCurrEnv(rho) && onBranch()))
         return;
-    branchDepth--;
-    if (!branchDepth)
-        onBranch = FALSE;
+    decBranchDepth();
+    if (!getCurrBranchDepth())
+        setOnBranch(FALSE);
 }
 
 /*
@@ -210,13 +210,14 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
 
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
+    clearPendingVars();
 }
 
 void regArith(SEXP call, SEXP ans, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    puts("storing arith... ");
+
     tmpStoreArith(call, ans);
 }
 

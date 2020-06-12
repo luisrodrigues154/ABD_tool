@@ -12,4 +12,4 @@ References: John M. Chambers (2008) ``Software for Data Analysis:
 License: Part of R 3.6.2
 Suggests: codetools
 NeedsCompilation: yes
-Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-06-11 01:10:14 UTC; unix
+Built: R 3.6.2; x86_64-pc-linux-gnu; 2020-06-12 16:53:59 UTC; unix

@@ -22,15 +22,12 @@ var links;
 var nodeSizeScale;
 var codeLineClass = 'node-code-line';
 let envContent = new Map();
+let envLineBDepth = new Map();
 let lastLineGP = 0;
 $(function() {
 	//load function
 	buildNodes();
-	/*console.log('nodes');
-	console.log(graph.nodes);
-	console.log('----------------');
-	console.log('links');
-	console.log(graph.links);*/
+
 	generateSVGgraph();
 });
 
@@ -54,9 +51,9 @@ function buildNodes() {
 function resolveEnvContents(env, funcName, calledFromLine) {
 	let nodeHtml = startBlock();
 	nodeHtml += mkBlockHeader(funcName, currentEnv, stackSize == 1 ? 0 : calledFromLine);
-
 	nodeHtml += '<hr>';
 	nodeHtml += '<div class="container-fluid" id="node_content">';
+	let envBranchDepthInfo = envLineBDepth.get(env);
 	for ([ line, content ] of envContent.get(env)) {
 		var numEntries = content.length - 1;
 		var i;
@@ -64,7 +61,8 @@ function resolveEnvContents(env, funcName, calledFromLine) {
 		for (i = numEntries; i >= 0; i--) {
 			auxHtml += '{} {} '.format(content[i], i - 1 >= 0 ? '<-' : '');
 		}
-		nodeHtml += genNodeRow(line, auxHtml);
+		let branDepth = envBranchDepthInfo.get(line)[0];
+		nodeHtml += genNodeRow(line, auxHtml, branDepth);
 	}
 
 	nodeHtml += '</div>';
@@ -78,6 +76,13 @@ function addNodeToDict(env, html) {
 
 function initEnvMap(env) {
 	envContent.set(env, new Map());
+	envLineBDepth.set(env, new Map());
+}
+
+function updateBranchLineDepth(env, line, branchDepth) {
+	if (!envLineBDepth.get(env).has(line)) envLineBDepth.get(env).set(line, [ 0 ]);
+
+	envLineBDepth.get(env).get(line)[0] = branchDepth;
 }
 
 function processEnv(funcName, env, idxStart, calledFromLine) {
@@ -87,6 +92,7 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 
 	for (i = idxStart; i <= eventsLen; i++) {
 		if (events[i]['atEnv'] == env) {
+			updateBranchLineDepth(env, events[i]['line'], events[i]['branchDepth']);
 			let htmlRcvd = getEventTypeHtml(events[i], i + 1);
 			if (events[i]['type'] != types.IF) {
 				lastLineGP = events[i]['line'];
@@ -96,6 +102,7 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 			}
 		}
 	}
+
 	resolveEnvContents(env, funcName, calledFromLine);
 	popFromStack();
 }
@@ -141,7 +148,7 @@ function mkBlockHeader(funcName, env, withFromLine) {
 
 	return htmlProduced;
 }
-function genNodeRow(line, codeHtml) {
+function genNodeRow(line, codeHtml, branchDept) {
 	var htmlProduced = '<div class="row">';
 
 	//line of code
@@ -150,8 +157,8 @@ function genNodeRow(line, codeHtml) {
 	htmlProduced += '</div>';
 
 	//code
-	htmlProduced += '<div class="col col-md-auto col3">';
-	htmlProduced += '<codeWrapper>' + codeHtml + '</codeWrapper>';
+	htmlProduced += '<div class="col col-md-auto col3" style="margin-left:{}px;">'.format(branchDept * 10);
+	htmlProduced += '<codeWrapper">{}</codeWrapper>'.format(codeHtml);
 	htmlProduced += '</div>';
 
 	//terminators
@@ -162,6 +169,7 @@ function genNodeRow(line, codeHtml) {
 
 function addEventToEnvMap(env, line, eventContent) {
 	if (!envContent.get(env).has(line)) envContent.get(env).set(line, []);
+
 	if (eventContent.length == 0) return;
 	envContent.get(env).get(line).push(eventContent);
 }
@@ -215,7 +223,7 @@ function getEventTypeHtml(event, nextEventId) {
 				codeLine
 					.substring(codeLine.indexOf(newFuncName), codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1)
 					.trim(),
-				event['branchDepth']
+				0
 			);
 
 			break;
@@ -229,17 +237,13 @@ function getEventTypeHtml(event, nextEventId) {
 			} else {
 				if (origin == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
 					// the vector creation do not have anything special worth a separated label
-					htmlProduced += genLabelHtml(
-						'eId-{}'.format(nextEventId - 1, objId, state),
-						codeLine.trim(),
-						event['branchDepth']
-					);
+					htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, objId, state), codeLine.trim(), 0);
 				} else {
 					//other event types
 					htmlProduced += genLabelHtml(
 						'eId-{}'.format(nextEventId - 1, objId, state),
 						codeLine.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj))).trim(),
-						event['branchDepth']
+						0
 					);
 				}
 			}
@@ -249,7 +253,7 @@ function getEventTypeHtml(event, nextEventId) {
 			let startLine = event['line'];
 			let eventId = nextEventId - 1;
 			let statement;
-			while (event['type'] == types.IF) {
+			while (event['type'] == types.IF && event['line'] == startLine) {
 				//collect all if statements below
 				if (event['data']['isElseIf']) {
 					statement = 'else if ( {} )'.format(event['data']['exprStr']);
@@ -261,7 +265,7 @@ function getEventTypeHtml(event, nextEventId) {
 				htmlProduced += genForMultiLabelsWithIdentAndColor(
 					'eId-{}'.format(eventId),
 					statement,
-					event['branchDepth'],
+					0,
 					event['data']['globalResult']
 				);
 
@@ -287,18 +291,9 @@ function getEventTypeHtml(event, nextEventId) {
 					'(return)'
 				);
 			}
-
-			if (event['data']['toId'] > 0) {
-				addNodeLink(event['atEnv'], event['data']['toEnv']);
-			}
-
 			break;
 		case types.ARITH:
-			htmlProduced += genLabelHtml(
-				'eId-{}'.format(nextEventId - 1),
-				event['data']['exprStr'].trim(),
-				event['branchDepth']
-			);
+			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), event['data']['exprStr'].trim(), 0);
 			break;
 		case types.IDX:
 			let originIdx = event['data']['origin'];
@@ -310,11 +305,7 @@ function getEventTypeHtml(event, nextEventId) {
 			} else {
 				if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
 					// the vector creation do not have anything special worth a separated label
-					htmlProduced += genLabelHtml(
-						'eId-{}'.format(nextEventId - 1, toId, toState),
-						codeLine.trim(),
-						event['branchDepth']
-					);
+					htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
 				} else {
 					//other event types
 					htmlProduced += genLabelHtml(
@@ -322,7 +313,7 @@ function getEventTypeHtml(event, nextEventId) {
 						codeLine
 							.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
 							.trim(),
-						event['branchDepth']
+						0
 					);
 				}
 			}
@@ -360,7 +351,7 @@ function popFromStack() {
 function mkTooltip(objCurrentValues) {
 	let valuesStr = structToStr(objCurrentValues);
 	return "<a href='#' type='button' data-placement='right' data-toggle='tooltip' data-html='true' title='Size: {}</br>{}'><u>values!</u></a>".format(
-		objCurrentValues[2],
+		objCurrentValues[3].length,
 		valuesStr
 	);
 }
@@ -407,8 +398,8 @@ function mkFuncModalInfo(event, eventId) {
 
 	//table head
 	htmlProduced += '<thead>';
-	htmlProduced += '<th class ="text-center" scope="col">Received</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Passed</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Received</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Value</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Previous change</th>';
 	htmlProduced += '</tr>';
@@ -475,7 +466,7 @@ function mkObjModalTopInfo(event) {
 				break;
 			case types.RET:
 				sourceEvent = '{}() return'.format(
-					getCodeFlowObjNameById(events[event['data']['fromEvent']]['data']['fromId'])
+					getCodeFlowObjNameById(events[event['data']['fromEvent']]['atFunc'])
 				);
 				break;
 			case types.ARITH:
@@ -929,7 +920,159 @@ function mkIfModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 	return htmlProduced;
 }
+function mkIdxChangeModalInfo(event, eventId) {
+	let htmlProduced = '';
+	let displayNote = false;
+	let targetId = event['data']['toId'];
+	let targetState = event['data']['toState'];
+	let targetName = getCommonObjNameById(targetId);
+	let targetCurrValue = getObjCurrValue(targetId, targetState, -1);
+	let targetObj = getCommonObjById(targetId);
+	let repeater = 0;
+	let sourceName = '';
+	let foundEvent = 0;
 
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2">';
+	htmlProduced += '<div class="col text-left">Target Object:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(targetName);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj structure Type
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">N. Changes:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(targetCurrValue[2]);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+
+	if (event['data']['origin'] == 'obj') {
+		htmlProduced += '<div class="col text-left">Source Object:';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col-md-auto text-left">';
+		if (event['data']['fromObj'] != 'HC') {
+			repeater = event['data']['fromIdxs'].length;
+			if (targetCurrValue[2] > repeater) {
+				displayNote = true;
+			}
+			if (event['data']['fromObj'] == 'ABD') {
+				foundEvent = findEventId(event['data']['fromId'], event['data']['fromState']);
+				sourceName = getCommonObjNameById(event['data']['fromId']);
+				htmlProduced += '<a href="#" id="eId-{}" onclick="processEventClick(this.id)"><u>{}</u></a>'.format(
+					foundEvent,
+					sourceName
+				);
+			} else {
+				let firstElement = [ 'Obj', 'Not-tracked' ];
+
+				htmlProduced += '{}'.format(mkTooltipOneLine(firstElement, event['data']['name']));
+			}
+		} else {
+			htmlProduced += 'User-Typed';
+		}
+	} else {
+		htmlProduced += '<div class="col text-left">Source Event:';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col-md-auto text-left">';
+		let sourceEvent = events[event['data']['fromEvent']];
+
+		switch (sourceEvent['type']) {
+			case types.RET:
+				htmlProduced += '{}() return'.format(getCodeFlowObjNameById(sourceEvent['atFunc']));
+
+				break;
+			case types.ARITH:
+				htmlProduced += 'Arithmetic expr.';
+				break;
+		}
+	}
+
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Final values:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(mkTooltip(targetCurrValue));
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	if (displayNote) {
+		htmlProduced += '<div class="row">';
+		htmlProduced +=
+			'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note:Source values repeated!! (less source indexes than targeted)';
+		htmlProduced += '</div>';
+		htmlProduced += '</div>';
+	}
+
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Changes breakdown';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//second section table start
+	htmlProduced += '<table class="table table-sm mt-2">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced += '<th class ="text-center" scope="col">Target</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Source</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Value</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-center">';
+	let j, i;
+
+	for (j = 0, i = 0; j < targetObj['modList'][targetState]['numMods']; j++, i++) {
+		let currMod = targetObj['modList'][targetState]['mods'][j];
+		if (i == repeater) i = 0;
+		htmlProduced += '<tr>';
+		htmlProduced += '<td>{}[{}]</td>'.format(targetName, currMod['index'] + 1);
+		htmlProduced += '<td>';
+		if (event['data']['origin'] == 'obj') {
+			switch (event['data']['fromObj']) {
+				case 'HC':
+					htmlProduced += 'U-T';
+					//hardcoded value
+					break;
+				case 'R':
+					//r object
+					htmlProduced += '{}[{}]'.format(event['data']['name'], i + 1);
+					break;
+				default:
+					htmlProduced += '{}[{}]'.format(sourceName, i + 1);
+					//abd object
+					break;
+			}
+		} else {
+			let sourceEvent = events[event['data']['fromEvent']];
+
+			switch (sourceEvent['type']) {
+				case types.RET:
+					htmlProduced += '{}() return'.format(getCodeFlowObjNameById(sourceEvent['atFunc']));
+
+					break;
+				case types.ARITH:
+					htmlProduced += sourceEvent['data']['exprStr'];
+					break;
+			}
+		}
+		htmlProduced += '</td>';
+		htmlProduced += '<td>{}</td>'.format(currMod['newValue']);
+
+		htmlProduced += '</tr>';
+	}
+
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
 function produceModalContent(eventId) {
 	let content = {
 		title: '',
@@ -960,7 +1103,7 @@ function produceModalContent(eventId) {
 			break;
 		case types.IDX:
 			content.title = 'Index change analysis';
-			content.body = '';
+			content.body = mkIdxChangeModalInfo(event, eventId);
 			break;
 		case types.RET:
 			content.title = 'Return analysis';
@@ -1140,7 +1283,7 @@ function positionLink2(d) {
 }
 
 function positionLink1(d) {
-	var dr = -500;
+	var dr = 0;
 	let min = Number.MAX_SAFE_INTEGER;
 	let best = {
 		s: { x: 0, y: 0 },

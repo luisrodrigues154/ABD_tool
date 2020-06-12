@@ -15,6 +15,8 @@ void initEnvStack(SEXP startingEnv)
     envStack->prev = ABD_NOT_FOUND;
     envStack->funcObj = ABD_OBJECT_NOT_FOUND;
     envStack->args = ABD_OBJECT_NOT_FOUND;
+    envStack->onBranch = FALSE;
+    envStack->branchDepth = 0;
     initialEnv = startingEnv;
 }
 SEXP getInitialEnv()
@@ -24,6 +26,29 @@ SEXP getInitialEnv()
 void freeEnv(ABD_ENV_STACK *env)
 {
     free(env);
+}
+
+void setOnBranch(Rboolean onBranch)
+{
+    envStack->onBranch = onBranch;
+}
+
+Rboolean onBranch()
+{
+    return envStack->onBranch;
+}
+
+void incBranchDepth()
+{
+    envStack->branchDepth++;
+}
+void decBranchDepth()
+{
+    envStack->branchDepth--;
+}
+short getCurrBranchDepth()
+{
+    return envStack->branchDepth;
 }
 
 ABD_ENV_STACK *memAllocEnvStack()
@@ -39,6 +64,8 @@ void envPush(SEXP newRho, ABD_OBJECT *funcObj)
     newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
+    envStack->onBranch = FALSE;
+    envStack->branchDepth = 0;
     puts("env pushed");
 }
 char *envToStr(SEXP rho)

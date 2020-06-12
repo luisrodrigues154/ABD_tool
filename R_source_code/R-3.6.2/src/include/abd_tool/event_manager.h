@@ -47,10 +47,6 @@ void initEventsReg()
     possibleRet = R_NilValue;
     possibleRetLine = 0;
 
-    /* branchDepth */
-    branchDepth = 0;
-    onBranch = FALSE;
-
     /* registry*/
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
@@ -760,6 +756,7 @@ void setIfEventValues(SEXP statement, Rboolean result)
             currEvent->globalResult = result;
             currEvent->isElse = 0;
             currEvent->isElseIf = 1;
+            exprId = 0;
             currEvent->expr = processIfStmt(statement, 1);
             PrintInit(&pars, getCurrentEnv());
             currEvent->exprStr = getStrForStatement(statement, &pars);
@@ -771,6 +768,7 @@ void setIfEventValues(SEXP statement, Rboolean result)
         currEvent->isElse = 0;
         currEvent->isElseIf = 0;
         currEvent->globalResult = result;
+        exprId = 0;
         currEvent->expr = processIfStmt(statement, 1);
         PrintInit(&pars, getCurrentEnv());
         currEvent->exprStr = getStrForStatement(statement, &pars);
@@ -778,8 +776,8 @@ void setIfEventValues(SEXP statement, Rboolean result)
 
     if (result)
     {
-        onBranch = TRUE;
-        branchDepth++;
+        setOnBranch(TRUE);
+        incBranchDepth();
         setIsWaitingIf(0);
     }
 }
@@ -789,6 +787,7 @@ void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEX
     eventsRegTail->data.func_event->toEnv = newRho;
     eventsRegTail->data.func_event->caller = getCurrFuncObj();
     eventsRegTail->data.func_event->called = calledObj;
+    eventsRegTail->branchDepth = getCurrBranchDepth();
     eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs, newRho, calledObj);
     envPush(newRho, calledObj);
 }
@@ -829,11 +828,12 @@ void tmpStoreArith(SEXP call, SEXP ans)
 {
     if (arithResults == ABD_NOT_FOUND)
     {
-        arithScriptLn = getCurrScriptLn();
+
         arithResults = (SEXP *)malloc(sizeof(SEXP) * 10);
         for (int i = 0; i < 10; i++)
             arithResults[i] = R_NilValue;
     }
+    arithScriptLn = getCurrScriptLn();
     arithResults[++currArithIndex] = ans;
     finalArithAns = ans;
     finalArithCall = call;
@@ -883,7 +883,7 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
     }
-    newEvent->branchDepth = branchDepth;
+    newEvent->branchDepth = getCurrBranchDepth();
     newEvent->atFunc = getCurrFuncObj();
     newEvent->env = getCurrentEnv();
     newEvent->type = newEventType;
@@ -933,7 +933,7 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
 
     lastArithEvent->globalResult = REAL(finalArithAns)[0];
     currArithIndex = -1;
-
+    exprId = 0;
     lastArithEvent->expr = processIfStmt(finalArithCall, 0);
     eventsRegTail->scriptLn = arithScriptLn;
     R_PrintData pars;
@@ -1273,10 +1273,9 @@ ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
 {
     if (idxChanges->srcIdxs == R_NilValue)
     {
-        idxEvent->nIdxs = Rf_length(idxChanges->destIdxs);
+        idxEvent->nIdxs = 1;
         idxEvent->fromIdxs = memAllocIntVector(idxEvent->nIdxs);
-        for (int i = 0; i < idxEvent->nIdxs; i++)
-            idxEvent->fromIdxs[i] = i;
+        idxEvent->fromIdxs[0] = 0;
         return idxEvent;
     }
     int destIdxSize = Rf_length(idxChanges->destIdxs);
@@ -1293,6 +1292,7 @@ ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
             idxEvent->fromIdxs[i] = INTEGER(idxChanges->srcIdxs)[i];
             break;
         }
+        idxEvent->fromIdxs[i]--;
     }
 
     /* int *srcIdxsUsed = ABD_OBJECT_NOT_FOUND;

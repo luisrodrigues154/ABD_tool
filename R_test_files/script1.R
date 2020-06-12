@@ -1,6 +1,6 @@
 options("keep.source"=TRUE)
 run <- function(){
-
+    x <- 20
     abd_start()
 
     j <- 30
@@ -35,12 +35,20 @@ run <- function(){
         f4_abc <- 10
         f4_abc
     }
-
+    abcd <- (30*2)+10*1
     ret2 <- f1(a,b,1,2,j,4)
+    if((ret2 > 10) ||(ret2 > x+10)){
+        print("maior")
+    }else if(ret2 == 11){
+        print("qq coisa")
+    }else{
+        if(1==1){
+            result <- f2(10,11)
+        }
+    }
+    
 
-    result <- f2(10,11)
-
-    result3 <- f3(10)
+    j[2:5] <- f3(10)
 
     f4()
 

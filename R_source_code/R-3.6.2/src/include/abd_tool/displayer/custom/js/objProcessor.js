@@ -222,7 +222,8 @@ function getObjCurrValue(id, state, index) {
 			currentValue.push(cmnObj[id]['modList'][state]['values']);
 		} else {
 			var numMods = cmnObj[id]['modList'][state]['numMods'];
-			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods].length);
+
+			currentValue.push(numMods);
 			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods]);
 		}
 	} else {
@@ -260,7 +261,7 @@ function vectorToStr(size, vector) {
 function structToStr(objCurrentValues) {
 	switch (objCurrentValues[0]) {
 		case structTypes.vec:
-			return vectorToStr(objCurrentValues[2], objCurrentValues[3]);
+			return vectorToStr(objCurrentValues[3].length, objCurrentValues[3]);
 		case structTypes.mtx:
 			return '';
 		default:

@@ -138,6 +138,8 @@ char *getStrForType(SEXPTYPE type)
 
 int baseVecSize;
 void *baseVecValues;
+
+SEXPTYPE prevType;
 void writeVectorValues(FILE *out, int indent, SEXPTYPE type, void *vector, int nElements, FILE *dispOut)
 {
     fprintf(out, "[");
@@ -161,9 +163,50 @@ void writeVectorValues(FILE *out, int indent, SEXPTYPE type, void *vector, int n
     fprintf(out, "]");
     fprintf(dispOut, "]");
 }
+
+void *getNewVectorFromType(SEXPTYPE newType, SEXPTYPE oldType, void *vector, int vectorSize)
+{
+    void *newVector;
+    switch (oldType)
+    {
+    case INTSXP:
+        switch (newType)
+        {
+        case REALSXP:
+            newVector = memAllocDoubleVector(vectorSize);
+            for (int i = 0; i < vectorSize; i++)
+                ((double *)newVector)[i] = (double)(((int *)vector)[i]);
+            break;
+        case STRSXP:
+            //convert int to string here
+            break;
+        default:
+            break;
+        }
+        break;
+
+    case REALSXP:
+        switch (newType)
+        {
+        case STRSXP:
+            //convert REAL to string here
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    default:
+        break;
+    }
+    return newVector;
+}
+
 void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
 {
     SEXPTYPE type = vecObj->type;
+
     if (vecObj->idxChange)
     {
         fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
@@ -177,6 +220,11 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         fprintf(dispOut, "\"mods\" : [");
 
         //nCols represent number of modifications
+        puts("");
+
+        if (prevType != type)
+            baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
+
         for (int i = 0; i < vecObj->nCols; i++)
         {
             int idx = vecObj->idxs[i];
@@ -212,12 +260,13 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         writeVectorValues(out, INDENT_7, type, baseVecValues, baseVecSize, dispOut);
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "]");
+        prevType = type;
     }
     else
     {
         baseVecSize = vecObj->nCols;
         baseVecValues = vecObj->vector;
-
+        prevType = type;
         fprintf(out, "\n%s\"dataType\" : \"%s\",", getStrFromIndent(INDENT_5), getStrForType(type));
         fprintf(dispOut, "\"dataType\" : \"%s\",", getStrForType(type));
         fprintf(out, "\n%s\"vecMod\" : false,", getStrFromIndent(INDENT_5));

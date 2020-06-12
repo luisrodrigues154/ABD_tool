@@ -14,6 +14,8 @@ typedef struct abd_env_stack
     SEXP rho;
     ABD_OBJECT *funcObj;
     ABD_EVENT_ARG *args;
+    short branchDepth;
+    Rboolean onBranch;
     struct abd_env_stack *prev;
 } ABD_ENV_STACK;
 
@@ -33,3 +35,8 @@ ABD_SEARCH cmpToCurrEnv(SEXP rho);
 SEXP getCurrentEnv();
 ABD_OBJECT *getCurrFuncObj();
 char *envToStr(SEXP rho);
+void setOnBranch(Rboolean onBranch);
+Rboolean onBranch();
+void incBranchDepth();
+void decBranchDepth();
+short getCurrBranchDepth();
