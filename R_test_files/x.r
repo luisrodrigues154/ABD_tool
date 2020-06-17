@@ -1,17 +1,22 @@
-abd_start()
-    
-a <- 10
-b <- c(1,2,3,4,5)
+options("keep.source" = TRUE)
+run <- function(){
 
-b[1] <- 20
-b[2] <- 30
-if((b[3]>a) && (30>b)){
-    print("else")
-}else if(a>20){
-    print("444")
-}else{
+    abd_start()
+    z <- 1:3
+    for(x in z){
+        for(y in z){
+            
+            if(y == 2){
+                print("break")
+                break
+            }
+                
+        }
+        print("after break")
+    }
+
     
-    x <- 20
+    abd_stop()
 }
 
-abd_stop()
+run()

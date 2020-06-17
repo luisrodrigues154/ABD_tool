@@ -84,7 +84,7 @@ void abd_help()
     printf("\t##################################################\n\n\n");
 }
 
-static void PrintDaCall(SEXP call, SEXP rho)
+void PrintDaCall(SEXP call, SEXP rho)
 {
     int old_bl = R_BrowseLines,
         blines = asInteger(GetOption1(install("deparse.max.lines")));
@@ -133,6 +133,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     // PrintDaCall(rhs2, getCurrentEnv());
 
     /* store the new information for the object */
+    printf("change at line: %d\n", getCurrScriptLn());
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
     if (TYPEOF(rhs) != CLOSXP)
@@ -217,7 +218,8 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
+    puts("regArith called");
+    PrintDaCall(call, rho);
     tmpStoreArith(call, ans);
 }
 

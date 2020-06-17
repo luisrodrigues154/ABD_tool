@@ -428,6 +428,7 @@ static R_INLINE SEXP ScalarValue2(SEXP x, SEXP y)
 /* Unary and Binary Operators */
 SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 {
+
 	SEXP ans, arg1, arg2;
 	int argc;
 
@@ -453,6 +454,7 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 
 		if (IS_SCALAR(arg1, REALSXP))
 		{
+			Rboolean hitDefault = FALSE;
 			double x1 = SCALAR_DVAL(arg1);
 			if (IS_SCALAR(arg2, REALSXP))
 			{
@@ -472,8 +474,14 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 				case DIVOP:
 					SET_SCALAR_DVAL(ans, x1 / x2);
 					break;
+				default:
+					hitDefault = TRUE;
+					break;
 				}
-				regArith(call, ans, env);
+
+				if (!hitDefault)
+					regArith(call, ans, env);
+
 				return ans;
 			}
 			else if (IS_SCALAR(arg2, INTSXP))
@@ -495,7 +503,12 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 				case DIVOP:
 					SET_SCALAR_DVAL(ans, x1 / x2);
 					return ans;
+				default:
+					hitDefault = TRUE;
+					break;
 				}
+				if (!hitDefault)
+					regArith(call, ans, env);
 			}
 		}
 		else if (IS_SCALAR(arg1, INTSXP))
@@ -580,11 +593,17 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 
 	if (argc == 2)
-		return R_binary(call, op, arg1, arg2);
+	{
+		ans = R_binary(call, op, arg1, arg2);
+		regArith(call, ans, env);
+		return ans;
+	}
 	else if (argc == 1)
 		return R_unary(call, op, arg1);
 	else
 		errorcall(call, _("operator needs one or two arguments"));
+	if (isRunning())
+		puts("at end");
 	return ans; /* never used; to keep -Wall happy */
 }
 
@@ -1031,6 +1050,7 @@ static SEXP integer_binary(ARITHOP_TYPE code, SEXP s1, SEXP s2, SEXP lcall)
 		double *pa = REAL(ans);
 		const int *px1 = INTEGER_RO(s1);
 		const int *px2 = INTEGER_RO(s2);
+
 		MOD_ITERATE2_CHECK(NINTERRUPT, n, n1, n2, i, i1, i2, {
 			if ((x1 = px1[i1]) == 1 || (x2 = px2[i2]) == 0)
 				pa[i] = 1.;
@@ -1307,6 +1327,7 @@ static SEXP real_binary(ARITHOP_TYPE code, SEXP s1, SEXP s2)
 			MOD_ITERATE2_CHECK(NINTERRUPT, n, n1, n2, i, i1, i2,
 							   da[i] = R_POW(px1[i1], R_INTEGER(px2[i2])););
 		}
+
 		break;
 	case MODOP:
 		if (TYPEOF(s1) == REALSXP && TYPEOF(s2) == REALSXP)

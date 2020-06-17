@@ -62,7 +62,7 @@ static SEXP finalArithCall;
 static SEXP *arithResults;
 static int currArithIndex;
 static int arithScriptLn;
-
+static short exprId;
 /* Stores Vector creation values related*/
 static SEXP vecValues;
 static SEXP auxVecCall;

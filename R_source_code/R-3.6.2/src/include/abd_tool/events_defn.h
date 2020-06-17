@@ -44,7 +44,8 @@ typedef struct if_expr
     short exprId;
     char *operator; // '>', '<', '|' , '+', '-' , (...)
     int isConfined; // 1 - True, 0 - False -> indicates if is inside parentheses
-    double result;  // 1 - True; 0 - False (if operator is arith then is the result of arith)
+    //short resultSize;
+    double result; // 1 - True; 0 - False (if operator is arith then is the result of arith)
     /* 
             in the end, the left_data and right_data will have the type IF_ABD 
         */

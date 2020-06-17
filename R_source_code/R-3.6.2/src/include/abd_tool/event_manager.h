@@ -334,11 +334,12 @@ int inCollection(const char *check)
     char *collection[] = {
         "+", "-", "*", "/",
         "==", "!=", "<", ">", "<=", ">=",
-        "&", "|", "&&", "||", "!", "["};
-    int nCollection = 16;
+        "&", "|", "&&", "||", "!", "[", "**", "^"};
+    int nCollection = 18;
 
     for (int i = 0; i < nCollection; i++)
     {
+        //printf("checking: %s == %s\n", check, collection[i]);
         if (strcmp(check, collection[i]) == 0)
             return 1;
     }
@@ -546,6 +547,7 @@ char *getObjStr(IF_ABD_OBJ *objStruct)
 
 void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
 {
+    puts("1");
     if (newExpr->left_type == IF_EXPR)
         sprintf(stmtStr, "%s%.2f", stmtStr, ((IF_EXPRESSION *)newExpr->left_data)->result);
     else
@@ -555,6 +557,7 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
         {
             // hardcoded, get value
             ABD_OBJECT_MOD *objValue = ((IF_ABD_OBJ *)newExpr->left_data)->objValue;
+
             sprintf(stmtStr, "%s%.4f", stmtStr, ((double *)objValue->value.vec_value->vector)[0]);
         }
         else
@@ -580,7 +583,7 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
     if (newExpr->isConfined)
         sprintf(stmtStr, "%s)", stmtStr);
 }
-short exprId = 0;
+
 IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
 {
 
@@ -670,7 +673,6 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
         // can be if(a) or if(1), etc...
         puts("just a single number in here...");
     }
-
     mkStrForCmp(newExpr, stmtStr);
     setWatcherState(ABD_DISABLE);
     if (withEval)
@@ -688,7 +690,28 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
         if (lastArithEvent != ABD_EVENT_NOT_FOUND)
         {
             /* pick from the results array */
-            newExpr->result = REAL(arithResults[++currArithIndex])[0];
+            puts("enter");
+
+            printf("statment: %s\n", stmtStr);
+
+            PrintIt(arithResults[++currArithIndex], getCurrentEnv());
+            newExpr->result = REAL(arithResults[currArithIndex])[0];
+            printf("result: %.4f\n", newExpr->result);
+            /* int arithLen = Rf_length(arithResults[++currArithIndex]);
+
+        
+            //newExpr->resultSize = arithLen;
+            if (arithLen > 1)
+            {
+            }
+            else
+            {
+                printf("statment: %s\n", stmtStr);
+                newExpr->result = REAL(arithResults[currArithIndex])[0];
+                printf("result: %.4f\n", newExpr->result);
+            }
+ */
+            puts("exit");
         }
     }
     setWatcherState(ABD_ENABLE);
@@ -929,6 +952,7 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
         check if the answer from the arith is being used, if not, create the event and return NULL 
         otherwise return the lastArithEvent
     */
+    puts("inside pending");
     createNewEvent(ARITH_EVENT);
 
     lastArithEvent->globalResult = REAL(finalArithAns)[0];

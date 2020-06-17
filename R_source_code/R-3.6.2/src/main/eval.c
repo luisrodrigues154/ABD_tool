@@ -2465,10 +2465,12 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 	case CTXT_NEXT:
 		goto for_next;
 	}
-
+	if (isRunning())
+		printf("starting loop at line: %d\n", getCurrScriptLn());
 	for (i = 0; i < n; i++)
 	{
-
+		if (isRunning())
+			printf("iteration %d\n", i + 1);
 		switch (val_type)
 		{
 
@@ -2537,6 +2539,8 @@ for_break:
 	DECREMENT_LINKS(val);
 	UNPROTECT(5);
 	SET_RDEBUG(rho, dbg);
+	if (isRunning())
+		printf("finishing loop at line: %d\n", getCurrScriptLn());
 	return R_NilValue;
 }
 
@@ -3461,7 +3465,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-		/* falls through */
+					/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;
@@ -7644,6 +7648,7 @@ static SEXP bcEval(SEXP body, SEXP rho, Rboolean useCache)
 			BCNPUSH(value);
 			NEXT();
 		}
+
 		OP(UMINUS, 1) : FastUnary(-, R_SubSym);
 		OP(UPLUS, 1) : FastUnary(+, R_AddSym);
 		OP(ADD, 1) : FastBinary(R_ADD, PLUSOP, R_AddSym);

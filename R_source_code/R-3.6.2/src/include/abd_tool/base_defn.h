@@ -71,3 +71,4 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho);
 int getSt();
 void storePossibleRet(SEXP promRet);
 void finalizeVarIdxChange(SEXP y, SEXP rho);
+void PrintDaCall(SEXP call, SEXP rho);
