@@ -15,6 +15,7 @@ typedef struct abd_env_stack
     ABD_OBJECT *funcObj;
     ABD_EVENT_ARG *args;
     short branchDepth;
+    Rboolean funCallRegged;
     Rboolean onBranch;
     struct abd_env_stack *prev;
 } ABD_ENV_STACK;

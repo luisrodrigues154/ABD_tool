@@ -1873,14 +1873,14 @@ SEXP applyClosure(SEXP call, SEXP op, SEXP arglist, SEXP rho, SEXP suppliedvars)
 	*/
 	SEXP lhs = CAR(call);
 
-	ABD_SEARCH result = regFunCall(lhs, rho, newrho, arglist, actuals);
+	regFunCall(lhs, rho, newrho, arglist, actuals);
 
 	SEXP val = R_execClosure(call, newrho,
 							 (R_GlobalContext->callflag == CTXT_GENERIC) ? R_GlobalContext->sysparent : rho,
 							 rho, arglist, op);
 
 	//if not running nor objFound result == ABD_NOT_EXIST
-	if (result == ABD_EXIST)
+	if (isFunCallRegged())
 		regFunRet(lhs, rho, val);
 
 #ifdef ADJUST_ENVIR_REFCNTS
@@ -1921,15 +1921,6 @@ static R_INLINE SEXP R_execClosure(SEXP call, SEXP newrho, SEXP sysparent,
 	begincontext(&cntxt, CTXT_RETURN, call, newrho, sysparent, arglist, op);
 
 	body = BODY(op);
-
-	/* if (R_CheckJIT(op))
-	{
-		int old_enabled = R_jit_enabled;
-		R_jit_enabled = 0;
-		R_cmpfun(op);
-		body = BODY(op);
-		R_jit_enabled = old_enabled;
-	} */
 
 	/* Get the srcref record from the closure object. The old srcref was
        saved in cntxt. */
@@ -2426,6 +2417,8 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 	if (R_jit_enabled > 2 && !dbg && !R_disable_bytecode && rho == R_GlobalEnv && isUnmodifiedSpecSym(CAR(call), rho) && R_compileAndExecute(call, rho))
 		return R_NilValue;
 
+	regForLoopStart(call, CADR(args), rho);
+
 	PROTECT(args);
 	PROTECT(rho);
 	PROTECT(val = eval(val, rho));
@@ -2465,12 +2458,10 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 	case CTXT_NEXT:
 		goto for_next;
 	}
-	if (isRunning())
-		printf("starting loop at line: %d\n", getCurrScriptLn());
+
 	for (i = 0; i < n; i++)
 	{
-		if (isRunning())
-			printf("iteration %d\n", i + 1);
+
 		switch (val_type)
 		{
 
@@ -2505,6 +2496,7 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 			case REALSXP:
 				ALLOC_LOOP_VAR(v, val_type, vpi);
 				SET_SCALAR_DVAL(v, REAL_ELT(val, i));
+
 				break;
 			case CPLXSXP:
 				ALLOC_LOOP_VAR(v, val_type, vpi);
@@ -2521,6 +2513,7 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 			default:
 				errorcall(call, _("invalid for() loop sequence"));
 			}
+
 			if (CAR(cell) == R_UnboundValue || !SET_BINDING_VALUE(cell, v))
 				defineVar(sym, v, rho);
 		}
@@ -2530,6 +2523,10 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 			PrintValue(body);
 			do_browser(call, op, R_NilValue, rho);
 		}
+		forValPos = i;
+		//update the iterator with the new value he assumed
+		regVarChange(R_NilValue, sym, v, rho);
+		regForLoopIteration(i, rho);
 		eval(body, rho);
 
 	for_next:; /* needed for strict ISO C compliance, according to gcc 2.95.2 */
@@ -2539,8 +2536,8 @@ for_break:
 	DECREMENT_LINKS(val);
 	UNPROTECT(5);
 	SET_RDEBUG(rho, dbg);
-	if (isRunning())
-		printf("finishing loop at line: %d\n", getCurrScriptLn());
+
+	regForLoopFinish(rho);
 	return R_NilValue;
 }
 

@@ -14,10 +14,10 @@ include $(top_builddir)/Makeconf
 ## When compiling rbitmap.c it is essential that we find the
 ## png.h matching BITMAP_LIBS.  Since /opt/X11 on macOS contains libpng
 ## and we might want our own version, we give priority to BITMAP_*
-ALL_CPPFLAGS =  -I/usr/include/libpng16 $(R_XTRA_CPPFLAGS) $(X_CFLAGS) -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 \
+ALL_CPPFLAGS =  -I/usr/include/libpng16 $(R_XTRA_CPPFLAGS) $(X_CFLAGS)  \
   -I$(top_srcdir)/src/library/grDevices/src/cairo $(CPPFLAGS) $(DEFS)
 ALL_CFLAGS = $(ALL_CFLAGS_LO)
-ALL_X_LIBS = $(X_PRE_LIBS) -lpangocairo-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lpng16 -lz -lcairo -lX11 -lXext $(X_LIBS) $(X_EXTRA_LIBS)
+ALL_X_LIBS = $(X_PRE_LIBS)  $(X_LIBS) $(X_EXTRA_LIBS)
 
 SOURCES = devX11.c rotated.c rbitmap.c 
 DEPENDS = $(SOURCES:.c=.d)
@@ -102,6 +102,7 @@ devX11.o: devX11.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
  ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
+ ../../../src/include/libintl.h \
  ../../../src/include/R_ext/GraphicsEngine.h \
  ../../../src/include/R_ext/GraphicsDevice.h \
  ../../../src/include/Fileio.h rotated.h \

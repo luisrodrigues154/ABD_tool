@@ -30,7 +30,7 @@ PKG_CPPFLAGS =-I../../../include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H
 PKG_LIBS = $(AQUA_LIBS) -lz
 
 all: Makedeps
-	@$(MAKE) shlib  cairodevice
+	@$(MAKE) shlib # cairodevice
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

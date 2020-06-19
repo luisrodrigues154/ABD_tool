@@ -7,10 +7,10 @@ abs_top_builddir = /home/luis/Documents/Repos/ABD_tool/R_source_code/R-3.6.2
 include $(top_srcdir)/share/make/vars.mk
 
 AR = ar
-ACLOCAL = aclocal
-AUTOCONF = autoconf
+ACLOCAL = $(SHELL) "$(abs_top_srcdir)/tools/missing" aclocal
+AUTOCONF = $(SHELL) "$(abs_top_srcdir)/tools/missing" autoconf
 AUTOMAKE = @AUTOMAKE@
-AUTOHEADER = autoheader
+AUTOHEADER = $(SHELL) "$(abs_top_srcdir)/tools/missing" autoheader
 BLAS_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRblas
 BUILDDIR_IS_SRCDIR = yes
 CC = gcc
@@ -39,7 +39,7 @@ FLIBS =  -lgfortran -lm -lquadmath
 FLIBS_IN_SO =  -lgfortran -lm -lquadmath
 FPICFLAGS = -fpic
 FC = gfortran
-GETWD = /bin/pwd
+GETWD = /usr/bin/pwd
 GZIP = --best
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -56,7 +56,7 @@ LIBR =
 ## Many of these used to be optional: ICU libs still are.
 ## There may be platform-specific ones, e.g.
 ## -lrt -ldl on Linux, -lnsl -lsocket -lrt -lsunmath -ldl -liconv on Solaris.
-LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
+LIBS =  -lpcre2-8 -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
 LIBnn = lib
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 ## AFAICS unused
@@ -72,7 +72,7 @@ NOTANGLE = notangle
 R_ARCH = 
 R_DYLIB_EXT = .so
 R_FRAMEWORK_DIR = $(prefix)/R.framework
-R_GZIPCMD = /bin/gzip
+R_GZIPCMD = /usr/bin/gzip
 ## needed for AIX only
 # R_HOME = $(top_builddir)
 R_OPENMP_CFLAGS = -fopenmp
@@ -87,7 +87,7 @@ R_XTRA_CPPFLAGS =  -I. -I$(top_builddir)/src/include -I$(top_srcdir)/src/include
 R_XTRA_FFLAGS = -fno-optimize-sibling-calls
 RANLIB = ranlib
 READLINE_LIBS = -lreadline 
-SED = /bin/sed
+SED = /usr/bin/sed
 SHELL = /bin/bash
 SHLIB_EXT = .so
 SHLIB_CFLAGS = 
@@ -98,7 +98,7 @@ SHLIB_LINK = $(SHLIB_LD) $(SHLIB_LDFLAGS) $(LIBR0) $(LDFLAGS)
 SHLIB_LTO = $(CFLAGS) $(CPICFLAGS)
 STRIP_SHARED_LIB = strip --strip-unneeded
 STRIP_STATIC_LIB = strip --strip-debug
-TAR = /bin/tar
+TAR = /usr/bin/tar
 USE_NLS = yes
 X_CFLAGS = 
 X_LIBS =  -lX11 -lXt -lXmu

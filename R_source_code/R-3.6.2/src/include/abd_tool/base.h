@@ -54,10 +54,7 @@ void abd_start(SEXP rho)
     setWatcherState(ABD_ENABLE);
     setVerboseMode(ABD_ENABLE);
 }
-void mkCopiesToDisplayer()
-{
-}
-SEXP testStore;
+
 void abd_stop()
 {
     if (isRunning())
@@ -102,6 +99,11 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
     processVarIdxChange(result);
+    if (inLoopEvent())
+    {
+        addEventToForIteration(eventsRegTail);
+        puts("index changed added");
+    }
 }
 void regVarIdxChange(SEXP call, SEXP rho)
 {
@@ -128,14 +130,19 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
-
     // puts("rhs2 V");
     // PrintDaCall(rhs2, getCurrentEnv());
-
+    //printf("typeof lhs %d\n", TYPEOF(rhs));
+    printf("called for var: %s... rhs type %d\n", CHAR(PRINTNAME(lhs)), TYPEOF(rhs));
     /* store the new information for the object */
-    printf("change at line: %d\n", getCurrScriptLn());
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
+    if (inLoopEvent() && call == R_NilValue && forStack->currFor->iterator == ABD_OBJECT_NOT_FOUND)
+    {
+
+        forStack->currFor->iterator = objUsed;
+        printf("curr for iterator %d\n", forStack->currFor->iterator->id);
+    }
     if (TYPEOF(rhs) != CLOSXP)
     {
         //need to extract the rhs from the call
@@ -145,6 +152,10 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     }
 
     clearPendingVars();
+    if (inLoopEvent() && call != R_NilValue)
+    {
+        addEventToForIteration(eventsRegTail);
+    }
 }
 
 void decrementBranchDepth(SEXP rho)
@@ -168,28 +179,45 @@ ABD_SEARCH checkToReg(SEXP rho)
     return cmpToCurrEnv(rho);
 }
 
-ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
+void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
-        return ABD_NOT_EXIST;
+        return;
 
     ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
 
     if (objFound == ABD_OBJECT_NOT_FOUND)
-        return ABD_NOT_EXIST;
+        return;
 
     createNewEvent(FUNC_EVENT);
     setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
-
-    return ABD_EXIST;
+    setFunCallRegged(TRUE);
+    if (inLoopEvent())
+        addEventToForIteration(eventsRegTail);
 }
-
+Rboolean isFunCallRegged()
+{
+    if (!isRunning())
+        return FALSE;
+    return getFunCalledFlag();
+}
 void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
+    puts("received vector");
+    PrintDaCall(vector, rho);
+
+    if (waitingForVecs)
+    {
+        storeVecForEvent(vector);
+
+        if (!waitingForVecs)
+            finalizeForEventProcessing();
+        return;
+    }
     if (waitingIdxChange)
     {
         if (toDiscard())
@@ -212,14 +240,44 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
+    if (inLoopEvent())
+        addEventToForIteration(eventsRegTail);
+}
+
+void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+
+    clearPendingVars();
+    ABD_FOR_LOOP_EVENT *newForLoopEvent = createNewEvent(FOR_EVENT)->data.for_loop_event;
+    setForEventValues(newForLoopEvent, enumerator);
+}
+void regForLoopIteration(int iterId, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+
+    createNewForLoopIter(iterId);
+}
+
+void regForLoopFinish(SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+
+    printf("eventRegstail null %s\n", eventsRegTail == NULL ? "yes" : "no");
+    forStack->currFor->lastEvent = eventsRegTail;
+    popForEvent();
+    if (forStack == ABD_EVENT_NOT_FOUND)
+        setInForLoop(FALSE);
 }
 
 void regArith(SEXP call, SEXP ans, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    puts("regArith called");
-    PrintDaCall(call, rho);
+
     tmpStoreArith(call, ans);
 }
 
@@ -234,6 +292,8 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val)
 {
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
+    if (inLoopEvent())
+        addEventToForIteration(eventsRegTail);
 }
 
 ABD_STATE isRunning()

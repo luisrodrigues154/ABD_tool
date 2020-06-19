@@ -5,4 +5,4 @@ altrep.o: altrep.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
- ../../src/include/R_ext/Altrep.h
+ ../../src/include/libintl.h ../../src/include/R_ext/Altrep.h

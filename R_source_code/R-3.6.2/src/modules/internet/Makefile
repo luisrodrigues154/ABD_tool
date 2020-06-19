@@ -87,7 +87,8 @@ Rhttpd.o: Rhttpd.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
  ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- ../../../src/include/Fileio.h ../../../src/include/Rconnections.h \
+ ../../../src/include/libintl.h ../../../src/include/Fileio.h \
+ ../../../src/include/Rconnections.h \
  ../../../src/include/R_ext/Connections.h \
  ../../../src/include/Rmodules/Rinternet.h \
  ../../../src/include/R_ext/eventloop.h
@@ -104,7 +105,8 @@ internet.o: internet.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
  ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- ../../../src/include/Fileio.h ../../../src/include/Rconnections.h \
+ ../../../src/include/libintl.h ../../../src/include/Fileio.h \
+ ../../../src/include/Rconnections.h \
  ../../../src/include/R_ext/Connections.h \
  ../../../src/include/R_ext/R-ftp-http.h \
  ../../../src/include/Rmodules/Rinternet.h sock.h \
@@ -117,14 +119,14 @@ libcurl.o: libcurl.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
  ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- ../../../src/include/Internal.h ../../../src/include/Fileio.h \
- ../../../src/include/Rconnections.h \
+ ../../../src/include/libintl.h ../../../src/include/Internal.h \
+ ../../../src/include/Fileio.h ../../../src/include/Rconnections.h \
  ../../../src/include/R_ext/Connections.h
 nanoftp.o: nanoftp.c ../../../src/include/config.h \
- ../../../src/include/R_ext/R-ftp-http.h \
+ ../../../src/include/libintl.h ../../../src/include/R_ext/R-ftp-http.h \
  ../../../src/include/R_ext/eventloop.h
 nanohttp.o: nanohttp.c ../../../src/include/config.h \
- ../../../src/include/R_ext/R-ftp-http.h \
+ ../../../src/include/libintl.h ../../../src/include/R_ext/R-ftp-http.h \
  ../../../src/include/R_ext/eventloop.h
 sock.o: sock.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Error.h sock.h
@@ -136,6 +138,6 @@ sockconn.o: sockconn.c ../../../src/include/config.h \
  ../../../src/include/R_ext/Memory.h ../../../src/include/R_ext/Utils.h \
  ../../../src/include/R_ext/Print.h ../../../src/include/R_ext/Rdynload.h \
  ../../../src/include/Rinlinedfuns.h ../../../src/include/Errormsg.h \
- ../../../src/include/Rconnections.h \
+ ../../../src/include/libintl.h ../../../src/include/Rconnections.h \
  ../../../src/include/R_ext/Connections.h \
  ../../../src/include/R_ext/R-ftp-http.h sock.h

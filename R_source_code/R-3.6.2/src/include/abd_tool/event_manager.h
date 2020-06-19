@@ -47,6 +47,11 @@ void initEventsReg()
     possibleRet = R_NilValue;
     possibleRetLine = 0;
 
+    /* Forr loop vars*/
+    setInForLoop(FALSE);
+
+    forStack = ABD_EVENT_NOT_FOUND;
+
     /* registry*/
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
@@ -58,9 +63,14 @@ ABD_EVENT *initBaseEvent(ABD_EVENT *newBaseEvent)
 {
     newBaseEvent->id = ++eventCounter;
     newBaseEvent->scriptLn = getCurrScriptLn();
-    newBaseEvent->data.if_event = ABD_NOT_FOUND;
-    newBaseEvent->data.func_event = ABD_NOT_FOUND;
-    newBaseEvent->data.ret_event = ABD_NOT_FOUND;
+    newBaseEvent->data.if_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.func_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.ret_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.asgn_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.arith_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.for_loop_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.idx_event = ABD_EVENT_NOT_FOUND;
+    newBaseEvent->data.vec_event = ABD_EVENT_NOT_FOUND;
     newBaseEvent->nextEvent = ABD_EVENT_NOT_FOUND;
     return newBaseEvent;
 }
@@ -111,6 +121,25 @@ ABD_RET_EVENT *memAllocRetEvent()
 IF_EXPRESSION *memAllocIfExp()
 {
     return (IF_EXPRESSION *)malloc(sizeof(IF_EXPRESSION));
+}
+
+ITERATION *memAllocIteration()
+{
+    return (ITERATION *)malloc(sizeof(ITERATION));
+}
+
+ABD_FOR_LOOP_EVENT *memAllocForLoopEvent()
+{
+    return (ABD_FOR_LOOP_EVENT *)malloc(sizeof(ABD_FOR_LOOP_EVENT));
+}
+ITER_EVENT_LIST *memAllocIterEventList()
+{
+    return (ITER_EVENT_LIST *)malloc(sizeof(ITER_EVENT_LIST));
+}
+
+FOR_CHAIN *memAllocForChain()
+{
+    return (FOR_CHAIN *)malloc(sizeof(FOR_CHAIN));
 }
 
 ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *currArg, ABD_OBJECT *fromObj, ABD_OBJECT *toObj, ABD_OBJECT_MOD *passedValue)
@@ -890,6 +919,9 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
     case IDX_EVENT:
         newBaseEvent->data.idx_event = memAllocIdxEvent();
         break;
+    case FOR_EVENT:
+        newBaseEvent->data.for_loop_event = memAllocForLoopEvent();
+        break;
     default:
         break;
     }
@@ -924,12 +956,6 @@ void clearPendingVars()
 {
     /* reset the pending variables values */
 
-    /* Reset ARITH_EVENT*/
-    lastArithEvent = ABD_EVENT_NOT_FOUND;
-    finalArithAns = R_NilValue;
-    finalArithCall = R_NilValue;
-    arithScriptLn = 0;
-
     /* Reset RET_EVENT */
     lastRetEvent = ABD_EVENT_NOT_FOUND;
     lastRetValue = R_NilValue;
@@ -938,6 +964,16 @@ void clearPendingVars()
     vecValues = R_NilValue;
     auxVecCall = R_NilValue;
     auxVecLine = 0;
+
+    /* ARITH VARS */
+    lastArithEvent = ABD_EVENT_NOT_FOUND;
+    finalArithAns = R_NilValue;
+    finalArithCall = R_NilValue;
+    arithScriptLn = 0;
+    currArithIndex = -1;
+    arithResults = ABD_NOT_FOUND;
+    waitingElseIF = 0;
+    waitingIdxChange = 0;
 }
 
 ABD_EVENT *checkPendingArith(SEXP rhs)
@@ -952,7 +988,7 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
         check if the answer from the arith is being used, if not, create the event and return NULL 
         otherwise return the lastArithEvent
     */
-    puts("inside pending");
+
     createNewEvent(ARITH_EVENT);
 
     lastArithEvent->globalResult = REAL(finalArithAns)[0];
@@ -998,8 +1034,6 @@ void storeVecForIdxChange(SEXP vec)
 
     if (idxChanges->srcVec)
     {
-        puts("received");
-        PrintIt(vec, getCurrentEnv());
         idxChanges->srcValues = vec;
         idxChanges->srcVec = 0;
         waitingIdxChange--;
@@ -1065,8 +1099,9 @@ void preProcessSrc(SEXP call)
 rollback:
     if (TYPEOF(rhs) == LANGSXP)
     {
+        const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
 
-        if (strcmp(CHAR(PRINTNAME(CAR(rhs))), "[") == 0)
+        if (strcmp(rhsChar, "[") == 0)
         {
             //uses another object content
             idxChanges->src = CAR(CDR(rhs));
@@ -1074,7 +1109,7 @@ rollback:
             goto rollback;
         }
 
-        if ((strcmp(CHAR(PRINTNAME(CAR(rhs))), ":") == 0) || (strcmp(CHAR(PRINTNAME(CAR(rhs))), "c") == 0))
+        if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
         {
             //will need to wait for a vector of indexes
             if (idxChanges->src != R_NilValue)
@@ -1399,47 +1434,73 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
             Need to process the rhs (from the call) to parse the origin
         */
         ABD_OBJECT *fromObj = ABD_OBJECT_NOT_FOUND;
-        int withIndex = 0;
-        if (TYPEOF(rhs2) == LANGSXP)
+
+        if (inLoopEvent() && objUsed->id == forStack->currFor->iterator->id)
         {
-            /*
-                GOT AN EXPRESSION
-                Will treat only:
-                    -> a[idx]
-            */
-            if (strcmp(CHAR(PRINTNAME(CAR(rhs2))), "[") == 0)
-            {
-                /* is an index from a variable */
-                withIndex = asInteger(CAR(CDR(CDR(rhs2))));
-                rhs2 = CAR(CDR(rhs2));
-            }
-        }
-        if (TYPEOF(rhs2) == SYMSXP)
-        {
-            if ((fromObj = findCmnObj(CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
-            {
-                //not mapped obj
-                withIndex = (withIndex == 0) ? 1 : withIndex;
-                fromObj = createUnscopedObj(CHAR(PRINTNAME(rhs2)), -2, -2, R_NilValue, 0);
-                currAssign->withIndex = withIndex;
-                currAssign->fromState = ABD_OBJECT_NOT_FOUND;
-            }
+            fromObj = forStack->currFor->enumerator;
+            currAssign->fromState = forStack->currFor->enumState;
+            if (forStack->currFor->fromIdxs != ABD_NOT_FOUND)
+                currAssign->withIndex = forStack->currFor->fromIdxs[forValPos];
             else
-            {
-                currAssign->fromState = fromObj->modList;
-                currAssign->withIndex = withIndex - 1;
-            }
+                currAssign->withIndex = -1;
         }
         else
         {
-            fromObj = createUnscopedObj("NA", -1, -1, R_NilValue, 0);
-            currAssign->fromState = ABD_OBJECT_NOT_FOUND;
-            currAssign->withIndex = -1;
+            int withIndex = 0;
+            if (TYPEOF(rhs2) == LANGSXP)
+            {
+                /*
+                    GOT AN EXPRESSION
+                    Will treat only:
+                        -> a[idx]
+                */
+                if (strcmp(CHAR(PRINTNAME(CAR(rhs2))), "[") == 0)
+                {
+                    /* is an index from a variable */
+                    withIndex = asInteger(CAR(CDR(CDR(rhs2))));
+                    rhs2 = CAR(CDR(rhs2));
+                }
+            }
+            if (TYPEOF(rhs2) == SYMSXP)
+            {
+                if ((fromObj = findCmnObj(CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
+                {
+                    //not mapped obj
+                    withIndex = (withIndex == 0) ? 1 : withIndex;
+                    fromObj = createUnscopedObj(CHAR(PRINTNAME(rhs2)), -2, -2, R_NilValue, 0);
+                    currAssign->withIndex = withIndex;
+                    currAssign->fromState = ABD_OBJECT_NOT_FOUND;
+                }
+                else
+                {
+                    currAssign->fromState = fromObj->modList;
+                    currAssign->withIndex = withIndex - 1;
+                }
+            }
+            else
+            {
+                fromObj = createUnscopedObj("NA", -1, -1, R_NilValue, 0);
+                currAssign->fromState = ABD_OBJECT_NOT_FOUND;
+                currAssign->withIndex = -1;
+            }
         }
-
         currAssign->fromType = ABD_O;
         currAssign->fromObj = fromObj;
     }
+}
+
+Rboolean inLoopEvent()
+{
+    /* 
+        in case more loop types are added, just || all the flags that exist 
+        inForLoop || inRepeatLoop || etc...
+    */
+    return inForLoop;
+}
+
+void setInForLoop(Rboolean state)
+{
+    inForLoop = state;
 }
 
 int getCurrScriptLn()
@@ -1464,6 +1525,232 @@ int getCurrScriptLn()
     /* default: */
     // this happens running Rscript or interactively outside of a function
     return 0;
+}
+void preProcessEnumerator(SEXP enumerator)
+{
+
+    SEXP rhs = enumerator;
+    forStack->currFor->enumSEXP = R_NilValue;
+rollback22:
+    if (TYPEOF(rhs) == LANGSXP)
+    {
+        const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
+        if (strcmp(rhsChar, "[") == 0)
+        {
+            //uses another object content
+            forStack->currFor->enumSEXP = CAR(CDR(rhs));
+            rhs = CAR(CDR(CDR(rhs)));
+            goto rollback22;
+        }
+
+        if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+        {
+
+            if (forStack->currFor->enumSEXP != R_NilValue)
+            {
+                /*  
+                    use a subset of the symbol
+                    this tells that two vectors will be created
+                */
+
+                forIdxsVec = TRUE;
+                forValVec = TRUE;
+                waitingForVecs += 2;
+            }
+            else
+            {
+                forIdxsVec = FALSE;
+                forValVec = TRUE;
+                waitingForVecs++;
+            }
+        }
+    }
+    else
+    {
+        //now try to find the src object in the registry
+        if (TYPEOF(rhs) == SYMSXP)
+        {
+            /*  used the whole symbol as enumerator */
+            forStack->currFor->enumSEXP = rhs;
+        }
+    }
+}
+void createNewForLoopIter(int iterId)
+{
+    ITERATION *currIterList = forStack->currIter;
+    if (currIterList == ABD_EVENT_NOT_FOUND)
+    {
+        //first iteration
+        forStack->currFor->itList = memAllocIteration();
+        forStack->currFor->itList->nextIter = ABD_EVENT_NOT_FOUND;
+        forStack->currIter = forStack->currFor->itList;
+        currIterList = forStack->currIter;
+    }
+    else
+    {
+        //forStack->currIter already end of list, does not need to traverse
+        currIterList->nextIter = memAllocIteration();
+        currIterList = currIterList->nextIter;
+        currIterList->nextIter = ABD_EVENT_NOT_FOUND;
+        forStack->currIter = currIterList;
+    }
+    forStack->currFor->iterCounter++;
+    forStack->currIter->eventsList = ABD_EVENT_NOT_FOUND;
+    forStack->currIter->eventsListTail = ABD_EVENT_NOT_FOUND;
+    forStack->currIter->iterId = ++iterId;
+    forStack->currIter->iteratorState = forStack->currFor->iterator->modList;
+    puts("iteration created");
+}
+
+void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent)
+{
+    if (forStack == ABD_EVENT_NOT_FOUND)
+    {
+        forStack = memAllocForChain();
+        forStack->prevFor = ABD_NOT_FOUND;
+    }
+    else
+    {
+        FOR_CHAIN *newFor = memAllocForChain();
+
+        newFor->prevFor = forStack;
+        forStack = newFor;
+    }
+    setInForLoop(TRUE);
+
+    waitingForVecs = 0;
+    forIdxsVec = FALSE;
+    forValVec = FALSE;
+    forStack->currFor = newForEvent;
+    forStack->currFor->enumSEXP = R_NilValue;
+    forStack->currFor->idxVec = R_NilValue;
+    forStack->currFor->valVec = R_NilValue;
+    forStack->currFor->iterCounter = 0;
+    forStack->currFor->estIterNumber = 0;
+    forStack->currFor->iterator = ABD_OBJECT_NOT_FOUND;
+    forStack->currFor->enumerator = ABD_OBJECT_NOT_FOUND;
+    forStack->currFor->enumState = ABD_OBJECT_NOT_FOUND;
+    forStack->currFor->itList = ABD_NOT_FOUND;
+    forStack->currFor->lastEvent = ABD_EVENT_NOT_FOUND;
+    forStack->currFor->fromIdxs = ABD_NOT_FOUND;
+    forStack->currIter = ABD_EVENT_NOT_FOUND;
+}
+
+void addEventToForIteration(ABD_EVENT *eventToAdd)
+{
+    if (forStack->currIter->eventsListTail == ABD_EVENT_NOT_FOUND)
+    {
+        puts("creating new event list");
+        forStack->currIter->eventsList = memAllocIterEventList();
+        forStack->currIter->eventsListTail = forStack->currIter->eventsList;
+        forStack->currIter->eventsList->nextEvent = ABD_EVENT_NOT_FOUND;
+    }
+    else
+    {
+        forStack->currIter->eventsListTail->nextEvent = memAllocIterEventList();
+        forStack->currIter->eventsListTail = forStack->currIter->eventsListTail->nextEvent;
+        forStack->currIter->eventsListTail->nextEvent = ABD_EVENT_NOT_FOUND;
+    }
+    printf("added event id [%d] to iteration [%d]\n", eventToAdd->id, forStack->currIter->iterId);
+    forStack->currIter->eventsListTail->event = eventToAdd;
+}
+
+void popForEvent()
+{
+    FOR_CHAIN *forChainToPop = forStack;
+
+    forStack = forStack->prevFor;
+    free(forChainToPop);
+}
+
+void finalizeForEventProcessing()
+{
+    ABD_FOR_LOOP_EVENT *currFor = forStack->currFor;
+    if (currFor->enumSEXP != R_NilValue)
+    {
+        // used symbol as values source
+        ABD_OBJECT *foundObj = findCmnObj(CHAR(PRINTNAME(currFor->enumSEXP)), getCurrentEnv());
+
+        if (currFor->idxVec == R_NilValue)
+        {
+            //sourced all the symbol (no values stored)
+            currFor->valVec = getResult(CHAR(PRINTNAME(currFor->enumSEXP)));
+            if (foundObj == ABD_OBJECT_NOT_FOUND)
+                foundObj = createUnscopedObj(CHAR(PRINTNAME(currFor->enumSEXP)), -2, -2, currFor->valVec, 0);
+            currFor->estIterNumber = Rf_length(currFor->valVec);
+            currFor->fromIdxs = memAllocIntVector(currFor->estIterNumber);
+            for (int i = 0; i < currFor->estIterNumber; i++)
+                currFor->fromIdxs[i] = i;
+        }
+        else
+        {
+            // sourced part of the symbol (have values and idx)
+            currFor->estIterNumber = Rf_length(currFor->idxVec);
+            if (foundObj == ABD_OBJECT_NOT_FOUND)
+            {
+                foundObj = createUnscopedObj(CHAR(PRINTNAME(currFor->enumSEXP)), -2, -2, currFor->valVec, 0);
+            }
+
+            currFor->fromIdxs = memAllocIntVector(currFor->estIterNumber);
+            for (int i = 0; i < currFor->estIterNumber; i++)
+            {
+
+                if (TYPEOF(currFor->idxVec) == REALSXP)
+                    currFor->fromIdxs[i] = ((int)(REAL(currFor->idxVec)[i])) - 1;
+                else if (TYPEOF(currFor->idxVec) == INTSXP)
+                    currFor->fromIdxs[i] = INTEGER(currFor->idxVec)[i] - 1;
+            }
+        }
+
+        currFor->enumerator = foundObj;
+        currFor->enumState = foundObj->modList;
+    }
+    else
+    {
+        // declared vector on the fly (harcoded, we got values but not idxs)
+        currFor->enumerator = createUnscopedObj("NA", -1, -1, currFor->valVec, 0);
+        currFor->estIterNumber = Rf_length(currFor->valVec);
+        currFor->enumState = currFor->enumerator->modList;
+        currFor->fromIdxs = memAllocIntVector(currFor->estIterNumber);
+        for (int i = 0; i < currFor->estIterNumber; i++)
+            currFor->fromIdxs[i] = i;
+    }
+}
+
+void storeVecForEvent(SEXP vec)
+{
+    //
+    if (forIdxsVec)
+    {
+        forStack->currFor->idxVec = vec;
+        forIdxsVec = FALSE;
+        waitingForVecs--;
+        return;
+    }
+
+    if (forValVec)
+    {
+        forStack->currFor->valVec = vec;
+        forValVec = FALSE;
+        waitingForVecs--;
+        return;
+    }
+}
+
+void setForEventValues(ABD_FOR_LOOP_EVENT *newForEvent, SEXP enumerator)
+{
+
+    pushForEvent(newForEvent);
+    preProcessEnumerator(enumerator);
+
+    /* printf("iterator... TYPE %d\n", TYPEOF(iterator));
+    PrintIt(iterator, getCurrentEnv());
+
+    printf("enumerator... TYPE %d\n", TYPEOF(enumerator));
+    PrintIt(enumerator, getCurrentEnv());
+ */
+    if (!waitingForVecs)
+        finalizeForEventProcessing();
 }
 
 ABD_SEARCH checkRetStored(SEXP testValue)

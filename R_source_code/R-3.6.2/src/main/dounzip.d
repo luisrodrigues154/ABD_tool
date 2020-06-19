@@ -5,5 +5,5 @@ dounzip.o: dounzip.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
- ../../src/include/Fileio.h unzip.h ../../src/include/Rconnections.h \
- ../../src/include/R_ext/Connections.h
+ ../../src/include/libintl.h ../../src/include/Fileio.h unzip.h \
+ ../../src/include/Rconnections.h ../../src/include/R_ext/Connections.h

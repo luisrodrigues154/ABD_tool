@@ -56,7 +56,7 @@ ABD_STATE isVerbose();
 
 /* Functions used to register events */
 void regVarChange(SEXP, SEXP, SEXP, SEXP);
-ABD_SEARCH regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
+void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 void regFunRet(SEXP lhs, SEXP rho, SEXP val);
 void regVarIdxChange(SEXP call, SEXP rho);
 void regIf(SEXP Stmt, Rboolean result, SEXP rho);
@@ -72,3 +72,5 @@ int getSt();
 void storePossibleRet(SEXP promRet);
 void finalizeVarIdxChange(SEXP y, SEXP rho);
 void PrintDaCall(SEXP call, SEXP rho);
+void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho);
+Rboolean isFunCallRegged();

@@ -13,27 +13,7 @@
 #define loaded_em
 
 //EVENTS LIST
-typedef struct abd_event
-{
-  int id;
-  int scriptLn;
-  ABD_EVENT_TYPE type;
-  short branchDepth;
-  union {
-    ABD_IF_EVENT *if_event;
-    ABD_FUNC_EVENT *func_event;
-    ABD_RET_EVENT *ret_event;
-    ABD_ASSIGN_EVENT *asgn_event;
-    ABD_ARITH_EVENT *arith_event;
-    ABD_VEC_EVENT *vec_event;
-    ABD_IDX_CHANGE_EVENT *idx_event;
-  } data;
-  ABD_OBJECT *atFunc;
-  SEXP env;
-  struct abd_event *nextEvent;
-} ABD_EVENT;
 static int waitingElseIF;
-
 /* struct to manage idx changes*/
 
 static int waitingIdxChange;
@@ -48,6 +28,22 @@ typedef struct
 } IDX_CHANGE;
 
 static IDX_CHANGE *idxChanges;
+
+/* struct to manage for loops (allows nested fors) */
+
+typedef struct for_chain
+{
+  ABD_FOR_LOOP_EVENT *currFor;
+  ITERATION *currIter;
+  struct for_chain *prevFor;
+} FOR_CHAIN;
+
+static Rboolean inForLoop;
+FOR_CHAIN *forStack;
+static short waitingForVecs;
+Rboolean forIdxsVec;
+Rboolean forValVec;
+static int forValPos;
 
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
@@ -107,3 +103,5 @@ ABD_SEARCH checkRetStored(SEXP testValue);
 void storeRetValues(SEXP value);
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);
 void clearPendingVars();
+Rboolean inLoopEvent();
+void setInForLoop(Rboolean state);

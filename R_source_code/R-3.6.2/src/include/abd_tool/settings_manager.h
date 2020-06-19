@@ -44,6 +44,7 @@ char *getCommand()
 char *getJSpath(char *jsFileName)
 {
     int partialPathSize = strlen(displayerPath);
+
     int jsPathSize = strlen("custom/js/");
     jsPathSize += strlen(jsFileName) + 3;
     char *finalPath = (char *)malloc(sizeof(char) * (partialPathSize + jsPathSize + 1));
@@ -52,12 +53,23 @@ char *getJSpath(char *jsFileName)
     strcat(finalPath, "custom/js/");
     strcat(finalPath, jsFileName);
     strcat(finalPath, ".js");
+
     return finalPath;
+}
+
+int findOverflow(const char *path, const char *str)
+{
+
+    char *result = strstr(path, str);
+    int position = result - path;
+    int overflow = strlen(path) - position;
+    return overflow;
 }
 
 void mergePaths(const char *path, int oldPathSize)
 {
-    int overflow = strlen("bin/exec/R");
+    int overflow = findOverflow(path, "bin/exec/R");
+
     char append[] = "src/include/abd_tool/displayer/";
     int appendSize = strlen(append);
     int useAppend = 0;

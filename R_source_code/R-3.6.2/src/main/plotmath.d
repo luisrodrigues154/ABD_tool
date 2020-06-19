@@ -5,6 +5,7 @@ plotmath.o: plotmath.c ../../src/include/config.h \
  ../../src/include/R_ext/Error.h ../../src/include/R_ext/Memory.h \
  ../../src/include/R_ext/Utils.h ../../src/include/R_ext/Print.h \
  ../../src/include/R_ext/Rdynload.h ../../src/include/Rinlinedfuns.h \
- ../../src/include/Errormsg.h ../../src/include/rlocale.h \
- ../../src/include/Rmath.h ../../src/include/R_ext/GraphicsEngine.h \
+ ../../src/include/Errormsg.h ../../src/include/libintl.h \
+ ../../src/include/rlocale.h ../../src/include/Rmath.h \
+ ../../src/include/R_ext/GraphicsEngine.h \
  ../../src/include/R_ext/GraphicsDevice.h

@@ -1008,6 +1008,56 @@ void saveIdxChangeEvent(FILE *out, ABD_IDX_CHANGE_EVENT *idx_event, FILE *dispOu
     }
 }
 
+void saveForLoopEvent(FILE *out, ABD_FOR_LOOP_EVENT *forEvent, FILE *dispOut)
+{
+    ITERATION *currIter = forEvent->itList;
+    fprintf(out, "\n%s\"estimatedIter\" : %d,", getStrFromIndent(INDENT_3), forEvent->estIterNumber);
+    fprintf(out, "\n%s\"iterCounter\" : %d,", getStrFromIndent(INDENT_3), forEvent->iterCounter);
+    fprintf(out, "\n%s\"lastEventId\" : %d,", getStrFromIndent(INDENT_3), forEvent->lastEvent->id);
+    fprintf(out, "\n%s\"iteratorId\" : %d,", getStrFromIndent(INDENT_3), forEvent->iterator->id);
+    fprintf(out, "\n%s\"enumeratorId\" : %d,", getStrFromIndent(INDENT_3), forEvent->enumerator->id);
+    fprintf(out, "\n%s\"enumeratorState\" : %d,", getStrFromIndent(INDENT_3), forEvent->enumState->id);
+    fprintf(out, "\n%s\"fromIdxs\" : [", getStrFromIndent(INDENT_3));
+
+    for (int i = 0; i < forEvent->estIterNumber; i++)
+    {
+        fprintf(out, "%d", forEvent->fromIdxs[i]);
+        if (i + 1 < forEvent->estIterNumber)
+        {
+            fprintf(out, ",");
+        }
+    }
+
+    fprintf(out, "],");
+    fprintf(out, "\n%s\"iterations\" : {", getStrFromIndent(INDENT_3));
+
+    while (currIter != ABD_NOT_FOUND)
+    {
+        fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), currIter->iterId);
+        fprintf(out, "\n%s\"iteratorState\" : %d,", getStrFromIndent(INDENT_5), currIter->iteratorState->id);
+        fprintf(out, "\n%s\"events\" : [", getStrFromIndent(INDENT_5));
+        ABD_EVENT *currEvent = currIter->eventsList->event;
+        while (currEvent != ABD_EVENT_NOT_FOUND)
+        {
+            fprintf(out, "%d", currEvent->id);
+            currEvent = currEvent->nextEvent;
+            if (currEvent != ABD_EVENT_NOT_FOUND)
+            {
+                fprintf(out, ",");
+            }
+        }
+        fprintf(out, "]");
+
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+        currIter = currIter->nextIter;
+        if (currIter != ABD_EVENT_NOT_FOUND)
+        {
+            fprintf(out, ",");
+        }
+    }
+    fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+}
+
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -1096,6 +1146,14 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"idx_change_event\",");
             fprintf(dispOut, "\"data\" : {");
             saveIdxChangeEvent(out, currEvent->data.idx_event, dispOut);
+            break;
+        case FOR_EVENT:
+            fprintf(out, "\"for_loop_event\",");
+            fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
+
+            fprintf(dispOut, "\"for_loop_event\",");
+            fprintf(dispOut, "\"data\" : {");
+            saveForLoopEvent(out, currEvent->data.for_loop_event, dispOut);
             break;
         default:
             break;

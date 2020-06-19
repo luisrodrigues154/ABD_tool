@@ -5,6 +5,6 @@ dcf.o: dcf.c ../../src/include/config.h ../../src/include/Defn.h \
  ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
- ../../src/include/Internal.h ../../src/include/Rconnections.h \
- ../../src/include/R_ext/Connections.h ../../src/extra/tre/tre.h \
- ../../src/extra/tre/tre-config.h
+ ../../src/include/libintl.h ../../src/include/Internal.h \
+ ../../src/include/Rconnections.h ../../src/include/R_ext/Connections.h \
+ ../../src/extra/tre/tre.h ../../src/extra/tre/tre-config.h

@@ -2,6 +2,8 @@
 
 #ifndef loaded_ev
 #define loaded_ev
+typedef struct abd_event ABD_EVENT;
+
 typedef enum abd_event_types
 {
     MAIN_EVENT = 0,
@@ -11,7 +13,8 @@ typedef enum abd_event_types
     ASGN_EVENT = 4,
     ARITH_EVENT = 5,
     VEC_EVENT = 6,
-    IDX_EVENT = 7
+    IDX_EVENT = 7,
+    FOR_EVENT = 8
 } ABD_EVENT_TYPE;
 
 //describe a if statement and its else ifs
@@ -90,8 +93,6 @@ typedef struct abd_return
     ABD_OBJECT *toObj;
     ABD_OBJECT_MOD *retValue;
 } ABD_RET_EVENT;
-
-//assignment event
 
 typedef enum
 {
@@ -192,6 +193,58 @@ typedef struct idx_change_event
     int nIdxs;
     int *fromIdxs;
 } ABD_IDX_CHANGE_EVENT;
+
+typedef struct it_event_list
+{
+    ABD_EVENT *event;
+    struct it_event_list *nextEvent;
+} ITER_EVENT_LIST;
+
+typedef struct iteration
+{
+    int iterId;
+    ABD_OBJECT_MOD *iteratorState;
+    ITER_EVENT_LIST *eventsList;
+    ITER_EVENT_LIST *eventsListTail;
+    struct iteration *nextIter;
+} ITERATION;
+
+typedef struct for_loop_event
+{
+    int iterCounter;      // the effective number of iterations performed
+    int estIterNumber;    // the estimated iterations for the loop (Rf_length(enumerator))
+    ABD_EVENT *lastEvent; // pointer to the last event processed in the loop, usefull to jump directly to its ID+1 in displayer
+    SEXP enumSEXP;
+    SEXP idxVec;
+    SEXP valVec;
+    ABD_OBJECT *iterator;   // variable pointer that contains the object used to iterate over the sourced values
+    ABD_OBJECT *enumerator; // the values sourced that will be iterated over
+    ABD_OBJECT_MOD *enumState;
+    int numIdxs;
+    int *fromIdxs;
+    ITERATION *itList; // the iterations performed by the loop
+} ABD_FOR_LOOP_EVENT;
+
+struct abd_event
+{
+    int id;
+    int scriptLn;
+    ABD_EVENT_TYPE type;
+    short branchDepth;
+    union {
+        ABD_IF_EVENT *if_event;
+        ABD_FUNC_EVENT *func_event;
+        ABD_RET_EVENT *ret_event;
+        ABD_ASSIGN_EVENT *asgn_event;
+        ABD_ARITH_EVENT *arith_event;
+        ABD_VEC_EVENT *vec_event;
+        ABD_IDX_CHANGE_EVENT *idx_event;
+        ABD_FOR_LOOP_EVENT *for_loop_event;
+    } data;
+    ABD_OBJECT *atFunc;
+    SEXP env;
+    struct abd_event *nextEvent;
+};
 
 #define ABD_EVENT_NOT_FOUND NULL
 #endif

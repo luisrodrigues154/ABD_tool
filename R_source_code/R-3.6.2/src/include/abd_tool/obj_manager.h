@@ -6,6 +6,7 @@
 #include <abd_tool/env_stack_defn.h>
 #include <Print.h>
 #include <ctype.h>
+#include <strings.h>
 
 /*
    ####################################

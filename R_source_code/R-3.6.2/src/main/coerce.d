@@ -6,7 +6,7 @@ coerce.o: coerce.c ../../src/include/config.h ../../src/include/Parse.h \
  ../../src/include/R_ext/Memory.h ../../src/include/R_ext/Utils.h \
  ../../src/include/R_ext/Print.h ../../src/include/R_ext/Rdynload.h \
  ../../src/include/Rinlinedfuns.h ../../src/include/Errormsg.h \
- ../../src/include/R_ext/Parse.h ../../src/include/Internal.h \
- ../../src/include/Rmath.h ../../src/include/Print.h \
- ../../src/include/Defn.h ../../src/include/R_ext/PrtUtil.h \
- ../../src/include/R_ext/Itermacros.h
+ ../../src/include/libintl.h ../../src/include/R_ext/Parse.h \
+ ../../src/include/Internal.h ../../src/include/Rmath.h \
+ ../../src/include/Print.h ../../src/include/Defn.h \
+ ../../src/include/R_ext/PrtUtil.h ../../src/include/R_ext/Itermacros.h

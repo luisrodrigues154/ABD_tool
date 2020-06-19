@@ -228,3 +228,27 @@ Opening in existing browser session.
 Most likely you need to configure your SUID sandbox correctly
 [11466:11466:0529/214832.741849:ERROR:broker_posix.cc(43)] Invalid node channel message
 [11463:11463:0100/000000.868519:ERROR:broker_posix.cc(43)] Invalid node channel message
+Gtk-Message: 22:44:54.469: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0617/224454.804678:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+Gtk-Message: 22:46:59.313: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0617/224659.533973:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+Gtk-Message: 22:50:05.451: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0617/225005.686655:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+Gtk-Message: 23:01:38.767: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0617/230139.303297:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+Gtk-Message: 00:15:41.218: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0618/001541.705634:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly
+Gtk-Message: 00:17:27.699: Failed to load module "appmenu-gtk-module"
+Opening in existing browser session.
+[0618/001727.865034:ERROR:nacl_helper_linux.cc(308)] NaCl helper process running without a sandbox!
+Most likely you need to configure your SUID sandbox correctly

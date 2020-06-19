@@ -5,8 +5,8 @@ registration.o: registration.c ../../src/include/config.h \
  ../../src/include/R_ext/Error.h ../../src/include/R_ext/Memory.h \
  ../../src/include/R_ext/Utils.h ../../src/include/R_ext/Print.h \
  ../../src/include/R_ext/Rdynload.h ../../src/include/Rinlinedfuns.h \
- ../../src/include/Errormsg.h ../../src/include/R_ext/Applic.h \
- ../../src/include/R_ext/RS.h ../../src/include/Rconfig.h \
- ../../src/include/R_ext/BLAS.h ../../src/include/R_ext/Linpack.h \
- ../../src/include/R_ext/Callbacks.h ../../src/include/Rdynpriv.h \
- basedecl.h
+ ../../src/include/Errormsg.h ../../src/include/libintl.h \
+ ../../src/include/R_ext/Applic.h ../../src/include/R_ext/RS.h \
+ ../../src/include/Rconfig.h ../../src/include/R_ext/BLAS.h \
+ ../../src/include/R_ext/Linpack.h ../../src/include/R_ext/Callbacks.h \
+ ../../src/include/Rdynpriv.h basedecl.h
