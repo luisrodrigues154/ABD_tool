@@ -59,7 +59,6 @@ void abd_stop()
 {
     if (isRunning())
     {
-        puts("\n\nSTOPING PROCEDURE\n");
         checkSettings();
         checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
@@ -100,10 +99,7 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
         return;
     processVarIdxChange(result);
     if (inLoopEvent())
-    {
         addEventToForIteration(eventsRegTail);
-        puts("index changed added");
-    }
 }
 void regVarIdxChange(SEXP call, SEXP rho)
 {
@@ -133,16 +129,13 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     // puts("rhs2 V");
     // PrintDaCall(rhs2, getCurrentEnv());
     //printf("typeof lhs %d\n", TYPEOF(rhs));
-    printf("called for var: %s... rhs type %d\n", CHAR(PRINTNAME(lhs)), TYPEOF(rhs));
+
     /* store the new information for the object */
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
     if (inLoopEvent() && call == R_NilValue && forStack->currFor->iterator == ABD_OBJECT_NOT_FOUND)
-    {
-
         forStack->currFor->iterator = objUsed;
-        printf("curr for iterator %d\n", forStack->currFor->iterator->id);
-    }
+
     if (TYPEOF(rhs) != CLOSXP)
     {
         //need to extract the rhs from the call
@@ -153,9 +146,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
     clearPendingVars();
     if (inLoopEvent() && call != R_NilValue)
-    {
         addEventToForIteration(eventsRegTail);
-    }
 }
 
 void decrementBranchDepth(SEXP rho)
@@ -207,8 +198,8 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    puts("received vector");
-    PrintDaCall(vector, rho);
+    // puts("received vector");
+    // PrintDaCall(vector, rho);
 
     if (waitingForVecs)
     {
@@ -266,7 +257,6 @@ void regForLoopFinish(SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
 
-    printf("eventRegstail null %s\n", eventsRegTail == NULL ? "yes" : "no");
     forStack->currFor->lastEvent = eventsRegTail;
     popForEvent();
     if (forStack == ABD_EVENT_NOT_FOUND)
@@ -303,26 +293,4 @@ ABD_STATE isRunning()
 ABD_STATE isVerbose()
 {
     return verbose;
-}
-
-void printFormatedString(const char *strToDisplay)
-{
-}
-
-void storeCompareResult(SEXP cmpr)
-{
-    puts("Storing");
-    cmp = cmpr;
-}
-
-int getSt()
-{
-    return st;
-}
-int cmpStoredArithAns(SEXP arg1, SEXP arg2)
-{
-    if (arg1 == getSavedArithAns() || arg2 == getSavedArithAns())
-        return 1;
-
-    return 0;
 }

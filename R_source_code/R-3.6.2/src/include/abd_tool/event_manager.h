@@ -576,7 +576,6 @@ char *getObjStr(IF_ABD_OBJ *objStruct)
 
 void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
 {
-    puts("1");
     if (newExpr->left_type == IF_EXPR)
         sprintf(stmtStr, "%s%.2f", stmtStr, ((IF_EXPRESSION *)newExpr->left_data)->result);
     else
@@ -718,14 +717,8 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     {
         if (lastArithEvent != ABD_EVENT_NOT_FOUND)
         {
-            /* pick from the results array */
-            puts("enter");
-
-            printf("statment: %s\n", stmtStr);
-
-            PrintIt(arithResults[++currArithIndex], getCurrentEnv());
+            /* pick from the results array */;
             newExpr->result = REAL(arithResults[currArithIndex])[0];
-            printf("result: %.4f\n", newExpr->result);
             /* int arithLen = Rf_length(arithResults[++currArithIndex]);
 
         
@@ -740,7 +733,6 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
                 printf("result: %.4f\n", newExpr->result);
             }
  */
-            puts("exit");
         }
     }
     setWatcherState(ABD_ENABLE);
@@ -1171,40 +1163,6 @@ rollback:
     }
 }
 
-void printVars()
-{
-    printf("SrcVec %d\n", idxChanges->srcVec);
-    printf("destIdxsVec %d\n", idxChanges->destIdxsVec);
-    printf("srcIdxsVec %d\n", idxChanges->srcIdxsVec);
-}
-void processIndexChanges()
-{
-    puts("processIndexChanges() called");
-    printVars();
-}
-void printIdxChangeValues()
-{
-    if (idxChanges->srcValues != R_NilValue)
-    {
-        puts("Src values");
-        PrintIt(idxChanges->srcValues, getCurrentEnv());
-        puts("-----------------");
-    }
-    if (idxChanges->srcIdxs != R_NilValue)
-    {
-        puts("SrcIdxs values");
-        PrintIt(idxChanges->srcIdxs, getCurrentEnv());
-        puts("-----------------");
-    }
-    if (idxChanges->destIdxs != R_NilValue)
-    {
-        puts("destIdxs values");
-        PrintIt(idxChanges->destIdxs, getCurrentEnv());
-        puts("-----------------");
-    }
-    puts("");
-}
-
 void preProcessVarIdxChange(SEXP call, SEXP rho)
 {
     // puts("The call expression    int *needProcess = (int *)malloc(sizeof(int) * 2);");
@@ -1389,11 +1347,7 @@ void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
         {
 
             if ((currIdxEvent->fromObj = findCmnObj(CHAR(PRINTNAME(idxChanges->src)), getCurrentEnv())) == ABD_OBJECT_NOT_FOUND)
-            {
-                puts("src values");
-                PrintIt(idxChanges->srcValues, getCurrentEnv());
                 currIdxEvent->fromObj = createUnscopedObj(CHAR(PRINTNAME(idxChanges->src)), -2, -2, idxChanges->srcValues, 0);
-            }
             currIdxEvent = setIdxList(currIdxEvent);
         }
         else
@@ -1599,7 +1553,6 @@ void createNewForLoopIter(int iterId)
     forStack->currIter->eventsListTail = ABD_EVENT_NOT_FOUND;
     forStack->currIter->iterId = ++iterId;
     forStack->currIter->iteratorState = forStack->currFor->iterator->modList;
-    puts("iteration created");
 }
 
 void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent)
@@ -1640,7 +1593,6 @@ void addEventToForIteration(ABD_EVENT *eventToAdd)
 {
     if (forStack->currIter->eventsListTail == ABD_EVENT_NOT_FOUND)
     {
-        puts("creating new event list");
         forStack->currIter->eventsList = memAllocIterEventList();
         forStack->currIter->eventsListTail = forStack->currIter->eventsList;
         forStack->currIter->eventsList->nextEvent = ABD_EVENT_NOT_FOUND;
@@ -1651,7 +1603,7 @@ void addEventToForIteration(ABD_EVENT *eventToAdd)
         forStack->currIter->eventsListTail = forStack->currIter->eventsListTail->nextEvent;
         forStack->currIter->eventsListTail->nextEvent = ABD_EVENT_NOT_FOUND;
     }
-    printf("added event id [%d] to iteration [%d]\n", eventToAdd->id, forStack->currIter->iterId);
+
     forStack->currIter->eventsListTail->event = eventToAdd;
 }
 

@@ -219,9 +219,6 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         fprintf(dispOut, "\"numMods\" : %d,", vecObj->nCols);
         fprintf(dispOut, "\"mods\" : [");
 
-        //nCols represent number of modifications
-        puts("");
-
         if (prevType != type)
             baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
 
@@ -1019,43 +1016,69 @@ void saveForLoopEvent(FILE *out, ABD_FOR_LOOP_EVENT *forEvent, FILE *dispOut)
     fprintf(out, "\n%s\"enumeratorState\" : %d,", getStrFromIndent(INDENT_3), forEvent->enumState->id);
     fprintf(out, "\n%s\"fromIdxs\" : [", getStrFromIndent(INDENT_3));
 
+    fprintf(dispOut, "\"estimatedIter\" : %d,", forEvent->estIterNumber);
+    fprintf(dispOut, "\"iterCounter\" : %d,", forEvent->iterCounter);
+    fprintf(dispOut, "\"lastEventId\" : %d,", forEvent->lastEvent->id);
+    fprintf(dispOut, "\"iteratorId\" : %d,", forEvent->iterator->id);
+    fprintf(dispOut, "\"enumeratorId\" : %d,", forEvent->enumerator->id);
+    fprintf(dispOut, "\"enumeratorState\" : %d,", forEvent->enumState->id);
+    fprintf(dispOut, "\"fromIdxs\" : [");
+
     for (int i = 0; i < forEvent->estIterNumber; i++)
     {
         fprintf(out, "%d", forEvent->fromIdxs[i]);
+        fprintf(dispOut, "%d", forEvent->fromIdxs[i]);
         if (i + 1 < forEvent->estIterNumber)
         {
             fprintf(out, ",");
+            fprintf(dispOut, ",");
         }
     }
 
     fprintf(out, "],");
     fprintf(out, "\n%s\"iterations\" : {", getStrFromIndent(INDENT_3));
 
+    fprintf(dispOut, "],");
+    fprintf(dispOut, "\"iterations\" : {");
+
     while (currIter != ABD_NOT_FOUND)
     {
         fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_4), currIter->iterId);
         fprintf(out, "\n%s\"iteratorState\" : %d,", getStrFromIndent(INDENT_5), currIter->iteratorState->id);
         fprintf(out, "\n%s\"events\" : [", getStrFromIndent(INDENT_5));
-        ABD_EVENT *currEvent = currIter->eventsList->event;
-        while (currEvent != ABD_EVENT_NOT_FOUND)
+
+        fprintf(dispOut, "\"%d\" : {", currIter->iterId);
+        fprintf(dispOut, "\"iteratorState\" : %d,", currIter->iteratorState->id);
+        fprintf(dispOut, "\"events\" : [");
+
+        ITER_EVENT_LIST *currEventList = currIter->eventsList;
+        while (currEventList != NULL)
         {
-            fprintf(out, "%d", currEvent->id);
-            currEvent = currEvent->nextEvent;
-            if (currEvent != ABD_EVENT_NOT_FOUND)
+            fprintf(out, "%d", currEventList->event->id);
+            fprintf(dispOut, "%d", currEventList->event->id);
+            currEventList = currEventList->nextEvent;
+            if (currEventList != ABD_EVENT_NOT_FOUND)
             {
                 fprintf(out, ",");
+                fprintf(dispOut, ",");
             }
         }
-        fprintf(out, "]");
 
+        fprintf(out, "]");
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+
+        fprintf(dispOut, "]");
+        fprintf(dispOut, "}");
+
         currIter = currIter->nextIter;
         if (currIter != ABD_EVENT_NOT_FOUND)
         {
             fprintf(out, ",");
+            fprintf(dispOut, ",");
         }
     }
     fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "}");
 }
 
 void saveEvents(FILE *out, FILE *dispOut)

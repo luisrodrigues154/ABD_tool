@@ -100,7 +100,6 @@ void envPop()
     ABD_ENV_STACK *elementToPop = envStack;
     envStack = envStack->prev;
     freeEnv(elementToPop);
-    puts("env popped");
 }
 SEXP getCurrentEnv()
 {
