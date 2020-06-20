@@ -211,6 +211,7 @@ typedef struct iteration
 
 typedef struct for_loop_event
 {
+
     int iterCounter;      // the effective number of iterations performed
     int estIterNumber;    // the estimated iterations for the loop (Rf_length(enumerator))
     ABD_EVENT *lastEvent; // pointer to the last event processed in the loop, usefull to jump directly to its ID+1 in displayer

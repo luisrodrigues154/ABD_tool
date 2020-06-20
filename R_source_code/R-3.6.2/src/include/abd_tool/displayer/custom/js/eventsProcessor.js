@@ -12,7 +12,8 @@ const types = {
 	RET: 'ret_event',
 	ARITH: 'arith_event',
 	VEC: 'vector_event',
-	IDX: 'idx_change_event'
+	IDX: 'idx_change_event',
+	FOR: 'for_loop_event'
 };
 var processMe = 0;
 

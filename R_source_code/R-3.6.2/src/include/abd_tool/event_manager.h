@@ -1555,8 +1555,9 @@ void createNewForLoopIter(int iterId)
     forStack->currIter->iteratorState = forStack->currFor->iterator->modList;
 }
 
-void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent)
+void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
 {
+
     if (forStack == ABD_EVENT_NOT_FOUND)
     {
         forStack = memAllocForChain();
@@ -1575,6 +1576,7 @@ void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent)
     forIdxsVec = FALSE;
     forValVec = FALSE;
     forStack->currFor = newForEvent;
+
     forStack->currFor->enumSEXP = R_NilValue;
     forStack->currFor->idxVec = R_NilValue;
     forStack->currFor->valVec = R_NilValue;
@@ -1610,7 +1612,6 @@ void addEventToForIteration(ABD_EVENT *eventToAdd)
 void popForEvent()
 {
     FOR_CHAIN *forChainToPop = forStack;
-
     forStack = forStack->prevFor;
     free(forChainToPop);
 }
@@ -1689,10 +1690,10 @@ void storeVecForEvent(SEXP vec)
     }
 }
 
-void setForEventValues(ABD_FOR_LOOP_EVENT *newForEvent, SEXP enumerator)
+void setForEventValues(SEXP call, ABD_FOR_LOOP_EVENT *newForEvent, SEXP enumerator)
 {
 
-    pushForEvent(newForEvent);
+    pushForEvent(newForEvent, call);
     preProcessEnumerator(enumerator);
 
     /* printf("iterator... TYPE %d\n", TYPEOF(iterator));

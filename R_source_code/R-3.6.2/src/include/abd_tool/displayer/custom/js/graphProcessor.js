@@ -94,7 +94,7 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 		if (events[i]['atEnv'] == env) {
 			updateBranchLineDepth(env, events[i]['line'], events[i]['branchDepth']);
 			let htmlRcvd = getEventTypeHtml(events[i], i + 1);
-			if (events[i]['type'] != types.IF) {
+			if (events[i]['type'] != types.IF && events[i]['type'] != types.FOR) {
 				lastLineGP = events[i]['line'];
 				addEventToEnvMap(env, lastLineGP, htmlRcvd);
 			} else {
@@ -192,6 +192,14 @@ function genForMultiLabelsWithIdentAndColor(id, text, indent, result) {
 		id,
 		indent * 14,
 		result == true ? 'lightgreen' : 'tomato',
+		text
+	);
+}
+
+function genForMultiLabelsWithIdent(id, text, indent) {
+	return "<label type='button' id='{}' onclick='processEventClick(this.id)' data-toggle='modal' style='margin-left:{}px;display:block;' data-target='#exec_flow_modal'>{}{}</label>".format(
+		id,
+		indent * 14,
 		text
 	);
 }
@@ -318,6 +326,21 @@ function getEventTypeHtml(event, nextEventId) {
 				}
 			}
 			break;
+		case types.FOR:
+			let envir = event['atEnv'];
+			if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			let i;
+			let lastEventId = event['data']['lastEventId'];
+			for (i = nextEventId; i != lastEventId; i++) {
+				if (events[i]['type'] == types.FUNC) {
+					let newFuncName = getCodeFlowObjNameById(events[i]['data']['toId']);
+					processEnv(newFuncName, events[i]['data']['toEnv'], nextEventId, line);
+					addNodeLink(events[i]['atEnv'], events[i]['data']['toEnv']);
+				}
+			}
+			addEventToEnvMap(envir, event['line'], htmlProduced);
+			return lastEventId;
 		default:
 			break;
 	}
@@ -920,6 +943,257 @@ function mkIfModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 	return htmlProduced;
 }
+
+function mkForLoopModalInfo(event, eventId) {
+	let htmlProduced = '';
+	let iteratorName = getCommonObjNameById(event['data']['iteratorId']);
+	let enumeratorId = event['data']['enumeratorId'];
+	let enumeratorObj = getCommonObjById(enumeratorId);
+	let enumeratorState = event['data']['enumeratorState'];
+	let enumStateEventId = findEventId(enumeratorId, enumeratorState);
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2">';
+	htmlProduced += '<div class="col text-left">Iterator:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(iteratorName);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	//first section obj structure Type
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Enumerator:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(
+		"<a href='#'  id='eId-{}' onclick='processEventClick(this.id)'>{}</a>".format(
+			enumStateEventId,
+			enumeratorObj['name']
+		)
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Expected Iterations:';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['estimatedIter']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Effective Iterations:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['iterCounter']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-4">';
+	htmlProduced += '<div class="col text-center">Previous';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Iteration';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row">';
+
+	let dropDown = '';
+	dropDown += '<div class="dropdown show">';
+	dropDown +=
+		'<a class="btn btn-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+	dropDown += '1';
+	dropDown += '</a>';
+	dropDown += '<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
+	let i;
+	for (i = 1; i <= event['data']['iterCounter']; i++)
+		dropDown += '<a id="itId-{}" class="dropdown-item text-center" href="#" onclick="processIteration({},this.id, false)">{}</a>'.format(
+			i,
+			eventId,
+			i
+		);
+
+	dropDown += '</div>';
+	dropDown += '</div>';
+
+	htmlProduced += '<div class="col text-center">{}'.format(
+		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevIteration(this.id)'></i>".format(
+			eventId
+		)
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">{}'.format(
+		"<i id='eId-{}' class='fas fa-arrow-right' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextIteration(this.id)'></i>".format(
+			eventId
+		)
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<table class="table table-sm mt-4">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced +=
+		'<th id="for_iteration_body_header" class ="text-center" scope="col" colspan="3">Iteration 1 information</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-left" id="for_iteration_body">';
+	htmlProduced += processIteration(eventId, 1, true);
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+function requestNextIteration(forId) {
+	forId = forId.split('-')[1];
+	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
+
+	if (events[forId]['data']['iterCounter'] >= currIteration + 1) {
+		processIteration(forId, currIteration + 1, false);
+	}
+}
+function requestPrevIteration(forId) {
+	forId = forId.split('-')[1];
+	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
+	if (currIteration - 1 > 0) {
+		processIteration(forId, currIteration - 1, false);
+	}
+}
+
+let auxMap;
+function processIteration(forId, iterationId, toReturn) {
+	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
+
+	let iteratorState = events[forId]['data']['iterations'][iterationId]['iteratorState'];
+	let iteratorId = events[forId]['data']['iteratorId'];
+	let iteratorValue = getObjCurrValue(iteratorId, iteratorState, -1);
+	let eventsHistory = events[forId]['data']['iterations'][iterationId]['events'];
+	let htmlProduced = '';
+
+	console.log(eventsHistory);
+	eventsHistory.forEach((eventId) => {
+		console.log(eventId);
+		event = events[eventId];
+		switch (event['type']) {
+			case types.FUNC:
+				let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
+
+				htmlProduced += genLabelHtml(
+					'eId-{}'.format(eventId),
+					codeLine
+						.substring(
+							codeLine.indexOf(newFuncName),
+							codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1
+						)
+						.trim(),
+					0
+				);
+
+				break;
+			case types.ASSIGN:
+				let objId = event['data']['toObj'];
+				let obj = getCommonObjNameById(objId);
+				let state = event['data']['toState'];
+				let origin = event['data']['origin'];
+				if (origin == 'obj') {
+					htmlProduced += genLabelHtml('eId-{}'.format(eventId), codeLine.trim(), event['branchDepth']);
+				} else {
+					if (origin == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						htmlProduced += genLabelHtml('eId-{}'.format(eventId, objId, state), codeLine.trim(), 0);
+					} else {
+						//other event types
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(eventId, objId, state),
+							codeLine
+								.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj)))
+								.trim(),
+							0
+						);
+					}
+				}
+				break;
+			case types.IF:
+				let env = event['atEnv'];
+				let startLine = event['line'];
+
+				let statement;
+				while (event['type'] == types.IF && event['line'] == startLine) {
+					//collect all if statements below
+					if (event['data']['isElseIf']) {
+						statement = 'else if ( {} )'.format(event['data']['exprStr']);
+					} else if (event['data']['isElse']) {
+						statement = 'else';
+					} else {
+						statement = 'if ( {} )'.format(event['data']['exprStr']);
+					}
+					htmlProduced += genForMultiLabelsWithIdentAndColor(
+						'eId-{}'.format(eventId),
+						statement,
+						0,
+						event['data']['globalResult']
+					);
+
+					//pick next event
+					event = events[++eventId];
+				}
+				addEventToEnvMap(env, startLine, htmlProduced);
+				break;
+			case types.RET:
+				if (typeof envContent.get(event['atEnv']).get(line) === 'undefined') {
+					//no content for this line, so, grab the code existing there
+					htmlProduced += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} <- {} </ret>".format(
+						nextEventId - 1,
+						'(return)',
+						codeLine
+					);
+				} else {
+					//already have something for this line, just append this, resolver takes care
+					htmlProduced += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} </ret>".format(
+						nextEventId - 1,
+						'(return)'
+					);
+				}
+				break;
+			case types.ARITH:
+				htmlProduced += genLabelHtml('eId-{}'.format(eventId), event['data']['exprStr'].trim(), 0);
+				break;
+			case types.IDX:
+				let codeLine = code[event['line'] - 1];
+				let originIdx = event['data']['origin'];
+				let toId = event['data']['toId'];
+				let toState = event['data']['toState'];
+				let objIdx = getCommonObjById(toId);
+				if (originIdx == 'obj') {
+					htmlProduced += genLabelHtml('eId-{}'.format(eventId), codeLine.trim(), event['branchDepth']);
+				} else {
+					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						htmlProduced += genLabelHtml('eId-{}'.format(eventId, toId, toState), codeLine.trim(), 0);
+					} else {
+						//other event types
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(eventId, toId, toState),
+							codeLine
+								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+								.trim(),
+							0
+						);
+					}
+				}
+				break;
+			default:
+				break;
+		}
+	});
+	if (toReturn) {
+		return htmlProduced;
+	} else {
+		document.getElementById('dropdownMenuLink').innerHTML = iterationId;
+		document.getElementById('for_iteration_body').innerHTML = htmlProduced;
+		document.getElementById('for_iteration_body_header').innerHTML = 'Iteration {} information'.format(iterationId);
+	}
+}
 function mkIdxChangeModalInfo(event, eventId) {
 	let htmlProduced = '';
 	let displayNote = false;
@@ -1080,7 +1354,6 @@ function produceModalContent(eventId) {
 	};
 	eventId = eventId.split('-')[1];
 	let event = events[eventId];
-
 	switch (event['type']) {
 		case types.ASSIGN:
 			content.title = 'Object analysis';
@@ -1108,6 +1381,10 @@ function produceModalContent(eventId) {
 		case types.RET:
 			content.title = 'Return analysis';
 			content.body = 'nothing to show';
+			break;
+		case types.FOR:
+			content.title = 'For-Loop analysis';
+			content.body = mkForLoopModalInfo(event, eventId);
 			break;
 		default:
 			content.title = 'Ups...';

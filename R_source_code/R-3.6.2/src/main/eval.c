@@ -2528,7 +2528,6 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 		regVarChange(R_NilValue, sym, v, rho);
 		regForLoopIteration(i, rho);
 		eval(body, rho);
-
 	for_next:; /* needed for strict ISO C compliance, according to gcc 2.95.2 */
 	}
 for_break:

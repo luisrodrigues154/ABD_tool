@@ -2,7 +2,7 @@ options("keep.source" = TRUE)
 run <- function(){
 
     abd_start()
-    z <- 1:5
+    z <- 10:1
     a <- 1:4
     b <- 3:1
     c <- 1:10

@@ -242,7 +242,7 @@ void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho)
 
     clearPendingVars();
     ABD_FOR_LOOP_EVENT *newForLoopEvent = createNewEvent(FOR_EVENT)->data.for_loop_event;
-    setForEventValues(newForLoopEvent, enumerator);
+    setForEventValues(call, newForLoopEvent, enumerator);
 }
 void regForLoopIteration(int iterId, SEXP rho)
 {
