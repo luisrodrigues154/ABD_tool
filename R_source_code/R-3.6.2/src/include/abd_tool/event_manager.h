@@ -321,7 +321,6 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
 
             break;
         }
-
         /*case LGLSXP:
             case INTSXP:
                 Rprintf("[%d] '%s' %d\n", i+1, rcvdName, INTEGER(symbol)[0]);
@@ -718,7 +717,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
         if (lastArithEvent != ABD_EVENT_NOT_FOUND)
         {
             /* pick from the results array */;
-            newExpr->result = REAL(arithResults[currArithIndex])[0];
+            newExpr->result = REAL(arithResults[++currArithIndex])[0];
             /* int arithLen = Rf_length(arithResults[++currArithIndex]);
 
         
@@ -982,7 +981,6 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
     */
 
     createNewEvent(ARITH_EVENT);
-
     lastArithEvent->globalResult = REAL(finalArithAns)[0];
     currArithIndex = -1;
     exprId = 0;

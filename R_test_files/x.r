@@ -16,13 +16,14 @@ run <- function(){
     for(x in z){
         if(x<3){
             c[x] <- f1(x)
+            c[x] <- 10
         }else{
             c[x] <- x+1
         }
     }
     
-    teste <- 1:200
-
+    teste <- 1:1000000
+    abd_stop()
     # with c() create two vectors
     # vector 1 - indexes
     # vector 2 - values
@@ -44,7 +45,7 @@ run <- function(){
 
     
 
-    abd_stop()
+    
 }
 
 run()

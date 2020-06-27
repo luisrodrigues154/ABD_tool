@@ -97,6 +97,8 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+    //printf("finalize idx change... line %d\n", getCurrScriptLn());
+
     processVarIdxChange(result);
     if (inLoopEvent())
         addEventToForIteration(eventsRegTail);
@@ -106,7 +108,7 @@ void regVarIdxChange(SEXP call, SEXP rho)
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
+    //printf("var index change... line %d\n", getCurrScriptLn());
     initIdxChangeAuxVars();
     //if matrix, toObj will remain langsxp, just a pair of brackets more
     idxChanges->dest = CAR(CDR(CAR(CDR(call))));
@@ -126,6 +128,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
+    //printf("var change... line %d\n", getCurrScriptLn());
     // puts("rhs2 V");
     // PrintDaCall(rhs2, getCurrentEnv());
     //printf("typeof lhs %d\n", TYPEOF(rhs));
@@ -141,6 +144,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
         //need to extract the rhs from the call
         ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
         SEXP rhs2 = CAR(CDR(CDR(call)));
+
         createAsgnEvent(objUsed, rhs, rhs2, rho);
     }
 
@@ -175,7 +179,7 @@ void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedA
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
+    //printf("func call... line %d\n", getCurrScriptLn());
     ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
 
     if (objFound == ABD_OBJECT_NOT_FOUND)
@@ -227,7 +231,7 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
+    //printf("if statement ... line %d\n", getCurrScriptLn());
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
@@ -280,6 +284,7 @@ void storeIsWaitingIf(int isWaiting, SEXP rho)
 
 void regFunRet(SEXP lhs, SEXP rho, SEXP val)
 {
+    //printf("return... line %d\n", getCurrScriptLn());
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
     if (inLoopEvent())

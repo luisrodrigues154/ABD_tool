@@ -22,6 +22,7 @@ var links;
 var nodeSizeScale;
 var codeLineClass = 'node-code-line';
 let envContent = new Map();
+let auxMap = new Map();
 let envLineBDepth = new Map();
 let lastLineGP = 0;
 $(function() {
@@ -45,6 +46,8 @@ function buildNodes() {
 	var len = Object.keys(events).length;
 	if (len == 0) return;
 	eventsLen = len;
+	envContent = new Map();
+	envLineBDepth = new Map();
 	processEnv('main', events[1]['atEnv'], 1, 0);
 }
 
@@ -157,7 +160,7 @@ function genNodeRow(line, codeHtml, branchDept) {
 	htmlProduced += '</div>';
 
 	//code
-	htmlProduced += '<div class="col col-md-auto col3" style="margin-left:{}px;">'.format(branchDept * 10);
+	htmlProduced += '<div class="col col-md-auto col3" style="margin-left:{}px;">'.format(branchDept * 14);
 	htmlProduced += '<codeWrapper">{}</codeWrapper>'.format(codeHtml);
 	htmlProduced += '</div>';
 
@@ -204,6 +207,34 @@ function genForMultiLabelsWithIdent(id, text, indent) {
 	);
 }
 
+function genLabelForAlreadyOpenModal(id, text) {
+	return '<label href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</label>'.format(id, text);
+}
+
+function genLabelForAlreadyOpenModalWithIndent(id, text, indent) {
+	return '<label href="#" id="eId-{}" style="margin-left:{}px;" onclick="processEventClick(this.id)">{}</label>'.format(
+		id,
+		indent * 14,
+		text
+	);
+}
+
+function genForMultiLabelsWithIdentAndColorAlreadyOpen(id, text, indent, result) {
+	return '<label href="#" id="eId-{}" style="margin-left:{}px;display:block;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
+		id,
+		indent * 14,
+		result == true ? 'lightgreen' : 'tomato',
+		text
+	);
+}
+function genLabelForAlreadyOpenModalWithIndentAndColor(id, text, indent, result) {
+	return '<label href="#" id="eId-{}" style="margin-left:{}px;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
+		id,
+		indent * 14,
+		result == true ? 'lightgreen' : 'tomato',
+		text
+	);
+}
 function findElseLine(statement, fromLine, isElseIf) {
 	let i = fromLine + 1;
 	statement = statement.replace(/ /g, '');
@@ -443,10 +474,7 @@ function mkFuncModalInfo(event, eventId) {
 			if (fromId > 0) {
 				let foundEvent = findEventId(fromId, fromState);
 
-				prevChange = '<a href="#" id="eId-{}" onclick="processEventClick(this.id)"><u>line {}</u></a>'.format(
-					foundEvent,
-					events[foundEvent]['line']
-				);
+				prevChange = genLabelForAlreadyOpenModal(foundEvent, events[foundEvent]['line']);
 			}
 
 			htmlProduced += '<tr>';
@@ -673,12 +701,8 @@ function doSearch() {
 		if ((eventId = findEventId(searchable.fromId, searchable.fromState))) {
 			let lineNum = searchable.tdId.split('-')[1];
 			let codeLine = code[lineNum].split('<-');
-
-			let html = '{} <- <a href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</a>'.format(
-				codeLine[0],
-				eventId,
-				codeLine[1]
-			);
+			let aTag = genLabelForAlreadyOpenModal(eventId, codeLine[1]);
+			let html = '{} <- {}'.format(codeLine[0], aTag);
 			document.getElementById(searchable.tdId).innerHTML = html;
 		}
 	});
@@ -725,7 +749,7 @@ function getHtmlForExpressions(event, showLogical) {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['lObjId'], cE['lObjState'], cE['lWithIndex']);
 					let stateEventId = findEventId(cE['lObjId'], cE['lObjState']);
-					let label = "<a href='#'  id='eId-{}' onclick='processEventClick(this.id)' >{}</a>".format(
+					let label = genLabelForAlreadyOpenModal(
 						stateEventId,
 						'{}[{}]'.format(getCommonObjNameById(cE['lObjId']), cE['lWithIndex'] + 1)
 					);
@@ -768,7 +792,7 @@ function getHtmlForExpressions(event, showLogical) {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['rObjId'], cE['rObjState'], cE['rWithIndex']);
 					let stateEventId = findEventId(cE['rObjId'], cE['rObjState']);
-					let label = "<a href='#'  id='eId-{}' onclick='processEventClick(this.id)'>{}</a>".format(
+					let label = genLabelForAlreadyOpenModal(
 						stateEventId,
 						'{}[{}]'.format(getCommonObjNameById(cE['rObjId']), cE['rWithIndex'] + 1)
 					);
@@ -824,7 +848,7 @@ function mkFailedTestsHtml(failedTests) {
 	htmlProduced += '<tbody class="text-center">';
 	failedTests.forEach((test) => {
 		htmlProduced += '<tr>';
-		let lblJump = "<a href='#'  id='eId-{}' onclick='processEventClick(this.id)'>{}</a>".format(test.id, 'View');
+		let lblJump = genLabelForAlreadyOpenModal(test.id, 'View');
 
 		htmlProduced += '<td>{}</td>'.format(lblJump);
 		htmlProduced += '<td>{}</td>'.format(test.expr);
@@ -964,10 +988,7 @@ function mkForLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-left">Enumerator:';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col-md-auto text-left">{}'.format(
-		"<a href='#'  id='eId-{}' onclick='processEventClick(this.id)'>{}</a>".format(
-			enumStateEventId,
-			enumeratorObj['name']
-		)
+		genLabelForAlreadyOpenModal(enumStateEventId, enumeratorObj['name'])
 	);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
@@ -1039,8 +1060,9 @@ function mkForLoopModalInfo(event, eventId) {
 		'<th id="for_iteration_body_header" class ="text-center" scope="col" colspan="3">Iteration 1 information</th>';
 	htmlProduced += '</tr>';
 	htmlProduced += '</thead>';
-	htmlProduced += '<tbody class="text-left" id="for_iteration_body">';
+	htmlProduced += '<tbody class="text-left for-loop-body " id="for_iteration_body">';
 	htmlProduced += processIteration(eventId, 1, true);
+	htmlProduced += '</tbody>';
 	htmlProduced += '</div>';
 	return htmlProduced;
 }
@@ -1059,8 +1081,36 @@ function requestPrevIteration(forId) {
 		processIteration(forId, currIteration - 1, false);
 	}
 }
+function resolveAuxEnvContents(env) {
+	let nodeHtml = '';
+	nodeHtml += '<div class="container-fluid" id="node_content">';
+	let envBranchDepthInfo = envLineBDepth.get(env);
+	for ([ line, content ] of auxMap.get(env)) {
+		var numEntries = content.length - 1;
+		var i;
+		let auxHtml = '';
+		for (i = numEntries; i >= 0; i--) {
+			auxHtml += '{} {} '.format(content[i], i - 1 >= 0 ? '<-' : '');
+		}
+		let branDepth = envBranchDepthInfo.get(line)[0];
+		nodeHtml += genNodeRow(line, auxHtml, branDepth);
+	}
 
-let auxMap;
+	nodeHtml += '</div>';
+
+	return nodeHtml;
+}
+function addEventToAuxMap(env, line, eventContent) {
+	if (!auxMap.get(env).has(line)) auxMap.get(env).set(line, []);
+
+	if (eventContent.length == 0) return;
+	auxMap.get(env).get(line).push(eventContent);
+}
+function initAuxEnvMap(env) {
+	auxMap.set(env, new Map());
+	envLineBDepth.set(env, new Map());
+}
+
 function processIteration(forId, iterationId, toReturn) {
 	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
 
@@ -1069,17 +1119,42 @@ function processIteration(forId, iterationId, toReturn) {
 	let iteratorValue = getObjCurrValue(iteratorId, iteratorState, -1);
 	let eventsHistory = events[forId]['data']['iterations'][iterationId]['events'];
 	let htmlProduced = '';
+	let i;
+	htmlProduced += '<tr>';
+	htmlProduced += '<td colspan="3"class="text-center">';
 
-	console.log(eventsHistory);
-	eventsHistory.forEach((eventId) => {
-		console.log(eventId);
+	htmlProduced += 'Iterator Value: {}'.format(iteratorValue[3]);
+	htmlProduced += '</td>';
+	htmlProduced += '</tr>';
+
+	htmlProduced += '<tr>';
+	htmlProduced += '<td>';
+	auxMap = new Map();
+	envLineBDepth = new Map();
+	let alreadyInit = false;
+	let envs = [];
+	let loopHtml = '';
+	let branchIncrementer = 0;
+	for (i = 0; i < eventsHistory.length; i++) {
+		loopHtml = '';
+		eventId = eventsHistory[i];
 		event = events[eventId];
+		if (!alreadyInit) {
+			alreadyInit = true;
+			envs.push(event['atEnv']);
+			actualEnv = envs[envs.length - 1];
+			initAuxEnvMap(actualEnv);
+		}
+
+		let codeLine = code[event['line'] - 1];
+
+		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
 		switch (event['type']) {
 			case types.FUNC:
 				let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
 
-				htmlProduced += genLabelHtml(
-					'eId-{}'.format(eventId),
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(
+					eventId,
 					codeLine
 						.substring(
 							codeLine.indexOf(newFuncName),
@@ -1088,7 +1163,9 @@ function processIteration(forId, iterationId, toReturn) {
 						.trim(),
 					0
 				);
-
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				branchIncrementer++;
+				alreadyInit = false;
 				break;
 			case types.ASSIGN:
 				let objId = event['data']['toObj'];
@@ -1096,15 +1173,16 @@ function processIteration(forId, iterationId, toReturn) {
 				let state = event['data']['toState'];
 				let origin = event['data']['origin'];
 				if (origin == 'obj') {
-					htmlProduced += genLabelHtml('eId-{}'.format(eventId), codeLine.trim(), event['branchDepth']);
+					loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
 				} else {
 					if (origin == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
 						// the vector creation do not have anything special worth a separated label
-						htmlProduced += genLabelHtml('eId-{}'.format(eventId, objId, state), codeLine.trim(), 0);
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
+						// htmlProduced += genLabelHtml('eId-{}'.format(eventId, objId, state), codeLine.trim(), 0);
 					} else {
 						//other event types
-						htmlProduced += genLabelHtml(
-							'eId-{}'.format(eventId, objId, state),
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(
+							eventId,
 							codeLine
 								.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj)))
 								.trim(),
@@ -1112,23 +1190,25 @@ function processIteration(forId, iterationId, toReturn) {
 						);
 					}
 				}
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
 				break;
 			case types.IF:
-				let env = event['atEnv'];
 				let startLine = event['line'];
-
+				let ctrJump = 0;
 				let statement;
 				while (event['type'] == types.IF && event['line'] == startLine) {
 					//collect all if statements below
 					if (event['data']['isElseIf']) {
+						ctrJump++;
 						statement = 'else if ( {} )'.format(event['data']['exprStr']);
 					} else if (event['data']['isElse']) {
+						ctrJump++;
 						statement = 'else';
 					} else {
 						statement = 'if ( {} )'.format(event['data']['exprStr']);
 					}
-					htmlProduced += genForMultiLabelsWithIdentAndColor(
-						'eId-{}'.format(eventId),
+					loopHtml += genForMultiLabelsWithIdentAndColorAlreadyOpen(
+						eventId,
 						statement,
 						0,
 						event['data']['globalResult']
@@ -1137,43 +1217,49 @@ function processIteration(forId, iterationId, toReturn) {
 					//pick next event
 					event = events[++eventId];
 				}
-				addEventToEnvMap(env, startLine, htmlProduced);
+				addEventToAuxMap(actualEnv, startLine, loopHtml);
+				i += ctrJump;
 				break;
 			case types.RET:
-				if (typeof envContent.get(event['atEnv']).get(line) === 'undefined') {
+				if (typeof auxMap.get(event['atEnv']).get(line) === 'undefined') {
 					//no content for this line, so, grab the code existing there
-					htmlProduced += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} <- {} </ret>".format(
-						nextEventId - 1,
+					loopHtml += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} <- {} </ret>".format(
+						eventId,
 						'(return)',
 						codeLine
 					);
 				} else {
 					//already have something for this line, just append this, resolver takes care
-					htmlProduced += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} </ret>".format(
-						nextEventId - 1,
+					loopHtml += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} </ret>".format(
+						eventId,
 						'(return)'
 					);
 				}
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				htmlProduced += resolveAuxEnvContents(actualEnv);
+				branchIncrementer--;
+				envs.pop();
+				actualEnv = envs[envs.length - 1];
 				break;
 			case types.ARITH:
-				htmlProduced += genLabelHtml('eId-{}'.format(eventId), event['data']['exprStr'].trim(), 0);
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, event['data']['exprStr'].trim(), 0);
+				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
 			case types.IDX:
-				let codeLine = code[event['line'] - 1];
 				let originIdx = event['data']['origin'];
 				let toId = event['data']['toId'];
 				let toState = event['data']['toState'];
 				let objIdx = getCommonObjById(toId);
 				if (originIdx == 'obj') {
-					htmlProduced += genLabelHtml('eId-{}'.format(eventId), codeLine.trim(), event['branchDepth']);
+					loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
 				} else {
 					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
 						// the vector creation do not have anything special worth a separated label
-						htmlProduced += genLabelHtml('eId-{}'.format(eventId, toId, toState), codeLine.trim(), 0);
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
 					} else {
 						//other event types
-						htmlProduced += genLabelHtml(
-							'eId-{}'.format(eventId, toId, toState),
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(
+							eventId,
 							codeLine
 								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
 								.trim(),
@@ -1181,11 +1267,15 @@ function processIteration(forId, iterationId, toReturn) {
 						);
 					}
 				}
+				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
 			default:
 				break;
 		}
-	});
+	}
+	htmlProduced += resolveAuxEnvContents(actualEnv);
+	htmlProduced += '</td>';
+	htmlProduced += '</tr>';
 	if (toReturn) {
 		return htmlProduced;
 	} else {
@@ -1236,10 +1326,7 @@ function mkIdxChangeModalInfo(event, eventId) {
 			if (event['data']['fromObj'] == 'ABD') {
 				foundEvent = findEventId(event['data']['fromId'], event['data']['fromState']);
 				sourceName = getCommonObjNameById(event['data']['fromId']);
-				htmlProduced += '<a href="#" id="eId-{}" onclick="processEventClick(this.id)"><u>{}</u></a>'.format(
-					foundEvent,
-					sourceName
-				);
+				htmlProduced += genLabelForAlreadyOpenModal(foundEvent, sourceName);
 			} else {
 				let firstElement = [ 'Obj', 'Not-tracked' ];
 
@@ -1393,9 +1480,23 @@ function produceModalContent(eventId) {
 
 	return content;
 }
+
+let visualStack = [];
+function goBackVisual() {
+	visualStack.pop();
+	let producedContent = visualStack[visualStack.length - 1];
+	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
+	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
+}
+function getArrowBack() {
+	return "<i class='fas fa-arrow-left' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='goBackVisual()'></i>";
+}
 function processEventClick(eventId) {
 	let producedContent = produceModalContent(eventId);
-
+	if (visualStack.length > 0) {
+		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
+	}
+	visualStack.push(producedContent);
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	if (search) doSearch();
@@ -1407,6 +1508,9 @@ function processEventClick(eventId) {
 	/* $('.popover-dismiss').popover({
 		trigger: 'focus'
 	}); */
+	$('#exec_flow_modal').on('hidden.bs.modal', function() {
+		visualStack = [];
+	});
 }
 /*
 

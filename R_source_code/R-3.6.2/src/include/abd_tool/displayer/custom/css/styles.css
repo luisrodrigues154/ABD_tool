@@ -151,6 +151,21 @@ hr {
 	color: white;
 }
 
+.for-loop-body {
+	background: var(--title-color);
+	color: white;
+	display: block;
+	border-radius: 5px;
+	border: 2px solid white;
+}
+
+.for-loop-body > tr > td > label {
+	display: block;
+}
+.for-loop-body > tr > td > codeWrapper {
+	cursor: pointer;
+}
+
 node {
 	background: var(--pane-opacity);
 	color: white;
