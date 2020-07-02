@@ -222,8 +222,7 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         if (prevType != type)
             baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
 
-        printf("vecObj->nCols %d\n", vecObj->nCols);
-        for (int i = 0; i < vecObj->nCols; i++)
+                for (int i = 0; i < vecObj->nCols; i++)
         {
             int idx = vecObj->idxs[i];
             fprintf(out, "\n%s{\n%s\"index\" : %d, ", getStrFromIndent(INDENT_6), getStrFromIndent(INDENT_7), idx);

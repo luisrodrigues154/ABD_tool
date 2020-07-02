@@ -18,8 +18,52 @@ void initEnvStack(SEXP startingEnv)
     envStack->onBranch = FALSE;
     envStack->branchDepth = 0;
     envStack->funCallRegged = FALSE;
+    envStack->waitingIdxChange = 0;
+    envStack->idxChanges = ABD_OBJECT_NOT_FOUND;
     initialEnv = startingEnv;
 }
+
+void clearIdxChanges()
+{
+    envStack->idxChanges = ABD_OBJECT_NOT_FOUND;
+    envStack->waitingIdxChange = 0;
+}
+
+IDX_CHANGE *getCurrIdxChanges()
+{
+    return envStack->idxChanges;
+}
+
+int waitingIdxChange()
+{
+    return envStack->waitingIdxChange;
+}
+
+void decrementWaitingIdxChange()
+{
+    envStack->waitingIdxChange--;
+}
+
+void incrementWaitingIdxChange()
+{
+    envStack->waitingIdxChange++;
+}
+
+void initIdxChangeAuxVars()
+{
+
+    envStack->idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
+    envStack->idxChanges->src = R_NilValue;
+    envStack->idxChanges->srcVec = 0;
+    envStack->idxChanges->discard = 0;
+    envStack->idxChanges->destIdxsVec = 0;
+    envStack->idxChanges->srcIdxsVec = 0;
+    envStack->idxChanges->srcValues = R_NilValue;
+    envStack->idxChanges->srcIdxs = R_NilValue;
+    envStack->idxChanges->destIdxs = R_NilValue;
+    envStack->idxChanges->srcObj = ABD_OBJECT_NOT_FOUND;
+}
+
 SEXP getInitialEnv()
 {
     return initialEnv;

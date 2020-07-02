@@ -80,7 +80,7 @@ charset.alias: $(srcdir)/config.charset
 
 charsetalias.h: charset.alias
 	@$(ECHO) "cp =" > $@
-	@ /usr/bin/sed -e 's/\([^ ]\{1,\}\)/"\1" "\\0"/g' charset.alias >> $@
+	@ /bin/sed -e 's/\([^ ]\{1,\}\)/"\1" "\\0"/g' charset.alias >> $@
 	@$(ECHO) ";" >> $@
 
 mostlyclean: clean

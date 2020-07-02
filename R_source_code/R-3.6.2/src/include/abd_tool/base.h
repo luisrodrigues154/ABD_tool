@@ -108,10 +108,12 @@ void regVarIdxChange(SEXP call, SEXP rho)
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+
     //printf("var index change... line %d\n", getCurrScriptLn());
     initIdxChangeAuxVars();
     //if matrix, toObj will remain langsxp, just a pair of brackets more
-    idxChanges->dest = CAR(CDR(CAR(CDR(call))));
+    getCurrIdxChanges()->dest = CAR(CDR(CAR(CDR(call))));
+
     //pre-process
     preProcessVarIdxChange(call, rho);
 
@@ -202,8 +204,7 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    // puts("received vector");
-    // PrintDaCall(vector, rho);
+    PrintDaCall(vector, rho);
 
     if (waitingForVecs)
     {
@@ -213,11 +214,12 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
             finalizeForEventProcessing();
         return;
     }
-    if (waitingIdxChange)
+
+    if (waitingIdxChange())
     {
         if (toDiscard())
         {
-            waitingIdxChange--;
+            decrementWaitingIdxChange();
             return;
         }
         storeVecForIdxChange(vector);

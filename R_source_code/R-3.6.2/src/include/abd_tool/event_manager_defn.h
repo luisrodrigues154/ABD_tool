@@ -14,20 +14,6 @@
 
 //EVENTS LIST
 static int waitingElseIF;
-/* struct to manage idx changes*/
-
-static int waitingIdxChange;
-typedef struct
-{
-  int srcVec, destIdxsVec, srcIdxsVec, discard;
-  int nIdxChanges;
-  SEXP srcValues, srcIdxs, destIdxs;
-  SEXP src, dest;
-  ABD_OBJECT *destObj;
-  ABD_OBJECT *srcObj;
-} IDX_CHANGE;
-
-static IDX_CHANGE *idxChanges;
 
 /* struct to manage for loops (allows nested fors) */
 

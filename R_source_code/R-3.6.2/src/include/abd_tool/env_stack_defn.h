@@ -9,6 +9,18 @@
 #ifndef loaded_stack
 #define loaded_stack
 
+/* struct to manage idx changes*/
+
+typedef struct
+{
+    int srcVec, destIdxsVec, srcIdxsVec, discard;
+    int nIdxChanges;
+    SEXP srcValues, srcIdxs, destIdxs;
+    SEXP src, dest;
+    ABD_OBJECT *destObj;
+    ABD_OBJECT *srcObj;
+} IDX_CHANGE;
+
 typedef struct abd_env_stack
 {
     SEXP rho;
@@ -17,6 +29,8 @@ typedef struct abd_env_stack
     short branchDepth;
     Rboolean funCallRegged;
     Rboolean onBranch;
+    int waitingIdxChange;
+    IDX_CHANGE *idxChanges;
     struct abd_env_stack *prev;
 } ABD_ENV_STACK;
 
@@ -41,3 +55,9 @@ Rboolean onBranch();
 void incBranchDepth();
 void decBranchDepth();
 short getCurrBranchDepth();
+IDX_CHANGE *getCurrIdxChanges();
+int waitingIdxChange();
+void decrementWaitingIdxChange();
+void incrementWaitingIdxChange();
+void initIdxChangeAuxVars();
+void clearIdxChanges();

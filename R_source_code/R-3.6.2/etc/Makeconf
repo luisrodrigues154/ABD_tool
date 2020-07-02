@@ -4,7 +4,7 @@
 #
 # R was configured using the following call
 # (not including env. vars and site configuration)
-# configure  '--without-recommended-packages' '-with-included-gettext'
+# configure  '--without-recommended-packages' '--with-included-gettext'
 
 ## This fails if it contains spaces, or if it is quoted
 include $(R_SHARE_DIR)/make/vars.mk
@@ -57,16 +57,16 @@ FLIBS =  -lgfortran -lm -lquadmath
 FPICFLAGS = -fpic
 FOUNDATION_CPPFLAGS = 
 FOUNDATION_LIBS = 
-JAR = 
-JAVA = 
-JAVAC = 
+JAR = /usr/bin/jar
+JAVA = /usr/bin/java
+JAVAC = /usr/bin/javac
 JAVAH = 
 ## JAVA_HOME might be used in the next three.  
 ## They are for packages 'JavaGD' and 'rJava'
-JAVA_HOME = 
-JAVA_CPPFLAGS = 
-JAVA_LIBS = 
-JAVA_LD_LIBRARY_PATH = 
+JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64
+JAVA_CPPFLAGS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+JAVA_LIBS = -L$(JAVA_HOME)/lib/server -ljvm
+JAVA_LD_LIBRARY_PATH = $(JAVA_HOME)/lib/server
 LAPACK_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRlapack
 LDFLAGS = -L/usr/local/lib
 ## we only need this is if it is external, as otherwise link to R
@@ -75,7 +75,7 @@ LIBM = -lm
 LIBR0 = 
 LIBR1 = 
 LIBR =  
-LIBS =  -lpcre2-8 -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
+LIBS =  -lpcre -llzma -lbz2 -lz -lrt -ldl -lm -licuuc -licui18n
 ## needed by R CMD config
 LIBnn = lib
 LIBTOOL = $(SHELL) "$(R_HOME)/bin/libtool"
@@ -92,7 +92,7 @@ OBJCXX = g++
 R_ARCH = 
 RANLIB = ranlib
 SAFE_FFLAGS = -g -O2 -msse2 -mfpmath=sse
-SED = /usr/bin/sed
+SED = /bin/sed
 SHELL = /bin/bash
 SHLIB_CFLAGS = 
 SHLIB_CXXFLAGS = 

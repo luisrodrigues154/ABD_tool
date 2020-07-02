@@ -24,8 +24,6 @@ void initObjsRegs()
     cfObjReg = ABD_OBJECT_NOT_FOUND;
     numCfObj = 0;
     numCmnObj = 0;
-    waitingIdxChange = 0;
-    idxChanges = ABD_OBJECT_NOT_FOUND;
 }
 
 void wipeObjMods(ABD_OBJECT_MOD *listStart)
@@ -393,7 +391,7 @@ ABD_OBJECT_MOD *intVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
 
     ABD_OBJECT_MOD *firstMod = newMod;
-
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 1;
 
@@ -434,12 +432,16 @@ ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
 
     ABD_OBJECT_MOD *firstMod = newMod;
-
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     newMod->value.vec_value = memAllocVecObj();
     newMod->value.vec_value->idxChange = 1;
 
     int srcSize = Rf_length(idxChanges->srcValues);
     int destSize = Rf_length(idxChanges->destIdxs);
+    if (idxChanges->nIdxChanges == 0)
+    {
+        idxChanges->nIdxChanges = destSize;
+    }
 
     newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
 
@@ -474,7 +476,6 @@ ABD_OBJECT_MOD *realVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
 
 ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD_OBJECT_MOD *(*func)(ABD_OBJECT_MOD *, SEXP))
 {
-
     if (newValue == ABD_NOT_FOUND)
     {
         newModification->remotion = ABD_DELETED;
@@ -606,6 +607,7 @@ void printReg()
 
 void processVarIdxChange(SEXP result)
 {
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     if (idxChanges->srcValues == R_NilValue)
         idxChanges->srcValues = result;
 

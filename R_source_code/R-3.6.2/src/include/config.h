@@ -87,13 +87,13 @@
 #define HAVE_CACOS 1
 
 /* Define to 1 if you have cairo-ps. */
-/* #undef HAVE_CAIRO_PDF */
+#define HAVE_CAIRO_PDF 1
 
 /* Define to 1 if you have cairo-pdf. */
-/* #undef HAVE_CAIRO_PS */
+#define HAVE_CAIRO_PS 1
 
 /* Define to 1 if you have cairo-svg. */
-/* #undef HAVE_CAIRO_SVG */
+#define HAVE_CAIRO_SVG 1
 
 /* Define to 1 if you have the `carg' function. */
 #define HAVE_CARG 1
@@ -581,10 +581,10 @@
 #define HAVE_OPENMP_SIMDRED 1
 
 /* Define to 1 if you have pangocairo. */
-/* #undef HAVE_PANGOCAIRO */
+#define HAVE_PANGOCAIRO 1
 
 /* Define if your system has pcre2. */
-#define HAVE_PCRE2 1
+/* #undef HAVE_PCRE2 */
 
 /* Define to 1 if you have the <pcre.h> header file. */
 #define HAVE_PCRE_H 1
@@ -948,7 +948,7 @@
 #define HAVE_WORKING_64BIT_MKTIME 1
 
 /* Define to 1 if you have cairo. */
-/* #undef HAVE_WORKING_CAIRO */
+#define HAVE_WORKING_CAIRO 1
 
 /* Define if calloc(0) returns a null pointer. */
 #define HAVE_WORKING_CALLOC 1
@@ -1039,7 +1039,7 @@
 #define PACKAGE_VERSION "3.6.2"
 
 /* PCRE2 code unit width wanted. */
-#define PCRE2_CODE_UNIT_WIDTH 8
+/* #undef PCRE2_CODE_UNIT_WIDTH */
 
 /* Define if <inttypes.h> exists and defines unusable PRI* macros. (For intl)
    */

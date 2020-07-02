@@ -61,7 +61,7 @@ datarootdir = ${prefix}/share
 infodir = ${datarootdir}/info
 INSTALL_INFO = 
 
-R_PAPERSIZE = letter
+R_PAPERSIZE = a4
 R_RD4PDF = times,inconsolata,hyper
 
 texinputs_BASE = $(R_PKGS_BASE:=-pkg.tex)

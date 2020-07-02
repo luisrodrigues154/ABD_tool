@@ -946,7 +946,6 @@ void storeNewVecValues(SEXP values, SEXP call)
 void clearPendingVars()
 {
     /* reset the pending variables values */
-
     /* Reset RET_EVENT */
     lastRetEvent = ABD_EVENT_NOT_FOUND;
     lastRetValue = R_NilValue;
@@ -964,7 +963,8 @@ void clearPendingVars()
     currArithIndex = -1;
     arithResults = ABD_NOT_FOUND;
     waitingElseIF = 0;
-    waitingIdxChange = 0;
+
+    clearIdxChanges();
 }
 
 ABD_EVENT *checkPendingArith(SEXP rhs)
@@ -1008,17 +1008,18 @@ ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
 }
 int toDiscard()
 {
-    return idxChanges->discard;
+    return getCurrIdxChanges()->discard;
 }
 
 void storeVecForIdxChange(SEXP vec)
 {
     //
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     if (idxChanges->srcIdxsVec)
     {
         idxChanges->srcIdxs = vec;
         idxChanges->srcIdxsVec = 0;
-        waitingIdxChange--;
+        decrementWaitingIdxChange();
         return;
     }
 
@@ -1026,7 +1027,7 @@ void storeVecForIdxChange(SEXP vec)
     {
         idxChanges->srcValues = vec;
         idxChanges->srcVec = 0;
-        waitingIdxChange--;
+        decrementWaitingIdxChange();
         return;
     }
 
@@ -1034,28 +1035,16 @@ void storeVecForIdxChange(SEXP vec)
     {
         idxChanges->destIdxs = vec;
         idxChanges->destIdxsVec = 0;
-        waitingIdxChange--;
+        decrementWaitingIdxChange();
         return;
     }
 }
 
-void initIdxChangeAuxVars()
-{
-    idxChanges = (IDX_CHANGE *)malloc(sizeof(IDX_CHANGE));
-    idxChanges->src = R_NilValue;
-    idxChanges->srcVec = 0;
-    idxChanges->discard = 0;
-    idxChanges->destIdxsVec = 0;
-    idxChanges->srcIdxsVec = 0;
-    idxChanges->srcValues = R_NilValue;
-    idxChanges->srcIdxs = R_NilValue;
-    idxChanges->destIdxs = R_NilValue;
-    idxChanges->srcObj = ABD_OBJECT_NOT_FOUND;
-}
 void preProcessDest(SEXP call)
 {
     //process destination
     SEXP destIdxs = CAR(CDR(CDR(CAR(CDR(call)))));
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     if (TYPEOF(destIdxs) == LANGSXP)
     {
 
@@ -1063,7 +1052,7 @@ void preProcessDest(SEXP call)
         {
             //just to know that this will create a vector with the indexes being changed
             idxChanges->destIdxsVec = 1;
-            waitingIdxChange++;
+            incrementWaitingIdxChange();
         }
     }
     else
@@ -1085,6 +1074,7 @@ void preProcessSrc(SEXP call)
 {
     SEXP initialRhs = CAR(CDR(CDR(call)));
     SEXP rhs = CAR(CDR(CDR(call)));
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     idxChanges->src = R_NilValue;
 rollback:
     if (TYPEOF(rhs) == LANGSXP)
@@ -1105,12 +1095,12 @@ rollback:
             if (idxChanges->src != R_NilValue)
             {
                 idxChanges->srcIdxsVec = 1;
-                waitingIdxChange++;
+                incrementWaitingIdxChange();
             }
             //     printf("used a range or a combine from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
 
             idxChanges->srcVec = 1;
-            waitingIdxChange++;
+            incrementWaitingIdxChange();
         }
     }
     else
@@ -1125,7 +1115,7 @@ rollback:
                 if (Rf_length(srcIdxs) > 1)
                 {
                     idxChanges->srcVec = 1;
-                    waitingIdxChange++;
+                    incrementWaitingIdxChange();
                 }
 
                 //means that rhs was treated because of brackets in it ex: b[idxs]
@@ -1166,7 +1156,6 @@ void preProcessVarIdxChange(SEXP call, SEXP rho)
     // puts("The call expression    int *needProcess = (int *)malloc(sizeof(int) * 2);");
     // PrintIt(call, getCurrentEnv());
     // puts(" ");
-
     preProcessDest(call);
     preProcessSrc(call);
     //done
@@ -1286,6 +1275,7 @@ ABD_EVENT *createMainEvent()
 
 ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
 {
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     if (idxChanges->srcIdxs == R_NilValue)
     {
         idxEvent->nIdxs = 1;
@@ -1319,7 +1309,7 @@ ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
 {
     ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
-
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     /* Create the new assignment event */
     createNewEvent(IDX_EVENT);
 
