@@ -100,8 +100,8 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
     //printf("finalize idx change... line %d\n", getCurrScriptLn());
 
     processVarIdxChange(result);
-    if (inLoopEvent())
-        addEventToForIteration(eventsRegTail);
+    // if (inLoopEvent())
+    //     addEventToForIteration(eventsRegTail);
 }
 void regVarIdxChange(SEXP call, SEXP rho)
 {
@@ -133,11 +133,9 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     //printf("var change... line %d\n", getCurrScriptLn());
     // puts("rhs2 V");
     // PrintDaCall(rhs2, getCurrentEnv());
-    //printf("typeof lhs %d\n", TYPEOF(rhs));
-
+    //print f("typeof lhs %d\n", TYPEOF(rhs));
     /* store the new information for the object */
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
-
     if (inLoopEvent() && call == R_NilValue && forStack->currFor->iterator == ABD_OBJECT_NOT_FOUND)
         forStack->currFor->iterator = objUsed;
 
@@ -151,8 +149,8 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     }
 
     clearPendingVars();
-    if (inLoopEvent() && call != R_NilValue)
-        addEventToForIteration(eventsRegTail);
+    // if (inLoopEvent() && call != R_NilValue)
+    //     addEventToForIteration(eventsRegTail);
 }
 
 void decrementBranchDepth(SEXP rho)
@@ -190,8 +188,8 @@ void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedA
     createNewEvent(FUNC_EVENT);
     setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
     setFunCallRegged(TRUE);
-    if (inLoopEvent())
-        addEventToForIteration(eventsRegTail);
+    // if (inLoopEvent())
+    //     addEventToForIteration(eventsRegTail);
 }
 Rboolean isFunCallRegged()
 {
@@ -199,12 +197,13 @@ Rboolean isFunCallRegged()
         return FALSE;
     return getFunCalledFlag();
 }
+
 void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    PrintDaCall(vector, rho);
+    //PrintDaCall(vector, rho);
 
     if (waitingForVecs)
     {
@@ -237,8 +236,8 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
-    if (inLoopEvent())
-        addEventToForIteration(eventsRegTail);
+    // if (inLoopEvent())
+    //     addEventToForIteration(eventsRegTail);
 }
 
 void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho)
@@ -254,8 +253,16 @@ void regForLoopIteration(int iterId, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
-
     createNewForLoopIter(iterId);
+}
+void doLoopJump(ABD_LOOP_JUMP type, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+    if (type == ABD_NEXT)
+        createNewEvent(NEXT_EVENT);
+    else
+        createNewEvent(BREAK_EVENT);
 }
 
 void regForLoopFinish(SEXP rho)
@@ -279,7 +286,6 @@ void regArith(SEXP call, SEXP ans, SEXP rho)
 
 void storeIsWaitingIf(int isWaiting, SEXP rho)
 {
-
     if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
         setIsWaitingIf(isWaiting);
 }
@@ -289,8 +295,8 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val)
     //printf("return... line %d\n", getCurrScriptLn());
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
-    if (inLoopEvent())
-        addEventToForIteration(eventsRegTail);
+    // if (inLoopEvent())
+    //     addEventToForIteration(eventsRegTail);
 }
 
 ABD_STATE isRunning()

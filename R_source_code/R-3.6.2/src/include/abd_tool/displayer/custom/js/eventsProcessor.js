@@ -13,7 +13,9 @@ const types = {
 	ARITH: 'arith_event',
 	VEC: 'vector_event',
 	IDX: 'idx_change_event',
-	FOR: 'for_loop_event'
+	FOR: 'for_loop_event',
+	BREAK: 'break_event',
+	NEXT: 'next_event'
 };
 var processMe = 0;
 

@@ -23,7 +23,9 @@
 	color: var(--bto-color);
 	font-weight: bold;
 }
-
+.withCursor {
+	cursor: pointer;
+}
 .menu-title {
 	color: var(--title-color);
 	font-weight: bold;

@@ -83,7 +83,8 @@ int matherr(struct exception *exc)
 #endif
 #endif
 
-typedef union {
+typedef union
+{
 	double value;
 	unsigned int word[2];
 } ieee_double;
@@ -430,6 +431,7 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 {
 
 	SEXP ans, arg1, arg2;
+	Rboolean hitDefault = FALSE;
 	int argc;
 
 	if (args == R_NilValue)
@@ -454,7 +456,7 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 
 		if (IS_SCALAR(arg1, REALSXP))
 		{
-			Rboolean hitDefault = FALSE;
+
 			double x1 = SCALAR_DVAL(arg1);
 			if (IS_SCALAR(arg2, REALSXP))
 			{
@@ -493,22 +495,24 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 				{
 				case PLUSOP:
 					SET_SCALAR_DVAL(ans, x1 + x2);
-					return ans;
+					break;
 				case MINUSOP:
 					SET_SCALAR_DVAL(ans, x1 - x2);
-					return ans;
+					break;
 				case TIMESOP:
 					SET_SCALAR_DVAL(ans, x1 * x2);
-					return ans;
+					break;
 				case DIVOP:
 					SET_SCALAR_DVAL(ans, x1 / x2);
-					return ans;
+					break;
 				default:
 					hitDefault = TRUE;
 					break;
 				}
 				if (!hitDefault)
 					regArith(call, ans, env);
+
+				return ans;
 			}
 		}
 		else if (IS_SCALAR(arg1, INTSXP))
@@ -519,21 +523,29 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 				double x1 = i1 != NA_INTEGER ? (double)i1 : NA_REAL;
 				double x2 = SCALAR_DVAL(arg2);
 				ans = ScalarValue1(arg2);
+
 				switch (PRIMVAL(op))
 				{
 				case PLUSOP:
 					SET_SCALAR_DVAL(ans, x1 + x2);
-					return ans;
+					break;
 				case MINUSOP:
 					SET_SCALAR_DVAL(ans, x1 - x2);
-					return ans;
+					break;
 				case TIMESOP:
 					SET_SCALAR_DVAL(ans, x1 * x2);
-					return ans;
+					break;
 				case DIVOP:
 					SET_SCALAR_DVAL(ans, x1 / x2);
-					return ans;
+					break;
+				default:
+					hitDefault = TRUE;
+					break;
 				}
+				if (!hitDefault)
+					regArith(call, ans, env);
+
+				return ans;
 			}
 			else if (IS_SCALAR(arg2, INTSXP))
 			{
@@ -545,20 +557,29 @@ SEXP attribute_hidden do_arith(SEXP call, SEXP op, SEXP args, SEXP env)
 					ans = ScalarValue2(arg1, arg2);
 					SET_SCALAR_IVAL(ans, R_integer_plus(i1, i2, &naflag));
 					CHECK_INTEGER_OVERFLOW(call, ans, naflag);
-					return ans;
+					break;
 				case MINUSOP:
 					ans = ScalarValue2(arg1, arg2);
 					SET_SCALAR_IVAL(ans, R_integer_minus(i1, i2, &naflag));
 					CHECK_INTEGER_OVERFLOW(call, ans, naflag);
-					return ans;
+					break;
 				case TIMESOP:
 					ans = ScalarValue2(arg1, arg2);
 					SET_SCALAR_IVAL(ans, R_integer_times(i1, i2, &naflag));
 					CHECK_INTEGER_OVERFLOW(call, ans, naflag);
-					return ans;
+					break;
 				case DIVOP:
-					return ScalarReal(R_integer_divide(i1, i2));
+					ans = ScalarReal(R_integer_divide(i1, i2));
+					break;
+				default:
+					hitDefault = TRUE;
+					break;
 				}
+
+				if (!hitDefault)
+					regArith(call, ans, env);
+
+				return ans;
 			}
 		}
 	}

@@ -14,8 +14,16 @@ typedef enum abd_event_types
     ARITH_EVENT = 5,
     VEC_EVENT = 6,
     IDX_EVENT = 7,
-    FOR_EVENT = 8
+    FOR_EVENT = 8,
+    BREAK_EVENT = 9,
+    NEXT_EVENT = 10
 } ABD_EVENT_TYPE;
+
+typedef enum loop_jump
+{
+    ABD_BREAK = 0,
+    ABD_NEXT = 1
+} ABD_LOOP_JUMP;
 
 //describe a if statement and its else ifs
 typedef enum if_type
@@ -232,7 +240,8 @@ struct abd_event
     int scriptLn;
     ABD_EVENT_TYPE type;
     short branchDepth;
-    union {
+    union
+    {
         ABD_IF_EVENT *if_event;
         ABD_FUNC_EVENT *func_event;
         ABD_RET_EVENT *ret_event;

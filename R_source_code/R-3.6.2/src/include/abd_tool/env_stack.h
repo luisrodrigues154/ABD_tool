@@ -78,6 +78,11 @@ void setOnBranch(Rboolean onBranch)
     envStack->onBranch = onBranch;
 }
 
+void forceBranchDepth(short value)
+{
+    envStack->branchDepth = value;
+}
+
 void setFunCallRegged(Rboolean state)
 {
     envStack->funCallRegged = state;

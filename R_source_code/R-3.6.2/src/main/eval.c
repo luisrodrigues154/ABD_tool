@@ -2454,8 +2454,10 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 	switch (SETJMP(cntxt.cjmpbuf))
 	{
 	case CTXT_BREAK:
+		doLoopJump(ABD_BREAK, rho);
 		goto for_break;
 	case CTXT_NEXT:
+		doLoopJump(ABD_NEXT, rho);
 		goto for_next;
 	}
 
@@ -2524,18 +2526,19 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 			do_browser(call, op, R_NilValue, rho);
 		}
 		forValPos = i;
+		regForLoopIteration(i, rho);
 		//update the iterator with the new value he assumed
 		regVarChange(R_NilValue, sym, v, rho);
-		regForLoopIteration(i, rho);
+
 		eval(body, rho);
 	for_next:; /* needed for strict ISO C compliance, according to gcc 2.95.2 */
 	}
 for_break:
 	endcontext(&cntxt);
+
 	DECREMENT_LINKS(val);
 	UNPROTECT(5);
 	SET_RDEBUG(rho, dbg);
-
 	regForLoopFinish(rho);
 	return R_NilValue;
 }
@@ -2650,6 +2653,7 @@ SEXP attribute_hidden do_begin(SEXP call, SEXP op, SEXP args, SEXP rho)
 	}
 
 	/* verify if leaving an else statement and update de branchDepth */
+
 	decrementBranchDepth(rho);
 	return s;
 }
@@ -3461,7 +3465,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-		/* falls through */
+					/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;
@@ -5251,7 +5255,8 @@ SEXP R_ClosureExpr(SEXP p)
 }
 
 #ifdef THREADED_CODE
-typedef union {
+typedef union
+{
 	void *v;
 	int i;
 } BCODE;

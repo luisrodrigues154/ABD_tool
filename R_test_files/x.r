@@ -2,7 +2,7 @@ options("keep.source" = TRUE)
 run <- function(){
 
     abd_start()
-    z <- 3:1
+    z <- 600:1
     
     print('--------------')
 
@@ -11,17 +11,29 @@ run <- function(){
         x
     }
     print("-------------------------")
-   
+    
     c <- 1:20
+    c[1] <- 2+3
     for(x in z){
+        print("---")
+        if(x == 599){
+            print("will next")
+            next
+        }
+        if(x == 598){
+            break
+        }
+
         if(x<3){
             c[x] <- f1(x)
             c[x] <- 10
         }else{
             c[x] <- x+1
         }
+        
     }
     z[1:3] <- f1(2)
+    b <- 4+2*(90-60)
     # teste <- 1:1000000
 
 

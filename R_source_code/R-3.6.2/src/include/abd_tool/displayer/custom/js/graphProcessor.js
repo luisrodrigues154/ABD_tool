@@ -154,11 +154,9 @@ function mkBlockHeader(funcName, env, withFromLine) {
 function genNodeRow(line, codeHtml, branchDept) {
 	var htmlProduced = '<div class="row">';
 
-	//line of code
 	htmlProduced += '<div class="col col-lg-2 col1">';
 	htmlProduced += '<label class="float-right object-rhs-special">' + line + '</label>';
 	htmlProduced += '</div>';
-
 	//code
 	htmlProduced += '<div class="col col-md-auto col3" style="margin-left:{}px;">'.format(branchDept * 14);
 	htmlProduced += '<codeWrapper">{}</codeWrapper>'.format(codeHtml);
@@ -208,11 +206,11 @@ function genForMultiLabelsWithIdent(id, text, indent) {
 }
 
 function genLabelForAlreadyOpenModal(id, text) {
-	return '<label href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</label>'.format(id, text);
+	return '<a href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</a>'.format(id, text);
 }
 
 function genLabelForAlreadyOpenModalWithIndent(id, text, indent) {
-	return '<label href="#" id="eId-{}" style="margin-left:{}px;" onclick="processEventClick(this.id)">{}</label>'.format(
+	return '<label id="eId-{}" class="withCursor" style="margin-left:{}px;" onclick="processEventClick(this.id)">{}</label>'.format(
 		id,
 		indent * 14,
 		text
@@ -220,7 +218,7 @@ function genLabelForAlreadyOpenModalWithIndent(id, text, indent) {
 }
 
 function genForMultiLabelsWithIdentAndColorAlreadyOpen(id, text, indent, result) {
-	return '<label href="#" id="eId-{}" style="margin-left:{}px;display:block;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
+	return '<label href="#" id="eId-{}" class="withCursor" style="margin-left:{}px;display:block;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
 		id,
 		indent * 14,
 		result == true ? 'lightgreen' : 'tomato',
@@ -228,7 +226,7 @@ function genForMultiLabelsWithIdentAndColorAlreadyOpen(id, text, indent, result)
 	);
 }
 function genLabelForAlreadyOpenModalWithIndentAndColor(id, text, indent, result) {
-	return '<label href="#" id="eId-{}" style="margin-left:{}px;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
+	return '<label href="#" id="eId-{}" class="withCursor" style="margin-left:{}px;color:{};" onclick="processEventClick(this.id)">{}</label>'.format(
 		id,
 		indent * 14,
 		result == true ? 'lightgreen' : 'tomato',
@@ -521,7 +519,7 @@ function mkObjModalTopInfo(event) {
 				);
 				break;
 			case types.ARITH:
-				sourceEvent = 'Arithmetic';
+				sourceEvent = genLabelForAlreadyOpenModal(event['data']['fromEvent'], 'Arithmetic');
 				break;
 		}
 	} else {
@@ -1025,9 +1023,10 @@ function mkForLoopModalInfo(event, eventId) {
 	dropDown += '1';
 	dropDown += '</a>';
 	dropDown += '<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
+	dropDown += '<input class="form-control" id="dropSearch-{}" type="text" placeholder="Search...">'.format(eventId);
 	let i;
 	for (i = 1; i <= event['data']['iterCounter']; i++)
-		dropDown += '<a id="itId-{}" class="dropdown-item text-center" href="#" onclick="processIteration({},this.id, false)">{}</a>'.format(
+		dropDown += '<a id="itId-{}" class="dropdown-item text-left" href="#" onclick="processIteration({},this.id, false)">{}</a>'.format(
 			i,
 			eventId,
 			i
@@ -1066,11 +1065,33 @@ function mkForLoopModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 	return htmlProduced;
 }
+
+function requestIteration() {
+	let forId = parseInt($('*[id^=dropSearch]').attr('id').split('-')[1]);
+	if ($('*[id^=dropSearch]').val() == '') {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+	} else {
+		let requestIt = parseInt($('*[id^=dropSearch]').val());
+
+		if (events[forId]['data']['iterCounter'] >= requestIt && events[forId]['data']['iterCounter'] >= 0) {
+			processIteration(forId, requestIt, false);
+			$('*[id^=dropSearch]').css('background-color', 'lightgreen');
+			$('*[id^=dropSearch]').css('color', 'black');
+		} else {
+			$('*[id^=dropSearch]').css('background-color', 'tomato');
+			$('*[id^=dropSearch]').css('color', 'black');
+		}
+	}
+}
 function requestNextIteration(forId) {
 	forId = forId.split('-')[1];
 	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
 
 	if (events[forId]['data']['iterCounter'] >= currIteration + 1) {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+		$('*[id^=dropSearch]').val('');
 		processIteration(forId, currIteration + 1, false);
 	}
 }
@@ -1078,22 +1099,30 @@ function requestPrevIteration(forId) {
 	forId = forId.split('-')[1];
 	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
 	if (currIteration - 1 > 0) {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+		$('*[id^=dropSearch]').val('');
 		processIteration(forId, currIteration - 1, false);
 	}
 }
 function resolveAuxEnvContents(env) {
 	let nodeHtml = '';
 	nodeHtml += '<div class="container-fluid" id="node_content">';
+
 	let envBranchDepthInfo = envLineBDepth.get(env);
 	for ([ line, content ] of auxMap.get(env)) {
+		let branDepth = envBranchDepthInfo.get(line)[0];
 		var numEntries = content.length - 1;
 		var i;
 		let auxHtml = '';
-		for (i = numEntries; i >= 0; i--) {
-			auxHtml += '{} {} '.format(content[i], i - 1 >= 0 ? '<-' : '');
+		if (content == 'Break' || content == 'Next') {
+			nodeHtml += genNodeRow('', content, branDepth);
+		} else {
+			for (i = numEntries; i >= 0; i--) {
+				auxHtml += '{} {} '.format(content[i], i - 1 >= 0 ? '<-' : '');
+			}
+			nodeHtml += genNodeRow(line, auxHtml, branDepth);
 		}
-		let branDepth = envBranchDepthInfo.get(line)[0];
-		nodeHtml += genNodeRow(line, auxHtml, branDepth);
 	}
 
 	nodeHtml += '</div>';
@@ -1110,7 +1139,7 @@ function initAuxEnvMap(env) {
 	auxMap.set(env, new Map());
 	envLineBDepth.set(env, new Map());
 }
-
+let toAppendAfter = new Map();
 function processIteration(forId, iterationId, toReturn) {
 	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
 
@@ -1135,10 +1164,14 @@ function processIteration(forId, iterationId, toReturn) {
 	let envs = [];
 	let loopHtml = '';
 	let branchIncrementer = 0;
+
 	for (i = 0; i < eventsHistory.length; i++) {
 		loopHtml = '';
+
 		eventId = eventsHistory[i];
 		event = events[eventId];
+		if (event['line'] == events[forId]['line'] && event['type'] == types.ASSIGN) continue;
+
 		if (!alreadyInit) {
 			alreadyInit = true;
 			envs.push(event['atEnv']);
@@ -1147,9 +1180,14 @@ function processIteration(forId, iterationId, toReturn) {
 		}
 
 		let codeLine = code[event['line'] - 1];
-
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
 		switch (event['type']) {
+			case types.BREAK:
+				addEventToAuxMap(actualEnv, event['line'], 'Break');
+				break;
+			case types.NEXT:
+				addEventToAuxMap(actualEnv, event['line'], 'Next');
+				break;
 			case types.FUNC:
 				let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
 
@@ -1163,7 +1201,9 @@ function processIteration(forId, iterationId, toReturn) {
 						.trim(),
 					0
 				);
+
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				toAppendAfter[event['line']] = event['data']['toEnv'];
 				branchIncrementer++;
 				alreadyInit = false;
 				break;
@@ -1236,7 +1276,7 @@ function processIteration(forId, iterationId, toReturn) {
 					);
 				}
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
-				htmlProduced += resolveAuxEnvContents(actualEnv);
+				// htmlProduced += resolveAuxEnvContents(actualEnv);
 				branchIncrementer--;
 				envs.pop();
 				actualEnv = envs[envs.length - 1];
@@ -1272,6 +1312,16 @@ function processIteration(forId, iterationId, toReturn) {
 			default:
 				break;
 		}
+
+		if (
+			event['line'] in toAppendAfter &&
+			event['type'] != types.FUNC &&
+			event['type'] != types.BREAK &&
+			event['type'] != types.NEXT
+		) {
+			mergeMaps(actualEnv, toAppendAfter[event['line']]);
+			toAppendAfter = new Map();
+		}
 	}
 	htmlProduced += resolveAuxEnvContents(actualEnv);
 	htmlProduced += '</td>';
@@ -1284,6 +1334,16 @@ function processIteration(forId, iterationId, toReturn) {
 		document.getElementById('for_iteration_body_header').innerHTML = 'Iteration {} information'.format(iterationId);
 	}
 }
+
+function mergeMaps(env, withEnv) {
+	let toAppendContent = auxMap.get(withEnv);
+	for ([ line, content ] of toAppendContent) {
+		auxMap.get(env).set(line, content);
+		actualBDepth = envLineBDepth.get(withEnv).get(line)[0];
+		updateBranchLineDepth(env, line, actualBDepth + 2);
+	}
+}
+
 function mkIdxChangeModalInfo(event, eventId) {
 	let htmlProduced = '';
 	let displayNote = false;
@@ -1347,7 +1407,7 @@ function mkIdxChangeModalInfo(event, eventId) {
 
 				break;
 			case types.ARITH:
-				htmlProduced += 'Arithmetic expr.';
+				htmlProduced += genLabelForAlreadyOpenModal(event['data']['fromEvent'], 'Arithmetic');
 				break;
 		}
 	}
@@ -1491,6 +1551,7 @@ function goBackVisual() {
 function getArrowBack() {
 	return "<i class='fas fa-arrow-left' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='goBackVisual()'></i>";
 }
+let litClose = false;
 function processEventClick(eventId) {
 	let producedContent = produceModalContent(eventId);
 	if (visualStack.length > 0) {
@@ -1510,6 +1571,15 @@ function processEventClick(eventId) {
 	}); */
 	$('#exec_flow_modal').on('hidden.bs.modal', function() {
 		visualStack = [];
+	});
+	$('*[id^=dropSearch]').on('keyup paste', function(event) {
+		requestIteration();
+		if (event.keyCode == 13) {
+			$('#dropdownMenuLink').click();
+		}
+	});
+	$('#dropdownMenuLink').click(function() {
+		$('*[id^=dropSearch]').focus();
 	});
 }
 /*

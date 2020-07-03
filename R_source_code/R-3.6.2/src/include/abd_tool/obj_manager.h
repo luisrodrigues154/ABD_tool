@@ -625,7 +625,6 @@ void processVarIdxChange(SEXP result)
         obj->modList = newMod;
         obj->usages++;
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
-
         createIndexChangeEvent(result, obj);
     }
     clearPendingVars();

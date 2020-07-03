@@ -61,3 +61,4 @@ void decrementWaitingIdxChange();
 void incrementWaitingIdxChange();
 void initIdxChangeAuxVars();
 void clearIdxChanges();
+void forceBranchDepth(short value);

@@ -21,11 +21,13 @@ typedef struct for_chain
 {
   ABD_FOR_LOOP_EVENT *currFor;
   ITERATION *currIter;
+  int initalBranchDepth;
   struct for_chain *prevFor;
 } FOR_CHAIN;
 
 static Rboolean inForLoop;
 FOR_CHAIN *forStack;
+
 static short waitingForVecs;
 Rboolean forIdxsVec;
 Rboolean forValVec;
@@ -91,3 +93,4 @@ void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);
 void clearPendingVars();
 Rboolean inLoopEvent();
 void setInForLoop(Rboolean state);
+void addEventToForIteration(ABD_EVENT *eventToAdd);

@@ -222,7 +222,7 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         if (prevType != type)
             baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
 
-                for (int i = 0; i < vecObj->nCols; i++)
+        for (int i = 0; i < vecObj->nCols; i++)
         {
             int idx = vecObj->idxs[i];
             fprintf(out, "\n%s{\n%s\"index\" : %d, ", getStrFromIndent(INDENT_6), getStrFromIndent(INDENT_7), idx);
@@ -1178,12 +1178,24 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"data\" : {");
             saveForLoopEvent(out, currEvent->data.for_loop_event, dispOut);
             break;
+        case BREAK_EVENT:
+            fprintf(out, "\"break_event\"");
+            fprintf(dispOut, "\"break_event\"");
+            goto avoidCurlies;
+            break;
+        case NEXT_EVENT:
+            fprintf(out, "\"next_event\"");
+            fprintf(dispOut, "\"next_event\"");
+            goto avoidCurlies;
+            break;
         default:
+            puts("default in json");
             break;
         }
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_2));
         fprintf(dispOut, "}");
-        fprintf(out, "}");
+    avoidCurlies:;
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_1));
         fprintf(dispOut, "}");
 
         currEvent = currEvent->nextEvent;

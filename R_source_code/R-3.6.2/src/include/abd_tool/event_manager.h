@@ -913,6 +913,9 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
     case FOR_EVENT:
         newBaseEvent->data.for_loop_event = memAllocForLoopEvent();
         break;
+    case BREAK_EVENT:
+    case NEXT_EVENT:
+        break;
     default:
         break;
     }
@@ -928,6 +931,8 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
         newEvent = creaStructsForType(newEvent, newEventType);
         eventsRegTail->nextEvent = newEvent;
         eventsRegTail = eventsRegTail->nextEvent;
+        if (inLoopEvent())
+            addEventToForIteration(newEvent);
     }
     newEvent->branchDepth = getCurrBranchDepth();
     newEvent->atFunc = getCurrFuncObj();
@@ -1180,6 +1185,7 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
         vecVal = vecValues;
         eventsRegTail->scriptLn = auxVecLine;
     }
+
     createNewEvent(VEC_EVENT);
 
     ABD_VEC_EVENT *vecEvent = eventsRegTail->data.vec_event;
@@ -1311,6 +1317,7 @@ void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
     ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     /* Create the new assignment event */
+
     createNewEvent(IDX_EVENT);
 
     /* get the tail from the events registry, to reduce code verbose */
@@ -1353,6 +1360,7 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
     ABD_EVENT *fromEvent = checkPendings(rhs2, rhs, objUsed);
 
     /* Create the new assignment event */
+
     createNewEvent(ASGN_EVENT);
 
     /* get the tail from the events registry, to reduce code verbose */
@@ -1379,8 +1387,10 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
 
         if (inLoopEvent() && objUsed->id == forStack->currFor->iterator->id)
         {
+            forStack->currIter->iteratorState = objUsed->modList;
             fromObj = forStack->currFor->enumerator;
             currAssign->fromState = forStack->currFor->enumState;
+
             if (forStack->currFor->fromIdxs != ABD_NOT_FOUND)
                 currAssign->withIndex = forStack->currFor->fromIdxs[forValPos];
             else
@@ -1540,7 +1550,6 @@ void createNewForLoopIter(int iterId)
     forStack->currIter->eventsList = ABD_EVENT_NOT_FOUND;
     forStack->currIter->eventsListTail = ABD_EVENT_NOT_FOUND;
     forStack->currIter->iterId = ++iterId;
-    forStack->currIter->iteratorState = forStack->currFor->iterator->modList;
 }
 
 void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
@@ -1564,7 +1573,7 @@ void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
     forIdxsVec = FALSE;
     forValVec = FALSE;
     forStack->currFor = newForEvent;
-
+    forStack->initalBranchDepth = getCurrBranchDepth();
     forStack->currFor->enumSEXP = R_NilValue;
     forStack->currFor->idxVec = R_NilValue;
     forStack->currFor->valVec = R_NilValue;
@@ -1581,6 +1590,9 @@ void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
 
 void addEventToForIteration(ABD_EVENT *eventToAdd)
 {
+
+    if (forStack->currIter == ABD_NOT_FOUND)
+        return;
     if (forStack->currIter->eventsListTail == ABD_EVENT_NOT_FOUND)
     {
         forStack->currIter->eventsList = memAllocIterEventList();
@@ -1593,7 +1605,6 @@ void addEventToForIteration(ABD_EVENT *eventToAdd)
         forStack->currIter->eventsListTail = forStack->currIter->eventsListTail->nextEvent;
         forStack->currIter->eventsListTail->nextEvent = ABD_EVENT_NOT_FOUND;
     }
-
     forStack->currIter->eventsListTail->event = eventToAdd;
 }
 
@@ -1601,6 +1612,9 @@ void popForEvent()
 {
     FOR_CHAIN *forChainToPop = forStack;
     forStack = forStack->prevFor;
+    if (forStack == ABD_EVENT_NOT_FOUND)
+        forceBranchDepth(forChainToPop->initalBranchDepth);
+
     free(forChainToPop);
 }
 
