@@ -2585,13 +2585,13 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 	SET_RDEBUG(rho, dbg);
 	return R_NilValue;
 }
-
+static Rboolean firstRun = TRUE;
+static int iterNum = 0;
 SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	int dbg;
 	volatile SEXP body;
 	RCNTXT cntxt;
-
 	checkArity(op, args);
 
 	dbg = RDEBUG(rho);
@@ -2602,13 +2602,28 @@ SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 	begincontext(&cntxt, CTXT_LOOP, R_NilValue, rho, R_BaseEnv, R_NilValue,
 				 R_NilValue);
+
+	regRepeatLoopStart(call, rho);
+
 	if (SETJMP(cntxt.cjmpbuf) != CTXT_BREAK)
 	{
+		if (!firstRun)
+			doLoopJump(ABD_NEXT, rho);
+		else
+		{
+			firstRun = FALSE;
+			iterNum = 0;
+		}
+
 		for (;;)
 		{
+			regRepeatLoopIteration(iterNum++, rho);
 			eval(body, rho);
 		}
 	}
+
+	doLoopJump(ABD_BREAK, rho);
+	regRepeatLoopFinish(rho);
 	endcontext(&cntxt);
 	SET_RDEBUG(rho, dbg);
 	return R_NilValue;

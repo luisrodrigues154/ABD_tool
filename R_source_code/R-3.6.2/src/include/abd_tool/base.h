@@ -240,6 +240,7 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
     //     addEventToForIteration(eventsRegTail);
 }
 
+/* FOR LOOP CALLABLES*/
 void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
@@ -255,15 +256,6 @@ void regForLoopIteration(int iterId, SEXP rho)
         return;
     createNewForLoopIter(iterId);
 }
-void doLoopJump(ABD_LOOP_JUMP type, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
-        return;
-    if (type == ABD_NEXT)
-        createNewEvent(NEXT_EVENT);
-    else
-        createNewEvent(BREAK_EVENT);
-}
 
 void regForLoopFinish(SEXP rho)
 {
@@ -274,6 +266,44 @@ void regForLoopFinish(SEXP rho)
     popForEvent();
     if (forStack == ABD_EVENT_NOT_FOUND)
         setInForLoop(FALSE);
+}
+
+/* REPEAT LOOP CALLABLES*/
+
+void regRepeatLoopStart(SEXP call, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+    ABD_REPEAT_LOOP_EVENT *newRepeatLoopEvent = createNewEvent(REPEAT_EVENT)->data.repeat_loop_event;
+    pushRepeatEvent(newRepeatLoopEvent);
+}
+
+void regRepeatLoopIteration(int iterId, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+    createNewRepeatLoopIter(iterId);
+}
+
+void regRepeatLoopFinish(SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+    repeatStack->currRepeat->lastEvent = eventsRegTail;
+    popRepeatEvent();
+    if (repeatStack == ABD_EVENT_NOT_FOUND)
+        setInRepeatLoop(FALSE);
+}
+
+/* LOOP misc*/
+void doLoopJump(ABD_LOOP_JUMP type, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+    if (type == ABD_NEXT)
+        createNewEvent(NEXT_EVENT);
+    else
+        createNewEvent(BREAK_EVENT);
 }
 
 void regArith(SEXP call, SEXP ans, SEXP rho)

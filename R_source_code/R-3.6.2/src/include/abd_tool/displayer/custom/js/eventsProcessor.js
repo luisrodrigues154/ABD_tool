@@ -15,7 +15,8 @@ const types = {
 	IDX: 'idx_change_event',
 	FOR: 'for_loop_event',
 	BREAK: 'break_event',
-	NEXT: 'next_event'
+	NEXT: 'next_event',
+	REPEAT: 'repeat_loop_event'
 };
 var processMe = 0;
 

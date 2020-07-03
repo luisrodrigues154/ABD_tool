@@ -16,7 +16,9 @@ typedef enum abd_event_types
     IDX_EVENT = 7,
     FOR_EVENT = 8,
     BREAK_EVENT = 9,
-    NEXT_EVENT = 10
+    NEXT_EVENT = 10,
+    REPEAT_EVENT = 11,
+    WHILE_EVENT = 12
 } ABD_EVENT_TYPE;
 
 typedef enum loop_jump
@@ -234,6 +236,18 @@ typedef struct for_loop_event
     ITERATION *itList; // the iterations performed by the loop
 } ABD_FOR_LOOP_EVENT;
 
+typedef struct repeat_loop_event
+{
+    int iterCounter;
+    ITERATION *itList;
+    ABD_EVENT *lastEvent;
+} ABD_REPEAT_LOOP_EVENT;
+
+typedef struct while_loop_event
+{
+
+} ABD_WHILE_LOOP_EVENT;
+
 struct abd_event
 {
     int id;
@@ -250,6 +264,8 @@ struct abd_event
         ABD_VEC_EVENT *vec_event;
         ABD_IDX_CHANGE_EVENT *idx_event;
         ABD_FOR_LOOP_EVENT *for_loop_event;
+        ABD_REPEAT_LOOP_EVENT *repeat_loop_event;
+        ABD_WHILE_LOOP_EVENT *while_loop_event;
     } data;
     ABD_OBJECT *atFunc;
     SEXP env;

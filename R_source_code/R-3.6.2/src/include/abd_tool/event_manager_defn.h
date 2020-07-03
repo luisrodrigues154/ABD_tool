@@ -27,11 +27,24 @@ typedef struct for_chain
 
 static Rboolean inForLoop;
 FOR_CHAIN *forStack;
-
+//
 static short waitingForVecs;
 Rboolean forIdxsVec;
 Rboolean forValVec;
 static int forValPos;
+/* struct to manage repeat loops (allows nested) */
+typedef struct repeat_chain
+{
+  ABD_REPEAT_LOOP_EVENT *currRepeat;
+  ITERATION *currIter;
+  int initalBranchDepth;
+  struct repeat_chain *prevRepeat;
+} REPEAT_CHAIN;
+
+static Rboolean inRepeatLoop;
+REPEAT_CHAIN *repeatStack;
+
+/* struct to manage while loops (allows nested */
 
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
@@ -94,3 +107,5 @@ void clearPendingVars();
 Rboolean inLoopEvent();
 void setInForLoop(Rboolean state);
 void addEventToForIteration(ABD_EVENT *eventToAdd);
+void addEventToRepeatIteration(ABD_EVENT *eventToAdd);
+void setInRepeatLoop(Rboolean state);

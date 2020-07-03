@@ -2,38 +2,28 @@ options("keep.source" = TRUE)
 run <- function(){
 
     abd_start()
-    z <- 600:1
+    z <- 5:1
+    zz <- 1:2
     
-    print('--------------')
+    b <- 999999
+    c <- 1:20
 
     f1 <- function(x){
-        x <- x*2
-        x
+        f1_x <- x+10
+        f1_x
     }
-    print("-------------------------")
-    
-    c <- 1:20
-    c[1] <- 2+3
-    for(x in z){
-        print("---")
-        if(x == 599){
-            print("will next")
-            next
-        }
-        if(x == 598){
-            break
-        }
 
-        if(x<3){
-            c[x] <- f1(x)
-            c[x] <- 10
-        }else{
-            c[x] <- x+1
+    print("-------------------------")
+    for(x in z){
+        for(xx in zz){
+            idx <- x+1
+            if(x==1 && xx ==2){
+                c[idx] <- f1(xx)
+            }
         }
-        
     }
-    z[1:3] <- f1(2)
-    b <- 4+2*(90-60)
+    #z[1:3] <- f1(2)
+    
     # teste <- 1:1000000
 
 
