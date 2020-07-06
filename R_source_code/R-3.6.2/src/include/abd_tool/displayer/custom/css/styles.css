@@ -38,6 +38,12 @@
 	font-size: 16pt;
 }
 
+.dialog-title2 {
+	color: var(--title-color);
+	font-weight: bold;
+	font-size: 14pt;
+}
+
 .dialog-text {
 	color: var(--title-color);
 	font-weight: normal;

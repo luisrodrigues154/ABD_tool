@@ -2542,16 +2542,18 @@ for_break:
 	regForLoopFinish(rho);
 	return R_NilValue;
 }
-
+static Rboolean firstRun = TRUE;
+static int iterNum = 0;
 SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	int dbg;
 	volatile int bgn;
 	volatile SEXP body;
 	RCNTXT cntxt;
-
+	Rboolean canLogNext = FALSE;
 	checkArity(op, args);
-
+	iterNum = 0;
+	firstRun = TRUE;
 	dbg = RDEBUG(rho);
 	if (R_jit_enabled > 2 && !dbg && !R_disable_bytecode && rho == R_GlobalEnv && isUnmodifiedSpecSym(CAR(call), rho) && R_compileAndExecute(call, rho))
 		return R_NilValue;
@@ -2561,10 +2563,27 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 	begincontext(&cntxt, CTXT_LOOP, R_NilValue, rho, R_BaseEnv, R_NilValue,
 				 R_NilValue);
+	regWhileLoopStart(CAR(args), rho);
 	if (SETJMP(cntxt.cjmpbuf) != CTXT_BREAK)
 	{
-		while (asLogicalNoNA(eval(CAR(args), rho), call, rho))
+		if (!firstRun)
+			doLoopJump(ABD_NEXT, rho);
+		else
 		{
+			firstRun = FALSE;
+			iterNum = 0;
+		}
+
+		for (;;)
+		{
+			Rboolean ans = asLogicalNoNA(eval(CAR(args), rho), call, rho);
+
+			if (!ans)
+				break;
+
+			regWhileLoopIteration(iterNum++, rho);
+			regWhileLoopCondition(CAR(args), ans, rho);
+
 			if (RDEBUG(rho) && !bgn && !R_GlobalContext->browserfinish)
 			{
 				SrcrefPrompt("debug", R_Srcref);
@@ -2581,19 +2600,24 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 			}
 		}
 	}
+	else
+	{
+		puts("do break");
+	}
+	regWhileLoopFinish(rho);
 	endcontext(&cntxt);
 	SET_RDEBUG(rho, dbg);
 	return R_NilValue;
 }
-static Rboolean firstRun = TRUE;
-static int iterNum = 0;
+
 SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	int dbg;
 	volatile SEXP body;
 	RCNTXT cntxt;
 	checkArity(op, args);
-
+	firstRun = TRUE;
+	iterNum = 0;
 	dbg = RDEBUG(rho);
 	if (R_jit_enabled > 2 && !dbg && !R_disable_bytecode && rho == R_GlobalEnv && isUnmodifiedSpecSym(CAR(call), rho) && R_compileAndExecute(call, rho))
 		return R_NilValue;
@@ -2621,11 +2645,11 @@ SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 			eval(body, rho);
 		}
 	}
-
 	doLoopJump(ABD_BREAK, rho);
 	regRepeatLoopFinish(rho);
 	endcontext(&cntxt);
 	SET_RDEBUG(rho, dbg);
+
 	return R_NilValue;
 }
 
@@ -3480,7 +3504,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-					/* falls through */
+		/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;

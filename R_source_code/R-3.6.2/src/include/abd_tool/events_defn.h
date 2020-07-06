@@ -245,7 +245,10 @@ typedef struct repeat_loop_event
 
 typedef struct while_loop_event
 {
-
+    int iterCounter;
+    ITERATION *itList;
+    ABD_EVENT *lastEvent;
+    char *cndtStr;
 } ABD_WHILE_LOOP_EVENT;
 
 struct abd_event

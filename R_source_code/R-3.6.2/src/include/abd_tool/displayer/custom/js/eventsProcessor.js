@@ -16,7 +16,8 @@ const types = {
 	FOR: 'for_loop_event',
 	BREAK: 'break_event',
 	NEXT: 'next_event',
-	REPEAT: 'repeat_loop_event'
+	REPEAT: 'repeat_loop_event',
+	WHILE: 'while_loop_event'
 };
 var processMe = 0;
 

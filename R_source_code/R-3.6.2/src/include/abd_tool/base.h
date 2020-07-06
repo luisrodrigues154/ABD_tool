@@ -236,8 +236,6 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho)
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
-    // if (inLoopEvent())
-    //     addEventToForIteration(eventsRegTail);
 }
 
 /* FOR LOOP CALLABLES*/
@@ -254,6 +252,9 @@ void regForLoopIteration(int iterId, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
+
+    if (!inForLoop)
+        return;
     createNewForLoopIter(iterId);
 }
 
@@ -262,6 +263,8 @@ void regForLoopFinish(SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
 
+    if (!inForLoop)
+        return;
     forStack->currFor->lastEvent = eventsRegTail;
     popForEvent();
     if (forStack == ABD_EVENT_NOT_FOUND)
@@ -274,6 +277,7 @@ void regRepeatLoopStart(SEXP call, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+
     ABD_REPEAT_LOOP_EVENT *newRepeatLoopEvent = createNewEvent(REPEAT_EVENT)->data.repeat_loop_event;
     pushRepeatEvent(newRepeatLoopEvent);
 }
@@ -282,6 +286,9 @@ void regRepeatLoopIteration(int iterId, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
+
+    if (!inRepeatLoop)
+        return;
     createNewRepeatLoopIter(iterId);
 }
 
@@ -289,10 +296,68 @@ void regRepeatLoopFinish(SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
         return;
+
+    if (!inRepeatLoop)
+        return;
     repeatStack->currRepeat->lastEvent = eventsRegTail;
     popRepeatEvent();
     if (repeatStack == ABD_EVENT_NOT_FOUND)
         setInRepeatLoop(FALSE);
+}
+
+/* WHILE LOOP CALLABLES*/
+
+void regWhileLoopStart(SEXP args, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+        return;
+    R_PrintData pars;
+    printf("While loop starting....");
+    ABD_WHILE_LOOP_EVENT *newWhileLoopEvent = createNewEvent(WHILE_EVENT)->data.while_loop_event;
+    pushWhileEvent(newWhileLoopEvent);
+    whileStack->currWhile->cndtStr = getStrForStatement(args, &pars);
+    puts("STORED");
+}
+
+void regWhileLoopCondition(SEXP stmt, Rboolean result, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+
+    if (!inWhileLoop)
+        return;
+
+    createNewEvent(IF_EVENT);
+    setIfEventValues2(stmt, result);
+    clearPendingVars();
+}
+
+void regWhileLoopIteration(int iterId, SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+
+    if (!inWhileLoop)
+        return;
+    printf("While loop iteration [%d]....", iterId + 1);
+    createNewWhileLoopIteration(iterId);
+    verifyBranchDepthIntegrity();
+    puts("STORED");
+}
+
+void regWhileLoopFinish(SEXP rho)
+{
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopEvent()))
+        return;
+
+    if (!inWhileLoop)
+        return;
+    whileStack->currWhile->lastEvent = eventsRegTail;
+    popWhileEvent();
+    printf("While loop finishing....");
+    if (whileStack == ABD_EVENT_NOT_FOUND)
+        setInWhileLoop(FALSE);
+    puts("STORED");
 }
 
 /* LOOP misc*/

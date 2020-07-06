@@ -140,6 +140,11 @@ ABD_REPEAT_LOOP_EVENT *memAllocRepeatLoopEvent()
     return (ABD_REPEAT_LOOP_EVENT *)malloc(sizeof(ABD_REPEAT_LOOP_EVENT));
 }
 
+ABD_WHILE_LOOP_EVENT *memAllocWhileLoopEvent()
+{
+    return (ABD_WHILE_LOOP_EVENT *)malloc(sizeof(ABD_WHILE_LOOP_EVENT));
+}
+
 ITER_EVENT_LIST *memAllocIterEventList()
 {
     return (ITER_EVENT_LIST *)malloc(sizeof(ITER_EVENT_LIST));
@@ -152,6 +157,10 @@ FOR_CHAIN *memAllocForChain()
 REPEAT_CHAIN *memAllocRepeatChain()
 {
     return (REPEAT_CHAIN *)malloc(sizeof(REPEAT_CHAIN));
+}
+WHILE_CHAIN *memAllocWhileChain()
+{
+    return (WHILE_CHAIN *)malloc(sizeof(WHILE_CHAIN));
 }
 ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *currArg, ABD_OBJECT *fromObj, ABD_OBJECT *toObj, ABD_OBJECT_MOD *passedValue)
 {
@@ -836,6 +845,57 @@ void setIfEventValues(SEXP statement, Rboolean result)
     }
 }
 
+void setIfEventValues2(SEXP statement, Rboolean result)
+{
+    ABD_IF_EVENT *currEvent = eventsRegTail->data.if_event;
+    R_PrintData pars;
+
+    exprId = 0;
+    if (isWaitingElseIf())
+    {
+        if (statement == R_NilValue)
+        {
+            //is an else
+            currEvent->expr = ABD_NOT_FOUND;
+            currEvent->exprStr = ABD_NOT_FOUND;
+            currEvent->globalResult = 1;
+            currEvent->isElse = 1;
+            currEvent->isElseIf = 0;
+            waitingElseIF = 0;
+        }
+        else
+        {
+            //is an else if
+            currEvent->globalResult = result;
+            currEvent->isElse = 0;
+            currEvent->isElseIf = 1;
+            exprId = 0;
+            currEvent->expr = processIfStmt(statement, 1);
+            PrintInit(&pars, getCurrentEnv());
+            currEvent->exprStr = getStrForStatement(statement, &pars);
+        }
+    }
+    else
+    {
+
+        currEvent->isElse = 0;
+        currEvent->isElseIf = 0;
+        currEvent->globalResult = result;
+        exprId = 0;
+        currEvent->expr = processIfStmt(statement, 1);
+        PrintInit(&pars, getCurrentEnv());
+        currEvent->exprStr = getStrForStatement(statement, &pars);
+    }
+
+    // if (result)
+    // {
+    //     setOnBranch(TRUE);
+    //     incBranchDepth();
+    //     setIsWaitingIf(0);
+    // }
+    setIsWaitingIf(0);
+}
+
 void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
     eventsRegTail->data.func_event->toEnv = newRho;
@@ -892,7 +952,18 @@ void tmpStoreArith(SEXP call, SEXP ans)
     finalArithAns = ans;
     finalArithCall = call;
 }
-
+void verifyBranchDepthIntegrity()
+{
+    short currLoopBranchDepth = 0;
+    if (forStack != ABD_NOT_FOUND)
+        currLoopBranchDepth = forStack->initalBranchDepth;
+    else if (repeatStack != ABD_NOT_FOUND)
+        currLoopBranchDepth = repeatStack->initalBranchDepth;
+    else if (whileStack != ABD_NOT_FOUND)
+        currLoopBranchDepth = whileStack->initalBranchDepth;
+    if (currLoopBranchDepth != getCurrBranchDepth())
+        forceBranchDepth(currLoopBranchDepth);
+}
 ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
 {
     //main event needs nothing but the type
@@ -924,12 +995,16 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
     case FOR_EVENT:
         newBaseEvent->data.for_loop_event = memAllocForLoopEvent();
         break;
-    case BREAK_EVENT:
-    case NEXT_EVENT:
-        break;
     case REPEAT_EVENT:
         newBaseEvent->data.repeat_loop_event = memAllocRepeatLoopEvent();
         break;
+    case WHILE_EVENT:
+        newBaseEvent->data.while_loop_event = memAllocWhileLoopEvent();
+        break;
+    case BREAK_EVENT:
+    case NEXT_EVENT:
+        break;
+
     default:
         break;
     }
@@ -947,6 +1022,11 @@ void addNewEventToLoopIteration(ABD_EVENT *newEvent)
     if (repeatStack != ABD_NOT_FOUND)
     {
         addEventToRepeatIteration(newEvent);
+        return;
+    }
+    if (whileStack != ABD_NOT_FOUND)
+    {
+        addEventToWhileIteration(newEvent);
         return;
     }
 }
@@ -1476,7 +1556,7 @@ Rboolean inLoopEvent()
         in case more loop types are added, just || all the flags that exist 
         inForLoop || inRepeatLoop || etc...
     */
-    return inForLoop || inRepeatLoop;
+    return inForLoop || inRepeatLoop || inWhileLoop;
 }
 
 void setInForLoop(Rboolean state)
@@ -1487,6 +1567,11 @@ void setInForLoop(Rboolean state)
 void setInRepeatLoop(Rboolean state)
 {
     inRepeatLoop = state;
+}
+
+void setInWhileLoop(Rboolean state)
+{
+    inWhileLoop = state;
 }
 
 int getCurrScriptLn()
@@ -1605,10 +1690,37 @@ void createNewRepeatLoopIter(int iterId)
         currIterList->nextIter = ABD_EVENT_NOT_FOUND;
         repeatStack->currIter = currIterList;
     }
+
     repeatStack->currRepeat->iterCounter++;
     repeatStack->currIter->eventsList = ABD_EVENT_NOT_FOUND;
     repeatStack->currIter->eventsListTail = ABD_EVENT_NOT_FOUND;
     repeatStack->currIter->iterId = ++iterId;
+}
+
+void createNewWhileLoopIteration(int iterId)
+{
+    ITERATION *currIterList = whileStack->currIter;
+    if (currIterList == ABD_EVENT_NOT_FOUND)
+    {
+        //first iteration
+        whileStack->currWhile->itList = memAllocIteration();
+        whileStack->currWhile->itList->nextIter = ABD_EVENT_NOT_FOUND;
+        whileStack->currIter = whileStack->currWhile->itList;
+        currIterList = whileStack->currIter;
+    }
+    else
+    {
+        //forStack->currIter already end of list, does not need to traverse
+        currIterList->nextIter = memAllocIteration();
+        currIterList = currIterList->nextIter;
+        currIterList->nextIter = ABD_EVENT_NOT_FOUND;
+        whileStack->currIter = currIterList;
+    }
+
+    whileStack->currWhile->iterCounter++;
+    whileStack->currIter->eventsList = ABD_EVENT_NOT_FOUND;
+    whileStack->currIter->eventsListTail = ABD_EVENT_NOT_FOUND;
+    whileStack->currIter->iterId = ++iterId;
 }
 
 void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
@@ -1649,7 +1761,6 @@ void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent, SEXP call)
 
 void pushRepeatEvent(ABD_REPEAT_LOOP_EVENT *newRepeatEvent)
 {
-
     if (repeatStack == ABD_EVENT_NOT_FOUND)
     {
         repeatStack = memAllocRepeatChain();
@@ -1658,14 +1769,11 @@ void pushRepeatEvent(ABD_REPEAT_LOOP_EVENT *newRepeatEvent)
     else
     {
         REPEAT_CHAIN *newRepeat = memAllocRepeatChain();
-
-        repeatStack->prevRepeat = repeatStack;
+        newRepeat->prevRepeat = repeatStack;
         repeatStack = newRepeat;
     }
     setInRepeatLoop(TRUE);
-
     waitingForVecs = 0;
-
     repeatStack->currRepeat = newRepeatEvent;
     repeatStack->initalBranchDepth = getCurrBranchDepth();
     repeatStack->currRepeat->iterCounter = 0;
@@ -1673,6 +1781,29 @@ void pushRepeatEvent(ABD_REPEAT_LOOP_EVENT *newRepeatEvent)
     repeatStack->currRepeat->lastEvent = ABD_EVENT_NOT_FOUND;
     repeatStack->currIter = ABD_EVENT_NOT_FOUND;
 }
+
+void pushWhileEvent(ABD_WHILE_LOOP_EVENT *newWhileLoopEvent)
+{
+    if (whileStack == ABD_EVENT_NOT_FOUND)
+    {
+        whileStack = memAllocWhileChain();
+        whileStack->prevWhile = ABD_NOT_FOUND;
+    }
+    else
+    {
+        WHILE_CHAIN *newWhile = memAllocWhileChain();
+        newWhile->prevWhile = whileStack;
+        whileStack = newWhile;
+    }
+    setInWhileLoop(TRUE);
+    whileStack->currWhile = newWhileLoopEvent;
+    whileStack->initalBranchDepth = getCurrBranchDepth();
+    whileStack->currWhile->iterCounter = 0;
+    whileStack->currWhile->itList = ABD_NOT_FOUND;
+    whileStack->currWhile->lastEvent = ABD_EVENT_NOT_FOUND;
+    whileStack->currIter = ABD_EVENT_NOT_FOUND;
+}
+
 void addEventToRepeatIteration(ABD_EVENT *eventToAdd)
 {
 
@@ -1691,6 +1822,26 @@ void addEventToRepeatIteration(ABD_EVENT *eventToAdd)
         repeatStack->currIter->eventsListTail->nextEvent = ABD_EVENT_NOT_FOUND;
     }
     repeatStack->currIter->eventsListTail->event = eventToAdd;
+}
+
+void addEventToWhileIteration(ABD_EVENT *eventToAdd)
+{
+
+    if (whileStack->currIter == ABD_NOT_FOUND)
+        return;
+    if (whileStack->currIter->eventsListTail == ABD_EVENT_NOT_FOUND)
+    {
+        whileStack->currIter->eventsList = memAllocIterEventList();
+        whileStack->currIter->eventsListTail = whileStack->currIter->eventsList;
+        whileStack->currIter->eventsList->nextEvent = ABD_EVENT_NOT_FOUND;
+    }
+    else
+    {
+        whileStack->currIter->eventsListTail->nextEvent = memAllocIterEventList();
+        whileStack->currIter->eventsListTail = whileStack->currIter->eventsListTail->nextEvent;
+        whileStack->currIter->eventsListTail->nextEvent = ABD_EVENT_NOT_FOUND;
+    }
+    whileStack->currIter->eventsListTail->event = eventToAdd;
 }
 
 void addEventToForIteration(ABD_EVENT *eventToAdd)
@@ -1731,6 +1882,16 @@ void popRepeatEvent()
         forceBranchDepth(repeatChainToPop->initalBranchDepth);
 
     free(repeatChainToPop);
+}
+
+void popWhileEvent()
+{
+    WHILE_CHAIN *whileChainToPop = whileStack;
+    whileStack = whileStack->prevWhile;
+    if (whileStack == ABD_EVENT_NOT_FOUND)
+        forceBranchDepth(whileChainToPop->initalBranchDepth);
+
+    free(whileChainToPop);
 }
 
 void finalizeForEventProcessing()

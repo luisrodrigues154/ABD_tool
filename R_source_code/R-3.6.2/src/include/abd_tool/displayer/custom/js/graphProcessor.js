@@ -97,7 +97,12 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 		if (events[i]['atEnv'] == env) {
 			updateBranchLineDepth(env, events[i]['line'], events[i]['branchDepth']);
 			let htmlRcvd = getEventTypeHtml(events[i], i + 1);
-			if (events[i]['type'] != types.IF && events[i]['type'] != types.FOR && events[i]['type'] != types.REPEAT) {
+			if (
+				events[i]['type'] != types.IF &&
+				events[i]['type'] != types.FOR &&
+				events[i]['type'] != types.REPEAT &&
+				events[i]['type'] != types.WHILE
+			) {
 				lastLineGP = events[i]['line'];
 				addEventToEnvMap(env, lastLineGP, htmlRcvd);
 			} else {
@@ -355,7 +360,7 @@ function getEventTypeHtml(event, nextEventId) {
 				}
 			}
 			break;
-		case types.FOR:
+		case types.FOR: {
 			let envir = event['atEnv'];
 			if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
 			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
@@ -370,21 +375,39 @@ function getEventTypeHtml(event, nextEventId) {
 			}
 			addEventToEnvMap(envir, event['line'], htmlProduced);
 			return lastEventId;
-		case types.REPEAT:
-			let environ = event['atEnv'];
+		}
+		case types.REPEAT: {
+			let envir = event['atEnv'];
 			if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
 			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
-			let j;
-			let finalEventId = event['data']['lastEventId'];
-			for (j = nextEventId; j != finalEventId; j++) {
-				if (events[j]['type'] == types.FUNC) {
-					let newFuncName = getCodeFlowObjNameById(events[j]['data']['toId']);
-					processEnv(newFuncName, events[j]['data']['toEnv'], nextEventId, line);
-					addNodeLink(events[j]['atEnv'], events[j]['data']['toEnv']);
+			let i;
+			let lastEventId = event['data']['lastEventId'];
+			for (i = nextEventId; i != lastEventId; i++) {
+				if (events[i]['type'] == types.FUNC) {
+					let newFuncName = getCodeFlowObjNameById(events[i]['data']['toId']);
+					processEnv(newFuncName, events[i]['data']['toEnv'], nextEventId, line);
+					addNodeLink(events[i]['atEnv'], events[i]['data']['toEnv']);
 				}
 			}
-			addEventToEnvMap(environ, event['line'], htmlProduced);
-			return finalEventId;
+			addEventToEnvMap(envir, event['line'], htmlProduced);
+			return lastEventId;
+		}
+		case types.WHILE: {
+			let envir = event['atEnv'];
+			if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			let i;
+			let lastEventId = event['data']['lastEventId'];
+			for (i = nextEventId; i != lastEventId; i++) {
+				if (events[i]['type'] == types.FUNC) {
+					let newFuncName = getCodeFlowObjNameById(events[i]['data']['toId']);
+					processEnv(newFuncName, events[i]['data']['toEnv'], nextEventId, line);
+					addNodeLink(events[i]['atEnv'], events[i]['data']['toEnv']);
+				}
+			}
+			addEventToEnvMap(envir, event['line'], htmlProduced);
+			return lastEventId;
+		}
 		default:
 			break;
 	}
@@ -846,7 +869,7 @@ function findFailedTests(eventId) {
 function mkFailedTestsHtml(failedTests) {
 	let htmlProduced = '';
 	htmlProduced += '<div class="row mt-5">';
-	htmlProduced += '<div class="col-9 text-left dialog-title">Previous tests';
+	htmlProduced += '<div class="col-9 text-left dialog-title2">Current branch failed conditions';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	htmlProduced += '<table class="table table-sm mt-2">';
@@ -936,7 +959,7 @@ function mkIfModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="row mt-5">';
-	htmlProduced += '<div class="col-9 text-left dialog-title">Condition breakdown';
+	htmlProduced += '<div class="col-9 text-left dialog-title2">Condition breakdown';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -1087,7 +1110,7 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="container-fluid">';
 
 	htmlProduced += '<div class="row">';
-	htmlProduced += '<div class="col text-left">Iterations number:';
+	htmlProduced += '<div class="col text-left">Number of iterations:';
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['iterCounter']);
@@ -1154,6 +1177,86 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	return htmlProduced;
 }
 
+function mkWhileLoopModalInfo(event, eventId) {
+	let htmlProduced = '';
+
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Number of iterations:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['iterCounter']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Loop condition:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(event['data']['statement']);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-4">';
+	htmlProduced += '<div class="col text-center">Previous';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Iteration';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row">';
+
+	let dropDown = '';
+	dropDown += '<div class="dropdown show">';
+	dropDown +=
+		'<a class="btn btn-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+	dropDown += '1';
+	dropDown += '</a>';
+	dropDown += '<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
+	dropDown += '<input class="form-control" id="dropSearch-{}" type="text" placeholder="Search...">'.format(eventId);
+	let i;
+	for (i = 1; i <= event['data']['iterCounter']; i++)
+		dropDown += '<a id="itId-{}" class="dropdown-item text-left" href="#" onclick="processWhileIteration({},this.id, false)">{}</a>'.format(
+			i,
+			eventId,
+			i
+		);
+
+	dropDown += '</div>';
+	dropDown += '</div>';
+
+	htmlProduced += '<div class="col text-center">{}'.format(
+		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
+			eventId
+		)
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">{}'.format(
+		"<i id='eId-{}' class='fas fa-arrow-right' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextWhileIteration(this.id)'></i>".format(
+			eventId
+		)
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<table class="table table-sm mt-4">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced +=
+		'<th id="for_iteration_body_header" class ="text-center" scope="col" colspan="3">Iteration 1 information</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-left for-loop-body " id="for_iteration_body">';
+	htmlProduced += processWhileIteration(eventId, 1, true);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
 function requestRepeatIteration() {
 	let repeatId = parseInt($('*[id^=dropSearch]').attr('id').split('-')[1]);
 	if ($('*[id^=dropSearch]').val() == '') {
@@ -1190,6 +1293,47 @@ function requestPrevRepeatIteration(repeatId) {
 		$('*[id^=dropSearch]').css('color', 'black');
 		$('*[id^=dropSearch]').val('');
 		processRepeatIteration(repeatId, currIteration - 1, false);
+	}
+}
+
+function requestWhileIteration() {
+	let whileId = parseInt($('*[id^=dropSearch]').attr('id').split('-')[1]);
+	if ($('*[id^=dropSearch]').val() == '') {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+	} else {
+		let requestIt = parseInt($('*[id^=dropSearch]').val());
+
+		if (events[whileId]['data']['iterCounter'] >= requestIt && events[whileId]['data']['iterCounter'] >= 0) {
+			processWhileIteration(whileId, requestIt, false);
+			$('*[id^=dropSearch]').css('background-color', 'lightgreen');
+			$('*[id^=dropSearch]').css('color', 'black');
+		} else {
+			$('*[id^=dropSearch]').css('background-color', 'tomato');
+			$('*[id^=dropSearch]').css('color', 'black');
+		}
+	}
+}
+function requestNextWhileIteration(whileId) {
+	console.log('next called with id {}'.format(whileId));
+	whileId = whileId.split('-')[1];
+	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
+	console.log('while id parsed {}\ncurrIteration parsed {}'.format(whileId, currIteration));
+	if (events[whileId]['data']['iterCounter'] >= currIteration + 1) {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+		$('*[id^=dropSearch]').val('');
+		processWhileIteration(whileId, currIteration + 1, false);
+	}
+}
+function requestPrevWhileIteration(whileId) {
+	whileId = whileId.split('-')[1];
+	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
+	if (currIteration - 1 > 0) {
+		$('*[id^=dropSearch]').css('background-color', 'white');
+		$('*[id^=dropSearch]').css('color', 'black');
+		$('*[id^=dropSearch]').val('');
+		processWhileIteration(whileId, currIteration - 1, false);
 	}
 }
 
@@ -1243,7 +1387,7 @@ function resolveAuxEnvContents(env) {
 		var i;
 		let auxHtml = '';
 		if (content == 'Break' || content == 'Next') {
-			nodeHtml += genNodeRow('', content, branDepth);
+			nodeHtml += genNodeRow('', content, branDepth + 1);
 		} else {
 			for (i = numEntries; i >= 0; i--) {
 				auxHtml += '{} {} '.format(content[i], i - 1 >= 0 ? '<-' : '');
@@ -1266,7 +1410,9 @@ function initAuxEnvMap(env) {
 	auxMap.set(env, new Map());
 	envLineBDepth.set(env, new Map());
 }
+
 let toAppendAfter = new Map();
+
 function processIteration(forId, iterationId, toReturn) {
 	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
 
@@ -1661,6 +1807,207 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 	}
 }
 
+function processWhileIteration(whileId, iterationId, toReturn) {
+	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
+
+	let eventsHistory = events[whileId]['data']['iterations'][iterationId];
+	eventsHistory.splice(0, 1);
+
+	if (eventsHistory.length == 0) return '';
+
+	let htmlProduced = '';
+	let i;
+	htmlProduced += '<tr>';
+	htmlProduced += '<td>';
+	auxMap = new Map();
+	envLineBDepth = new Map();
+	let alreadyInit = false;
+	let envs = [];
+	let loopHtml = '';
+	let branchIncrementer = 0;
+
+	for (i = 0; i < eventsHistory.length; i++) {
+		loopHtml = '';
+
+		eventId = eventsHistory[i];
+		console.log('eventsHistory');
+		console.log(eventsHistory[i]);
+		console.log('event id {}'.format(eventId));
+		event = events[eventId];
+		console.log('event');
+		console.log(event);
+		if (event['line'] == events[whileId]['line'] && event['type'] == types.ASSIGN) continue;
+
+		if (!alreadyInit) {
+			alreadyInit = true;
+			envs.push(event['atEnv']);
+			actualEnv = envs[envs.length - 1];
+			initAuxEnvMap(actualEnv);
+		}
+
+		let codeLine = code[event['line'] - 1];
+		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		switch (event['type']) {
+			case types.BREAK:
+				addEventToAuxMap(actualEnv, event['line'], 'Break');
+				break;
+			case types.NEXT:
+				addEventToAuxMap(actualEnv, event['line'], 'Next');
+				break;
+			case types.FUNC:
+				let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
+
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(
+					eventId,
+					codeLine
+						.substring(
+							codeLine.indexOf(newFuncName),
+							codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1
+						)
+						.trim(),
+					0
+				);
+
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				toAppendAfter[event['line']] = event['data']['toEnv'];
+				branchIncrementer++;
+				alreadyInit = false;
+				break;
+			case types.ASSIGN:
+				let objId = event['data']['toObj'];
+				let obj = getCommonObjNameById(objId);
+				let state = event['data']['toState'];
+				let origin = event['data']['origin'];
+				if (origin == 'obj') {
+					loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+				} else {
+					if (origin == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
+						// htmlProduced += genLabelHtml('eId-{}'.format(eventId, objId, state), codeLine.trim(), 0);
+					} else {
+						//other event types
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(
+							eventId,
+							codeLine
+								.substring(codeLine.indexOf(obj), codeLine.indexOf('<-', codeLine.indexOf(obj)))
+								.trim(),
+							0
+						);
+					}
+				}
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				break;
+			case types.IF:
+				let startLine = event['line'];
+				let ctrJump = 0;
+				let statement;
+				while (event['type'] == types.IF && event['line'] == startLine) {
+					//collect all if statements below
+					if (event['data']['isElseIf']) {
+						ctrJump++;
+						statement = 'else if ( {} )'.format(event['data']['exprStr']);
+					} else if (event['data']['isElse']) {
+						ctrJump++;
+						statement = 'else';
+					} else {
+						statement = 'if ( {} )'.format(event['data']['exprStr']);
+					}
+					loopHtml += genForMultiLabelsWithIdentAndColorAlreadyOpen(
+						eventId,
+						statement,
+						0,
+						event['data']['globalResult']
+					);
+
+					//pick next event
+					event = events[++eventId];
+				}
+				addEventToAuxMap(actualEnv, startLine, loopHtml);
+				i += ctrJump;
+				break;
+			case types.RET:
+				if (typeof auxMap.get(event['atEnv']).get(line) === 'undefined') {
+					//no content for this line, so, grab the code existing there
+					loopHtml += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} <- {} </ret>".format(
+						eventId,
+						'(return)',
+						codeLine
+					);
+				} else {
+					//already have something for this line, just append this, resolver takes care
+					loopHtml += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} </ret>".format(
+						eventId,
+						'(return)'
+					);
+				}
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				// htmlProduced += resolveAuxEnvContents(actualEnv);
+				branchIncrementer--;
+				envs.pop();
+				actualEnv = envs[envs.length - 1];
+				break;
+			case types.ARITH:
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, event['data']['exprStr'].trim(), 0);
+				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
+				break;
+			case types.IDX:
+				let originIdx = event['data']['origin'];
+				let toId = event['data']['toId'];
+				let toState = event['data']['toState'];
+				let objIdx = getCommonObjById(toId);
+				if (originIdx == 'obj') {
+					loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
+				} else {
+					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), 0);
+					} else {
+						//other event types
+						loopHtml += genLabelForAlreadyOpenModalWithIndent(
+							eventId,
+							codeLine
+								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+								.trim(),
+							0
+						);
+					}
+				}
+				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
+				break;
+			case types.FOR:
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			default:
+				break;
+		}
+
+		if (
+			event['line'] in toAppendAfter &&
+			event['type'] != types.FUNC &&
+			event['type'] != types.BREAK &&
+			event['type'] != types.NEXT
+		) {
+			mergeMaps(actualEnv, toAppendAfter[event['line']]);
+			toAppendAfter = new Map();
+		}
+	}
+	htmlProduced += resolveAuxEnvContents(actualEnv);
+	htmlProduced += '</td>';
+	htmlProduced += '</tr>';
+	if (toReturn) {
+		return htmlProduced;
+	} else {
+		document.getElementById('dropdownMenuLink').innerHTML = iterationId;
+		document.getElementById('for_iteration_body').innerHTML = htmlProduced;
+		document.getElementById('for_iteration_body_header').innerHTML = 'Iteration {} information'.format(iterationId);
+	}
+}
+
 function mergeMaps(env, withEnv) {
 	let toAppendContent = auxMap.get(withEnv);
 	for ([ line, content ] of toAppendContent) {
@@ -1862,6 +2209,10 @@ function produceModalContent(eventId) {
 		case types.REPEAT:
 			content.title = 'Repeat-Loop analysis';
 			content.body = mkRepeatLoopModalInfo(event, eventId);
+			break;
+		case types.WHILE:
+			content.title = 'While-Loop analysis';
+			content.body = mkWhileLoopModalInfo(event, eventId);
 			break;
 		default:
 			content.title = 'Ups...';

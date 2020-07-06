@@ -45,6 +45,16 @@ static Rboolean inRepeatLoop;
 REPEAT_CHAIN *repeatStack;
 
 /* struct to manage while loops (allows nested */
+typedef struct while_chain
+{
+  ABD_WHILE_LOOP_EVENT *currWhile;
+  ITERATION *currIter;
+  int initalBranchDepth;
+  struct while_chain *prevWhile;
+} WHILE_CHAIN;
+
+static Rboolean inWhileLoop;
+WHILE_CHAIN *whileStack;
 
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
@@ -109,3 +119,4 @@ void setInForLoop(Rboolean state);
 void addEventToForIteration(ABD_EVENT *eventToAdd);
 void addEventToRepeatIteration(ABD_EVENT *eventToAdd);
 void setInRepeatLoop(Rboolean state);
+void addEventToWhileIteration(ABD_EVENT *eventToAdd);

@@ -1125,6 +1125,52 @@ void saveRepeatLoopEvent(FILE *out, ABD_REPEAT_LOOP_EVENT *repeatEvent, FILE *di
     fprintf(dispOut, "}");
 }
 
+void saveWhileLoopEvent(FILE *out, ABD_WHILE_LOOP_EVENT *whileEvent, FILE *dispOut)
+{
+    ITERATION *currIter = whileEvent->itList;
+
+    fprintf(out, "\n%s\"iterCounter\" : %d,", getStrFromIndent(INDENT_3), whileEvent->iterCounter);
+    fprintf(out, "\n%s\"lastEventId\" : %d,", getStrFromIndent(INDENT_3), whileEvent->lastEvent->id);
+    fprintf(out, "\n%s\"statement\" : \"%s\",", getStrFromIndent(INDENT_3), whileEvent->cndtStr);
+
+    fprintf(dispOut, "\"iterCounter\" : %d,", whileEvent->iterCounter);
+    fprintf(dispOut, "\"lastEventId\" : %d,", whileEvent->lastEvent->id);
+    fprintf(dispOut, "\"statement\" : \"%s\",", whileEvent->cndtStr);
+
+    fprintf(out, "\n%s\"iterations\" : {", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "\"iterations\" : {");
+
+    while (currIter != ABD_NOT_FOUND)
+    {
+        fprintf(out, "\n%s\"%d\" : [", getStrFromIndent(INDENT_4), currIter->iterId);
+        fprintf(dispOut, "\"%d\" : [", currIter->iterId);
+        ITER_EVENT_LIST *currEventList = currIter->eventsList;
+        while (currEventList != NULL)
+        {
+            fprintf(out, "%d", currEventList->event->id);
+            fprintf(dispOut, "%d", currEventList->event->id);
+            currEventList = currEventList->nextEvent;
+            if (currEventList != ABD_EVENT_NOT_FOUND)
+            {
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
+        }
+
+        fprintf(out, "]");
+        fprintf(dispOut, "]");
+
+        currIter = currIter->nextIter;
+        if (currIter != ABD_EVENT_NOT_FOUND)
+        {
+            fprintf(out, ",");
+            fprintf(dispOut, ",");
+        }
+    }
+    fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "}");
+}
+
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -1229,6 +1275,14 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"repeat_loop_event\",");
             fprintf(dispOut, "\"data\" : {");
             saveRepeatLoopEvent(out, currEvent->data.repeat_loop_event, dispOut);
+            break;
+        case WHILE_EVENT:
+            fprintf(out, "\"while_loop_event\",");
+            fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
+
+            fprintf(dispOut, "\"while_loop_event\",");
+            fprintf(dispOut, "\"data\" : {");
+            saveWhileLoopEvent(out, currEvent->data.while_loop_event, dispOut);
             break;
         case BREAK_EVENT:
             fprintf(out, "\"break_event\"");
