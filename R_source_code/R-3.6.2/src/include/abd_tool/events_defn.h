@@ -21,11 +21,14 @@ typedef enum abd_event_types
     WHILE_EVENT = 12
 } ABD_EVENT_TYPE;
 
-typedef enum loop_jump
+typedef enum loop_tags
 {
     ABD_BREAK = 0,
-    ABD_NEXT = 1
-} ABD_LOOP_JUMP;
+    ABD_NEXT = 1,
+    ABD_WHILE = 2,
+    ABD_FOR = 3,
+    ABD_REPEAT = 4
+} ABD_LOOP_TAGS;
 
 //describe a if statement and its else ifs
 typedef enum if_type

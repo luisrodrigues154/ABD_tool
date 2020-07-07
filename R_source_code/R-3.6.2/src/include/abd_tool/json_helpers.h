@@ -126,10 +126,10 @@ char *getStrForType(SEXPTYPE type)
     {
     case REALSXP:
         return "REALSXP";
-        break;
     case INTSXP:
         return "INTSXP";
-        break;
+    case STRSXP:
+        return "STRSXP";
     default:
         return "";
         break;
@@ -155,6 +155,10 @@ void writeVectorValues(FILE *out, int indent, SEXPTYPE type, void *vector, int n
         case INTSXP:
             fprintf(out, "%d%s", ((int *)vector)[i], (i + 1 == nElements) ? "" : ",");
             fprintf(dispOut, "%d%s", ((int *)vector)[i], (i + 1 == nElements) ? "" : ",");
+            break;
+        case STRSXP:
+            fprintf(out, "\"%s\"%s", ((char **)vector)[i], (i + 1 == nElements) ? "" : ",");
+            fprintf(dispOut, "\"%s\"%s", ((char **)vector)[i], (i + 1 == nElements) ? "" : ",");
             break;
         default:
             break;
@@ -238,6 +242,11 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
                 fprintf(out, "\n%s\"newValue\" : %d", getStrFromIndent(INDENT_7), ((int *)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : %d", ((int *)vecObj->vector)[i]);
                 ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
+                break;
+            case STRSXP:
+                fprintf(out, "\n%s\"newValue\" : \"%s\"", getStrFromIndent(INDENT_7), ((char **)vecObj->vector)[i]);
+                fprintf(dispOut, "\"newValue\" : \"%s\"", ((char **)vecObj->vector)[i]);
+                ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
                 break;
             default:
                 break;
@@ -420,6 +429,28 @@ void writeArgRealVector(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent, FILE
         fprintf(dispOut, "]");
     }
 }
+
+void writeArgStrVector(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent, FILE *dispOut)
+{
+    if (vecObj->nCols == 1)
+    {
+        fprintf(out, "\n%s\"value\" : \"%s\"", getStrFromIndent(indent), ((char **)vecObj->vector)[0]);
+        fprintf(dispOut, "\"value\" : \"%s\"", ((char **)vecObj->vector)[0]);
+    }
+    else
+    {
+        fprintf(out, "\n%s\"value\" : [", getStrFromIndent(indent));
+        fprintf(dispOut, "\"value\" : [");
+        for (int i = 0; i < vecObj->nCols; i++)
+        {
+            fprintf(out, "\"%s\"%s", ((char **)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+            fprintf(dispOut, "\"%s\"%s", ((char **)vecObj->vector)[i], (i + 1 == vecObj->nCols) ? "" : ",");
+        }
+        fprintf(out, "]");
+        fprintf(dispOut, "]");
+    }
+}
+
 void writeArgIntVector(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent, FILE *dispOut)
 {
     if (vecObj->nCols == 1)
@@ -454,6 +485,7 @@ void writeArgVectorForType(FILE *out, ABD_VEC_OBJ *vecObj, JSON_INDENT indent, F
         writeArgRealVector(out, vecObj, indent, dispOut);
         break;
     case STRSXP:
+        writeArgStrVector(out, vecObj, indent, dispOut);
         break;
     case NILSXP:
         fprintf(out, "\n%s\"value\" : \"NoReturn\"", getStrFromIndent(indent));
@@ -717,6 +749,10 @@ void writeIFobj(FILE *out, char *sideStr, IF_ABD_OBJ *obj, FILE *dispOut)
             case INTSXP:
                 fprintf(out, "\n%s\"%sValue\" : %d,", getStrFromIndent(INDENT_5), sideStr, ((int *)obj->objValue->value.vec_value->vector)[0]);
                 fprintf(dispOut, "\"%sValue\" : %d,", sideStr, ((int *)obj->objValue->value.vec_value->vector)[0]);
+                break;
+            case STRSXP:
+                fprintf(out, "\n%s\"%sValue\" : \"%s\",", getStrFromIndent(INDENT_5), sideStr, ((char **)obj->objValue->value.vec_value->vector)[0]);
+                fprintf(dispOut, "\"%sValue\" : \"%s\",", sideStr, ((char **)obj->objValue->value.vec_value->vector)[0]);
                 break;
             default:
                 break;

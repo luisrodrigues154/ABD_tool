@@ -342,8 +342,6 @@ ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod)
 {
     newMod->value.mtrx_value = NULL;
     newMod->value.vec_value = NULL;
-    newMod->value.str_value = NULL;
-
     return newMod;
 }
 ABD_VEC_OBJ *memAllocVecObj()
@@ -358,6 +356,10 @@ double *memAllocDoubleVector(int size)
 int *memAllocIntVector(int size)
 {
     return (int *)malloc(size * sizeof(int));
+}
+char **memAllocStrVec(int size)
+{
+    return (char **)malloc(sizeof(char **) * size);
 }
 ABD_OBJECT_MOD *createIntVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
 {
@@ -385,6 +387,69 @@ ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
     for (int i = 0; i < nElements; i++)
         ((double *)newMod->value.vec_value->vector)[i] = REAL(rhs)[i];
 
+    return newMod;
+}
+
+ABD_OBJECT_MOD *createStrVector(ABD_OBJECT_MOD *newMod, SEXP rhs)
+{
+    int nStrings = Rf_nrows(rhs);
+    int i;
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 0;
+    newMod->value.vec_value->idxs = ABD_NOT_FOUND;
+    newMod->value.vec_value->nCols = nStrings;
+    newMod->value.vec_value->vector = memAllocStrVec(nStrings);
+    for (i = 0; i < nStrings; i++)
+    {
+        const char *currStr = CHAR(STRING_ELT(rhs, i));
+        int currStrSize = strlen(currStr);
+        ((char **)newMod->value.vec_value->vector)[i] = memAllocForString(currStrSize);
+        copyStr(((char **)newMod->value.vec_value->vector)[i], currStr, currStrSize);
+    }
+
+    return newMod;
+}
+ABD_OBJECT_MOD *strVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)
+{
+
+    ABD_OBJECT_MOD *firstMod = newMod;
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
+    newMod->value.vec_value = memAllocVecObj();
+    newMod->value.vec_value->idxChange = 1;
+
+    int srcSize = Rf_length(idxChanges->srcValues);
+    int destSize = Rf_length(idxChanges->destIdxs);
+
+    newMod->value.vec_value->nCols = idxChanges->nIdxChanges;
+
+    //what indexes changed
+    newMod->value.vec_value->idxs = memAllocIntVector(idxChanges->nIdxChanges);
+
+    //the values themselves
+    newMod->value.vec_value->vector = memAllocStrVec(idxChanges->nIdxChanges);
+    int repeater = Rf_length(idxChanges->srcValues);
+    int i, j;
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        int toIdx = 0;
+        if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+            toIdx = (int)REAL(idxChanges->destIdxs)[i];
+        else
+            //intsxp
+            toIdx = INTEGER(idxChanges->destIdxs)[i];
+
+        //because R is 1-n, c is 0-n-1
+        toIdx--;
+
+        newMod->value.vec_value->idxs[i] = toIdx;
+
+        if (j == repeater)
+            j = 0;
+        const char *currStr = CHAR(STRING_ELT(rhs, j));
+        int currStrSize = strlen(currStr);
+        ((char **)newMod->value.vec_value->vector)[i] = memAllocForString(currStrSize);
+        copyStr(((char **)newMod->value.vec_value->vector)[i], currStr, currStrSize);
+    }
     return newMod;
 }
 ABD_OBJECT_MOD *intVectorMultiChanges(ABD_OBJECT_MOD *newMod, SEXP rhs)

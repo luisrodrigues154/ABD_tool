@@ -2454,10 +2454,10 @@ SEXP attribute_hidden do_for(SEXP call, SEXP op, SEXP args, SEXP rho)
 	switch (SETJMP(cntxt.cjmpbuf))
 	{
 	case CTXT_BREAK:
-		doLoopJump(ABD_BREAK, rho);
+		doLoopJump(ABD_BREAK, ABD_FOR, rho);
 		goto for_break;
 	case CTXT_NEXT:
-		doLoopJump(ABD_NEXT, rho);
+		doLoopJump(ABD_NEXT, ABD_FOR, rho);
 		goto for_next;
 	}
 
@@ -2567,7 +2567,7 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 	if (SETJMP(cntxt.cjmpbuf) != CTXT_BREAK)
 	{
 		if (!firstRun)
-			doLoopJump(ABD_NEXT, rho);
+			doLoopJump(ABD_NEXT, ABD_WHILE, rho);
 		else
 		{
 			firstRun = FALSE;
@@ -2577,12 +2577,13 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 		for (;;)
 		{
 			Rboolean ans = asLogicalNoNA(eval(CAR(args), rho), call, rho);
-
-			if (!ans)
-				break;
-
 			regWhileLoopIteration(iterNum++, rho);
 			regWhileLoopCondition(CAR(args), ans, rho);
+			if (!ans)
+			{
+				doLoopJump(ABD_BREAK, ABD_WHILE, rho);
+				break;
+			}
 
 			if (RDEBUG(rho) && !bgn && !R_GlobalContext->browserfinish)
 			{
@@ -2599,10 +2600,6 @@ SEXP attribute_hidden do_while(SEXP call, SEXP op, SEXP args, SEXP rho)
 				do_browser(call, op, R_NilValue, rho);
 			}
 		}
-	}
-	else
-	{
-		puts("do break");
 	}
 	regWhileLoopFinish(rho);
 	endcontext(&cntxt);
@@ -2632,7 +2629,7 @@ SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 	if (SETJMP(cntxt.cjmpbuf) != CTXT_BREAK)
 	{
 		if (!firstRun)
-			doLoopJump(ABD_NEXT, rho);
+			doLoopJump(ABD_NEXT, ABD_REPEAT, rho);
 		else
 		{
 			firstRun = FALSE;
@@ -2645,7 +2642,7 @@ SEXP attribute_hidden do_repeat(SEXP call, SEXP op, SEXP args, SEXP rho)
 			eval(body, rho);
 		}
 	}
-	doLoopJump(ABD_BREAK, rho);
+	doLoopJump(ABD_BREAK, ABD_REPEAT, rho);
 	regRepeatLoopFinish(rho);
 	endcontext(&cntxt);
 	SET_RDEBUG(rho, dbg);
@@ -3504,7 +3501,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-		/* falls through */
+					/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;

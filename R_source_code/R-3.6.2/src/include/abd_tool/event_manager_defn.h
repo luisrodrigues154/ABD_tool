@@ -17,45 +17,26 @@ static int waitingElseIF;
 
 /* struct to manage for loops (allows nested fors) */
 
-typedef struct for_chain
-{
-  ABD_FOR_LOOP_EVENT *currFor;
-  ITERATION *currIter;
-  int initalBranchDepth;
-  struct for_chain *prevFor;
-} FOR_CHAIN;
-
-static Rboolean inForLoop;
-FOR_CHAIN *forStack;
-//
 static short waitingForVecs;
 Rboolean forIdxsVec;
 Rboolean forValVec;
 static int forValPos;
-/* struct to manage repeat loops (allows nested) */
-typedef struct repeat_chain
+
+typedef struct loop_chain
 {
-  ABD_REPEAT_LOOP_EVENT *currRepeat;
+  short initialBranchDepth;
+  ABD_LOOP_TAGS loopType;
+  union
+  {
+    ABD_WHILE_LOOP_EVENT *whileLoop;
+    ABD_FOR_LOOP_EVENT *forLoop;
+    ABD_REPEAT_LOOP_EVENT *repeatLoop;
+  } loop;
   ITERATION *currIter;
-  int initalBranchDepth;
-  struct repeat_chain *prevRepeat;
-} REPEAT_CHAIN;
+  struct loop_chain *prevLoop;
+} ABD_LOOP_CHAIN;
 
-static Rboolean inRepeatLoop;
-REPEAT_CHAIN *repeatStack;
-
-/* struct to manage while loops (allows nested */
-typedef struct while_chain
-{
-  ABD_WHILE_LOOP_EVENT *currWhile;
-  ITERATION *currIter;
-  int initalBranchDepth;
-  struct while_chain *prevWhile;
-} WHILE_CHAIN;
-
-static Rboolean inWhileLoop;
-WHILE_CHAIN *whileStack;
-
+static ABD_LOOP_CHAIN *loopStack;
 /* Stores Return value related */
 static ABD_EVENT *lastRetEvent;
 static SEXP lastRetValue;
@@ -114,9 +95,11 @@ ABD_SEARCH checkRetStored(SEXP testValue);
 void storeRetValues(SEXP value);
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);
 void clearPendingVars();
-Rboolean inLoopEvent();
-void setInForLoop(Rboolean state);
-void addEventToForIteration(ABD_EVENT *eventToAdd);
-void addEventToRepeatIteration(ABD_EVENT *eventToAdd);
-void setInRepeatLoop(Rboolean state);
-void addEventToWhileIteration(ABD_EVENT *eventToAdd);
+void pushForEvent(ABD_FOR_LOOP_EVENT *newForEvent);
+void pushRepeatEvent(ABD_REPEAT_LOOP_EVENT *newRepeatEvent);
+void pushWhileEvent(ABD_WHILE_LOOP_EVENT *newWhileLoopEvent);
+void pushNewLoop(ABD_LOOP_TAGS type, void *newEvent);
+void addEventToCurrentLoop(ABD_EVENT *newEvent);
+void popLoopFromStack(ABD_LOOP_TAGS requestingType);
+void appendLastEventToLoop(ABD_LOOP_TAGS type);
+Rboolean inLoopByType(ABD_LOOP_TAGS type);

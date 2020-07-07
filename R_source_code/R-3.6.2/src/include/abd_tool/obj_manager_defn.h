@@ -39,14 +39,14 @@ typedef struct abd_vec_obj
     SEXPTYPE type;
     int idxChange;
     /*
-            if idxChange is y then
-                nCols will represent how many indexes changed
-                and vector will be the new value for that index
-            else
-                a new vector is allocated and nCols will represent
-                what the name says (the number of columns in the vector)
-                while vector will be the vector totality (1,2,3, ...)
-        */
+        if idxChange is y then
+            nCols will represent how many indexes changed
+            and vector will be the new value for that index
+        else
+            a new vector is allocated and nCols will represent
+            what the name says (the number of columns in the vector)
+            while vector will be the vector totality (1,2,3, ...)
+    */
     int nCols;
     int *idxs;
     void *vector;
@@ -64,10 +64,10 @@ typedef struct abd_obj_mod
 {
     int id;
     ABD_OBJ_VALUE_TYPE valueType;
-    union {
+    union
+    {
         ABD_MTRX_OBJ *mtrx_value;
         ABD_VEC_OBJ *vec_value;
-        char *str_value;
     } value;
     OBJ_STATE remotion;
     struct abd_obj_mod *prevMod;

@@ -1315,10 +1315,8 @@ function requestWhileIteration() {
 	}
 }
 function requestNextWhileIteration(whileId) {
-	console.log('next called with id {}'.format(whileId));
 	whileId = whileId.split('-')[1];
 	let currIteration = parseInt(document.getElementById('dropdownMenuLink').innerHTML);
-	console.log('while id parsed {}\ncurrIteration parsed {}'.format(whileId, currIteration));
 	if (events[whileId]['data']['iterCounter'] >= currIteration + 1) {
 		$('*[id^=dropSearch]').css('background-color', 'white');
 		$('*[id^=dropSearch]').css('color', 'black');
@@ -1582,13 +1580,30 @@ function processIteration(forId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-			case types.FOR:
+			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
 				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
 
 				addEventToAuxMap(envir, event['line'], auxHtml);
 				break;
+			}
+			case types.REPEAT: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
+			case types.WHILE: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
 			default:
 				break;
 		}
@@ -1774,13 +1789,31 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-			case types.FOR:
+
+			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
 				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
 
 				addEventToAuxMap(envir, event['line'], auxHtml);
 				break;
+			}
+			case types.REPEAT: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
+			case types.WHILE: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
 			default:
 				break;
 		}
@@ -1811,12 +1844,28 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 	if (typeof iterationId === 'string') iterationId = iterationId.split('itId-')[1];
 
 	let eventsHistory = events[whileId]['data']['iterations'][iterationId];
-	eventsHistory.splice(0, 1);
 
 	if (eventsHistory.length == 0) return '';
 
 	let htmlProduced = '';
 	let i;
+
+	let controlStatementEvent = events[eventsHistory[0]]['data'];
+	htmlProduced += '<tr>';
+	htmlProduced += '<td>Loop testing: </td>';
+	htmlProduced += '<td colspan="2">';
+
+	htmlProduced += '{}'.format(
+		genLabelForAlreadyOpenModalWithIndentAndColor(
+			eventsHistory[0],
+			controlStatementEvent['exprStr'],
+			0,
+			controlStatementEvent['globalResult']
+		)
+	);
+	htmlProduced += '</td>';
+	htmlProduced += '</tr>';
+
 	htmlProduced += '<tr>';
 	htmlProduced += '<td>';
 	auxMap = new Map();
@@ -1826,16 +1875,11 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 	let loopHtml = '';
 	let branchIncrementer = 0;
 
-	for (i = 0; i < eventsHistory.length; i++) {
+	for (i = 1; i < eventsHistory.length; i++) {
 		loopHtml = '';
 
 		eventId = eventsHistory[i];
-		console.log('eventsHistory');
-		console.log(eventsHistory[i]);
-		console.log('event id {}'.format(eventId));
 		event = events[eventId];
-		console.log('event');
-		console.log(event);
 		if (event['line'] == events[whileId]['line'] && event['type'] == types.ASSIGN) continue;
 
 		if (!alreadyInit) {
@@ -1975,13 +2019,30 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-			case types.FOR:
+			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
 				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
 
 				addEventToAuxMap(envir, event['line'], auxHtml);
 				break;
+			}
+			case types.REPEAT: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
+			case types.WHILE: {
+				let envir = event['atEnv'];
+				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
+				let auxHtml = genLabelForAlreadyOpenModalWithIndent(eventId, codeLine.trim(), event['branchDepth']);
+
+				addEventToAuxMap(envir, event['line'], auxHtml);
+				break;
+			}
 			default:
 				break;
 		}
@@ -2224,21 +2285,33 @@ function produceModalContent(eventId) {
 
 let visualStack = [];
 function goBackVisual() {
-	visualStack.pop();
 	let producedContent = visualStack[visualStack.length - 1];
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
+	visualStack.pop();
 }
 function getArrowBack() {
 	return "<i class='fas fa-arrow-left' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='goBackVisual()'></i>";
 }
-let litClose = false;
+let modalIsOpen = false;
 function processEventClick(eventId) {
 	let producedContent = produceModalContent(eventId);
-	if (visualStack.length > 0) {
+	if (modalIsOpen) {
+		let currModalContent = {
+			title: '',
+			body: ''
+		};
+		currModalContent.title = document.getElementById('exec_flow_modal_title').innerHTML;
+		currModalContent.body = document.getElementById('exec_flow_modal_body').innerHTML;
+		visualStack.push(currModalContent);
 		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
 	}
-	visualStack.push(producedContent);
+	modalIsOpen = true;
+
+	// if (visualStack.length > 0) {
+	// 	producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
+	// }
+
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	if (search) doSearch();
@@ -2252,6 +2325,7 @@ function processEventClick(eventId) {
 	}); */
 	$('#exec_flow_modal').on('hidden.bs.modal', function() {
 		visualStack = [];
+		modalIsOpen = false;
 	});
 	$('*[id^=dropSearch]').on('keyup paste', function(event) {
 		if (document.getElementById('exec_flow_modal_title').innerHTML.includes('Repeat')) {

@@ -891,7 +891,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 		/* case 1316:  integer   <- character */
 		/* case 1416:  real	     <- character */
 		/* case 1516:  complex   <- character */
-
+		finalizeVarIdxChange(y, rho);
 		VECTOR_ASSIGN_LOOP(SET_STRING_ELT(x, ii, STRING_ELT(y, iny)););
 		break;
 

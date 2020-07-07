@@ -18,16 +18,19 @@ run <- function(){
     x <- 1
     y <- 1:3
     print("-------------------------")
-    while(x < 6){
-        x <- x+1
-        if(x < 4){
-            next
-        }
-        
-    }
-    # for(c in y){
-    #     x <- x + c  <- ERRO DE ARITH AQUI (maybe so com objs)
+    # while(x < 6){
+    #     x <- x+1
+    #     if(x < 4){
+    #         next
+    #     }
     # }
+    for(c in y){
+        # x <- x + c  <- ERRO DE ARITH AQUI (maybe so com objs)
+        while(c<4){
+            c <- c+1
+        }
+        x <- c
+    }
     # repeat{
     #     if(x == 2){
     #         break
