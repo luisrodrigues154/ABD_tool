@@ -59,10 +59,14 @@ void abd_stop()
 {
     if (isRunning())
     {
+        puts("Called");
         checkSettings();
-        checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
+        puts("Settings checked");
+        //checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
+        puts("persiting....");
         persistInformation();
+        puts("DONE");
         //open the browser with the displayer
         //int ret = system(getCommand());
     }

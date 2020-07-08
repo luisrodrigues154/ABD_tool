@@ -3,20 +3,12 @@ run <- function(){
 
     abd_start()
 
-    f1 <- function(x){
-        x <- x*2
-        x
-    }
     
     # i <- 1
     # while (i < 6) {
     #     print(i)
     #     i = i+1
     # }
-
-    
-    x <- 1
-    y <- 1:3
     print("-------------------------")
     # while(x < 6){
     #     x <- x+1
@@ -24,13 +16,16 @@ run <- function(){
     #         next
     #     }
     # }
-    for(c in y){
+    x <- 1:10
+    z <- 1:10
+    for(c in z){
         # x <- x + c  <- ERRO DE ARITH AQUI (maybe so com objs)
-        while(c<4){
-            c <- c+1
+        if(c<5000){
+            x[c] <- c * 2  
         }
-        x <- c
+        
     }
+    print("finalized")
     # repeat{
     #     if(x == 2){
     #         break

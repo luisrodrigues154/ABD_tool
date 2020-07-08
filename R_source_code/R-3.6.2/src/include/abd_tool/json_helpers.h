@@ -1369,8 +1369,9 @@ void persistInformation()
     }
 
     //save both registries
+    puts("saving objects");
     saveObjects(outputFile, dispOutFile);
-
+    puts("done");
     //close objects file
     closeFile(outputFile);
     closeFile(dispOutFile);
@@ -1388,8 +1389,9 @@ void persistInformation()
     }
 
     //save events
+    puts("saving events");
     saveEvents(outputFile, dispOutFile);
-
+    puts("done");
     //close events file
     closeFile(outputFile);
     closeFile(dispOutFile);
