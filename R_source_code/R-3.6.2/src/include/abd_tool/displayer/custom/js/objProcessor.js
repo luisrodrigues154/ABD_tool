@@ -210,6 +210,44 @@ function verifyTrack(objList) {
 	updateDisplay();
 }
 
+function applyMapToVector(map, vector) {
+	map.forEach((val, key) => {
+		vector[key] = val;
+	});
+	return vector;
+}
+
+function addToMap(map, key, value) {
+	if (map.has(key)) return map;
+	map.set(key, value);
+	return map;
+}
+
+function resolveCurrValue(modList, inState, withIndex) {
+	let i;
+	let changesMap = new Map();
+	let index, val;
+
+	for (i = inState; i > 0; i--) {
+		if (modList[i]['vecMod'] == true) {
+			if (modList[i]['numMods'] == 1) {
+				index = modList[i]['mods'][0]['index'];
+				val = modList[i]['mods'][0]['newValue'];
+				changesMap = addToMap(changesMap, index, val);
+				continue;
+			}
+			let j;
+			for (j = 0; j < modList[i]['mods'].length; i++) {
+				index = modList[i]['mods'][j]['index'];
+				val = modList[i]['mods'][j]['newValue'];
+				changesMap = addToMap(changesMap, index, val);
+			}
+		} else {
+			if (withIndex == -1) return applyMapToVector(changesMap, modList[i]['values']);
+			else return [ applyMapToVector(changesMap, modList[i]['values'])[withIndex] ];
+		}
+	}
+}
 function getObjCurrValue(id, state, index) {
 	var currentValue = [];
 
@@ -224,7 +262,8 @@ function getObjCurrValue(id, state, index) {
 			var numMods = cmnObj[id]['modList'][state]['numMods'];
 
 			currentValue.push(numMods);
-			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods]);
+			//resolve and get vector
+			currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
 		}
 	} else {
 		if (cmnObj[id]['modList'][state]['vecMod'] == false) {
@@ -233,7 +272,9 @@ function getObjCurrValue(id, state, index) {
 		} else {
 			var numMods = cmnObj[id]['modList'][state]['numMods'];
 			currentValue.push(1);
-			currentValue.push(cmnObj[id]['modList'][state]['mods'][numMods][index]);
+
+			//resolve and get idx
+			currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
 		}
 	}
 
@@ -261,6 +302,7 @@ function vectorToStr(size, vector) {
 function structToStr(objCurrentValues) {
 	switch (objCurrentValues[0]) {
 		case structTypes.vec:
+			console.log(objCurrentValues);
 			return vectorToStr(objCurrentValues[3].length, objCurrentValues[3]);
 		case structTypes.mtx:
 			return '';

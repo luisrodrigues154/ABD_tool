@@ -223,8 +223,8 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         fprintf(dispOut, "\"numMods\" : %d,", vecObj->nCols);
         fprintf(dispOut, "\"mods\" : [");
 
-        if (prevType != type)
-            baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
+        // if (prevType != type)
+        //     baseVecValues = getNewVectorFromType(type, prevType, baseVecValues, baseVecSize);
 
         for (int i = 0; i < vecObj->nCols; i++)
         {
@@ -236,17 +236,17 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
             case REALSXP:
                 fprintf(out, "\n%s\"newValue\" : %.2f", getStrFromIndent(INDENT_7), ((double *)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : %.2f", ((double *)vecObj->vector)[i]);
-                ((double *)baseVecValues)[idx] = ((double *)vecObj->vector)[i];
+                // ((double *)baseVecValues)[idx] = ((double *)vecObj->vector)[i];
                 break;
             case INTSXP:
                 fprintf(out, "\n%s\"newValue\" : %d", getStrFromIndent(INDENT_7), ((int *)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : %d", ((int *)vecObj->vector)[i]);
-                ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
+                // ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
                 break;
             case STRSXP:
                 fprintf(out, "\n%s\"newValue\" : \"%s\"", getStrFromIndent(INDENT_7), ((char **)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : \"%s\"", ((char **)vecObj->vector)[i]);
-                ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
+                // ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
                 break;
             default:
                 break;
@@ -259,11 +259,11 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
                 fprintf(dispOut, ",");
             }
         }
-        fprintf(out, ",");
-        fprintf(dispOut, ",");
+        // fprintf(out, ",");
+        // fprintf(dispOut, ",");
         //save the changed vector
         fprintf(out, "\n%s", getStrFromIndent(INDENT_6));
-        writeVectorValues(out, INDENT_7, type, baseVecValues, baseVecSize, dispOut);
+        // writeVectorValues(out, INDENT_7, type, baseVecValues, baseVecSize, dispOut);
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "]");
         prevType = type;
