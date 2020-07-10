@@ -1,0 +1,1 @@
+code=JSON.parse('["options(\'keep.source\' = TRUE)","run <- function(){","","abd_start()","a <- 10","b <- 1:100","c <- 1:5","","f1 <- function(x,y){","f1_a <- x + y","f1_a <- f1_a * 2","f1_a","}","","if(a > b[12]){","print(\'maior\')","}","","for(z in c){","b[z] <- z * 2","}","","result <- f1(1,1)","","print(paste0(\'result: \', result))","","abd_stop()","}","run()"]')

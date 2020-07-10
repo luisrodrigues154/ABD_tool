@@ -1,1 +1,0 @@
-osdep.o: osdep.c
