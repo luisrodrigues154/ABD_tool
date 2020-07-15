@@ -23,7 +23,7 @@ run <- function(){
         }
     }
     #z[1:3] <- f1(2)
-    
+    myStr <- "hello my friend"
     # teste <- 1:1000000
 
 

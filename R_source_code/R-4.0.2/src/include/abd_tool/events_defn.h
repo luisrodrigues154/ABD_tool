@@ -18,7 +18,8 @@ typedef enum abd_event_types
     BREAK_EVENT = 9,
     NEXT_EVENT = 10,
     REPEAT_EVENT = 11,
-    WHILE_EVENT = 12
+    WHILE_EVENT = 12,
+    FRAME_EVENT = 13
 } ABD_EVENT_TYPE;
 
 typedef enum loop_tags
@@ -195,6 +196,16 @@ typedef struct vec_event
     ABD_OBJECT *toObj;
 } ABD_VEC_EVENT;
 
+typedef struct frame_event
+{
+    int nCols;
+    ABD_OBJECT **srcObjs;
+    ABD_OBJECT_MOD **srcStates;
+    char **colNames;
+    int **numIdxs;
+    int **fromIdxs;
+} ABD_FRAME_EVENT;
+
 typedef struct idx_change_event
 {
     ABD_OBJECT *toObj;
@@ -272,6 +283,7 @@ struct abd_event
         ABD_FOR_LOOP_EVENT *for_loop_event;
         ABD_REPEAT_LOOP_EVENT *repeat_loop_event;
         ABD_WHILE_LOOP_EVENT *while_loop_event;
+        ABD_FRAME_EVENT *data_frame_event;
     } data;
     ABD_OBJECT *atFunc;
     SEXP env;

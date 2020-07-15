@@ -39,7 +39,7 @@ typedef struct abd_vec_obj
     SEXPTYPE type;
     int idxChange;
     /*
-        if idxChange is y then
+        if is idxChange then
             nCols will represent how many indexes changed
             and vector will be the new value for that index
         else
@@ -51,6 +51,24 @@ typedef struct abd_vec_obj
     int *idxs;
     void *vector;
 } ABD_VEC_OBJ;
+
+typedef struct abd_frame_obj
+{
+    /*
+        if is idxChange then
+            nCols will represent how many vectors changed
+            the *changedVecs will contain the indexes of the changed vectors
+            **cols will contain the vector with the change itself similar to the
+            ABD_VECOBJ
+        else
+            **cols contains pointers to ABD_VEC_OBJ that represent the frame columns
+            nCols the number of columns
+    */
+    int idxChange;
+    int nCols;
+    int *changedVecs;
+    ABD_VEC_OBJ **cols;
+} ABD_FRAME_OBJ;
 
 typedef struct abd_mtrx_obj
 {
@@ -68,6 +86,7 @@ typedef struct abd_obj_mod
     {
         ABD_MTRX_OBJ *mtrx_value;
         ABD_VEC_OBJ *vec_value;
+        ABD_FRAME_OBJ *frame_value;
     } value;
     OBJ_STATE remotion;
     struct abd_obj_mod *prevMod;
@@ -148,12 +167,12 @@ ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 void changeNeighbours(ABD_OBJECT *obj);
 ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj);
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho);
-ABD_OBJECT_MOD *setModValues(ABD_OBJECT_MOD *newModification, SEXP newValue, ABD_OBJECT_MOD *(*func)(ABD_OBJECT_MOD *, SEXP));
+
 ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, SEXPTYPE type);
-ABD_OBJECT_MOD *createRealVector(ABD_OBJECT_MOD *mod, SEXP rhs);
-ABD_OBJECT_MOD *createRealVectorIdxChange(ABD_OBJECT_MOD *newMod, SEXP rhs);
+ABD_VEC_OBJ *createRealVector(SEXP rhs);
 ABD_OBJECT *getCmnObj(const char *name, SEXP rho);
 ABD_OBJECT *getCfObj(const char *name, SEXP rho);
 ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv);
 void processVarIdxChange(SEXP rhs);
 ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId, SEXP value, int withIndex);
+ABD_FRAME_OBJ *memAllocFrameObj();

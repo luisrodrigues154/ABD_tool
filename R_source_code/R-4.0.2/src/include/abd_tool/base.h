@@ -47,6 +47,7 @@ void setVerboseMode(ABD_STATE state)
 }
 void abd_start(SEXP rho)
 {
+    R_jit_enabled = 0;
     checkSettings();
     initObjsRegs();
     initEnvStack(rho);
@@ -59,16 +60,12 @@ void abd_stop()
 {
     if (isRunning())
     {
-        puts("Called");
         checkSettings();
-        puts("Settings checked");
         //checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
         setWatcherState(ABD_DISABLE);
-        puts("persiting....");
         persistInformation();
-        puts("DONE");
         //open the browser with the displayer
-        int ret = system(getCommand());
+        //int ret = system(getCommand());
     }
 }
 
@@ -129,6 +126,14 @@ void regVarIdxChange(SEXP call, SEXP rho)
     //now wait ...
 }
 
+void regDataFrameCreation(SEXP call, SEXP rho)
+{
+    if (!(isRunning() && (cmpToCurrEnv(rho) == ABD_EXIST)))
+        return;
+    frameCall = call;
+    preProcessDataFrame(CDR(call));
+}
+
 void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 {
 
@@ -151,7 +156,6 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
         SEXP rhs2 = CAR(CDR(CDR(call)));
         createAsgnEvent(objUsed, rhs, rhs2, rho);
     }
-
     clearPendingVars();
 }
 
@@ -204,9 +208,14 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+    // puts("received vec");
+    // PrintDaCall(vector, rho);
 
-    //PrintDaCall(vector, rho);
-
+    if (waitingFrameVecs)
+    {
+        storeVecDataFrameEvent(vector);
+        return;
+    }
     if (waitingForVecs)
     {
         storeVecForEvent(vector);

@@ -47,6 +47,11 @@ void initEventsReg()
     possibleRet = R_NilValue;
     possibleRetLine = 0;
 
+    /* data frame vars*/
+    frameCall = R_NilValue;
+    pendingFrame = FALSE;
+    waitingFrameVecs = 0;
+
     /* registry*/
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
@@ -137,7 +142,10 @@ ABD_WHILE_LOOP_EVENT *memAllocWhileLoopEvent()
 {
     return (ABD_WHILE_LOOP_EVENT *)malloc(sizeof(ABD_WHILE_LOOP_EVENT));
 }
-
+ABD_FRAME_EVENT *memAllocDataFrameEvent()
+{
+    return (ABD_FRAME_EVENT *)malloc(sizeof(ABD_FRAME_EVENT));
+}
 ITER_EVENT_LIST *memAllocIterEventList()
 {
     return (ITER_EVENT_LIST *)malloc(sizeof(ITER_EVENT_LIST));
@@ -192,34 +200,35 @@ SEXP getValueFromPROMSXP(SEXP symbol)
     by the symbolValue nRows (which is the number of elements) 
     with the function 'createRealVector'.  
 */
-ABD_OBJECT_MOD *processVector(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChange)
+ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange)
 {
-    SEXPTYPE modType = TYPEOF(symbolValue);
+    SEXPTYPE modType;
 rollback2:
+    modType = TYPEOF(symbolValue);
+
     switch (modType)
     {
     case CLOSXP:
         break;
     case INTSXP:
         if (idxChange)
-            mod = setModValues(mod, symbolValue, intVectorMultiChanges);
+            return intVectorMultiChanges(symbolValue);
         else
-            mod = setModValues(mod, symbolValue, createIntVector);
-        mod->value.vec_value->type = modType;
+            return createIntVector(symbolValue);
         break;
     case REALSXP:
         if (idxChange)
-            mod = setModValues(mod, symbolValue, realVectorMultiChanges);
+            return realVectorMultiChanges(symbolValue);
         else
-            mod = setModValues(mod, symbolValue, createRealVector);
-        mod->value.vec_value->type = modType;
+            return createRealVector(symbolValue);
+
         break;
     case STRSXP:
         if (idxChange)
-            mod = setModValues(mod, symbolValue, strVectorMultiChanges);
+            return strVectorMultiChanges(symbolValue);
         else
-            mod = setModValues(mod, symbolValue, createStrVector);
-        mod->value.vec_value->type = modType;
+            return createStrVector(symbolValue);
+
         break;
     case CPLXSXP:
         puts("complex vectors");
@@ -231,7 +240,7 @@ rollback2:
         puts("raw vector");
         break;
     case VECSXP:
-        puts("list (generic vector");
+        puts("list (generic vector)");
         break;
     case PROMSXP:
     {
@@ -242,19 +251,47 @@ rollback2:
     default:
         break;
     }
-    return mod;
+    return ABD_OBJECT_NOT_FOUND;
 }
-ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChange)
+ABD_FRAME_OBJ *processDataFrame(SEXP symbolValue, int idxChange)
 {
 
+    if (idxChange)
+    {
+        puts("do the changes here");
+        return ABD_OBJECT_NOT_FOUND;
+    }
+    else
+        return createDataFrame(symbolValue);
+}
+
+ABD_OBJECT_MOD *initModAndPopulate(ABD_OBJECT_MOD *newMod, OBJ_STATE remotion, ABD_OBJ_VALUE_TYPE valueType)
+{
+    newMod->value.frame_value = ABD_OBJECT_NOT_FOUND;
+    newMod->value.vec_value = ABD_OBJECT_NOT_FOUND;
+    newMod->value.mtrx_value = ABD_OBJECT_NOT_FOUND;
+    newMod->valueType = valueType;
+    newMod->remotion = remotion;
+    return newMod;
+}
+
+ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChange)
+{
     switch (getObjStructType(symbolValue))
     {
     case ABD_VECTOR:
-        mod->valueType = ABD_VECTOR;
-        mod = processVector(symbolValue, mod, idxChange);
+        mod = initModAndPopulate(mod, ABD_ALIVE, ABD_VECTOR);
+        mod->value.vec_value = processVector(symbolValue, idxChange);
         break;
     case ABD_MATRIX:
-        mod->valueType = ABD_MATRIX;
+
+        mod = initModAndPopulate(mod, ABD_ALIVE, ABD_MATRIX);
+        puts("deal with matrix here");
+        printf("Row number %d\nCol number %d\n", nrows(symbolValue), Rf_ncols(symbolValue));
+        break;
+    case ABD_FRAME:
+        mod = initModAndPopulate(mod, ABD_ALIVE, ABD_FRAME);
+        mod->value.frame_value = processDataFrame(symbolValue, idxChange);
         break;
     default:
         puts("fell to def");
@@ -985,6 +1022,9 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
         newBaseEvent->data.while_loop_event = memAllocWhileLoopEvent();
         newBaseEvent->data.while_loop_event->cndtStr = ABD_NOT_FOUND;
         break;
+    case FRAME_EVENT:
+        newBaseEvent->data.data_frame_event = memAllocDataFrameEvent();
+        break;
     case BREAK_EVENT:
     case NEXT_EVENT:
         break;
@@ -1041,6 +1081,10 @@ void clearPendingVars()
     currArithIndex = -1;
     arithResults = ABD_NOT_FOUND;
     waitingElseIF = 0;
+
+    frameCall = R_NilValue;
+    pendingFrame = FALSE;
+    waitingFrameVecs = 0;
 
     clearIdxChanges();
 }
@@ -1231,13 +1275,8 @@ rollback:
 
 void preProcessVarIdxChange(SEXP call, SEXP rho)
 {
-    // puts("The call expression    int *needProcess = (int *)malloc(sizeof(int) * 2);");
-    // PrintIt(call, getCurrentEnv());
-    // puts(" ");
     preProcessDest(call);
     preProcessSrc(call);
-    //done
-    //puts("done");
 }
 
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
@@ -1328,10 +1367,82 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
     else
         return eventsRegTail;
 }
+
+ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs)
+{
+    if (!(frameCall != R_NilValue && pendingFrame && frameCall == call))
+        return ABD_EVENT_NOT_FOUND;
+    SEXP currEnv = getCurrentEnv();
+    createNewEvent(FRAME_EVENT);
+    ABD_FRAME_EVENT *frameEvent = eventsRegTail->data.data_frame_event;
+
+    frameEvent->nCols = numFrameSrcs;
+    frameEvent->srcObjs = (ABD_OBJECT **)malloc(sizeof(ABD_OBJECT *) * numFrameSrcs);
+    frameEvent->srcStates = (ABD_OBJECT_MOD **)malloc(sizeof(ABD_OBJECT_MOD *) * numFrameSrcs);
+    frameEvent->fromIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
+    frameEvent->colNames = memAllocStrVec(numFrameSrcs);
+    frameEvent->numIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
+    SEXP colNames = getAttrib(rhs, R_NamesSymbol);
+
+    for (int i = 0; i < numFrameSrcs; i++)
+    {
+        ABD_OBJECT *usedObj = ABD_OBJECT_NOT_FOUND;
+        const char *currStr = CHAR(STRING_ELT(colNames, i));
+        int currStrSize = strlen(currStr);
+        frameEvent->colNames[i] = memAllocForString(currStrSize);
+        copyStr(frameEvent->colNames[i], currStr, currStrSize);
+        if (frameSrcs[i]->srcObj != R_NilValue)
+        {
+            const char *objName = CHAR(PRINTNAME(frameSrcs[i]->srcObj));
+            if ((usedObj = findCmnObj(objName, currEnv)) == ABD_OBJECT_NOT_FOUND)
+                usedObj = createUnscopedObj(objName, -2, -2, frameSrcs[i]->srcVal, 0);
+        }
+        else
+            usedObj = createUnscopedObj("NA", -1, -1, frameSrcs[i]->srcVal, 0);
+
+        frameEvent->srcObjs[i] = usedObj;
+        frameEvent->srcStates[i] = usedObj->modList;
+
+        frameEvent->numIdxs[i] = memAllocIntVector(1);
+
+        if (frameSrcs[i]->srcIdxs == R_NilValue)
+        {
+            frameEvent->fromIdxs[i] = ABD_NOT_FOUND;
+            frameEvent->numIdxs[i][0] = 0;
+        }
+        else
+        {
+            int numIdxs = Rf_nrows(frameSrcs[i]->srcIdxs);
+            frameEvent->numIdxs[i][0] = numIdxs;
+            frameEvent->fromIdxs[i] = memAllocIntVector(numIdxs);
+
+            for (int j = 0; j < numIdxs; j++)
+            {
+                switch (TYPEOF(frameSrcs[i]->srcIdxs))
+                {
+                case REALSXP:
+                    frameEvent->fromIdxs[i][j] = (int)REAL(frameSrcs[i]->srcIdxs)[j];
+                    break;
+                case INTSXP:
+                    frameEvent->fromIdxs[i][j] = INTEGER(frameSrcs[i]->srcIdxs)[j];
+                    break;
+                }
+                frameEvent->fromIdxs[i][j]--;
+            }
+        }
+    }
+
+    return eventsRegTail;
+}
+
 ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj)
 {
     /* Check if exist an arithmetic event pending */
     ABD_EVENT *retValue = ABD_EVENT_NOT_FOUND;
+
+    retValue = checkPendingFrame(call, rhs);
+    if (retValue != ABD_EVENT_NOT_FOUND)
+        return retValue;
 
     retValue = checkPendingArith(rhs);
     if (retValue != ABD_EVENT_NOT_FOUND)
@@ -1472,7 +1583,6 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         }
         else
         {
-
             int withIndex = 0;
             if (TYPEOF(rhs2) == LANGSXP)
             {
@@ -1481,6 +1591,7 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
                     Will treat only:
                         -> a[idx]
                 */
+
                 if (strcmp(CHAR(PRINTNAME(CAR(rhs2))), "[") == 0)
                 {
                     /* is an index from a variable */
@@ -1514,6 +1625,121 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         currAssign->fromType = ABD_O;
         currAssign->fromObj = fromObj;
     }
+}
+
+void parseDataFrameSrcs(SEXP call, int i)
+{
+    frameSrcs[i] = (FRAME_CREATION *)malloc(sizeof(FRAME_CREATION));
+    frameSrcs[i]->srcObj = R_NilValue;
+    frameSrcs[i]->srcVal = R_NilValue;
+    frameSrcs[i]->srcIdxs = R_NilValue;
+    frameSrcs[i]->srcVec = FALSE;
+    frameSrcs[i]->srcIdxsVec = FALSE;
+    frameSrcs[i]->discard = FALSE;
+    waitingFrameIdxs[i] = 0;
+
+rollback:
+    if (TYPEOF(call) == LANGSXP)
+    {
+        const char *rhsChar = CHAR(PRINTNAME(CAR(call)));
+
+        if (strcmp(rhsChar, "[") == 0)
+        {
+            //uses object content
+            frameSrcs[i]->srcObj = CAR(CDR(call));
+            call = CAR(CDR(CDR(call)));
+            goto rollback;
+        }
+
+        if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+        {
+            //will need to wait for a vector of indexes
+            if (frameSrcs[i]->srcObj != R_NilValue)
+            {
+
+                frameSrcs[i]->srcIdxsVec = TRUE;
+                // incrementWaitingIdxChange();
+                waitingFrameVecs++;
+                waitingFrameIdxs[i]++;
+            }
+            //     printf("used a range or a combine from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
+
+            frameSrcs[i]->srcVec = TRUE;
+            // incrementWaitingIdxChange();
+            waitingFrameVecs++;
+            waitingFrameIdxs[i]++;
+        }
+    }
+    else
+    {
+        //now try to find the src object in the registry
+        if (TYPEOF(call) == SYMSXP)
+        {
+            SEXP srcIdxs = getResult(CHAR(PRINTNAME(call)));
+            if (frameSrcs[i]->srcObj != R_NilValue)
+            {
+
+                if (Rf_length(srcIdxs) > 1)
+                {
+                    frameSrcs[i]->srcVec = TRUE;
+                    // incrementWaitingIdxChange();
+                    waitingFrameVecs++;
+                    waitingFrameIdxs[i]++;
+                }
+
+                //means that rhs was treated because of brackets in it ex: b[idxs]
+                //if the idxs.len > 1 will create a vector
+                frameSrcs[i]->srcIdxs = srcIdxs;
+            }
+            else
+            {
+                //rhs did not got into the langsxp brances, so, this is the actual obj
+                //will not create vector regardless of the src obj length
+                frameSrcs[i]->srcObj = call;
+                frameSrcs[i]->srcVal = srcIdxs;
+            }
+        }
+        else
+        {
+            //we'll assume that's a harcoded value for the index
+            if (frameSrcs[i]->srcObj != R_NilValue)
+            {
+                int index = (int)REAL(call)[0];
+                int nDigits = floor(log10(abs(index))) + 1;
+                int nameSize = strlen(CHAR(PRINTNAME(frameSrcs[i]->srcObj))) + nDigits + 2; //+2 for the []
+                char *requestValue = memAllocForString(nameSize);
+                memset(requestValue, 0, nameSize);
+                sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(frameSrcs[i]->srcObj)), index);
+                frameSrcs[i]->srcVal = getResult(requestValue);
+                frameSrcs[i]->srcIdxs = call;
+                free(requestValue);
+            }
+            else
+                frameSrcs[i]->srcVal = call;
+        }
+    }
+}
+
+int getFrameSrcsCount(SEXP call)
+{
+    int i = 0;
+    for (; call != R_NilValue; i++, call = CDR(call))
+        ;
+    numFrameSrcs = i;
+    waitingFrameIdxs = (int *)malloc(sizeof(int) * i);
+    return i;
+}
+
+void preProcessDataFrame(SEXP call)
+{
+
+    int i = 1;
+    waitingFrameVecs = 0;
+    pendingFrame = TRUE;
+
+    frameSrcs = (FRAME_CREATION **)malloc(sizeof(FRAME_CREATION *) * getFrameSrcsCount(call));
+    for (i = 0; call != R_NilValue; i++, call = CDR(call))
+        parseDataFrameSrcs(CAR(call), i);
 }
 
 int getCurrScriptLn()
@@ -1802,6 +2028,34 @@ void finalizeForEventProcessing()
         currFor->fromIdxs = memAllocIntVector(currFor->estIterNumber);
         for (int i = 0; i < currFor->estIterNumber; i++)
             currFor->fromIdxs[i] = i;
+    }
+}
+
+void storeVecDataFrameEvent(SEXP vec)
+{
+
+    int i;
+    for (i = 0; i < numFrameSrcs; i++)
+        if (waitingFrameIdxs[i] != 0)
+        {
+            waitingFrameIdxs[i]--;
+            break;
+        }
+
+    if (frameSrcs[i]->srcIdxsVec)
+    {
+        frameSrcs[i]->srcIdxs = vec;
+        frameSrcs[i]->srcIdxsVec = FALSE;
+        waitingFrameVecs--;
+        return;
+    }
+
+    if (frameSrcs[i]->srcVec)
+    {
+        frameSrcs[i]->srcVal = vec;
+        frameSrcs[i]->srcVec = FALSE;
+        waitingFrameVecs--;
+        return;
     }
 }
 

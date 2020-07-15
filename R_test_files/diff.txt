@@ -1,7 +1,0 @@
-31107,31108c31107
-< else if?
-< calling return eval
----
-> no else
-31124d31122
-< TYPEOF return 0

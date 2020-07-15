@@ -1,8 +1,8 @@
 PACKAGE = R
 VERSION = 4.0.2
 
-abs_top_srcdir = /home/luis/Downloads/R-4.0.2
-abs_top_builddir = /home/luis/Downloads/R-4.0.2
+abs_top_srcdir = /home/luis/Documents/Repos/ABD_tool/R_source_code/R-4.0.2
+abs_top_builddir = /home/luis/Documents/Repos/ABD_tool/R_source_code/R-4.0.2
 
 include $(top_srcdir)/share/make/vars.mk
 

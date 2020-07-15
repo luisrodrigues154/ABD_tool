@@ -74,3 +74,4 @@ void finalizeVarIdxChange(SEXP y, SEXP rho);
 void PrintDaCall(SEXP call, SEXP rho);
 void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho);
 Rboolean isFunCallRegged();
+void regDataFrameCreation(SEXP call, SEXP rho);

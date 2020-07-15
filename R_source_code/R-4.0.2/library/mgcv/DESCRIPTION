@@ -23,4 +23,4 @@ NeedsCompilation: yes
 Packaged: 2019-11-08 21:21:15 UTC; sw283
 Repository: CRAN
 Date/Publication: 2019-11-09 05:30:11 UTC
-Built: R 4.0.2; x86_64-pc-linux-gnu; 2020-07-09 21:38:39 UTC; unix
+Built: R 4.0.2; x86_64-pc-linux-gnu; 2020-07-10 17:24:42 UTC; unix

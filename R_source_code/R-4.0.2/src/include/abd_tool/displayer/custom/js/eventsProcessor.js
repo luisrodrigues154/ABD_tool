@@ -17,7 +17,8 @@ const types = {
 	BREAK: 'break_event',
 	NEXT: 'next_event',
 	REPEAT: 'repeat_loop_event',
-	WHILE: 'while_loop_event'
+	WHILE: 'while_loop_event',
+	DATAF: 'data_frame_event'
 };
 var processMe = 0;
 

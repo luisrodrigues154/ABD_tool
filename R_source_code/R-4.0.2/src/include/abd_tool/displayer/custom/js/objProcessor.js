@@ -2,7 +2,8 @@ var cmnObj = objects['commonObj'];
 var cfObj = objects['codeFlowObj'];
 const structTypes = {
 	vec: 'Vector',
-	mtx: 'Matrix'
+	mtx: 'Matrix',
+	frm: 'Frame'
 };
 $(function() {
 	//populateObjects();
@@ -277,7 +278,9 @@ function getObjCurrValue(id, state, index) {
 			currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
 		}
 	}
-
+	console.log('INSIDE');
+	console.log(currentValue);
+	console.log('id {} state {} '.format(id, state));
 	return currentValue;
 }
 function vectorToStr(size, vector) {
@@ -306,6 +309,8 @@ function structToStr(objCurrentValues) {
 			return vectorToStr(objCurrentValues[3].length, objCurrentValues[3]);
 		case structTypes.mtx:
 			return '';
+		case structTypes.frm:
+			return 'DO FRAME';
 		default:
 			return '';
 	}

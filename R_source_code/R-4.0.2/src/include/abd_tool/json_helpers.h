@@ -288,6 +288,39 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
     }
 }
 
+void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
+{
+    if (frameObj->idxChange)
+    {
+        //process frame changes
+    }
+    else
+    {
+        int nCols = frameObj->nCols;
+        fprintf(out, "\n%s\"nCols\" : %d,", getStrFromIndent(INDENT_5), nCols);
+        fprintf(dispOut, "\"nCols\" : %d,", nCols);
+        fprintf(out, "\n%s\"frameMod\" : false,", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"frameMod\" : false,");
+
+        fprintf(out, "\n%s\"cols\" : [", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"cols\" : [");
+        for (int i = 0; i < nCols; i++)
+        {
+            ABD_VEC_OBJ *currVec = frameObj->cols[i];
+
+            writeVectorValues(out, INDENT_7, currVec->type, currVec->vector, currVec->nCols, dispOut);
+
+            if (i + 1 < nCols)
+            {
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
+        }
+        fprintf(out, "]");
+        fprintf(dispOut, "]");
+    }
+}
+
 void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
 {
     ABD_OBJECT_MOD *currMod = listStart;
@@ -306,6 +339,11 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
             writeVector(out, currMod->value.vec_value, dispOut);
             break;
         case ABD_MATRIX:
+            break;
+        case ABD_FRAME:
+            fprintf(out, "\"DataFrame\",");
+            fprintf(dispOut, "\"DataFrame\",");
+            writeDataFrame(out, currMod->value.frame_value, dispOut);
             break;
         default:
             puts("default in persist");
@@ -1208,7 +1246,77 @@ void saveWhileLoopEvent(FILE *out, ABD_WHILE_LOOP_EVENT *whileEvent, FILE *dispO
     fprintf(out, "\n%s}", getStrFromIndent(INDENT_3));
     fprintf(dispOut, "}");
 }
+void saveDataFrameEvent(FILE *out, ABD_FRAME_EVENT *frameEvent, FILE *dispOut)
+{
+    fprintf(out, "\n%s\"numCols\" : %d,", getStrFromIndent(INDENT_3), frameEvent->nCols);
+    fprintf(dispOut, "\"numCols\" : %d,", frameEvent->nCols);
 
+    fprintf(out, "\n%s\"srcs\" : [", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "\"srcs\" : [");
+    for (int i = 0; i < frameEvent->nCols; i++)
+    {
+        fprintf(out, "\n%s{", getStrFromIndent(INDENT_4));
+        fprintf(dispOut, "{");
+        fprintf(out, "\n%s\"colName\" : \"%s\",", getStrFromIndent(INDENT_5), frameEvent->colNames[i]);
+        fprintf(dispOut, "\"colName\" : \"%s\",", frameEvent->colNames[i]);
+
+        fprintf(out, "\n%s\"objId\" : %d,", getStrFromIndent(INDENT_5), frameEvent->srcObjs[i]->id);
+        fprintf(dispOut, "\"objId\" : %d,", frameEvent->srcObjs[i]->id);
+
+        if (frameEvent->srcObjs[i]->id > 0)
+        {
+            fprintf(out, "\n%s\"objState\" : %d,", getStrFromIndent(INDENT_5), frameEvent->srcStates[i]->id);
+            fprintf(dispOut, "\"objState\" : %d,", frameEvent->srcStates[i]->id);
+        }
+        else
+        {
+            if (frameEvent->srcObjs[i]->id == -2)
+            {
+                fprintf(out, "\n%s\"name\" : \"%s\",", getStrFromIndent(INDENT_5), frameEvent->srcObjs[i]->name);
+                fprintf(dispOut, "\"name\" : \"%s\",", frameEvent->srcObjs[i]->name);
+            }
+            fprintf(out, "\n%s\"values\" : ", getStrFromIndent(INDENT_5));
+            fprintf(dispOut, "\"values\" : ");
+            writeVectorValues(out, INDENT_0, frameEvent->srcStates[i]->value.vec_value->type, frameEvent->srcStates[i]->value.vec_value->vector, frameEvent->srcStates[i]->value.vec_value->nCols, dispOut);
+            fprintf(out, ",");
+            fprintf(dispOut, ",");
+        }
+
+        fprintf(out, "\n%s\"idxs\" : [", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"idxs\" : [", frameEvent->srcStates[i]->id);
+
+        int numIdxs = frameEvent->numIdxs[i][0];
+
+        if (numIdxs > 0)
+        {
+            int *idxs = frameEvent->fromIdxs[i];
+            for (int j = 0; j < numIdxs; j++)
+            {
+                int val = idxs[j];
+                fprintf(out, "%d", val);
+                fprintf(dispOut, "%d", val);
+                if (j + 1 < numIdxs)
+                {
+                    fprintf(out, ",");
+                    fprintf(dispOut, ",");
+                }
+            }
+        }
+        fprintf(out, "]", getStrFromIndent(INDENT_4));
+        fprintf(dispOut, "]");
+        fprintf(out, "\n%s}", getStrFromIndent(INDENT_4));
+        fprintf(dispOut, "}");
+
+        if (i + 1 < frameEvent->nCols)
+        {
+            fprintf(out, ",");
+            fprintf(dispOut, ",");
+        }
+    }
+
+    fprintf(out, "\n%s]", getStrFromIndent(INDENT_3));
+    fprintf(dispOut, "]");
+}
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -1322,6 +1430,14 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"data\" : {");
             saveWhileLoopEvent(out, currEvent->data.while_loop_event, dispOut);
             break;
+        case FRAME_EVENT:
+            fprintf(out, "\"data_frame_event\",");
+            fprintf(out, "\n%s\"data\" : {", getStrFromIndent(INDENT_2));
+
+            fprintf(dispOut, "\"data_frame_event\",");
+            fprintf(dispOut, "\"data\" : {");
+            saveDataFrameEvent(out, currEvent->data.data_frame_event, dispOut);
+            break;
         case BREAK_EVENT:
             fprintf(out, "\"break_event\"");
             fprintf(dispOut, "\"break_event\"");
@@ -1371,9 +1487,9 @@ void persistInformation()
     }
 
     //save both registries
-    puts("saving objects");
+
     saveObjects(outputFile, dispOutFile);
-    puts("done");
+
     //close objects file
     closeFile(outputFile);
     closeFile(dispOutFile);
@@ -1391,9 +1507,9 @@ void persistInformation()
     }
 
     //save events
-    puts("saving events");
+
     saveEvents(outputFile, dispOutFile);
-    puts("done");
+
     //close events file
     closeFile(outputFile);
     closeFile(dispOutFile);

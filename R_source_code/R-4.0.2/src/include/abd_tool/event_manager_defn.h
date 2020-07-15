@@ -15,8 +15,7 @@
 //EVENTS LIST
 static int waitingElseIF;
 
-/* struct to manage for loops (allows nested fors) */
-
+/* for loops helper vars */
 static short waitingForVecs;
 Rboolean forIdxsVec;
 Rboolean forValVec;
@@ -51,15 +50,35 @@ static SEXP *arithResults;
 static int currArithIndex;
 static int arithScriptLn;
 static short exprId;
+
 /* Stores Vector creation values related*/
 static SEXP vecValues;
 static SEXP auxVecCall;
 static int auxVecLine;
 
+/* Stores data frame creation values related */
+
+typedef struct frame_creation
+{
+  Rboolean srcVec, srcIdxsVec, discard;
+  SEXP srcObj;
+  SEXP srcVal;
+  SEXP srcIdxs;
+} FRAME_CREATION;
+
+int numFrameSrcs;
+int *waitingFrameIdxs;
+FRAME_CREATION **frameSrcs;
+
+static short waitingFrameVecs;
+static Rboolean pendingFrame;
+static SEXP frameCall;
+
 /* Stores events registry */
 static ABD_EVENT *eventsReg;
 static ABD_EVENT *eventsRegTail;
 static int eventCounter;
+
 #endif
 
 //PROTOS
@@ -102,4 +121,6 @@ void pushNewLoop(ABD_LOOP_TAGS type, void *newEvent);
 void addEventToCurrentLoop(ABD_EVENT *newEvent);
 void popLoopFromStack(ABD_LOOP_TAGS requestingType);
 void appendLastEventToLoop(ABD_LOOP_TAGS type);
+ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange);
 Rboolean inLoopByType(ABD_LOOP_TAGS type);
+void preProcessDataFrame(SEXP call);

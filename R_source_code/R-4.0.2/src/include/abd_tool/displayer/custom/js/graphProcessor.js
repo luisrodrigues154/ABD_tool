@@ -48,6 +48,7 @@ function buildNodes() {
 	eventsLen = len;
 	envContent = new Map();
 	envLineBDepth = new Map();
+	console.log(eventsLen);
 	processEnv('main', events[1]['atEnv'], 1, 0);
 }
 
@@ -268,6 +269,13 @@ function getEventTypeHtml(event, nextEventId) {
 				0
 			);
 
+			break;
+		case types.DATAF:
+			htmlProduced += genLabelHtml(
+				'eId-{}'.format(nextEventId - 1),
+				codeLine.substring(codeLine.indexOf('data.frame')).trim(),
+				0
+			);
 			break;
 		case types.ASSIGN:
 			let objId = event['data']['toObj'];
@@ -1074,7 +1082,7 @@ function mkForLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1082,7 +1090,7 @@ function mkForLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-right' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1155,7 +1163,7 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-right' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextRepeatIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextRepeatIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1235,7 +1243,7 @@ function mkWhileLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-right' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextWhileIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextWhileIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1478,6 +1486,14 @@ function processIteration(forId, iterationId, toReturn) {
 				branchIncrementer++;
 				alreadyInit = false;
 				break;
+			case types.DATAF:
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(
+					eventId,
+					codeLine.substring(codeLine.indexOf('data.frame')).trim(),
+					0
+				);
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				break;
 			case types.ASSIGN:
 				let objId = event['data']['toObj'];
 				let obj = getCommonObjNameById(objId);
@@ -1686,6 +1702,14 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 				toAppendAfter[event['line']] = event['data']['toEnv'];
 				branchIncrementer++;
 				alreadyInit = false;
+				break;
+			case types.DATAF:
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(
+					eventId,
+					codeLine.substring(codeLine.indexOf('data.frame')).trim(),
+					0
+				);
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
 				break;
 			case types.ASSIGN:
 				let objId = event['data']['toObj'];
@@ -1916,6 +1940,14 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 				toAppendAfter[event['line']] = event['data']['toEnv'];
 				branchIncrementer++;
 				alreadyInit = false;
+				break;
+			case types.DATAF:
+				loopHtml += genLabelForAlreadyOpenModalWithIndent(
+					eventId,
+					codeLine.substring(codeLine.indexOf('data.frame')).trim(),
+					0
+				);
+				addEventToAuxMap(actualEnv, event['line'], loopHtml);
 				break;
 			case types.ASSIGN:
 				let objId = event['data']['toObj'];
@@ -2228,6 +2260,221 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 	return htmlProduced;
 }
+
+function mkDataFrameModal(event, eventId) {
+	let htmlProduced = '';
+	let nCols = event['data']['numCols'];
+
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Columns count: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(nCols);
+	htmlProduced += '</div>';
+	let i;
+	//second section table start
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Sources';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	if (nCols > 5) {
+		nCols = 5;
+	}
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-left dialog-text">Display <input id="frame_n_cols-{}" type="text" style="width:50px;" value="{}"/> columns'.format(
+		eventId,
+		nCols
+	);
+
+	htmlProduced +=
+		'<i class="fa fa-refresh" style="font-size:22px;margin-left:10px;color:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate()"></i>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-3 dialog-text">';
+	htmlProduced += '<div class="col text-center">Prev. page';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Display from';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next page';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-1 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange()'></i>";
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<input id="start_idx" type="text" style="width:50px;" value="1"/>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange()'></i>";
+
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<table class="table table-sm mt-2 dialog-text">';
+	htmlProduced += '<thead>';
+	//table headers
+	htmlProduced += '<tr class="dialog-text">';
+	htmlProduced += '<th class ="text-center" scope="col">Col.</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Col. Name</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Object</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Used indexes</th>';
+	htmlProduced += '<th class ="text-center" scope="col">Values</th>';
+	htmlProduced += '</tr>';
+	htmlProduced += '</thead>';
+	htmlProduced += '<tbody class="text-center" id="frame_body">';
+	htmlProduced += updateDataFrameDisplayedCols(0, nCols, event, true);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+function requestFrameNColsTableUpdate() {
+	let event = events[parseInt($('*[id^=frame_n_cols]').attr('id').split('-')[1])];
+	let val = parseInt($('*[id^=frame_n_cols]').val());
+	let startIdx = parseInt($('*[id^=start_idx]').val()) - 1;
+	if (startIdx < 0 || startIdx >= event['data']['numCols']) {
+		$('*[id^=start_idx]').val(1);
+		startIdx = 0;
+	}
+	if (val > 0) updateDataFrameDisplayedCols(startIdx, val, event, false);
+}
+
+function requestStartIdxUpdate() {
+	let event = events[parseInt($('*[id^=frame_n_cols]').attr('id').split('-')[1])];
+	let val = parseInt($('*[id^=frame_n_cols]').val());
+	let startIdx = parseInt($('*[id^=start_idx]').val()) - 1;
+	if (startIdx < 0 || startIdx >= event['data']['numCols']) {
+		$('*[id^=start_idx]').val(1);
+		startIdx = 0;
+	}
+	if (val > 0) updateDataFrameDisplayedCols(startIdx, val, event, false);
+}
+
+function requestPrevPageChange() {
+	let event = events[parseInt($('*[id^=frame_n_cols]').attr('id').split('-')[1])];
+	let val = parseInt($('*[id^=frame_n_cols]').val());
+	let startIdx = parseInt($('*[id^=start_idx]').val()) - 1;
+	if (startIdx < 0) {
+		$('*[id^=start_idx]').val(1);
+		startIdx = 0;
+	}
+	let need = startIdx - val;
+	console.log('need {} > 0 {}'.format(need, need > 0));
+	if (need < 0) return;
+	$('*[id^=start_idx]').val(need + 1);
+	if (val > 0) updateDataFrameDisplayedCols(need, val, event, false);
+}
+
+function requestNextPageChange() {
+	let event = events[parseInt($('*[id^=frame_n_cols]').attr('id').split('-')[1])];
+	let val = parseInt($('*[id^=frame_n_cols]').val());
+	let startIdx = parseInt($('*[id^=start_idx]').val()) - 1;
+	if (startIdx < 0 || startIdx >= event['data']['numCols']) {
+		$('*[id^=start_idx]').val(1);
+		startIdx = 0;
+	}
+	let maxCols = event['data']['numCols'];
+	let need = startIdx + val;
+	if (need > maxCols) return;
+	$('*[id^=start_idx]').val(need + 1);
+	if (val > 0) updateDataFrameDisplayedCols(need, val, event, false);
+}
+
+function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
+	let htmlProduced = '';
+	if (isNaN(startingIdx)) {
+		startingIdx = 0;
+		$('*[id^=start_idx]').val(1);
+	}
+	if (isNaN(nCols)) {
+		nCols = 5;
+		$('*[id^=frame_n_cols]').val(5);
+	}
+
+	let sources = event['data']['srcs'];
+	if (nCols > event['data']['numCols']) {
+		nCols = event['data']['numCols'];
+	}
+
+	if (startingIdx + nCols > event['data']['numCols']) {
+		nCols = event['data']['numCols'];
+	} else {
+		nCols += startingIdx;
+	}
+	var objVal;
+	for (i = startingIdx; i < nCols; i++) {
+		let source = sources[i];
+		let objId = source['objId'];
+
+		let values = [];
+		let objName;
+		let idxLabel;
+		let valuesLbl = '';
+
+		if (objId > 0) {
+			objName = getCommonObjNameById(objId);
+			let lastEId = findEventId(objId, source['objState']);
+			objName = genLabelForAlreadyOpenModal(lastEId, objName);
+			objVal = getObjCurrValue(objId, source['objState'], -1);
+		} else {
+			if (objId == -2) {
+				objName = mkTooltipOneLine([ 'Object: ', 'Non-Tracked' ], source['name']);
+				objVal = [ 'Vector', '', source['values'].length, source['values'] ];
+			} else {
+				objName = 'U-T';
+				objVal = [ 'Vector', '', source['values'].length, source['values'] ];
+			}
+		}
+
+		let idxsLen = source['idxs'].length;
+		if (idxsLen == 0) {
+			idxLabel = 'All';
+		} else {
+			if (idxsLen > 5) {
+				idxLabel = mkTooltip([ 'Vector', '', idxsLen, source['idxs'] ]);
+			} else {
+				idxLabel = '[{}]'.format(String(source['idxs']));
+			}
+		}
+
+		if (objVal[2] > 5) valuesLbl = mkTooltip(objVal);
+		else valuesLbl = '[{}]'.format(String(objVal[3]));
+		htmlProduced += '<tr>';
+		htmlProduced += '<td>';
+		htmlProduced += '{}'.format(i + 1);
+		htmlProduced += '</td>';
+
+		htmlProduced += '<td>';
+		htmlProduced += '{}'.format(source['colName']);
+		htmlProduced += '</td>';
+
+		htmlProduced += '<td>';
+		htmlProduced += '{}'.format(objName);
+		htmlProduced += '</td>';
+
+		htmlProduced += '<td>';
+		htmlProduced += '{}'.format(idxLabel);
+		htmlProduced += '</td>';
+
+		htmlProduced += '<td>';
+		htmlProduced += '{}'.format(valuesLbl);
+		htmlProduced += '</td>';
+		htmlProduced += '</tr>';
+	}
+
+	if (toReturn) return htmlProduced;
+	else document.getElementById('frame_body').innerHTML = htmlProduced;
+}
+
 function produceModalContent(eventId) {
 	let content = {
 		title: '',
@@ -2236,6 +2483,10 @@ function produceModalContent(eventId) {
 	eventId = eventId.split('-')[1];
 	let event = events[eventId];
 	switch (event['type']) {
+		case types.DATAF:
+			content.title = 'Data Frame creation';
+			content.body = mkDataFrameModal(event, eventId);
+			break;
 		case types.ASSIGN:
 			content.title = 'Object analysis';
 			content.body = mkObjModalTopInfo(event);
@@ -2291,7 +2542,7 @@ function goBackVisual() {
 	visualStack.pop();
 }
 function getArrowBack() {
-	return "<i class='fas fa-arrow-left' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='goBackVisual()'></i>";
+	return "<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='goBackVisual()'></i>";
 }
 let modalIsOpen = false;
 function processEventClick(eventId) {
@@ -2338,6 +2589,18 @@ function processEventClick(eventId) {
 			$('#dropdownMenuLink').click();
 		}
 	});
+	$('*[id^=start_idx]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			requestStartIdxUpdate();
+		}
+	});
+
+	$('*[id^=frame_n_cols]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			requestFrameNColsTableUpdate();
+		}
+	});
+
 	$('#dropdownMenuLink').click(function() {
 		$('*[id^=dropSearch]').focus();
 	});
