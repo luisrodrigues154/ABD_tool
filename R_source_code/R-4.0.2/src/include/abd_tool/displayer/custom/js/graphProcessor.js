@@ -2384,7 +2384,7 @@ function requestNextPageChange() {
 	}
 	let maxCols = event['data']['numCols'];
 	let need = startIdx + val;
-	if (need > maxCols) return;
+	if (need >= maxCols) return;
 	$('*[id^=start_idx]').val(need + 1);
 	if (val > 0) updateDataFrameDisplayedCols(need, val, event, false);
 }

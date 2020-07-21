@@ -8,7 +8,7 @@ run <- function(){
     
     # print(m)
     
-    b <- 20:23
+    b <- 20:25
     print(" ")
     print(" ")
     print(" ")
@@ -16,6 +16,8 @@ run <- function(){
     print("---------------------")
     #df <- data.frame(1:20, 20:1, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11)
     df <- data.frame("c1" = a , "c2" = b)
+
+    #df <- data.frame(1:20, 20:1, 30:11)
     print(df)
     
     # l <- list("a" = 2.5, "b" = TRUE, "c" = 1:3)
