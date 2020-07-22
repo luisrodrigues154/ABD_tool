@@ -15,7 +15,7 @@ Files that are patched (replaced) are in the folder under the path:
 ```
 
 ## How to install
-Before installing make sure that all the packages that R need are installed.</br>
+Before installing make sure that all the packages that R needs are installed.</br>
 If you dont know what packages are needed do the following (this will use the unmodified R files from cran repo that are included in this repository):
 
 ### Dependencies verification (not required, but recommended)
@@ -27,7 +27,7 @@ cd aux
 /tools/rsync-recommended
 ./configure 
 ```
-R will verify if you have the required packages, if not, an error is thrown with the name of the missing package. </br>
+R will verify if you have the required packages, if not, an error is thrown with the name of the missing package. Go ahead and install them through your package manager</br>
 **Note:** if pcre is not installed, make sure to install version 2 instead of 1 (ver > 4.0 migrated to pcre2) </br>
 At this point, when all the packages are installed, install openjdk if not installed. </br>
 
@@ -55,7 +55,7 @@ python abd_inst.py -h
 ```
 
 Available commands</br>
-        -h : Display this information (exiting arg)</br>
+        -h : Display this information</br>
         -r : Display the requirements to use ABD</br>
         -p : Specifies the R sources path</br>
         -c : Bypass checksum verification</br>
@@ -70,12 +70,12 @@ python abd_inst.py -p path/to/r_sources -m
 **Note:** -p sources the path to the folder where r was extracted, -m starts the make process after installation </br>
 **Note 2:** If you made changes to the R files, use -c to bypass checksum verification</br>
 
-During the multiple fases of installation, a key press is required</br>
-At the end, you are prompted to decide if the installer adds R and Rscript to the PATH variable (to be accessible system wide), Default is NO. </br>
+During the installation, some key presses are required</br>
+At the end, you are prompted to decide if the installer adds R and Rscript to the PATH variable (to be accessible system wide), <b>Default is NO. </b></br>
 
 #### Manually
 
-**Note**: Will assume the path selected before (/desired/path) to be rs (to reduce verbosity)
+**Note**: Will assume the path selected before (/desired/path) to be <b>rs</b> (to reduce verbosity)</br>
 **Note 2**: Assuming also that current directory is abd_installer
 ```
 cp *.h /rs/src/include/
@@ -91,7 +91,7 @@ echo "export PATH='/rs/bin/:$PATH'" >> ~/.bashrc
 source ~/.bashrc
 ```
 Installation is complete. </br>
-Now tool can be used with Rscript (with code constraints) or using R (combined with source("yourScript.R"))</br>
+Now ABD tool can be used with Rscript (with code constraints) or using R (combined with source("yourScript.R"))</br>
 
 ## How to Use
 To use the tool, just use **abd_start()** and **abd_stop()** between the code that needs to be analyzed.

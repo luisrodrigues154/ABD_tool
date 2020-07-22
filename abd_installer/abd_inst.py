@@ -106,7 +106,7 @@ def checkArgs(args):
 def printHelp():
     print("")
     print("Available commands")
-    print("\t-h : Display this information (exiting arg)")
+    print("\t-h : Display this information")
     print("\t-r : Display the requirements to use ABD")
     print("\t-p : Specifies the R sources path")
     print("\t-c : Bypass checksum verification")
