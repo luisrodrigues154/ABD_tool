@@ -7,9 +7,10 @@
 
 typedef struct sett
 {
-    char objOutPath[100];
-    char eventsOutPath[100];
+    ABD_STATE launchOnStop;
     ABD_STATE verbose;
+    char objOutPath[214];
+    char eventsOutPath[214];
 } ABD_SETTINGS;
 #define NO_PATH NULL
 static ABD_SETTINGS *settings = NO_PATH;
@@ -35,3 +36,9 @@ void buildDisplayerPath();
 char *getDisplayerPath();
 char *getCommand();
 char *getJSpath(char *jsFileName);
+char *getFolderPath();
+Rboolean checkPath(const char *path);
+void saveNewPath(const char *path, int target);
+void setLaunchOption(ABD_STATE state);
+ABD_STATE launchOnStop();
+void forceDefaults();

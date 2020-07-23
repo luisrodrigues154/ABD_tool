@@ -91,6 +91,9 @@ FUNTAB R_FunTab[] =
         /* Primitives */
         {"abd_start", do_watcher, 1, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
         {"abd_stop", do_watcher, 2, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
+        {"abd_display", do_watcher, 3, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
+        {"abd_path", do_watcher, 4, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
+        {"abd_clear", do_watcher, 5, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
         {"abd_help", do_watcher, 0, 100, 0, {PP_FUNCTION, PREC_FN, 0}},
         {"if", do_if, 0, 200, -1, {PP_IF, PREC_FN, 1}},
         {"while", do_while, 0, 100, 2, {PP_WHILE, PREC_FN, 0}},

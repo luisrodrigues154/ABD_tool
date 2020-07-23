@@ -2469,19 +2469,45 @@ static R_INLINE Rboolean SET_BINDING_VALUE(SEXP loc, SEXP value)
 		return FALSE;
 }
 
-SEXP attribute_hidden do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho)
+SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
 	switch (PRIMVAL(op))
 	{
 	case 1:
 		// abd_start() issued
 		abd_start(rho);
-		Rprintf("\n\t[ABD_TOOL] Watcher state: Running\n\n");
+		messagePrinter("Watcher state: Started");
 		break;
 	case 2:
 		// abd_stop() issued
-		abd_stop();
-		Rprintf("\n\t[ABD_TOOL] Watcher state: Stopped\n\n");
+		if (args == R_NilValue)
+		{
+			abd_stop();
+			messagePrinter("Watcher state: Stopped");
+		}
+		else
+		{
+			abd_set_launch(args);
+		}
+		break;
+	case 3:
+		if (abd_display())
+		{
+			messagePrinter("<press any key to continue>");
+			rewind(stdin);
+			getchar();
+		}
+		else
+			messagePrinter("Tool not running!");
+		break;
+	case 4:
+		if (args == R_NilValue)
+			abd_path();
+		else
+			abd_set_path(args);
+		break;
+	case 5:
+		abd_clear();
 		break;
 	case 0:
 		// abd_help() issued
@@ -3627,7 +3653,7 @@ SEXP attribute_hidden do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
 	{
 	case NILSXP:
 		env = encl; /* so eval(expr, NULL, encl) works */
-		/* falls through */
+					/* falls through */
 	case ENVSXP:
 		PROTECT(env); /* so we can unprotect 2 at the end */
 		break;

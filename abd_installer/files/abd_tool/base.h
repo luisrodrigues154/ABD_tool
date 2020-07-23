@@ -45,6 +45,23 @@ void setVerboseMode(ABD_STATE state)
 {
     verbose = state;
 }
+void abd_set_launch(SEXP state)
+{
+    if (TYPEOF(CAR(state)) != REALSXP)
+    {
+        messagePrinter("Invalid arguments");
+        return;
+    }
+
+    int option = (int)REAL(CAR(state))[0];
+    if (option != 0 && option != 1)
+    {
+        messagePrinter("Invalid arguments");
+        return;
+    }
+    checkSettings();
+    setLaunchOption(option);
+}
 void abd_start(SEXP rho)
 {
     R_jit_enabled = 0;
@@ -56,17 +73,74 @@ void abd_start(SEXP rho)
     setVerboseMode(ABD_ENABLE);
 }
 
+void messagePrinter(char *message)
+{
+    printf("\n\t[ABD_TOOL] %s\n", message);
+}
+
+void persistAndDisplay(Rboolean useSettings)
+{
+    checkSettings();
+    //checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
+    if (useSettings)
+        setWatcherState(ABD_DISABLE);
+    persistInformation();
+    //open the browser with the displayer
+    int ret = 0;
+    ABD_STATE displayNow = ABD_ENABLE;
+    if (useSettings)
+        displayNow = launchOnStop();
+    if (displayNow == ABD_ENABLE)
+        ret = system(getCommand());
+}
+
 void abd_stop()
 {
     if (isRunning())
+        persistAndDisplay(TRUE);
+}
+
+void abd_path()
+{
+    checkSettings();
+    messagePrinter(getFolderPath());
+}
+void abd_set_path(SEXP args)
+{
+    checkSettings();
+    SEXP path = CAR(args);
+    SEXP target = CAR(CDR(args));
+    if (TYPEOF(path) != STRSXP || TYPEOF(target) != REALSXP)
     {
-        checkSettings();
-        //checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
-        setWatcherState(ABD_DISABLE);
-        persistInformation();
-        //open the browser with the displayer
-        //int ret = system(getCommand());
+        messagePrinter("Invalid Arguments");
+        return;
     }
+    double target_file = REAL(target)[0];
+    const char *path_ = CHAR(STRING_ELT(path, 0));
+    if (!checkPath(path_) || (target_file != 0 && target_file != 1 && target_file != 2))
+    {
+        messagePrinter("Invalid arguments (absolute path?)");
+        return;
+    }
+
+    if (strlen(path_) > 200)
+    {
+        messagePrinter("Path exceeds size limit [200]");
+        return;
+    }
+    saveNewPath(path_, (int)target_file);
+}
+void abd_clear()
+{
+    forceDefaults();
+    messagePrinter("Default settings Loaded");
+}
+Rboolean abd_display()
+{
+    if (!isRunning())
+        return FALSE;
+    persistAndDisplay(FALSE);
+    return TRUE;
 }
 
 void abd_help()
@@ -74,10 +148,17 @@ void abd_help()
     checkSettings();
     printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
     printf("\t##################################################\n");
-    printf("\t-> Start the watcher: abd_start()\n");
-    printf("\t-> Stop the watcher: abd_stop()\n");
-    printf("\t-> Set output file path: abd_setPath(\"your/path\")\n");
-    printf("\t-> Display current output file path: abd_path()\n");
+    printf("\t1 -> Start the watcher: abd_start()\n");                                                          //done
+    printf("\t2 -> Stop the watcher: abd_stop()\n");                                                            //done
+    printf("\t3 -> Launch displayer on abd_stop: abd_stop(0/1) [0 - No, (D) 1 - Yes] \n");                      //done
+    printf("\t4 -> Set output file path: abd_path(\"new/path\", 0/1/2) [0 - objects, 1 - events, 2 - both]\n"); //done
+    printf("\t5 -> Display current output file path: abd_path()\n");                                            //done
+    printf("\t6 -> Set verbose mode: abd_verbose(0/1) [(D) 0 - No, 1 - Yes]\n");
+    printf("\t7 -> Load Default settings: abd_clear()\n");
+    printf("\tNOTES:\n");
+    printf("\t\t* Paths must be absolute\n");
+    printf("\t\t* Options with (D) indicates default\n");
+    printf("\t\t* Settings [3,4,6] are saved for next launches\n");
     printf("\t##################################################\n\n\n");
 }
 

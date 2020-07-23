@@ -25,17 +25,22 @@ char *getCommand()
     char *htmlPath;
 #ifdef __APPLE__
     char open[] = "open ";
+    openSize = strlen(open);
     htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 1));
     strcpy(htmlPath, open);
     strcat(htmlPath, displayerPath);
     strcat(htmlPath, "index.html");
 #elif defined __linux__
     char open[] = "nohup xdg-open ";
-    htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 3));
+    char devNull[] = "> /dev/null 2>&1";
+    openSize = strlen(open);
+
+    htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + strlen(devNull) + 1));
     strcpy(htmlPath, open);
     strcat(htmlPath, displayerPath);
     strcat(htmlPath, "index.html");
-    strcat(htmlPath, " &");
+    strcat(htmlPath, devNull);
+
 #endif
 
     return htmlPath;
@@ -117,6 +122,54 @@ void buildDisplayerPath()
     //
 #endif
 }
+void saveNewPath(const char *path, int target)
+{
+
+    switch (target)
+    {
+    case 1:
+        settings->eventsOutPath[0] = '\0';
+        strcat(settings->eventsOutPath, path);
+        strcat(settings->eventsOutPath, "/events.json");
+        break;
+    case 0:
+        settings->objOutPath[0] = '\0';
+        strcat(settings->objOutPath, path);
+        strcat(settings->objOutPath, "/objects.json");
+        break;
+    case 2:
+        settings->eventsOutPath[0] = '\0';
+        settings->objOutPath[0] = '\0';
+
+        strcat(settings->eventsOutPath, path);
+        strcat(settings->objOutPath, path);
+
+        strcat(settings->eventsOutPath, "/events.json");
+        strcat(settings->objOutPath, "/objects.json");
+        break;
+    default:
+        break;
+    }
+
+    FILE *setFile = openSetFile("wb");
+    if (setFile == NO_PATH)
+    {
+        printf("\n\t[ABD_TOOL] Error saving settings...\n");
+        return;
+    }
+    writeCurrSettings(setFile);
+    closeSetFile(setFile);
+}
+
+Rboolean checkPath(const char *path)
+{
+    DIR *dir;
+    if ((dir = opendir(path)) == NO_PATH)
+        return FALSE;
+
+    closedir(dir);
+    return TRUE;
+}
 
 int checkFolderHierarchy()
 {
@@ -184,9 +237,9 @@ void buildFilePath()
     strcat(filePath, "/settings.dat");
 }
 
-FILE *openSetFile()
+FILE *openSetFile(const char *mode)
 {
-    return fopen(filePath, "ab+");
+    return fopen(filePath, mode);
 }
 
 int closeSetFile(FILE *file)
@@ -207,13 +260,33 @@ int writeCurrSettings(FILE *settingsFile)
     return fwrite(settings, sizeof(ABD_SETTINGS), 1, settingsFile);
 }
 
+void setLaunchOption(ABD_STATE state)
+{
+    settings->launchOnStop = state;
+    FILE *setFile = openSetFile("wb");
+    if (setFile == NO_PATH)
+    {
+        printf("\n\t[ABD_TOOL] Error saving settings...\n");
+        return;
+    }
+
+    writeCurrSettings(setFile);
+    closeSetFile(setFile);
+}
+
+ABD_STATE launchOnStop()
+{
+    return settings->launchOnStop;
+}
+
 void createDefaults(FILE *settingsFile)
 {
     int eventsOutSize = strlen("/events.json");
     int objOutSize = strlen("/objects.json");
     int folderPathLen = strlen(folderPath);
     settings = (ABD_SETTINGS *)malloc(sizeof(ABD_SETTINGS));
-    settings->verbose = ABD_ENABLE;
+    settings->verbose = ABD_DISABLE;
+    settings->launchOnStop = ABD_ENABLE;
     settings->eventsOutPath[0] = '\0';
     settings->objOutPath[0] = '\0';
 
@@ -235,16 +308,16 @@ void loadSettings()
     if (checkFolderHierarchy())
     {
         printf("\t[ABD_TOOL] Loading settings... ");
-        if ((settingsFile = openSetFile()) != NO_PATH)
+        if ((settingsFile = openSetFile("ab+")) != NO_PATH)
         {
             if (!load(settingsFile))
             {
-                puts("ERROR...");
+                puts("ERROR");
                 printf("\t[ABD_TOOL] Creating default settings... ");
                 createDefaults(settingsFile);
             }
 
-            puts("DONE...\n");
+            puts("DONE\n");
             closeSetFile(settingsFile);
         }
     }
@@ -256,6 +329,26 @@ void checkSettings()
         loadSettings();
 }
 
+void forceDefaults()
+{
+    FILE *settingsFile;
+    buildFolderPath();
+    buildFilePath();
+    buildDisplayerPath();
+    if (checkFolderHierarchy())
+    {
+        if ((settingsFile = openSetFile("ab+")) != NO_PATH)
+        {
+            createDefaults(settingsFile);
+
+            closeSetFile(settingsFile);
+        }
+    }
+}
+char *getFolderPath()
+{
+    return folderPath;
+}
 char *getObjPath()
 {
     return settings->objOutPath;
