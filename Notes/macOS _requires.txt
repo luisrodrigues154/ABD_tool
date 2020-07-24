@@ -1,0 +1,12 @@
+macOS required installations
+
+install brew (which installs xcode command line tools)
+brew install gcc
+brew install xz
+brew install pcre
+brew cask install xquartz
+brew cask install java
+
+
+
+
