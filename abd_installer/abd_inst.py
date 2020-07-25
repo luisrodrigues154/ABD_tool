@@ -66,7 +66,8 @@ def checkArgs(args):
         "-r": printRequirements,
         "-p": None,
         "-c": checkSum,
-        "-m": None
+        "-m": None,
+        "-f": None
     }
 
     rcvd_path = ""
@@ -82,7 +83,7 @@ def checkArgs(args):
                     if(checkBasePath(rcvd_path)):
                         printSuccess("Path verified")
                         print("")
-                        if("-c" not in args):
+                        if("-c" not in args and "-f" not in args):
                             if(checkSum(rcvd_path)):
                                 printSuccess("Hashes match!")
                                 print("")
@@ -111,6 +112,7 @@ def printHelp():
     print("\t-p : Specifies the R sources path")
     print("\t-c : Bypass checksum verification")
     print("\t-m : Configure and make after installation")
+    print("\t-f : Force installation (does not check hashes)")
     print("")
 
 
@@ -135,7 +137,7 @@ def printBanner():
     print("Welcome to ABD_tool installer!!")
 
 
-def patch(f_map, base_path):
+def patch(f_map, base_path, force):
     if(base_path == ""):
         return False
 
@@ -146,9 +148,10 @@ def patch(f_map, base_path):
         src_file = os.path.join(script_dir, './files/{}'.format(file))
         dest_file = "{}{}{}".format(base_path, f_map[file], file)
         if(file == "abd_tool"):
-            if(os.path.isdir(dest_file)):
-                printSuccess("ABD_tool already installed")
-                return True
+        	if(not force):
+	            if(os.path.isdir(dest_file)):
+	                printSuccess("ABD_tool already installed")
+	                return True
         try:
             if(os.path.isdir(src_file)):
                 printProgress("Installing {}".format(file))
@@ -247,7 +250,10 @@ if __name__ == "__main__":
         "subset.c": "/src/main/"
 
     }
-    result = patch(f_map, base_path)
+    force = False
+    if("-f" in sys.argv):
+    	force = True	
+    result = patch(f_map, base_path, force)
     if(result):
         printSuccess("Intallation successfully finished!!")
         if("-m" in sys.argv):

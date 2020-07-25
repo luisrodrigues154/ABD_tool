@@ -1090,7 +1090,7 @@ function mkForLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1163,7 +1163,7 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextRepeatIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextRepeatIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1243,7 +1243,7 @@ function mkWhileLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="col text-center">{}'.format(dropDown);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}'  class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextWhileIteration(this.id)'></i>".format(
+		"<i id='eId-{}'  class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestNextWhileIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
