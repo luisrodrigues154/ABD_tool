@@ -223,8 +223,8 @@ def addToPath(path):
     printProgress("Adding R/Rscript to PATH varaible")
     bashrc_source = "source ~/.bashrc"
     bin_path = "{}/bin/".format(path)
-    path_export = 'export PATH="{}:$PATH"'.format(bin_path)
-    cmd = 'echo "{}" >> ~/.bashrc'.format(path_export)
+    path_export = 'export PATH=\"{}:$PATH\"'.format(bin_path)
+    cmd = 'echo \'{}\' >> ~/.bashrc'.format(path_export)
     os.system(cmd)
     os.system(bashrc_source)
     printSuccess("PATH variable updated")
