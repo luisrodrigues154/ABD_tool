@@ -3,7 +3,7 @@ var cfObj = objects['codeFlowObj'];
 const structTypes = {
 	vec: 'Vector',
 	mtx: 'Matrix',
-	frm: 'Frame'
+	frm: 'DataFrame'
 };
 $(function() {
 	//populateObjects();
@@ -251,14 +251,24 @@ function resolveCurrValue(modList, inState, withIndex) {
 }
 function getObjCurrValue(id, state, index) {
 	var currentValue = [];
-
+	let isMultiDim = false;
 	currentValue.push(cmnObj[id]['modList'][state]['structType']);
 	currentValue.push(cmnObj[id]['modList'][state]['dataType']);
 
+	if (cmnObj[id]['modList'][state]['structType'] == 'DataFrame') {
+		isMultiDim = true;
+	}
 	if (index == -1) {
-		if (cmnObj[id]['modList'][state]['vecMod'] == false) {
-			currentValue.push(cmnObj[id]['modList'][state]['nElements']);
-			currentValue.push(cmnObj[id]['modList'][state]['values']);
+		if (cmnObj[id]['modList'][state]['vecMod'] == false || cmnObj[id]['modList'][state]['frameMod'] == false) {
+			if (isMultiDim) {
+				let cols = '{}'.format(cmnObj[id]['modList'][state]['nCols']);
+				let rows = '{}'.format(cmnObj[id]['modList'][state]['cols'][0].length);
+				currentValue.push('{}by{}'.format(rows, cols));
+				currentValue.push(cmnObj[id]['modList'][state]['cols']);
+			} else {
+				currentValue.push(cmnObj[id]['modList'][state]['nElements']);
+				currentValue.push(cmnObj[id]['modList'][state]['values']);
+			}
 		} else {
 			var numMods = cmnObj[id]['modList'][state]['numMods'];
 
@@ -278,9 +288,7 @@ function getObjCurrValue(id, state, index) {
 			currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
 		}
 	}
-	console.log('INSIDE');
-	console.log(currentValue);
-	console.log('id {} state {} '.format(id, state));
+
 	return currentValue;
 }
 function vectorToStr(size, vector) {
@@ -302,15 +310,24 @@ function vectorToStr(size, vector) {
 	}
 	return str;
 }
+
+// htmlProduced += mkTooltip(objCurrentValues);
+
 function structToStr(objCurrentValues) {
 	switch (objCurrentValues[0]) {
 		case structTypes.vec:
-			console.log(objCurrentValues);
-			return vectorToStr(objCurrentValues[3].length, objCurrentValues[3]);
+			if (objCurrentValues[2] <= 5) return '[{}]'.format(String(objCurrentValues[3]));
+			else if (objCurrentValues[2] <= 15) return mkTooltip(objCurrentValues);
+			else {
+				valuesToBigData = objCurrentValues;
+				return genLabelForBigDataAlreadyOpenModal('Values');
+			}
+
 		case structTypes.mtx:
 			return '';
 		case structTypes.frm:
-			return 'DO FRAME';
+			valuesToBigData = objCurrentValues;
+			return genLabelForBigDataAlreadyOpenModal('Values');
 		default:
 			return '';
 	}

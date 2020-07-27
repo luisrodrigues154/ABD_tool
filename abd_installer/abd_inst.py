@@ -148,10 +148,13 @@ def patch(f_map, base_path, force):
         src_file = os.path.join(script_dir, './files/{}'.format(file))
         dest_file = "{}{}{}".format(base_path, f_map[file], file)
         if(file == "abd_tool"):
-        	if(not force):
-	            if(os.path.isdir(dest_file)):
-	                printSuccess("ABD_tool already installed")
-	                return True
+            if(os.path.isdir(dest_file)):
+                if(not force):
+                    printSuccess("ABD_tool already installed")
+                    return True
+                else:
+                    os.system("rm -rf {}".format(dest_file))
+
         try:
             if(os.path.isdir(src_file)):
                 printProgress("Installing {}".format(file))
@@ -252,7 +255,7 @@ if __name__ == "__main__":
     }
     force = False
     if("-f" in sys.argv):
-    	force = True	
+        force = True
     result = patch(f_map, base_path, force)
     if(result):
         printSuccess("Intallation successfully finished!!")

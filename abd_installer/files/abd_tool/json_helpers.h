@@ -297,6 +297,8 @@ void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
     else
     {
         int nCols = frameObj->nCols;
+        fprintf(out, "\n%s\"dataType\" : \"Multiple\",", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"dataType\" : \"Multiple\",");
         fprintf(out, "\n%s\"nCols\" : %d,", getStrFromIndent(INDENT_5), nCols);
         fprintf(dispOut, "\"nCols\" : %d,", nCols);
         fprintf(out, "\n%s\"frameMod\" : false,", getStrFromIndent(INDENT_5));

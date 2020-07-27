@@ -1,7 +1,7 @@
 var stack = [];
 var stackSize = 0;
 var currentEnv = '';
-
+var valuesToBigData = null;
 let eventsLen = 0;
 var nodeCount = 0;
 var linkCount = 0;
@@ -48,7 +48,6 @@ function buildNodes() {
 	eventsLen = len;
 	envContent = new Map();
 	envLineBDepth = new Map();
-	console.log(eventsLen);
 	processEnv('main', events[1]['atEnv'], 1, 0);
 }
 
@@ -210,7 +209,9 @@ function genForMultiLabelsWithIdent(id, text, indent) {
 		text
 	);
 }
-
+function genLabelForBigDataAlreadyOpenModal(text) {
+	return '<a href="#" id="bd" onclick="processEventClick(this.id)">{}</a>'.format(text);
+}
 function genLabelForAlreadyOpenModal(id, text) {
 	return '<a href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</a>'.format(id, text);
 }
@@ -447,10 +448,9 @@ function popFromStack() {
 }
 
 function mkTooltip(objCurrentValues) {
-	let valuesStr = structToStr(objCurrentValues);
 	return "<a href='#' type='button' data-placement='right' data-toggle='tooltip' data-html='true' title='Size: {}</br>{}'><u>values!</u></a>".format(
 		objCurrentValues[3].length,
-		valuesStr
+		objCurrentValues[3]
 	);
 }
 
@@ -524,9 +524,7 @@ function mkFuncModalInfo(event, eventId) {
 			htmlProduced += '<tr>';
 			htmlProduced += '<td>{}</td>'.format(fromObj);
 			htmlProduced += '<td>{}</td>'.format(toObj);
-			htmlProduced += '<td>{}</td>'.format(
-				objCurrentValues[2] > 5 ? mkTooltip(objCurrentValues) : structToStr(objCurrentValues)
-			);
+			htmlProduced += '<td>{}</td>'.format(structToStr(objCurrentValues));
 			htmlProduced += '<td>{}</td>'.format(prevChange);
 			htmlProduced += '</tr>';
 		});
@@ -556,6 +554,9 @@ function mkObjModalTopInfo(event) {
 	let sourceEvent = '';
 	if (event['data']['origin'] == 'event') {
 		switch (events[event['data']['fromEvent']]['type']) {
+			case types.DATAF:
+				sourceEvent = genLabelForAlreadyOpenModal(event['data']['fromEvent'], 'DataFrame Creation');
+				break;
 			case types.VEC:
 				sourceEvent = 'Vector Creation';
 				break;
@@ -629,12 +630,8 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-left">';
 
-	if (objCurrentValues[2] > 5) {
-		//create popover to display information
-		htmlProduced += mkTooltip(objCurrentValues);
-	} else {
-		htmlProduced += structToStr(objCurrentValues);
-	}
+	htmlProduced += structToStr(objCurrentValues);
+
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -695,13 +692,7 @@ function mkObjModalBotInfo(event, eventId) {
 						code[currEvent['line'] - 1]
 					);
 
-					if (objStateValues[2] > 4) {
-						//create popover to display information
-						strToAppend += mkTooltip(objStateValues);
-					} else {
-						strToAppend += structToStr(objStateValues);
-					}
-					htmlProduced += '<td class ="text-center">{}</td>'.format(strToAppend);
+					htmlProduced += '<td class ="text-center">{}</td>'.format(structToStr(objStateValues));
 					htmlProduced += '</tr>';
 				}
 			}
@@ -2189,11 +2180,6 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 
 	if (displayNote) {
-		htmlProduced += '<div class="row">';
-		htmlProduced +=
-			'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note:Source values repeated!! (less source indexes than targeted)';
-		htmlProduced += '</div>';
-		htmlProduced += '</div>';
 	}
 
 	htmlProduced += '<div class="row mt-5">';
@@ -2259,6 +2245,308 @@ function mkIdxChangeModalInfo(event, eventId) {
 
 	htmlProduced += '</div>';
 	return htmlProduced;
+}
+
+//ONE DIM
+function genForOneDim() {
+	let htmlProduced = '';
+	let nCols = valuesToBigData[2];
+
+	if (nCols > 10) nCols = 10;
+
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Elements count: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2]);
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Values';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//navigation
+
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-left dialog-text">Display <input id="big_n_cols_OD" type="text" style="width:50px;" value="{}"/> elements'.format(
+		nCols
+	);
+
+	htmlProduced +=
+		'<i class="fa fa-refresh" style="font-size:22px;margin-left:10px;c	olor:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim()"></i>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-3 dialog-text">';
+	htmlProduced += '<div class="col text-center">Prev. page';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Start index';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next page';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-1 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim()'></i>";
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<input id="start_index_big_OD" type="text" style="width:50px;" value="1"/>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim()'></i>";
+
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<table class="table table-sm mt-2 dialog-text">';
+	htmlProduced += '<tbody class="text-center" id="frame_body">';
+	htmlProduced += updateBigDataValuesTable_OneDim(0, nCols, true);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function requestFrameNColsTableUpdate_BigDataOneDim() {
+	let val = parseInt($('*[id^=big_n_cols_OD]').val());
+	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
+	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+		$('*[id^=start_index_big_OD]').val(1);
+		startIdx = 0;
+	}
+	if (val > 0) updateBigDataValuesTable_OneDim(startIdx, val, false);
+}
+
+function requestStartIdxUpdate_BigDataOneDim() {
+	let val = parseInt($('*[id^=big_n_cols_OD]').val());
+	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
+	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+		$('*[id^=start_index_big_OD]').val(1);
+		startIdx = 0;
+	}
+	if (val > 0) updateBigDataValuesTable_OneDim(startIdx, val, false);
+}
+
+function requestPrevPageChange_BigDataOneDim() {
+	let val = parseInt($('*[id^=big_n_cols_OD]').val());
+	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
+	if (startIdx < 0) {
+		$('*[id^=start_index_big_OD]').val(1);
+		startIdx = 0;
+	}
+	let need = startIdx - val;
+
+	if (need < 0) need = 0;
+	$('*[id^=start_index_big_OD]').val(need + 1);
+	if (val > 0) updateBigDataValuesTable_OneDim(need, val, false);
+}
+
+function requestNextPageChange_BigDataOneDim() {
+	let val = parseInt($('*[id^=big_n_cols_OD]').val());
+	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
+	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+		$('*[id^=start_index_big_OD]').val(1);
+		startIdx = 0;
+	}
+	let maxCols = valuesToBigData[2];
+	let need = startIdx + val;
+	if (need >= maxCols) return;
+	$('*[id^=start_index_big_OD]').val(need + 1);
+	if (val > 0) updateBigDataValuesTable_OneDim(need, val, false);
+}
+
+function updateBigDataValuesTable_OneDim(startingIdx, nCols, toReturn) {
+	let htmlProduced = '';
+	let idxCol = '';
+	let valCol = '';
+	let i;
+	if (isNaN(startingIdx)) {
+		startingIdx = 0;
+		$('*[id^=start_index_big_OD]').val(1);
+	}
+	if (isNaN(nCols)) {
+		nCols = 5;
+		$('*[id^=big_n_cols_OD]').val(5);
+	}
+
+	if (nCols > valuesToBigData[2]) {
+		nCols = valuesToBigData[2];
+	}
+
+	if (startingIdx + nCols > valuesToBigData[2]) {
+		nCols = valuesToBigData[2];
+	} else {
+		nCols += startingIdx;
+	}
+
+	idxCol += '<tr>';
+	idxCol += '<td><b>Index</b></td>';
+	valCol += '<tr>';
+	valCol += '<td><b>Value</b></td>';
+
+	for (i = startingIdx; i < nCols; i++) {
+		idxCol += '<td> {}</td>'.format(i + 1);
+		valCol += '<td> {}</td>'.format(valuesToBigData[3][i]);
+	}
+	valCol += '</tr>';
+	idxCol += '</tr>';
+	htmlProduced += idxCol + valCol;
+	if (toReturn) return htmlProduced;
+	else document.getElementById('frame_body').innerHTML = htmlProduced;
+}
+
+//MULTI DIM
+function genForMultiDim() {
+	let htmlProduced = '';
+	valuesToBigData[2] = valuesToBigData[2].split('by');
+	let nRows = valuesToBigData[2][0];
+	let nCols = valuesToBigData[2][1];
+
+	if (nCols > 10) nCols = 10;
+	if (nRows > 10) nRows = 10;
+
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Rows count: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2][0]);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Columns count: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2][1]);
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced +=
+		'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note: To input use <row,col> notation (without signs)';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Values';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//navigation
+
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-left dialog-text">Display window:<input id="big_n_cols_OD" type="text" style="width:50px;margin-left:10px;" value="{}"/>'.format(
+		'{},{}'.format(nRows, nCols)
+	);
+
+	htmlProduced +=
+		'<i class="fa fa-refresh" style="font-size:22px;margin-left:10px;c	olor:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim()"></i>';
+
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-3 dialog-text">';
+	htmlProduced += '<div class="col text-center">Prev. page';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Start cell';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next page';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-1 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim()'></i>";
+	htmlProduced +=
+		"<i class='fa fa-arrow-up' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim()'></i>";
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center" >';
+	htmlProduced += '<input id="start_index_big_OD" type="text" style="width:50px;" value="1,1"/>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced +=
+		"<i class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim()'></i>";
+	htmlProduced +=
+		"<i class='fa fa-arrow-down' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim()'></i>";
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<table class="table table-sm mt-2 dialog-text">';
+	htmlProduced += '<tbody class="text-center" id="frame_body">';
+	htmlProduced += updateBigDataValuesTable_MultiDim(0, nRows, nCols, true);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function genModalForBigData() {
+	let htmlProduced = '';
+	if (typeof valuesToBigData[2] == 'string') htmlProduced = genForMultiDim();
+	else htmlProduced = genForOneDim();
+	return htmlProduced;
+}
+function updateBigDataValuesTable_MultiDim(startingIdx, nRows, nCols, toReturn) {
+	let htmlProduced = '';
+	let i;
+
+	if (isNaN(startingIdx)) {
+		startingIdx = 0;
+		$('*[id^=start_index_big]').val(1);
+	}
+	if (isNaN(nCols)) {
+		nCols = 5;
+		$('*[id^=big_n_cols]').val(5);
+	}
+
+	if (nCols > valuesToBigData[2][1]) {
+		nCols = valuesToBigData[2][1];
+	}
+	if (nRows > valuesToBigData[2][0]) {
+		nRows = valuesToBigData[2][0];
+	}
+
+	// if (startingIdx + nCols > valuesToBigData[2]) {
+	// 	nCols = valuesToBigData[2];
+	// } else {
+	// 	nCols += startingIdx;
+	// }
+
+	console.log(valuesToBigData);
+	let j;
+	htmlProduced += '<tr>';
+	htmlProduced += '<td><b>Indexes</b></td>';
+	for (i = startingIdx; i < nCols; i++) {
+		htmlProduced += '<td><b>{}</b></td>'.format(i + 1);
+	}
+	htmlProduced += '</tr>';
+	for (j = 0; j < nRows; j++) {
+		htmlProduced += '<tr>';
+		htmlProduced += '<td><b>{}</b></td>'.format(j + 1);
+		for (i = startingIdx; i < nCols; i++) {
+			htmlProduced += '<td>{}</td>'.format(valuesToBigData[3][i][j]);
+		}
+		htmlProduced += '</tr>';
+	}
+
+	if (toReturn) return htmlProduced;
+	else document.getElementById('frame_body').innerHTML = htmlProduced;
 }
 
 function mkDataFrameModal(event, eventId) {
@@ -2368,8 +2656,8 @@ function requestPrevPageChange() {
 		startIdx = 0;
 	}
 	let need = startIdx - val;
-	console.log('need {} > 0 {}'.format(need, need > 0));
-	if (need < 0) return;
+
+	if (need < 0) need = 0;
 	$('*[id^=start_idx]').val(need + 1);
 	if (val > 0) updateDataFrameDisplayedCols(need, val, event, false);
 }
@@ -2446,8 +2734,6 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 			}
 		}
 
-		if (objVal[2] > 5) valuesLbl = mkTooltip(objVal);
-		else valuesLbl = '[{}]'.format(String(objVal[3]));
 		htmlProduced += '<tr>';
 		htmlProduced += '<td>';
 		htmlProduced += '{}'.format(i + 1);
@@ -2466,7 +2752,7 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 		htmlProduced += '</td>';
 
 		htmlProduced += '<td>';
-		htmlProduced += '{}'.format(valuesLbl);
+		htmlProduced += '{}'.format(structToStr(objVal));
 		htmlProduced += '</td>';
 		htmlProduced += '</tr>';
 	}
@@ -2480,6 +2766,11 @@ function produceModalContent(eventId) {
 		title: '',
 		body: ''
 	};
+	if (eventId.indexOf('bd') > -1) {
+		content.title = 'Values Visualizer';
+		content.body = genModalForBigData();
+		return content;
+	}
 	eventId = eventId.split('-')[1];
 	let event = events[eventId];
 	switch (event['type']) {
@@ -2598,6 +2889,18 @@ function processEventClick(eventId) {
 	$('*[id^=frame_n_cols]').on('keyup', function(event) {
 		if (event.keyCode == 13) {
 			requestFrameNColsTableUpdate();
+		}
+	});
+
+	$('*[id^=start_index_big_OD]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			requestStartIdxUpdate_BigDataOneDim();
+		}
+	});
+
+	$('*[id^=big_n_cols_OD]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			requestFrameNColsTableUpdate_BigDataOneDim();
 		}
 	});
 
