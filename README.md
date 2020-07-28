@@ -60,18 +60,16 @@ Available commands</br>
         -p : Specifies the R sources path</br>
         -c : Bypass checksum verification</br>
         -m : Configure and make after installation</br>
-
-
-
+		-f : Force installation (does not do checksum verification)</br>
 ```
 cd abd_installer
 python abd_inst.py -p path/to/r_sources -m
 ```
-**Note:** -p sources the path to the folder where r was extracted, -m starts the make process after installation </br>
+**Note:** -p sources the path to the folder where R files were extracted, -m starts the configuration and make process after installation </br>
 **Note 2:** If you made changes to the R files, use -c to bypass checksum verification</br>
 
-During the installation, some key presses are required</br>
-At the end, you are prompted to decide if the installer adds R and Rscript to the PATH variable (to be accessible system wide), <b>Default is NO. </b></br>
+During the installation, some key presses are required to advanced through different phases</br>
+At the end, you are prompted to decide if the installer will add R and Rscript to the PATH variable (to be accessible system wide), <b>Default is NO. </b></br>
 
 #### Manually
 
@@ -107,9 +105,9 @@ abd_stop()
 For more information about the functionalities, issue **abd_help()** at the terminal (after launching R).
 ## Code Constraints
 
-Due to R implementation, and to take full advantage of the tool, running the script with Rscript has its constraints.
+Due to R implementation limitations, it just stores source references (R_SrcRef) inside functions/closures, and to take full advantage of the tool, running the script with Rscript has its constraints/limitations.
 
-The code must contain the following structure:
+The code must contain the following structure (which is, have an anonymous function wrapper):
 ```
 options("keep.source"=TRUE)
 run <- function(){
@@ -130,5 +128,5 @@ options("keep.source"=TRUE)
 })()
 ```
 **Note 1:** Notice that between the first two lines there's no space. The first line should be at the first line of the script (literally)</br>
-**Note 2:** Using the function source("script.R"), there's no need to have this kind of structure.
+**Note 2:** Using the function source("script.R"), there's no need to have this anonymous function code structure.
 

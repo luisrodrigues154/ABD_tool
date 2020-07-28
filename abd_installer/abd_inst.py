@@ -112,7 +112,7 @@ def printHelp():
     print("\t-p : Specifies the R sources path")
     print("\t-c : Bypass checksum verification")
     print("\t-m : Configure and make after installation")
-    print("\t-f : Force installation (does not check hashes)")
+    print("\t-f : Force installation (does not do checksum verification)")
     print("")
 
 
