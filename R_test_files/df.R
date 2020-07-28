@@ -1,13 +1,14 @@
 options("keep.source"=TRUE)
 run <- function(){
     
-    a <- 10:5
+    
     abd_start()
     
     # m <- matrix(1:10, nrow=2)
     
     # print(m)
-    
+    vec <- 10:40
+    a <- 10:5
     b <- 20:25
     print(" ")
     print(" ")
@@ -15,7 +16,7 @@ run <- function(){
     
     print("---------------------")
     #df <- data.frame(1:20, 20:1, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11)
-    df <- data.frame("c1" = a , "c2" = b)
+    df <- data.frame("c1" = a , "c2" = b, "c3" = 5:10)
 
     #df <- data.frame(1:20, 20:1, 30:11)
     print(df)
