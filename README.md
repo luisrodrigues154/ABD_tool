@@ -107,7 +107,7 @@ For more information about the functionalities, issue **abd_help()** at the term
 
 Due to R implementation limitations, it just stores source references (R_SrcRef) inside functions/closures, and to take full advantage of the tool, running the script with Rscript has its constraints/limitations.
 
-The code must contain the following structure (which is, have an anonymous function wrapper):
+The code must contain the following structure (an anonymous function wrapper):
 ```
 options("keep.source"=TRUE)
 run <- function(){
@@ -128,5 +128,5 @@ options("keep.source"=TRUE)
 })()
 ```
 **Note 1:** Notice that between the first two lines there's no space. The first line should be at the first line of the script (literally)</br>
-**Note 2:** Using the function source("script.R"), there's no need to have this anonymous function code structure.
+**Note 2:** Using the function source("script.R"), there's no need to have the anonymous function wrapper structure.
 
