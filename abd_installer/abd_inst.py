@@ -120,6 +120,7 @@ def printRequirements():
     print("")
     print("Requirements to use installer:")
     print("-> python 3")
+    print("-> python package \"checksumdir\" (to verify R source files integrity)")
     print("-> R source code (version 4.0.2 tested)\n\t(link: https://github.com/luisrodrigues154/ABD_tool/R_source\n\tOR https://cran.r-project.org/src/base/R-4/R-4.0.2.tar.gz)")
     print("-> R required dependencies (Verify before using -m option)")
     print("\n")
