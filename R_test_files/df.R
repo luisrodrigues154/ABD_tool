@@ -8,15 +8,15 @@ run <- function(){
     
     # print(m)
     vec <- 10:40
-    a <- 10:5
-    b <- 20:25
+    a <- 11:1
+    b <- 50:70
     print(" ")
     print(" ")
     print(" ")
     
     print("---------------------")
     #df <- data.frame(1:20, 20:1, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11, 30:11)
-    df <- data.frame("c1" = a , "c2" = b, "c3" = 5:10)
+    df <- data.frame( "c2" = b, "c3" = vec[21:1])
 
     #df <- data.frame(1:20, 20:1, 30:11)
     print(df)

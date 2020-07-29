@@ -2437,7 +2437,7 @@ function genForMultiDim() {
 
 	htmlProduced += '<div class="row">';
 	htmlProduced +=
-		'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note: To use inputs, use <b>row,col</b> notation (without signs)';
+		'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note: To use inputs, use <b style="color:black;">row,col</b> notation';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="row mt-5">';
@@ -3066,11 +3066,30 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 		let idxLabel;
 		let valuesLbl = '';
 
+		let idxsLen = source['idxs'].length;
+		if (idxsLen == 0) {
+			idxLabel = 'All';
+			idxsLen = -1;
+		} else {
+			idxsLen = source['idxs'];
+			let idxArr = [ 'Vector', '', source['idxs'].length, source['idxs'] ];
+			idxLabel = structToStr(idxArr);
+		}
+
 		if (objId > 0) {
 			objName = getCommonObjNameById(objId);
 			let lastEId = findEventId(objId, source['objState']);
 			objName = genLabelForAlreadyOpenModal(lastEId, objName);
 			objVal = getObjCurrValue(objId, source['objState'], -1);
+			let vals = [];
+			let maxLen = idxsLen.length;
+			let i;
+			for (i = 0; i < maxLen; i++) {
+				vals.push(objVal[3][idxsLen[i]]);
+			}
+			objVal[2] = maxLen;
+			objVal[3] = Array.from(vals);
+			valuesToBigData = objVal;
 		} else {
 			if (objId == -2) {
 				objName = mkTooltipOneLine([ 'Object: ', 'Non-Tracked' ], source['name']);
@@ -3080,17 +3099,7 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 				objVal = [ 'Vector', '', source['values'].length, source['values'] ];
 			}
 		}
-
-		let idxsLen = source['idxs'].length;
-		if (idxsLen == 0) {
-			idxLabel = 'All';
-		} else {
-			if (idxsLen > 5) {
-				idxLabel = mkTooltip([ 'Vector', '', idxsLen, source['idxs'] ]);
-			} else {
-				idxLabel = '[{}]'.format(String(source['idxs']));
-			}
-		}
+		valuesLbl = structToStr(objVal);
 
 		htmlProduced += '<tr>';
 		htmlProduced += '<td>';
@@ -3110,7 +3119,7 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 		htmlProduced += '</td>';
 
 		htmlProduced += '<td>';
-		htmlProduced += '{}'.format(structToStr(objVal));
+		htmlProduced += '{}'.format(valuesLbl);
 		htmlProduced += '</td>';
 		htmlProduced += '</tr>';
 	}
@@ -3188,6 +3197,7 @@ function goBackVisual() {
 	let producedContent = visualStack[visualStack.length - 1];
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
+	valuesToBigData = producedContent.valuesToBigData;
 	visualStack.pop();
 }
 function getArrowBack() {
@@ -3199,10 +3209,12 @@ function processEventClick(eventId) {
 	if (modalIsOpen) {
 		let currModalContent = {
 			title: '',
-			body: ''
+			body: '',
+			bigDataValues: []
 		};
 		currModalContent.title = document.getElementById('exec_flow_modal_title').innerHTML;
 		currModalContent.body = document.getElementById('exec_flow_modal_body').innerHTML;
+		currModalContent.bigDataValues = Array.from(valuesToBigData);
 		visualStack.push(currModalContent);
 		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
 	}

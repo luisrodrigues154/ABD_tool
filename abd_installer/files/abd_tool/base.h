@@ -154,7 +154,9 @@ void abd_help()
     printf("\t4 -> Set output file path: abd_path(\"new/path\", 0/1/2) [0 - objects, 1 - events, 2 - both]\n"); //done
     printf("\t5 -> Display current output file path: abd_path()\n");                                            //done
     printf("\t6 -> Set verbose mode: abd_verbose(0/1) [(D) 0 - No, 1 - Yes]\n");
-    printf("\t7 -> Load Default settings: abd_clear()\n");
+    printf("\t7 -> Launch displayer at current state (execution hangs until input): abd_display()\n"); //done
+    printf("\t8 -> Load Default settings: abd_clear()\n");
+    printf("\t##################################################\n");
     printf("\tNOTES:\n");
     printf("\t\t* Paths must be absolute\n");
     printf("\t\t* Options with (D) indicates default\n");
