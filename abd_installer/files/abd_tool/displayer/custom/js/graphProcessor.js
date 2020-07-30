@@ -624,7 +624,9 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col text-right">New value size:';
 	htmlProduced += '</div>';
-	htmlProduced += '<div class="col text-left">{}'.format(objCurrentValues[2]);
+	htmlProduced += '<div class="col text-left">{}'.format(
+		'{}by{}'.format(objCurrentValues[2][0], objCurrentValues[2][1])
+	);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	//first section obj value
@@ -2430,10 +2432,11 @@ function updateBigDataValuesTable_OneDim(pos, startingIdx, nCols, toReturn) {
 function genForMultiDim(pos) {
 	let htmlProduced = '';
 	console.log('gen multi pos {}'.format(pos));
-	valuesToBigData[pos][2] = valuesToBigData[pos][2].split('by');
-	let nRows = parseInt(valuesToBigData[pos][2][0]);
-	let nCols = parseInt(valuesToBigData[pos][2][1]);
 
+	let maxRows = valuesToBigData[pos][2][0];
+	let maxCols = valuesToBigData[pos][2][1];
+	let nRows = maxRows;
+	let nCols = maxCols;
 	if (nCols > 10) nCols = 10;
 	if (nRows > 10) nRows = 10;
 
@@ -2441,11 +2444,11 @@ function genForMultiDim(pos) {
 
 	htmlProduced += '<div class="row mt-2 dialog-text">';
 	htmlProduced += '<div class="col text-left">Rows count: </div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[pos][2][0]);
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(maxRows);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="row mt-2 dialog-text">';
 	htmlProduced += '<div class="col text-left">Columns count: </div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[pos][2][1]);
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(maxCols);
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="row">';
@@ -2523,7 +2526,7 @@ function genForMultiDim(pos) {
 
 function genModalForBigData(pos) {
 	let htmlProduced = '';
-	if (typeof valuesToBigData[pos][2] == 'string') htmlProduced = genForMultiDim(pos);
+	if (typeof valuesToBigData[pos][2] == 'object') htmlProduced = genForMultiDim(pos);
 	else htmlProduced = genForOneDim(pos);
 	return htmlProduced;
 }
@@ -2576,7 +2579,7 @@ function updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, toRetu
 	}
 	htmlProduced += '</tr>';
 	console.log('before loop');
-
+	console.log(valuesToBigData);
 	for (r = sRow; r < nRows; r++) {
 		htmlProduced += '<tr>';
 		htmlProduced += '<td><b>{}</b></td>'.format(r + 1);
@@ -3224,6 +3227,9 @@ function goBackVisual() {
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	valuesToBigData = producedContent.bigDataValues;
+	console.log('restored... current values');
+
+	console.log(valuesToBigData);
 	visualStack.pop();
 }
 function getArrowBack() {
@@ -3231,7 +3237,7 @@ function getArrowBack() {
 }
 let modalIsOpen = false;
 function processEventClick(eventId) {
-	let producedContent = produceModalContent(eventId);
+	let producedContent;
 	if (modalIsOpen) {
 		let currModalContent = {
 			title: '',
@@ -3241,9 +3247,14 @@ function processEventClick(eventId) {
 		currModalContent.title = document.getElementById('exec_flow_modal_title').innerHTML;
 		currModalContent.body = document.getElementById('exec_flow_modal_body').innerHTML;
 		currModalContent.bigDataValues = Array.from(valuesToBigData);
+		console.log('stored... values');
 
+		console.log(currModalContent.bigDataValues);
 		visualStack.push(currModalContent);
+		producedContent = produceModalContent(eventId);
 		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
+	} else {
+		producedContent = produceModalContent(eventId);
 	}
 	modalIsOpen = true;
 

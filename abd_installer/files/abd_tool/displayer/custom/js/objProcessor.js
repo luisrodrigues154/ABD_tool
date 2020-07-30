@@ -261,9 +261,9 @@ function getObjCurrValue(id, state, index) {
 	if (index == -1) {
 		if (cmnObj[id]['modList'][state]['vecMod'] == false || cmnObj[id]['modList'][state]['frameMod'] == false) {
 			if (isMultiDim) {
-				let cols = '{}'.format(cmnObj[id]['modList'][state]['nCols']);
-				let rows = '{}'.format(cmnObj[id]['modList'][state]['cols'][0].length);
-				currentValue.push('{}by{}'.format(rows, cols));
+				let cols = cmnObj[id]['modList'][state]['nCols'];
+				let rows = cmnObj[id]['modList'][state]['cols'][0].length;
+				currentValue.push([ rows, cols ]);
 				currentValue.push(cmnObj[id]['modList'][state]['cols']);
 			} else {
 				currentValue.push(cmnObj[id]['modList'][state]['nElements']);
