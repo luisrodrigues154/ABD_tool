@@ -319,15 +319,15 @@ function structToStr(objCurrentValues) {
 			if (objCurrentValues[2] <= 5) return '[{}]'.format(String(objCurrentValues[3]));
 			else if (objCurrentValues[2] <= 15) return mkTooltip(objCurrentValues);
 			else {
-				valuesToBigData = objCurrentValues;
-				return genLabelForBigDataAlreadyOpenModal('Values');
+				valuesToBigData.push(objCurrentValues);
+				return genLabelForBigDataAlreadyOpenModal(++bigDataIdx, 'Values');
 			}
 
 		case structTypes.mtx:
 			return '';
 		case structTypes.frm:
-			valuesToBigData = objCurrentValues;
-			return genLabelForBigDataAlreadyOpenModal('Values');
+			valuesToBigData.push(objCurrentValues);
+			return genLabelForBigDataAlreadyOpenModal(++bigDataIdx, 'Values');
 		default:
 			return '';
 	}

@@ -1,7 +1,7 @@
 var stack = [];
 var stackSize = 0;
 var currentEnv = '';
-var valuesToBigData = null;
+var valuesToBigData = [];
 let eventsLen = 0;
 var nodeCount = 0;
 var linkCount = 0;
@@ -25,6 +25,9 @@ let envContent = new Map();
 let auxMap = new Map();
 let envLineBDepth = new Map();
 let lastLineGP = 0;
+
+let bigDataIdx = -1;
+
 $(function() {
 	//load function
 	buildNodes();
@@ -209,8 +212,8 @@ function genForMultiLabelsWithIdent(id, text, indent) {
 		text
 	);
 }
-function genLabelForBigDataAlreadyOpenModal(text) {
-	return '<a href="#" id="bd" onclick="processEventClick(this.id)">{}</a>'.format(text);
+function genLabelForBigDataAlreadyOpenModal(id, text) {
+	return '<a href="#" id="bd-{}" onclick="processEventClick(this.id)">{}</a>'.format(id, text);
 }
 function genLabelForAlreadyOpenModal(id, text) {
 	return '<a href="#" id="eId-{}" onclick="processEventClick(this.id)">{}</a>'.format(id, text);
@@ -2248,9 +2251,9 @@ function mkIdxChangeModalInfo(event, eventId) {
 }
 
 //ONE DIM
-function genForOneDim() {
+function genForOneDim(pos) {
 	let htmlProduced = '';
-	let nCols = valuesToBigData[2];
+	let nCols = valuesToBigData[pos][2];
 
 	if (nCols > 10) nCols = 10;
 
@@ -2258,7 +2261,7 @@ function genForOneDim() {
 
 	htmlProduced += '<div class="row mt-2 dialog-text">';
 	htmlProduced += '<div class="col text-left">Elements count: </div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2]);
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[pos][2]);
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="row mt-5">';
@@ -2269,12 +2272,14 @@ function genForOneDim() {
 	//navigation
 
 	htmlProduced += '<div class="row mt-3">';
-	htmlProduced += '<div class="col text-left dialog-text">Display <input id="big_n_cols_OD" type="text" style="width:50px;" value="{}"/> elements'.format(
+	htmlProduced += '<div class="col text-left dialog-text">Display <input id="big_n_cols_OD-{}" type="text" style="width:50px;" value="{}"/> elements'.format(
+		pos,
 		nCols
 	);
 
-	htmlProduced +=
-		'<i class="fa fa-refresh" style="font-size:22px;margin-left:10px;c	olor:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim()"></i>';
+	htmlProduced += '<i class="fa fa-refresh" id="bd-{}" style="font-size:22px;margin-left:10px;color:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim(this.id)"></i>'.format(
+		pos
+	);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -2291,16 +2296,18 @@ function genForOneDim() {
 
 	htmlProduced += '<div class="row mt-1 dialog-text">';
 	htmlProduced += '<div class="col text-center">';
-	htmlProduced +=
-		"<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim()'></i>";
+	htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim(this.id)'></i>".format(
+		pos
+	);
 
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">';
-	htmlProduced += '<input id="start_index_big_OD" type="text" style="width:50px;" value="1"/>';
+	htmlProduced += '<input id="start_index_big_OD-{}" type="text" style="width:50px;" value="1"/>'.format(pos);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center">';
-	htmlProduced +=
-		"<i class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim()'></i>";
+	htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim(this.id)'></i>".format(
+		pos
+	);
 
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
@@ -2309,7 +2316,7 @@ function genForOneDim() {
 	htmlProduced += '<div class="col text-center">';
 	htmlProduced += '<table class="table table-sm mt-2 dialog-text">';
 	htmlProduced += '<tbody class="text-center" id="frame_body">';
-	htmlProduced += updateBigDataValuesTable_OneDim(0, nCols, true);
+	htmlProduced += updateBigDataValuesTable_OneDim(pos, 0, nCols, true);
 	htmlProduced += '</tbody>';
 	htmlProduced += '</table>';
 	htmlProduced += '</div>';
@@ -2319,34 +2326,38 @@ function genForOneDim() {
 	return htmlProduced;
 }
 
-function requestFrameNColsTableUpdate_BigDataOneDim() {
+function requestFrameNColsTableUpdate_BigDataOneDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=big_n_cols_OD]').val());
 	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
-	if (val < 0 || val >= valuesToBigData[2]) {
-		if (valuesToBigData[2] > 10) val = 10;
-		else val = valuesToBigData[2];
+	if (val < 0 || val >= valuesToBigData[pos][2]) {
+		if (valuesToBigData[pos][2] > 10) val = 10;
+		else val = valuesToBigData[pos][2];
 		$('*[id^=big_n_cols_OD]').val(val);
 	}
 
-	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos][2]) {
 		$('*[id^=start_index_big_OD]').val(1);
 		startIdx = 0;
 	}
 
-	if (val > 0) updateBigDataValuesTable_OneDim(startIdx, val, false);
+	if (val > 0) updateBigDataValuesTable_OneDim(pos, startIdx, val, false);
 }
 
-function requestStartIdxUpdate_BigDataOneDim() {
+function requestStartIdxUpdate_BigDataOneDim(pos) {
+	console.log('pos {}'.format(pos));
+	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=big_n_cols_OD]').val());
 	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
-	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos][2]) {
 		$('*[id^=start_index_big_OD]').val(1);
 		startIdx = 0;
 	}
-	if (val > 0) updateBigDataValuesTable_OneDim(startIdx, val, false);
+	if (val > 0) updateBigDataValuesTable_OneDim(pos, startIdx, val, false);
 }
 
-function requestPrevPageChange_BigDataOneDim() {
+function requestPrevPageChange_BigDataOneDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=big_n_cols_OD]').val());
 	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
 	if (startIdx < 0) {
@@ -2357,24 +2368,25 @@ function requestPrevPageChange_BigDataOneDim() {
 
 	if (need < 0) need = 0;
 	$('*[id^=start_index_big_OD]').val(need + 1);
-	if (val > 0) updateBigDataValuesTable_OneDim(need, val, false);
+	if (val > 0) updateBigDataValuesTable_OneDim(pos, need, val, false);
 }
 
-function requestNextPageChange_BigDataOneDim() {
+function requestNextPageChange_BigDataOneDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=big_n_cols_OD]').val());
 	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
-	if (startIdx < 0 || startIdx >= valuesToBigData[2]) {
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos][2]) {
 		$('*[id^=start_index_big_OD]').val(1);
 		startIdx = 0;
 	}
-	let maxCols = valuesToBigData[2];
+	let maxCols = valuesToBigData[pos][2];
 	let need = startIdx + val;
 	if (need >= maxCols) return;
 	$('*[id^=start_index_big_OD]').val(need + 1);
-	if (val > 0) updateBigDataValuesTable_OneDim(need, val, false);
+	if (val > 0) updateBigDataValuesTable_OneDim(pos, need, val, false);
 }
 
-function updateBigDataValuesTable_OneDim(startingIdx, nCols, toReturn) {
+function updateBigDataValuesTable_OneDim(pos, startingIdx, nCols, toReturn) {
 	let htmlProduced = '';
 	let idxCol = '';
 	let valCol = '';
@@ -2388,12 +2400,12 @@ function updateBigDataValuesTable_OneDim(startingIdx, nCols, toReturn) {
 		$('*[id^=big_n_cols_OD]').val(5);
 	}
 
-	if (nCols > valuesToBigData[2]) {
-		nCols = valuesToBigData[2];
+	if (nCols > valuesToBigData[pos][2]) {
+		nCols = valuesToBigData[pos][2];
 	}
 
-	if (startingIdx + nCols > valuesToBigData[2]) {
-		nCols = valuesToBigData[2];
+	if (startingIdx + nCols > valuesToBigData[pos][2]) {
+		nCols = valuesToBigData[pos][2];
 	} else {
 		nCols += startingIdx;
 	}
@@ -2405,7 +2417,7 @@ function updateBigDataValuesTable_OneDim(startingIdx, nCols, toReturn) {
 
 	for (i = startingIdx; i < nCols; i++) {
 		idxCol += '<td> {}</td>'.format(i + 1);
-		valCol += '<td> {}</td>'.format(valuesToBigData[3][i]);
+		valCol += '<td> {}</td>'.format(valuesToBigData[pos][3][i]);
 	}
 	valCol += '</tr>';
 	idxCol += '</tr>';
@@ -2415,11 +2427,12 @@ function updateBigDataValuesTable_OneDim(startingIdx, nCols, toReturn) {
 }
 
 //MULTI DIM
-function genForMultiDim() {
+function genForMultiDim(pos) {
 	let htmlProduced = '';
-	valuesToBigData[2] = valuesToBigData[2].split('by');
-	let nRows = parseInt(valuesToBigData[2][0]);
-	let nCols = parseInt(valuesToBigData[2][1]);
+	console.log('gen multi pos {}'.format(pos));
+	valuesToBigData[pos][2] = valuesToBigData[pos][2].split('by');
+	let nRows = parseInt(valuesToBigData[pos][2][0]);
+	let nCols = parseInt(valuesToBigData[pos][2][1]);
 
 	if (nCols > 10) nCols = 10;
 	if (nRows > 10) nRows = 10;
@@ -2428,11 +2441,11 @@ function genForMultiDim() {
 
 	htmlProduced += '<div class="row mt-2 dialog-text">';
 	htmlProduced += '<div class="col text-left">Rows count: </div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2][0]);
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[pos][2][0]);
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="row mt-2 dialog-text">';
 	htmlProduced += '<div class="col text-left">Columns count: </div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[2][1]);
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(valuesToBigData[pos][2][1]);
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="row">';
@@ -2448,7 +2461,8 @@ function genForMultiDim() {
 	//navigation
 
 	htmlProduced += '<div class="row mt-3">';
-	htmlProduced += '<div class="col text-left dialog-text">Display window:<input id="big_n_cols_MD" type="text" style="width:50px;margin-left:10px;" value="{}"/>'.format(
+	htmlProduced += '<div class="col text-left dialog-text">Display window:<input id="big_n_cols_MD-{}" type="text" style="width:50px;margin-left:10px;" value="{}"/>'.format(
+		pos,
 		'{},{}'.format(nRows, nCols)
 	);
 
@@ -2471,21 +2485,25 @@ function genForMultiDim() {
 
 	htmlProduced += '<div class="row mt-1 dialog-text">';
 	htmlProduced += '<div class="col text-center">';
-	htmlProduced +=
-		"<i class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevColPageChange_BigDataMultiDim()'></i>";
-	htmlProduced +=
-		"<i class='fa fa-arrow-up' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRowPageChange_BigDataMultiDim()'></i>";
+	htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevColPageChange_BigDataMultiDim(this.id)'></i>".format(
+		pos
+	);
+	htmlProduced += "<i class='fa fa-arrow-up' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRowPageChange_BigDataMultiDim(this.id)'></i>".format(
+		pos
+	);
 
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-center" >';
-	htmlProduced += '<input id="start_index_big_MD" type="text" style="width:50px;" value="1,1"/>';
+	htmlProduced += '<input id="start_index_big_MD-{}" type="text" style="width:50px;" value="1,1"/>'.format(pos);
 	htmlProduced += '</div>';
 
 	htmlProduced += '<div class="col text-center">';
-	htmlProduced +=
-		"<i class='fa fa-arrow-right' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextColPageChange_BigDataMultiDim()'></i>";
-	htmlProduced +=
-		"<i class='fa fa-arrow-down' aria-hidden='true' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextRowPageChange_BigDataMultiDim()'></i>";
+	htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextColPageChange_BigDataMultiDim(this.id)'></i>".format(
+		pos
+	);
+	htmlProduced += "<i class='fa fa-arrow-down' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextRowPageChange_BigDataMultiDim(this.id)'></i>".format(
+		pos
+	);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -2493,7 +2511,7 @@ function genForMultiDim() {
 	htmlProduced += '<div class="col text-center">';
 	htmlProduced += '<table class="table table-bordered table-sm mt-2 dialog-text">';
 	htmlProduced += '<tbody class="text-center" id="frame_body">';
-	htmlProduced += updateBigDataValuesTable_MultiDim(0, 0, nRows, nCols, true);
+	htmlProduced += updateBigDataValuesTable_MultiDim(pos, 0, 0, nRows, nCols, true);
 	htmlProduced += '</tbody>';
 	htmlProduced += '</table>';
 	htmlProduced += '</div>';
@@ -2503,19 +2521,18 @@ function genForMultiDim() {
 	return htmlProduced;
 }
 
-function genModalForBigData() {
+function genModalForBigData(pos) {
 	let htmlProduced = '';
-	if (typeof valuesToBigData[2] == 'string') htmlProduced = genForMultiDim();
-	else htmlProduced = genForOneDim();
+	if (typeof valuesToBigData[pos][2] == 'string') htmlProduced = genForMultiDim(pos);
+	else htmlProduced = genForOneDim(pos);
 	return htmlProduced;
 }
-function updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, toReturn) {
+function updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, toReturn) {
 	let htmlProduced = '';
 	let r, c, i;
 
 	let didChange;
-	console.log('type sRow {}'.format(typeof sRow));
-	console.log('type sCol {}'.format(typeof sCol));
+
 	if (isNaN(sRow) || isNaN(sCol)) {
 		sRow = sCol = 0;
 		$('*[id^=start_index_big_MD]').val('1,1');
@@ -2526,31 +2543,29 @@ function updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, toReturn) {
 		$('*[id^=big_n_cols_MD]').val('10,10');
 	}
 
-	if (nRows > valuesToBigData[2][0]) {
-		nRows = parseInt(valuesToBigData[2][0]);
+	if (nRows > valuesToBigData[pos][2][0]) {
+		nRows = parseInt(valuesToBigData[pos][2][0]);
 		didChange = true;
 	}
 
-	if (nCols > valuesToBigData[2][1]) {
-		nCols = parseInt(valuesToBigData[2][1]);
+	if (nCols > valuesToBigData[pos][2][1]) {
+		nCols = parseInt(valuesToBigData[pos][2][1]);
 		didChange = true;
 	}
 
 	if (didChange) $('*[id^=big_n_cols_MD]').val('{},{}'.format(nCols, nRows));
 
-	if (sRow + nRows > valuesToBigData[2][0]) {
-		nRows = parseInt(valuesToBigData[2][0]);
+	if (sRow + nRows > valuesToBigData[pos][2][0]) {
+		nRows = parseInt(valuesToBigData[pos][2][0]);
 	} else {
 		nRows += sRow;
 	}
 
-	if (sCol + nCols > valuesToBigData[2][1]) {
-		nCols = parseInt(valuesToBigData[2][1]);
+	if (sCol + nCols > valuesToBigData[pos][2][1]) {
+		nCols = parseInt(valuesToBigData[pos][2][1]);
 	} else {
 		nCols += sCol;
 	}
-
-	console.log(valuesToBigData);
 
 	// border: 1px solid blue;
 
@@ -2566,7 +2581,7 @@ function updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, toReturn) {
 		htmlProduced += '<tr>';
 		htmlProduced += '<td><b>{}</b></td>'.format(r + 1);
 		for (c = sCol; c < nCols; c++) {
-			htmlProduced += '<td>{}</td>'.format(valuesToBigData[3][c][r]);
+			htmlProduced += '<td>{}</td>'.format(valuesToBigData[pos][3][c][r]);
 		}
 		htmlProduced += '</tr>';
 	}
@@ -2576,7 +2591,8 @@ function updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, toReturn) {
 }
 
 // change display window
-function requestFrameNColsTableUpdate_BigDataMultiDim() {
+function requestFrameNColsTableUpdate_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2586,26 +2602,26 @@ function requestFrameNColsTableUpdate_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2616,7 +2632,7 @@ function requestFrameNColsTableUpdate_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2624,11 +2640,12 @@ function requestFrameNColsTableUpdate_BigDataMultiDim() {
 		$('*[id^=start_index_big_MD]').val('1,1');
 		sRow = sCol = 0;
 	}
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, false);
 }
 
 //change start cell
-function requestStartIdxUpdate_BigDataMultiDim() {
+function requestStartIdxUpdate_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2638,26 +2655,26 @@ function requestStartIdxUpdate_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2668,7 +2685,7 @@ function requestStartIdxUpdate_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2676,11 +2693,12 @@ function requestStartIdxUpdate_BigDataMultiDim() {
 		$('*[id^=start_index_big_MD]').val('1,1');
 		sRow = sCol = 0;
 	}
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(sRow, sCol, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, false);
 }
 
 //change cols
-function requestPrevColPageChange_BigDataMultiDim() {
+function requestPrevColPageChange_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2690,26 +2708,26 @@ function requestPrevColPageChange_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2720,7 +2738,7 @@ function requestPrevColPageChange_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2734,10 +2752,11 @@ function requestPrevColPageChange_BigDataMultiDim() {
 	if (need < 0) need = 0;
 	$('*[id^=start_index_big_MD]').val('{},{}'.format(sRow + 1, need + 1));
 
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(sRow, need, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, sRow, need, nRows, nCols, false);
 }
 
-function requestNextColPageChange_BigDataMultiDim() {
+function requestNextColPageChange_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2747,26 +2766,26 @@ function requestNextColPageChange_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2777,7 +2796,7 @@ function requestNextColPageChange_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2788,15 +2807,16 @@ function requestNextColPageChange_BigDataMultiDim() {
 
 	let need = sCol + nCols;
 
-	if (need >= parseInt(valuesToBigData[2][1])) return;
+	if (need >= parseInt(valuesToBigData[pos][2][1])) return;
 
 	$('*[id^=start_index_big_MD]').val('{},{}'.format(sRow + 1, need + 1));
 
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(sRow, need, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, sRow, need, nRows, nCols, false);
 }
 
 //change rows
-function requestPrevRowPageChange_BigDataMultiDim() {
+function requestPrevRowPageChange_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2806,26 +2826,26 @@ function requestPrevRowPageChange_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2836,7 +2856,7 @@ function requestPrevRowPageChange_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2849,10 +2869,11 @@ function requestPrevRowPageChange_BigDataMultiDim() {
 	if (need < 0) need = 0;
 	$('*[id^=start_index_big_MD]').val('{},{}'.format(need + 1, sCol + 1));
 
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(need, sCol, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, need, sCol, nRows, nCols, false);
 }
 
-function requestNextRowPageChange_BigDataMultiDim() {
+function requestNextRowPageChange_BigDataMultiDim(pos) {
+	pos = parseInt(pos.split('-')[1]);
 	let val = $('*[id^=big_n_cols_MD]').val();
 	let nRows, nCols;
 	let startCell = $('*[id^=start_index_big_MD]').val();
@@ -2862,26 +2883,26 @@ function requestNextRowPageChange_BigDataMultiDim() {
 		val = val.split(',');
 		nRows = parseInt(val[0]);
 		nCols = parseInt(val[1]);
-		if (nRows < 0 || nRows >= valuesToBigData[2][0]) {
-			if (valuesToBigData[2][0] > 10) nRows = 10;
-			else nRows = parseInt(valuesToBigData[2][0]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
-		if (nCols < 0 || nCols >= valuesToBigData[2][1]) {
-			if (valuesToBigData[2][1] > 10) nCols = 10;
-			else nCols = parseInt(valuesToBigData[2][1]);
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
 	} else {
-		if (valuesToBigData[2][0] > 10) {
+		if (valuesToBigData[pos][2][0] > 10) {
 			nRows = 10;
 		} else {
-			nRows = parseInt(valuesToBigData[2][0]);
+			nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 
-		if (valuesToBigData[2][1] > 10) {
+		if (valuesToBigData[pos][2][1] > 10) {
 			nCols = 10;
 		} else {
-			nCols = parseInt(valuesToBigData[2][1]);
+			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -2892,7 +2913,7 @@ function requestNextRowPageChange_BigDataMultiDim() {
 		sRow = parseInt(startCell[0]) - 1;
 		sCol = parseInt(startCell[1]) - 1;
 
-		if (sRow < 0 || sRow >= valuesToBigData[2][0] || sCol < 0 || sCol >= valuesToBigData[2][1]) {
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
 			$('*[id^=start_index_big_MD]').val('1,1');
 			sRow = sCol = 0;
 		}
@@ -2902,9 +2923,9 @@ function requestNextRowPageChange_BigDataMultiDim() {
 	}
 
 	let need = sRow + nRows;
-	if (need >= parseInt(valuesToBigData[2][0])) return;
+	if (need >= parseInt(valuesToBigData[pos][2][0])) return;
 	$('*[id^=start_index_big_MD]').val('{},{}'.format(need + 1, sCol + 1));
-	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(need, sCol, nRows, nCols, false);
+	if (nRows > 0 && nCols > 0) updateBigDataValuesTable_MultiDim(pos, need, sCol, nRows, nCols, false);
 }
 
 function mkDataFrameModal(event, eventId) {
@@ -3057,11 +3078,11 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 		nCols += startingIdx;
 	}
 	var objVal;
+	bigDataIdx = -1;
+	valuesToBigData = [];
 	for (i = startingIdx; i < nCols; i++) {
 		let source = sources[i];
 		let objId = source['objId'];
-
-		let values = [];
 		let objName;
 		let idxLabel;
 		let valuesLbl = '';
@@ -3082,14 +3103,18 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 			objName = genLabelForAlreadyOpenModal(lastEId, objName);
 			objVal = getObjCurrValue(objId, source['objState'], -1);
 			let vals = [];
-			let maxLen = idxsLen.length;
-			let i;
-			for (i = 0; i < maxLen; i++) {
-				vals.push(objVal[3][idxsLen[i]]);
+			if (idxsLen > 0) {
+				let maxLen = idxsLen.length;
+				let i;
+				for (i = 0; i < maxLen; i++) {
+					vals.push(objVal[3][idxsLen[i]]);
+				}
+				objVal[2] = maxLen;
+				objVal[3] = Array.from(vals);
 			}
-			objVal[2] = maxLen;
-			objVal[3] = Array.from(vals);
-			valuesToBigData = objVal;
+			console.log('bigDataIdx {}'.format(bigDataIdx));
+			console.log('objval');
+			console.log(objVal);
 		} else {
 			if (objId == -2) {
 				objName = mkTooltipOneLine([ 'Object: ', 'Non-Tracked' ], source['name']);
@@ -3134,8 +3159,9 @@ function produceModalContent(eventId) {
 		body: ''
 	};
 	if (eventId.indexOf('bd') > -1) {
+		let valuesPos = eventId.split('-')[1];
 		content.title = 'Values Visualizer';
-		content.body = genModalForBigData();
+		content.body = genModalForBigData(parseInt(valuesPos));
 		return content;
 	}
 	eventId = eventId.split('-')[1];
@@ -3197,7 +3223,7 @@ function goBackVisual() {
 	let producedContent = visualStack[visualStack.length - 1];
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
-	valuesToBigData = producedContent.valuesToBigData;
+	valuesToBigData = producedContent.bigDataValues;
 	visualStack.pop();
 }
 function getArrowBack() {
@@ -3215,6 +3241,7 @@ function processEventClick(eventId) {
 		currModalContent.title = document.getElementById('exec_flow_modal_title').innerHTML;
 		currModalContent.body = document.getElementById('exec_flow_modal_body').innerHTML;
 		currModalContent.bigDataValues = Array.from(valuesToBigData);
+
 		visualStack.push(currModalContent);
 		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
 	}
@@ -3264,25 +3291,29 @@ function processEventClick(eventId) {
 
 	$('*[id^=start_index_big_OD]').on('keyup', function(event) {
 		if (event.keyCode == 13) {
-			requestStartIdxUpdate_BigDataOneDim();
+			let id = $('*[id^=start_index_big_OD]').attr('id');
+			requestStartIdxUpdate_BigDataOneDim(id);
 		}
 	});
 
 	$('*[id^=big_n_cols_OD]').on('keyup', function(event) {
 		if (event.keyCode == 13) {
-			requestFrameNColsTableUpdate_BigDataOneDim();
+			let id = $('*[id^=big_n_cols_OD]').attr('id');
+			requestFrameNColsTableUpdate_BigDataOneDim(id);
 		}
 	});
 
 	$('*[id^=start_index_big_MD]').on('keyup', function(event) {
 		if (event.keyCode == 13) {
-			requestStartIdxUpdate_BigDataMultiDim();
+			let id = $('*[id^=start_index_big_MD]').attr('id');
+			requestStartIdxUpdate_BigDataMultiDim(id);
 		}
 	});
 
 	$('*[id^=big_n_cols_MD]').on('keyup', function(event) {
 		if (event.keyCode == 13) {
-			requestFrameNColsTableUpdate_BigDataMultiDim();
+			let id = $('*[id^=big_n_cols_MD]').attr('id');
+			requestFrameNColsTableUpdate_BigDataMultiDim(id);
 		}
 	});
 
