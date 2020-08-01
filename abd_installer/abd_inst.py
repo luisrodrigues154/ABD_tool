@@ -2,7 +2,9 @@
 import sys
 import os
 import shutil
-from checksumdir import dirhash
+import checksumdir
+import sys
+import hashlib
 
 
 def checkBasePath(base_path) -> bool:
@@ -40,7 +42,7 @@ def printError(message):
 def checkSum(path):
     printProgress("Check sum verification")
     expected_hash = "53ebf8316d75d279cfb28443c773ef475d22dee9"
-    rcvd_hash = dirhash(path, 'sha1')
+    rcvd_hash = checksumdir.dirhash(path, 'sha1')
     print("Expected hash: {}".format(expected_hash))
     print("Generated hash: {}".format(rcvd_hash))
     if(expected_hash == rcvd_hash):
@@ -143,11 +145,12 @@ def patch(f_map, base_path, force):
         return False
 
     script_dir = os.path.dirname(__file__)
-
+    print("base_path {}".format(base_path))
     for file in f_map:
 
         src_file = os.path.join(script_dir, './files/{}'.format(file))
         dest_file = "{}{}{}".format(base_path, f_map[file], file)
+
         if(file == "abd_tool"):
             if(os.path.isdir(dest_file)):
                 if(not force):
@@ -165,13 +168,31 @@ def patch(f_map, base_path, force):
                 print("")
             else:
                 printProgress("Patching {}".format(file))
-                shutil.copyfile(src_file, dest_file)
-                printSuccess("Patched!")
+                if(os.path.isfile(dest_file)):
+                    if(hashFile(dest_file) != hashFile(src_file)):
+                        shutil.copyfile(src_file, dest_file)
+                        printSuccess("Patched!")
+                    else:
+                        printSuccess(
+                            "R source file == patching file... Not patching!")
                 print("")
         except OSError:
             printError("File {}".format(file))
 
     return True
+
+
+def hashFile(filePath):
+    BUF_SIZE = 65536
+    sha1 = hashlib.sha1()
+    with open(filePath, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            sha1.update(data)
+
+    return sha1.hexdigest()
 
 
 def printAction(message):

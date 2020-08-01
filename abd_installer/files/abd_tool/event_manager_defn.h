@@ -25,8 +25,7 @@ typedef struct loop_chain
 {
   short initialBranchDepth;
   ABD_LOOP_TAGS loopType;
-  union
-  {
+  union {
     ABD_WHILE_LOOP_EVENT *whileLoop;
     ABD_FOR_LOOP_EVENT *forLoop;
     ABD_REPEAT_LOOP_EVENT *repeatLoop;
@@ -124,3 +123,9 @@ void appendLastEventToLoop(ABD_LOOP_TAGS type);
 ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange);
 Rboolean inLoopByType(ABD_LOOP_TAGS type);
 void preProcessDataFrame(SEXP call);
+void preProcessVarIdxChange(SEXP call, SEXP targetObj, SEXP rho);
+void preProcessDataFrameCellChange(SEXP call, SEXP rho);
+void preProcessDataFrameSrc(SEXP call);
+void preProcessDataFrameDest(SEXP call);
+void preProcessSrc(SEXP call);
+void preProcessDest(SEXP call);

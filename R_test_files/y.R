@@ -2,7 +2,7 @@ options("keep.source" = TRUE)
 run <- function(){
 
     abd_start()
-
+    abd_stop(1)
     
     # i <- 1
     # while (i < 6) {
@@ -18,14 +18,9 @@ run <- function(){
     # }
     x <- 1:10
     z <- 1:10
-    for(c in z){
-        # x <- x + c  <- ERRO DE ARITH AQUI (maybe so com objs)
-        if(c<5000){
-            x[c] <- c * 2  
-        }
-        
-    }
-    print("finalized")
+
+    x[1] <- 3
+    x[2:4] <- 10
     # repeat{
     #     if(x == 2){
     #         break

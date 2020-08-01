@@ -238,7 +238,7 @@ function resolveCurrValue(modList, inState, withIndex) {
 				continue;
 			}
 			let j;
-			for (j = 0; j < modList[i]['mods'].length; i++) {
+			for (j = 0; j < modList[i]['mods'].length; j++) {
 				index = modList[i]['mods'][j]['index'];
 				val = modList[i]['mods'][j]['newValue'];
 				changesMap = addToMap(changesMap, index, val);
@@ -270,6 +270,7 @@ function getObjCurrValue(id, state, index) {
 				currentValue.push(cmnObj[id]['modList'][state]['values']);
 			}
 		} else {
+			console.log('got here?!?!');
 			var numMods = cmnObj[id]['modList'][state]['numMods'];
 
 			currentValue.push(numMods);

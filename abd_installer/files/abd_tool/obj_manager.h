@@ -320,6 +320,7 @@ ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod)
 {
     newMod->value.mtrx_value = NULL;
     newMod->value.vec_value = NULL;
+    newMod->value.frame_value = NULL;
     return newMod;
 }
 ABD_VEC_OBJ *memAllocVecObj()
@@ -678,24 +679,36 @@ void printReg()
 void processVarIdxChange(SEXP result)
 {
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
+    puts("1");
     if (idxChanges->srcValues == R_NilValue)
         idxChanges->srcValues = result;
-
+    puts("2");
     SEXP rhs = idxChanges->srcValues;
+    puts("3");
     ABD_OBJECT *obj = idxChanges->destObj = findCmnObj(CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
+    puts("4");
     if (obj != ABD_OBJECT_NOT_FOUND)
     {
         //dest idxs vector will always say how many changes will be performed
+        puts("5");
         idxChanges->nIdxChanges = Rf_length(idxChanges->destIdxs);
+        puts("6");
         //the object was found in the registry, need to process new mod
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
+        puts("7");
 
         newMod = addEmptyModToObj(obj, getObjStructType(rhs));
+        puts("8");
         newMod = processByType(rhs, newMod, 1);
+        puts("9");
         obj->modList = newMod;
+        puts("10");
         obj->usages++;
+        puts("11");
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+        puts("12");
         createIndexChangeEvent(result, obj);
+        puts("13");
     }
     clearPendingVars();
 }

@@ -897,7 +897,7 @@ static SEXP VectorAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 		/* case 1916:  vector     <- character  */
 
 	case 1919: /* vector     <- vector     */
-
+		finalizeVarIdxChange(y, rho);
 		VECTOR_ASSIGN_LOOP({
 			/* set NAMED on RHS value to NAMEDMAX if used more than once
 		   (PR15098) */
@@ -1218,10 +1218,10 @@ static SEXP MatrixAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 	case 1614: /* character <- real	  */
 	case 1615: /* character <- complex	  */
 	case 1616: /* character <- character */
-			   /* case 1016:  logical   <- character */
-			   /* case 1316:  integer   <- character */
-			   /* case 1416:  real	     <- character */
-			   /* case 1516:  complex   <- character */
+		/* case 1016:  logical   <- character */
+		/* case 1316:  integer   <- character */
+		/* case 1416:  real	     <- character */
+		/* case 1516:  complex   <- character */
 
 		MATRIX_ASSIGN_LOOP(SET_STRING_ELT(x, ij, STRING_ELT(y, k)););
 		break;
@@ -1469,10 +1469,10 @@ static SEXP ArrayAssign(SEXP call, SEXP rho, SEXP x, SEXP s, SEXP y)
 	case 1614: /* character <- real	  */
 	case 1615: /* character <- complex	  */
 	case 1616: /* character <- character */
-			   /* case 1016:	   logical   <- character */
-			   /* case 1316:	   integer   <- character */
-			   /* case 1416:	   real	     <- character */
-			   /* case 1516:	   complex   <- character */
+		/* case 1016:	   logical   <- character */
+		/* case 1316:	   integer   <- character */
+		/* case 1416:	   real	     <- character */
+		/* case 1516:	   complex   <- character */
 
 		ARRAY_ASSIGN_LOOP(SET_STRING_ELT(x, ii, STRING_ELT(y, iny)););
 		break;
@@ -1902,7 +1902,6 @@ SEXP attribute_hidden do_subassign2(SEXP call, SEXP op, SEXP args, SEXP rho)
 	if (R_DispatchOrEvalSP(call, op, "[[<-", args, rho, &ans))
 		/*     if(DispatchAnyOrEval(call, op, "[[<-", args, rho, &ans, 0, 0)) */
 		return (ans);
-
 	return do_subassign2_dflt(call, op, ans, rho);
 }
 
@@ -2151,10 +2150,10 @@ do_subassign2_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 		case 1614: /* character <- real	  */
 		case 1615: /* character <- complex	  */
 		case 1616: /* character <- character */
-				   /* case 1016:	   logical   <- character */
-				   /* case 1316:	   integer   <- character */
-				   /* case 1416:	   real	     <- character */
-				   /* case 1516:	   complex   <- character */
+			/* case 1016:	   logical   <- character */
+			/* case 1316:	   integer   <- character */
+			/* case 1416:	   real	     <- character */
+			/* case 1516:	   complex   <- character */
 
 			SET_STRING_ELT(x, offset, STRING_ELT(y, 0));
 			break;

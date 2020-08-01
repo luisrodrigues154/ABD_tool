@@ -177,15 +177,26 @@ void PrintDaCall(SEXP call, SEXP rho)
 
     R_BrowseLines = old_bl;
 }
+
 void finalizeVarIdxChange(SEXP result, SEXP rho)
 {
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
+
+    if (!isRunning())
         return;
-    //printf("finalize idx change... line %d\n", getCurrScriptLn());
+
+    if (cmpToCurrEnv(rho) == ABD_NOT_EXIST)
+        /* the env does not match, this does not return right away because when assigning a cell to a dataframe 
+        using df[x,y] the rho passed is not the same as the one created (which is strange). This tries to mitigate that problem. */
+        if (getCurrIdxChanges() == ABD_NOT_FOUND)
+            /* The env does not match, and has no pending idx changes */
+            return;
+
+    // IDX_CHANGE *canProcceed = getCurrIdxChanges();
+
+    puts("finalize IDX VAR CHANGE");
 
     processVarIdxChange(result);
-    // if (inLoopEvent())
-    //     addEventToForIteration(eventsRegTail);
+    puts("end");
 }
 void regVarIdxChange(SEXP call, SEXP rho)
 {
@@ -193,19 +204,47 @@ void regVarIdxChange(SEXP call, SEXP rho)
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
+    Rboolean isDataFrame = FALSE;
+    puts("var idx change CALL");
+    PrintDaCall(CAR(CDR(CAR(CDR(call)))), rho);
+
     //printf("var index change... line %d\n", getCurrScriptLn());
-    initIdxChangeAuxVars();
+
     //if matrix, toObj will remain langsxp, just a pair of brackets more
-    getCurrIdxChanges()->dest = CAR(CDR(CAR(CDR(call))));
+    SEXP obj_sexp = CAR(CDR(CAR(CDR(call))));
 
+    if (TYPEOF(obj_sexp) == LANGSXP)
+    {
+        obj_sexp = CAR(CDR(obj_sexp));
+        const char *obj_name = CHAR(PRINTNAME(obj_sexp));
+        ABD_OBJECT *obj_ptr = findCmnObj(obj_name, rho);
+        if (obj_ptr == ABD_OBJECT_NOT_FOUND)
+            return;
+        if (obj_ptr->modList->valueType == ABD_FRAME)
+            //is a df$col
+            isDataFrame = TRUE;
+    }
+    else
+    {
+        const char *obj_name = CHAR(PRINTNAME(obj_sexp));
+        ABD_OBJECT *obj_ptr = findCmnObj(obj_name, rho);
+        if (obj_ptr == ABD_OBJECT_NOT_FOUND)
+            return;
+
+        if (obj_ptr->modList->valueType == ABD_FRAME)
+            //is a df$col
+            isDataFrame = TRUE;
+    }
+    // printf("Type %d\n", TYPEOF(obj_sexp));
+    // puts("var idx change OBJECT");
+    // PrintDaCall(obj_sexp, rho);
     //pre-process
-    preProcessVarIdxChange(call, rho);
 
-    /*
-        if they are all 0, need to process now, otherwise
-        just wait for processIndexChanges() being triggered by the reaching vectors
-    */
-
+    if (isDataFrame)
+        preProcessDataFrameCellChange(call, rho);
+    else
+        preProcessVarIdxChange(call, obj_sexp, rho);
+    puts("returning");
     //now wait ...
 }
 
@@ -222,11 +261,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
 
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
-    //printf("var change... line %d\n", getCurrScriptLn());
-    // puts("rhs2 V");
-    // PrintDaCall(rhs2, getCurrentEnv());
-    //print f("typeof lhs %d\n", TYPEOF(rhs));
-    /* store the new information for the object */
+
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
     if (inLoopByType(ABD_FOR) && call == R_NilValue && loopStack->loop.forLoop->iterator == ABD_OBJECT_NOT_FOUND)
@@ -289,8 +324,12 @@ Rboolean isFunCallRegged()
 
 void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 {
+
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
+
+    puts("received vec AFTER CHECK");
+    PrintDaCall(vector, rho);
     // puts("received vec");
     // PrintDaCall(vector, rho);
 

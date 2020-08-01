@@ -1273,10 +1273,138 @@ rollback:
     }
 }
 
-void preProcessVarIdxChange(SEXP call, SEXP rho)
+void preProcessDataFrameDest(SEXP call)
 {
+    //process destination
+    SEXP destIdxs = CAR(CDR(CDR(CAR(CDR(call)))));
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
+    if (TYPEOF(destIdxs) == LANGSXP)
+    {
+
+        if ((strcmp(CHAR(PRINTNAME(CAR(destIdxs))), ":") == 0) || (strcmp(CHAR(PRINTNAME(CAR(destIdxs))), "c")))
+        {
+            //just to know that this will create a vector with the indexes being changed
+            // idxChanges->destIdxsVec = 1;
+            // incrementWaitingIdxChange();
+            puts("do");
+        }
+    }
+    else
+    {
+        if (!toDiscard())
+        {
+            // if (TYPEOF(destIdxs) == SYMSXP)
+            //     //symbol refering to index
+            //     //get the symbol
+            //     idxChanges->destIdxs = getResult(CHAR(PRINTNAME(destIdxs)));
+            // else
+            //     idxChanges->destIdxs = destIdxs;
+            puts("do");
+        }
+        // idxChanges->nIdxChanges = Rf_length(idxChanges->destIdxs);
+    }
+}
+
+void preProcessDataFrameSrc(SEXP call)
+{
+    SEXP initialRhs = CAR(CDR(CDR(call)));
+    SEXP rhs = CAR(CDR(CDR(call)));
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
+    idxChanges->src = R_NilValue;
+rollback:
+    if (TYPEOF(rhs) == LANGSXP)
+    {
+        // const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
+
+        // if (strcmp(rhsChar, "[") == 0)
+        // {
+        //     //uses another object content
+        //     idxChanges->src = CAR(CDR(rhs));
+        //     rhs = CAR(CDR(CDR(rhs)));
+        //     goto rollback;
+        // }
+
+        // if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+        // {
+        //     //will need to wait for a vector of indexes
+        //     if (idxChanges->src != R_NilValue)
+        //     {
+        //         idxChanges->srcIdxsVec = 1;
+        //         incrementWaitingIdxChange();
+        //     }
+        //     //     printf("used a range or a combine from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
+
+        //     idxChanges->srcVec = 1;
+        //     incrementWaitingIdxChange();
+        // }
+        puts("do");
+    }
+    else
+    {
+        //now try to find the src object in the registry
+        // if (TYPEOF(rhs) == SYMSXP)
+        // {
+        //     SEXP srcIdxs = getResult(CHAR(PRINTNAME(rhs)));
+        //     if (idxChanges->src != R_NilValue)
+        //     {
+
+        //         if (Rf_length(srcIdxs) > 1)
+        //         {
+        //             idxChanges->srcVec = 1;
+        //             incrementWaitingIdxChange();
+        //         }
+
+        //         //means that rhs was treated because of brackets in it ex: b[idxs]
+        //         //if the idxs.len > 1 will create a vector
+        //         idxChanges->srcIdxs = srcIdxs;
+        //     }
+        //     else
+        //     {
+        //         //rhs did not got into the langsxp brances, so, this is the actual obj
+        //         //will not create vector regardless of the src obj length
+        //         idxChanges->src = rhs;
+        //         idxChanges->srcValues = srcIdxs;
+        //     }
+        // }
+        // else
+        // {
+        //     //we'll assume that's a harcoded value for the index
+        //     if (idxChanges->src != R_NilValue)
+        //     {
+        //         int index = (int)REAL(rhs)[0];
+        //         int nDigits = floor(log10(abs(index))) + 1;
+        //         int nameSize = strlen(CHAR(PRINTNAME(idxChanges->src))) + nDigits + 2; //+2 for the []
+        //         char *requestValue = memAllocForString(nameSize);
+        //         memset(requestValue, 0, nameSize);
+        //         sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(idxChanges->src)), index);
+        //         idxChanges->srcValues = getResult(requestValue);
+        //         idxChanges->srcIdxs = rhs;
+        //         free(requestValue);
+        //     }
+        //     else
+        //         idxChanges->srcValues = rhs;
+        // }
+        puts("do");
+    }
+}
+
+void preProcessDataFrameCellChange(SEXP call, SEXP rho)
+{
+    preProcessDataFrameDest(call);
+    preProcessDataFrameSrc(call);
+}
+
+void preProcessVarIdxChange(SEXP call, SEXP targetObj, SEXP rho)
+{
+    puts("preProcessVarIdxChange");
+    initIdxChangeAuxVars();
+    puts("1");
+    getCurrIdxChanges()->dest = targetObj;
+
     preProcessDest(call);
+    puts("2");
     preProcessSrc(call);
+    puts("3");
 }
 
 ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)

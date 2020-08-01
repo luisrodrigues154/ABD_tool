@@ -715,6 +715,7 @@ SEXP attribute_hidden do_subset(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 	/* Method dispatch has failed, we now */
 	/* run the generic internal code. */
+
 	return do_subset_dflt(call, op, ans, rho);
 }
 
@@ -997,7 +998,6 @@ SEXP attribute_hidden do_subset2(SEXP call, SEXP op, SEXP args, SEXP rho)
 			ENSURE_NAMEDMAX(ans);
 		return (ans);
 	}
-
 	/* Method dispatch has failed. */
 	/* We now run the generic internal code. */
 
@@ -1220,6 +1220,7 @@ SEXP attribute_hidden do_subset2_dflt(SEXP call, SEXP op, SEXP args, SEXP rho)
 		}
 	}
 	UNPROTECT(2); /* args, x */
+	regVecCreation(call, ans, rho);
 	return ans;
 }
 
@@ -1351,6 +1352,7 @@ SEXP attribute_hidden do_subset3(SEXP call, SEXP op, SEXP args, SEXP env)
 		return (ans);
 	}
 	PROTECT(ans);
+
 	ans = R_subset3_dflt(CAR(ans), STRING_ELT(CADR(args), 0), call);
 	UNPROTECT(2); /* args, ans */
 	return ans;

@@ -82,8 +82,7 @@ typedef struct abd_obj_mod
 {
     int id;
     ABD_OBJ_VALUE_TYPE valueType;
-    union
-    {
+    union {
         ABD_MTRX_OBJ *mtrx_value;
         ABD_VEC_OBJ *vec_value;
         ABD_FRAME_OBJ *frame_value;
