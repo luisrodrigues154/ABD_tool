@@ -19,7 +19,11 @@ void initEnvStack(SEXP startingEnv)
     envStack->branchDepth = 0;
     envStack->funCallRegged = FALSE;
     envStack->waitingIdxChange = 0;
+    envStack->waitingCellChange = 0;
     envStack->idxChanges = ABD_OBJECT_NOT_FOUND;
+    envStack->cellChanges = ABD_OBJECT_NOT_FOUND;
+    envStack->onTmp = FALSE;
+    envStack->tmpStore = R_NilValue;
     initialEnv = startingEnv;
 }
 
@@ -29,14 +33,28 @@ void clearIdxChanges()
     envStack->waitingIdxChange = 0;
 }
 
+void clearCellChanges()
+{
+    envStack->cellChanges = ABD_OBJECT_NOT_FOUND;
+    envStack->waitingCellChange = 0;
+}
+
 IDX_CHANGE *getCurrIdxChanges()
 {
     return envStack->idxChanges;
 }
 
+CELL_CHANGE *getCurrCellChange()
+{
+    return envStack->cellChanges;
+}
 int waitingIdxChange()
 {
     return envStack->waitingIdxChange;
+}
+int waitingCellChange()
+{
+    return envStack->waitingCellChange;
 }
 
 void decrementWaitingIdxChange()
@@ -47,6 +65,15 @@ void decrementWaitingIdxChange()
 void incrementWaitingIdxChange()
 {
     envStack->waitingIdxChange++;
+}
+
+void incrementWaitingCellChange(){
+    envStack->waitingCellChange++;
+}
+
+void decrementWaitingCellChange()
+{
+    envStack->waitingCellChange--;
 }
 
 void initIdxChangeAuxVars()
@@ -62,6 +89,33 @@ void initIdxChangeAuxVars()
     envStack->idxChanges->srcIdxs = R_NilValue;
     envStack->idxChanges->destIdxs = R_NilValue;
     envStack->idxChanges->srcObj = ABD_OBJECT_NOT_FOUND;
+}
+
+void initCellChangeAuxVars()
+{
+    envStack->cellChanges = (CELL_CHANGE *)malloc(sizeof(CELL_CHANGE));
+
+    //init dest vars
+    envStack->cellChanges->waitingRowsVec = FALSE;
+    envStack->cellChanges->waitingColsVec = FALSE;
+    envStack->cellChanges->toRows = R_NilValue;
+    envStack->cellChanges->toCols = R_NilValue;
+    envStack->cellChanges->nRows = 0;
+    envStack->cellChanges->nCols = 0;
+
+    //init src vars
+    envStack->cellChanges->waitingSrcValues = FALSE;
+    envStack->cellChanges->waitingSrcRows = FALSE;
+    envStack->cellChanges->waitingSrcCols = FALSE;
+    envStack->cellChanges->srcValues = R_NilValue;
+    envStack->cellChanges->srcRows = R_NilValue;
+    envStack->cellChanges->srcCols = R_NilValue;
+    envStack->cellChanges->srcSexpObj = R_NilValue;
+
+    envStack->cellChanges->targetObj = ABD_OBJECT_NOT_FOUND;
+    envStack->cellChanges->targetCol = ABD_OBJECT_NOT_FOUND;
+    envStack->cellChanges->srcObj = ABD_OBJECT_NOT_FOUND;
+    envStack->cellChanges->nCellChanges = 0;
 }
 
 SEXP getInitialEnv()
@@ -114,6 +168,19 @@ short getCurrBranchDepth()
 ABD_ENV_STACK *memAllocEnvStack()
 {
     return (ABD_ENV_STACK *)malloc(sizeof(ABD_ENV_STACK));
+}
+
+void tmpSwapEnv(SEXP tmpEnv){
+    envStack->tmpStore = envStack->rho;
+    envStack->rho = tmpEnv;
+    envStack->onTmp = TRUE;
+}
+
+void popTmpEnv(){
+    if(envStack->onTmp){
+        envStack->rho = envStack->tmpStore;
+        envStack->onTmp = FALSE;
+    }
 }
 
 void envPush(SEXP newRho, ABD_OBJECT *funcObj)

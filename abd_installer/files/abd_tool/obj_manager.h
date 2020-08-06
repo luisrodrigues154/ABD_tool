@@ -685,7 +685,7 @@ void processVarIdxChange(SEXP result)
     puts("2");
     SEXP rhs = idxChanges->srcValues;
     puts("3");
-    ABD_OBJECT *obj = idxChanges->destObj = findCmnObj(CHAR(PRINTNAME(idxChanges->dest)), getCurrentEnv());
+    ABD_OBJECT *obj = idxChanges->destObj;
     puts("4");
     if (obj != ABD_OBJECT_NOT_FOUND)
     {

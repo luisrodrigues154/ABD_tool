@@ -16,10 +16,35 @@ typedef struct
     int srcVec, destIdxsVec, srcIdxsVec, discard;
     int nIdxChanges;
     SEXP srcValues, srcIdxs, destIdxs;
-    SEXP src, dest;
+    SEXP src;
     ABD_OBJECT *destObj;
     ABD_OBJECT *srcObj;
 } IDX_CHANGE;
+
+typedef struct
+{
+    
+        
+    //src vars
+    Rboolean waitingSrcValues;
+    //in case src is a vector, rows = R_NilValue
+    Rboolean waitingSrcRows;
+    Rboolean waitingSrcCols;
+    SEXP srcValues, srcRows, srcCols;
+    SEXP srcSexpObj;
+
+    //dest vars
+    Rboolean waitingRowsVec, waitingColsVec;
+    SEXP toRows, toCols;
+    int nCols, nRows;
+
+
+    //misc vars
+    ABD_OBJECT *targetObj;
+    ABD_VEC_OBJ **targetCol;
+    ABD_OBJECT *srcObj;
+    int nCellChanges;
+} CELL_CHANGE;
 
 typedef struct abd_env_stack
 {
@@ -30,7 +55,11 @@ typedef struct abd_env_stack
     Rboolean funCallRegged;
     Rboolean onBranch;
     int waitingIdxChange;
+    int waitingCellChange;
     IDX_CHANGE *idxChanges;
+    CELL_CHANGE *cellChanges;
+    Rboolean onTmp;
+    SEXP tmpStore;
     struct abd_env_stack *prev;
 } ABD_ENV_STACK;
 
@@ -59,6 +88,13 @@ IDX_CHANGE *getCurrIdxChanges();
 int waitingIdxChange();
 void decrementWaitingIdxChange();
 void incrementWaitingIdxChange();
+void incrementWaitingCellChange();
+void decrementWaitingCellChange();
 void initIdxChangeAuxVars();
 void clearIdxChanges();
 void forceBranchDepth(short value);
+CELL_CHANGE *getCurrCellChange();
+void initCellChangeAuxVars();
+void popTmpEnv();
+void tmpSwapEnv(SEXP tmpEnv);
+void clearCellChanges();

@@ -73,6 +73,7 @@ static short waitingFrameVecs;
 static Rboolean pendingFrame;
 static SEXP frameCall;
 
+
 /* Stores events registry */
 static ABD_EVENT *eventsReg;
 static ABD_EVENT *eventsRegTail;
@@ -123,9 +124,11 @@ void appendLastEventToLoop(ABD_LOOP_TAGS type);
 ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange);
 Rboolean inLoopByType(ABD_LOOP_TAGS type);
 void preProcessDataFrame(SEXP call);
-void preProcessVarIdxChange(SEXP call, SEXP targetObj, SEXP rho);
-void preProcessDataFrameCellChange(SEXP call, SEXP rho);
+void preProcessVarIdxChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho);
+void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT * target_df, SEXP rho);
 void preProcessDataFrameSrc(SEXP call);
 void preProcessDataFrameDest(SEXP call);
 void preProcessSrc(SEXP call);
 void preProcessDest(SEXP call);
+int waitingCellChange();
+void storeVecForCellChange(SEXP vec);
