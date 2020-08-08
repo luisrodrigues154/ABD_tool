@@ -183,24 +183,26 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
 
     if (!isRunning())
         return;
-    puts("INSIDE FINALIZE");
+
     Rboolean isCellChange = FALSE;
     if (cmpToCurrEnv(rho) == ABD_NOT_EXIST)
-        /* the env does not match, this does not return right away because when assigning a cell to a dataframe 
+        /* the env does not match, this does not return right away because when assigning a cell to a dataframe
         using df[x,y] the rho passed is not the same as the one created (which is strange). This tries to mitigate that problem. */
         if (getCurrCellChange() != ABD_NOT_FOUND)
             isCellChange = TRUE;
-        else if(getCurrIdxChanges() != ABD_NOT_FOUND)
+        else if (getCurrIdxChanges() != ABD_NOT_FOUND)
             isCellChange = FALSE;
         else
             /* The env does not match, and has no pending idx/cell changes */
             return;
+    if (getCurrCellChange() != ABD_NOT_FOUND) isCellChange = TRUE;
+    else isCellChange = FALSE;
 
-    if(isCellChange)
-        puts("do cell change finalize");
+    if (isCellChange)
+        processVarCellChange(result);
     else
         processVarIdxChange(result);
-    
+
 }
 void regVarIdxChange(SEXP call, SEXP rho)
 {
@@ -212,10 +214,10 @@ void regVarIdxChange(SEXP call, SEXP rho)
 
     //printf("var index change... line %d\n", getCurrScriptLn());
 
-    
+
     SEXP obj_sexp = CAR(CDR(CAR(CDR(call))));
     ABD_OBJECT *obj_ptr = ABD_OBJECT_NOT_FOUND;
-    
+
     if (TYPEOF(obj_sexp) == LANGSXP)
     {
         obj_sexp = CAR(CDR(obj_sexp));
@@ -229,16 +231,16 @@ void regVarIdxChange(SEXP call, SEXP rho)
     }
 
     if (obj_ptr == ABD_OBJECT_NOT_FOUND)
-            return;
+        return;
 
     if (obj_ptr->modList->valueType == ABD_FRAME)
         isDataFrame = TRUE;
-    
+
     if (isDataFrame)
         preProcessDataFrameCellChange(call, obj_ptr, rho);
     else
         preProcessVarIdxChange(call, obj_ptr, rho);
-    
+
     //now wait ...
 }
 
@@ -321,14 +323,17 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-
-    puts("received vec AFTER CHECK");
+    // puts("");
+    puts("received vec");
     PrintDaCall(vector, rho);
-    // puts("received vec");
-    // PrintDaCall(vector, rho);
-
-    if(waitingCellChange()){
+    // puts("");
+    if (waitingCellChange()) {
         storeVecForCellChange(vector);
+        if (!waitingCellChange()) {
+            if (getCurrCellChange()->toRows == R_NilValue || getCurrCellChange()->toCols == R_NilValue) {
+                finalizeVarIdxChange(R_NilValue, getCurrentEnv());
+            }
+        }
         return;
     }
 

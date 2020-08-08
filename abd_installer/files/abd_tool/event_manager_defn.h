@@ -132,3 +132,5 @@ void preProcessSrc(SEXP call);
 void preProcessDest(SEXP call);
 int waitingCellChange();
 void storeVecForCellChange(SEXP vec);
+ABD_OBJECT_MOD *initModAndPopulate(ABD_OBJECT_MOD *newMod, OBJ_STATE remotion, ABD_OBJ_VALUE_TYPE valueType);
+ABD_FRAME_OBJ *processDataFrame(SEXP symbolValue, int idxChange);

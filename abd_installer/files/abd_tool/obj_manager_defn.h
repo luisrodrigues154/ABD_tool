@@ -175,3 +175,5 @@ ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv);
 void processVarIdxChange(SEXP rhs);
 ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId, SEXP value, int withIndex);
 ABD_FRAME_OBJ *memAllocFrameObj();
+void processVarCellChange(SEXP result);
+ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs);

@@ -23,14 +23,14 @@ typedef struct
 
 typedef struct
 {
-    
-        
     //src vars
     Rboolean waitingSrcValues;
     //in case src is a vector, rows = R_NilValue
     Rboolean waitingSrcRows;
     Rboolean waitingSrcCols;
+
     SEXP srcValues, srcRows, srcCols;
+    int srcNCols, srcNRows;
     SEXP srcSexpObj;
 
     //dest vars

@@ -190,20 +190,20 @@ SEXP getValueFromPROMSXP(SEXP symbol)
     return symbol;
 }
 
-/* 
+/*
     The function below, is also used in object manager.
     This funtion receives the SEXP referent to the symbol and
     calls the setModValues with the last argument being the function
     that will store that specific type
 
     for instance, if it's a REALSXP, it will alloc a vector determined
-    by the symbolValue nRows (which is the number of elements) 
-    with the function 'createRealVector'.  
+    by the symbolValue nRows (which is the number of elements)
+    with the function 'createRealVector'.
 */
 ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange)
 {
     SEXPTYPE modType;
-rollback2:
+    rollback2:
     modType = TYPEOF(symbolValue);
 
     switch (modType)
@@ -257,10 +257,7 @@ ABD_FRAME_OBJ *processDataFrame(SEXP symbolValue, int idxChange)
 {
 
     if (idxChange)
-    {
-        puts("do the changes here");
-        return ABD_OBJECT_NOT_FOUND;
-    }
+        return frameMultiChanges(symbolValue);
     else
         return createDataFrame(symbolValue);
 }
@@ -280,7 +277,9 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
     switch (getObjStructType(symbolValue))
     {
     case ABD_VECTOR:
+        puts("init");
         mod = initModAndPopulate(mod, ABD_ALIVE, ABD_VECTOR);
+        puts("process vector");
         mod->value.vec_value = processVector(symbolValue, idxChange);
         break;
     case ABD_MATRIX:
@@ -301,7 +300,7 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
 }
 
 /*
-    The function below will run through all the arguments and return the 
+    The function below will run through all the arguments and return the
     head to the linked list that will constitute the arguments list
 
     CAUTION:
@@ -342,7 +341,7 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
             object before start_watcher() is issued.
         */
 
-    rollback:
+        rollback:
         switch (TYPEOF(symbol))
         {
         case REALSXP:
@@ -406,10 +405,10 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
 
 int inCollection(const char *check)
 {
-    char *collection[] = {
+    char *collection[] ={
         "+", "-", "*", "/",
         "==", "!=", "<", ">", "<=", ">=",
-        "&", "|", "&&", "||", "!", "[", "**", "^"};
+        "&", "|", "&&", "||", "!", "[", "**", "^" };
     int nCollection = 18;
 
     for (int i = 0; i < nCollection; i++)
@@ -460,7 +459,7 @@ ABD_OBJECT_MOD *idxCurrValueVec(ABD_OBJECT_MOD *modList, int findIdx)
     ABD_OBJECT_MOD *retMod = memAllocMod();
     ABD_OBJECT_MOD *currMod = modList;
     int found = 0;
-top:;
+    top:;
     if (!currMod->value.vec_value->idxChange || found)
     {
         retMod->id = modList->id;
@@ -668,7 +667,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     if (TYPEOF(st) == LANGSXP)
     {
         newExpr->isConfined = 0;
-    procStateLabel:;
+        procStateLabel:;
         SEXP carSt = CAR(st);
         const char *operator= CHAR(PRINTNAME(carSt));
         int opSize = strlen(operator);
@@ -697,7 +696,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
             }
             else
             {
-            jump1:;
+                jump1:;
                 // if we come to (2>3) left side wont be LANGSXP
                 // need to process by type
                 newExpr->left_type = IF_ABD;
@@ -724,7 +723,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
             }
             else
             {
-            jump2:;
+                jump2:;
                 // if we come to (2>3) left side wont be LANGSXP
                 // need to process by type
                 newExpr->right_type = IF_ABD;
@@ -767,7 +766,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
             newExpr->result = REAL(arithResults[++currArithIndex])[0];
             /* int arithLen = Rf_length(arithResults[++currArithIndex]);
 
-        
+
             //newExpr->resultSize = arithLen;
             if (arithLen > 1)
             {
@@ -1098,8 +1097,8 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
     if ((finalArithCall == R_NilValue && finalArithAns == R_NilValue))
         return ABD_EVENT_NOT_FOUND;
 
-    /* 
-        check if the answer from the arith is being used, if not, create the event and return NULL 
+    /*
+        check if the answer from the arith is being used, if not, create the event and return NULL
         otherwise return the lastArithEvent
     */
 
@@ -1163,13 +1162,34 @@ void storeVecForIdxChange(SEXP vec)
     }
 }
 
-void storeVecForCellChange(SEXP vec){
-    
+void storeVecForCellChange(SEXP vec) {
+
     CELL_CHANGE * cellChange = getCurrCellChange();
 
-    if(cellChange->waitingColsVec){
-        puts("cols");
-        PrintDaCall(vec, getCurrentEnv());
+    if (cellChange->waitingSrcCols) {
+        cellChange->srcCols = vec;
+        cellChange->waitingSrcCols = FALSE;
+        cellChange->srcNCols = Rf_length(vec);
+        decrementWaitingCellChange();
+        return;
+    }
+
+    if (cellChange->waitingSrcRows) {
+        cellChange->srcRows = vec;
+        cellChange->waitingSrcRows = FALSE;
+        cellChange->srcNRows = Rf_length(vec);
+        decrementWaitingCellChange();
+        return;
+    }
+
+    if (cellChange->waitingSrcValues) {
+        cellChange->srcValues = vec;
+        cellChange->waitingSrcValues = FALSE;
+        decrementWaitingCellChange();
+        return;
+    }
+
+    if (cellChange->waitingColsVec) {
         cellChange->toCols = vec;
         cellChange->waitingColsVec = FALSE;
         cellChange->nCols = Rf_length(vec);
@@ -1178,9 +1198,7 @@ void storeVecForCellChange(SEXP vec){
     }
 
 
-    if(cellChange->waitingRowsVec){
-        puts("rows");
-        PrintDaCall(vec, getCurrentEnv());
+    if (cellChange->waitingRowsVec) {
         cellChange->toRows = vec;
         cellChange->waitingRowsVec = FALSE;
         cellChange->nRows = Rf_length(vec);
@@ -1225,7 +1243,7 @@ void preProcessSrc(SEXP call)
     SEXP rhs = CAR(CDR(CDR(call)));
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     idxChanges->src = R_NilValue;
-rollback:
+    rollback:
     if (TYPEOF(rhs) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
@@ -1302,7 +1320,7 @@ rollback:
 
 void preProcessDataFrameDest(SEXP call)
 {
-    
+
     SEXP currEnv = getCurrentEnv();
     CELL_CHANGE * cellChanges = getCurrCellChange();
     SEXP lhs = CAR(CDR(call));
@@ -1317,90 +1335,99 @@ void preProcessDataFrameDest(SEXP call)
     hasDollar = (strstr(lhs_str, "$") != ABD_NOT_FOUND);
     hasBracket = (strstr(lhs_str, "[") != ABD_NOT_FOUND);
 
-    if(hasDollar && hasBracket){
+    if (hasDollar && hasBracket) {
         //has dollar and bracket
         //will have column and row (specific cell or range of cells in column)
         cols = CAR(CDR(CDR(CAR(CDR(lhs)))));
-        rows = CAR(CDR(CDR(lhs)));       
-    }else if(hasDollar){
+        rows = CAR(CDR(CDR(lhs)));
+    }
+    else if (hasDollar) {
         rows = R_NilValue;
         cols = CAR(CDR(CDR(lhs)));
         //will change an entire column because there is no bracket to limit it
-    }else{
-        if(strstr(lhs_str, ",") != ABD_NOT_FOUND){
+    }
+    else {
+        if (strstr(lhs_str, ",") != ABD_NOT_FOUND) {
             //contains comma, has a row and a column
             rows = CAR(CDR(CDR(lhs)));
-            if(TYPEOF(rows) == SYMSXP)
-                if( strcmp(CHAR(PRINTNAME(rows)), "") == 0)
+            if (TYPEOF(rows) == SYMSXP)
+                if (strcmp(CHAR(PRINTNAME(rows)), "") == 0)
                     rows = R_NilValue;
             cols = CAR(CDR(CDR(CDR(lhs))));
-            if(TYPEOF(cols) == SYMSXP)
-                if( strcmp(CHAR(PRINTNAME(cols)), "") == 0)
+            if (TYPEOF(cols) == SYMSXP)
+                if (strcmp(CHAR(PRINTNAME(cols)), "") == 0)
                     cols = R_NilValue;
-        }else{
+        }
+        else {
             //does not contains comma, will modify the entire column
             rows = R_NilValue;
             cols = CAR(CDR(CDR(lhs)));
-            if(TYPEOF(cols) == SYMSXP)
-                if( strcmp(CHAR(PRINTNAME(cols)), "") == 0)
+            if (TYPEOF(cols) == SYMSXP)
+                if (strcmp(CHAR(PRINTNAME(cols)), "") == 0)
                     cols = R_NilValue;
         }
     }
 
-    if(rows != R_NilValue){
+    if (rows != R_NilValue) {
         SEXPTYPE rowType = TYPEOF(rows);
-        switch(rowType){
-            case LANGSXP:{
-                    //range
-                    SEXP tester = CAR(rows);
-                    if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))){
-                        cellChanges->waitingRowsVec = TRUE;
-                        incrementWaitingCellChange();
-                    }
-                    break;
-                }
-            case SYMSXP:
-                //symbol
-                cellChanges->toRows = rows;
-                break;
-            default:
-                //hardcoded values
-                cellChanges->toRows = rows;
-                cellChanges->nRows = 1;
-                break;
+        switch (rowType) {
+        case LANGSXP: {
+            //range
+            SEXP tester = CAR(rows);
+            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))) {
+                cellChanges->waitingRowsVec = TRUE;
+                incrementWaitingCellChange();
+            }
+            break;
+        }
+        case SYMSXP:
+            //symbol
+            cellChanges->toRows = rows;
+            break;
+        default:
+            //hardcoded values
+            cellChanges->toRows = rows;
+            cellChanges->nRows = 1;
+            break;
         }
     }
+    else {
+        cellChanges->nRows = -1;
+    }
 
-    if(cols != R_NilValue){
+    if (cols != R_NilValue) {
         SEXPTYPE colType = TYPEOF(cols);
-        switch(colType){
-            case LANGSXP:{
-                    //range
-                    SEXP tester = CAR(cols);
-                    if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))){
-                        cellChanges->waitingColsVec = TRUE;
-                        incrementWaitingCellChange();
-                    }
-                    break;
-                }
-            case SYMSXP:
-                //symbol
-                cellChanges->toCols = cols;
-                break;
-            default:
-                //hardcoded values
-                cellChanges->toCols = cols;
-                cellChanges->nCols = 1;
-                break;
+        switch (colType) {
+        case LANGSXP: {
+            //range
+            SEXP tester = CAR(cols);
+            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))) {
+                cellChanges->waitingColsVec = TRUE;
+                incrementWaitingCellChange();
+            }
+            break;
+        }
+        case SYMSXP:
+            //symbol
+            cellChanges->toCols = cols;
+            break;
+        default:
+            //hardcoded values
+            cellChanges->toCols = cols;
+            cellChanges->nCols = 1;
+            break;
         }
 
     }
-    
+    else {
+        cellChanges->nCols = -1;
+    }
+
 }
 
 void preProcessDataFrameSrc(SEXP call)
 {
-    /* 
+    /*
         Src can be many many things:
         -> other data frame (need to be the exact same size as the dest)
         -> group of vectors c(v1, v2, ..., vn)
@@ -1408,169 +1435,229 @@ void preProcessDataFrameSrc(SEXP call)
         -> HC value(s)
             * x; 1; 1:3, c(1,2,3)
 
+        we can test right away the rows and cols
+        -> if CAR(CDR(CDR(RHS))) == SYMSXP and == ""
+            -> its an empty bracket, means that:
+                -> if not dollar seen : all the frame
+                -> if dollar seen: all the rows
+        -> if LANGSXP check
+            -> if CAR == ":" will wait for something
+            -> Then if that is the last and not dollar sign found, it is the cols and all the rows are used
+            -> if not the last the it is the rows and the next is the cols
     */
-    puts("\n\n\n\n");
     SEXP rhs = CAR(CDR(CDR(call)));
     SEXP currEnv = getCurrentEnv();
     CELL_CHANGE * cellChanges = getCurrCellChange();
-
-    rollback:;
-
-    puts("RHS");
-    PrintIt(rhs, currEnv);
     SEXPTYPE rhsType = TYPEOF(rhs);
-    if( rhsType == LANGSXP){
+
+    if (rhsType == LANGSXP) {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
-        printf("rhs str %s\n", rhsChar);
-        
         if (strcmp(rhsChar, "$") == 0)
         {
-            puts("only one col");
+
+            cellChanges->srcSexpObj = CAR(CDR(rhs));
+            cellChanges->srcCols = CAR(CDR(CDR(rhs)));
+            cellChanges->srcNCols = 1;
+            const char * colName = CHAR(asChar(cellChanges->srcCols));
+            const char * objName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
+            int nameSize = strlen(colName) + strlen(objName) + 2;
+            char *requestValue = memAllocForString(nameSize);
+            memset(requestValue, 0, nameSize);
+            sprintf(requestValue, "%s$%s", objName, colName);
+            cellChanges->srcValues = getResult(requestValue);
 
         }
-        if (strcmp(rhsChar, "[") == 0)
+        else if (strcmp(rhsChar, "[") == 0)
         {
-            // uses another object content 
-            // idxChanges->src = CAR(CDR(rhs));
             SEXP testForDollar = CAR(CDR(rhs));
-            if(TYPEOF(testForDollar) == LANGSXP){
-                if(strcmp(CHAR(PRINTNAME(CAR(testForDollar))) , "$") == 0){
+            Rboolean dollarSeen = FALSE;
+            SEXP rows = R_NilValue;
+            SEXP cols = R_NilValue;
+            SEXPTYPE rowsType = NILSXP, colsType = NILSXP;
+
+            if (TYPEOF(testForDollar) == LANGSXP) {
+                if (strcmp(CHAR(PRINTNAME(CAR(testForDollar))), "$") == 0) {
                     // extract the object here
+                    cellChanges->srcSexpObj = CAR(CDR(testForDollar));
+                    cols = CAR(CDR(CDR(testForDollar)));
+                    colsType = TYPEOF(cols);
+                    dollarSeen = TRUE;
                 }
             }
-            /* 
-                here we can test right away the rows and cols
-                -> if CAR(CDR(CDR(RHS))) == SYMSXP and == ""
-                    -> its an empty bracket, means that:
-                        -> if not dollar seen : all the frame
-                        -> if dollar seen: all the rows
-                -> if LANGSXP check
-                    -> if CAR == ":" will wait for something
-                    -> Then if that is the last and not dollar sign found, it is the cols and all the rows are used
-                    -> if not the last the it is the rows and the next is the cols
-            */
+            else
+                cellChanges->srcSexpObj = testForDollar;
 
-            rhs = CDR(rhs);
-            
-            goto rollback;
+            SEXP srcVals = getResult(CHAR(PRINTNAME(cellChanges->srcSexpObj)));
+            if (Rf_isFrame(srcVals)) {
+                if (!dollarSeen) {
+                    /*
+                        dollar not seen, need to check if two arguments passed
+                        this arguments can be:
+                        -> [] <- all structure
+                        -> [val] <- this val will inform columns. NOT ROWS
+                        -> [,] <- ALL rows and cols
+                        -> [,val] <- all rows, cols == val
+                        -> [val,] <- rows == val, all cols
+                        -> [val,val] <- rows == val, cols == val
+                     */
+                    rows = CAR(CDR(CDR(rhs)));
+                    rowsType = TYPEOF(rows);
+                    cols = CAR(CDR(CDR(CDR(rhs))));
+                    colsType = TYPEOF(cols);
+                    if (colsType == NILSXP) {
+                        cols = rows;
+                        colsType = TYPEOF(cols);
+                        rowsType = NILSXP;
+                        rows = R_NilValue;
+                        cellChanges->srcRows = R_NilValue;
+                    }
+
+
+                }
+                else {
+                    rows = CAR(CDR(CDR(rhs)));
+                    rowsType = TYPEOF(rows);
+                }
+
+
+                switch (colsType) {
+                case NILSXP: break;
+                case LANGSXP: {
+                    const char *rhsChar = CHAR(PRINTNAME(CAR(cols)));
+                    if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+                    {
+                        cellChanges->waitingSrcCols = TRUE;
+                        incrementWaitingCellChange();
+                    }
+                    break;
+                }
+                case SYMSXP:
+                    if (strcmp(CHAR(PRINTNAME(cols)), "") == 0)
+                        cols = R_NilValue;
+                default:
+                    cellChanges->srcCols = cols;
+                    break;
+                }
+
+                if (rowsType != NILSXP) {
+                    switch (rowsType) {
+                    case NILSXP: break;
+                    case LANGSXP: {
+                        const char *rhsChar = CHAR(PRINTNAME(CAR(rows)));
+                        if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+                        {
+                            cellChanges->waitingSrcRows = TRUE;
+                            incrementWaitingCellChange();
+                            if (dollarSeen) {
+                                cellChanges->waitingSrcValues = TRUE;
+                                incrementWaitingCellChange();
+                            }
+
+                        }
+                        break;
+                    }
+                    case SYMSXP:
+                        if (strcmp(CHAR(PRINTNAME(rows)), "") == 0)
+                            rows = R_NilValue;
+                    default:
+                        cellChanges->srcRows = rows;
+                        break;
+                    }
+                }
+
+                if ((!cellChanges->waitingSrcValues) && (cellChanges->srcValues == R_NilValue)) {
+                    R_PrintData pars;
+                    PrintInit(&pars, getCurrentEnv());
+                    cellChanges->srcValues = getResult(getStrForStatement(rhs, &pars));
+
+                }
+
+
+            }
+            else if (Rf_isVector(srcVals)) {
+                rhs = CAR(CDR(CDR(rhs)));
+                if (TYPEOF(rhs) == LANGSXP)
+                {
+                    const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
+
+                    if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+                    {
+                        //will need to wait for a vector of indexes
+
+                        cellChanges->waitingSrcCols = TRUE;
+                        incrementWaitingCellChange();
+                        cellChanges->waitingSrcValues = TRUE;
+                        incrementWaitingCellChange();
+                    }
+                }
+                else
+                {
+                    puts("in else");
+                    //TODO: does not treat df[x,y] <- vec[symbol]
+                    int index = (int)REAL(rhs)[0];
+                    int nDigits = floor(log10(abs(index))) + 1;
+                    int nameSize = strlen(CHAR(PRINTNAME(cellChanges->srcSexpObj))) + nDigits + 2; //+2 for the []
+                    char *requestValue = memAllocForString(nameSize);
+                    memset(requestValue, 0, nameSize);
+                    sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(cellChanges->srcSexpObj)), index);
+                    cellChanges->srcValues = getResult(requestValue);
+                    cellChanges->srcCols = rhs;
+                    free(requestValue);
+                }
+            }
         }
 
-        if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
-        {
-            //will need to wait for a vector of indexes
-            
+        else {
+            //check hardcoded vector
+            const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
+            if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0)) {
+                cellChanges->waitingSrcValues = TRUE;
+                incrementWaitingCellChange();
+            }
         }
-        
-    }else{
+
+    }
+    else {
         //symbol or harcoded
-
-        if( rhsType == SYMSXP){
+        if (rhsType == SYMSXP) {
             //symbol
-        }else{
+            cellChanges->srcSexpObj = rhs;
+            cellChanges->srcValues = getResult(CHAR(PRINTNAME(rhs)));
+            cellChanges->srcNCols = Rf_length(cellChanges->srcValues);
+        }
+        else {
             //hc value
+            cellChanges->srcSexpObj = R_NilValue;
+            cellChanges->srcValues = rhs;
+            cellChanges->srcNCols = 1;
         }
     }
-    
+
     puts("\n\n\n\n");
-//     SEXP initialRhs = CAR(CDR(CDR(call)));
-//     SEXP rhs = CAR(CDR(CDR(call)));
-//     IDX_CHANGE *idxChanges = getCurrIdxChanges();
-//     idxChanges->src = R_NilValue;
-
-// rollback:
-//     if (TYPEOF(rhs) == LANGSXP)
-//     {
-//         // const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
-
-//         // if (strcmp(rhsChar, "[") == 0)
-//         // {
-//         //     //uses another object content
-//         //     idxChanges->src = CAR(CDR(rhs));
-//         //     rhs = CAR(CDR(CDR(rhs)));
-//         //     goto rollback;
-//         // }
-
-//         // if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
-//         // {
-//         //     //will need to wait for a vector of indexes
-//         //     if (idxChanges->src != R_NilValue)
-//         //     {
-//         //         idxChanges->srcIdxsVec = 1;
-//         //         incrementWaitingIdxChange();
-//         //     }
-//         //     //     printf("used a range or a combine from obj [%s]\n", CHAR(PRINTNAME(srcObj)));
-
-//         //     idxChanges->srcVec = 1;
-//         //     incrementWaitingIdxChange();
-//         // }
-//         puts("do");
-//     }
-//     else
-//     {
-//         //now try to find the src object in the registry
-//         // if (TYPEOF(rhs) == SYMSXP)
-//         // {
-//         //     SEXP srcIdxs = getResult(CHAR(PRINTNAME(rhs)));
-//         //     if (idxChanges->src != R_NilValue)
-//         //     {
-
-//         //         if (Rf_length(srcIdxs) > 1)
-//         //         {
-//         //             idxChanges->srcVec = 1;
-//         //             incrementWaitingIdxChange();
-//         //         }
-
-//         //         //means that rhs was treated because of brackets in it ex: b[idxs]
-//         //         //if the idxs.len > 1 will create a vector
-//         //         idxChanges->srcIdxs = srcIdxs;
-//         //     }
-//         //     else
-//         //     {
-//         //         //rhs did not got into the langsxp brances, so, this is the actual obj
-//         //         //will not create vector regardless of the src obj length
-//         //         idxChanges->src = rhs;
-//         //         idxChanges->srcValues = srcIdxs;
-//         //     }
-//         // }
-//         // else
-//         // {
-//         //     //we'll assume that's a harcoded value for the index
-//         //     if (idxChanges->src != R_NilValue)
-//         //     {
-//         //         int index = (int)REAL(rhs)[0];
-//         //         int nDigits = floor(log10(abs(index))) + 1;
-//         //         int nameSize = strlen(CHAR(PRINTNAME(idxChanges->src))) + nDigits + 2; //+2 for the []
-//         //         char *requestValue = memAllocForString(nameSize);
-//         //         memset(requestValue, 0, nameSize);
-//         //         sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(idxChanges->src)), index);
-//         //         idxChanges->srcValues = getResult(requestValue);
-//         //         idxChanges->srcIdxs = rhs;
-//         //         free(requestValue);
-//         //     }
-//         //     else
-//         //         idxChanges->srcValues = rhs;
-//         // }
-//         puts("do");
-//     }
 }
 
 void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho)
 {
-    
+    CELL_CHANGE * cellChange = ABD_NOT_FOUND;
+    setWatcherState(ABD_DISABLE);
     initCellChangeAuxVars();
-    getCurrCellChange()->targetObj = targetObj;
+    cellChange = getCurrCellChange();
+    cellChange->targetObj = targetObj;
     preProcessDataFrameDest(call);
-    
+
     /* Src can be a data frame too!!!! */
     preProcessDataFrameSrc(call);
-    puts("pre process src done");
 
-    /* 
+    /*
      to support the statement df[,cols] or df[rows, ] we need to check here the following:
      -> not waiting for vectors
      -> toRows == NilValue or toCols == NilValues
      if true, call finalize from here.
      */
+    setWatcherState(ABD_ENABLE);
+    if ((!cellChange->waitingSrcValues) && (!cellChange->waitingSrcCols) && (!cellChange->waitingSrcRows) && (!cellChange->waitingRowsVec) && (!cellChange->waitingColsVec) && (cellChange->toRows == R_NilValue || cellChange->toCols == R_NilValue)) {
+        finalizeVarIdxChange(R_NilValue, getCurrentEnv());
+    }
 }
 
 void preProcessVarIdxChange(SEXP call, ABD_OBJECT * targetObj, SEXP rho)
@@ -1610,7 +1697,7 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
     SEXP obj = R_NilValue;
     if (TYPEOF(rhs2) == LANGSXP)
     {
-        /* 
+        /*
             GOT AN EXPRESSION
             Will treat only:
                 -> a[something]
@@ -1940,7 +2027,7 @@ void parseDataFrameSrcs(SEXP call, int i)
     frameSrcs[i]->discard = FALSE;
     waitingFrameIdxs[i] = 0;
 
-rollback:
+    rollback:
     if (TYPEOF(call) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(call)));
@@ -2072,7 +2159,7 @@ void preProcessEnumerator(SEXP enumerator)
 
     SEXP rhs = enumerator;
     loopStack->loop.forLoop->enumSEXP = R_NilValue;
-rollback22:
+    rollback22:
     if (TYPEOF(rhs) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
@@ -2089,7 +2176,7 @@ rollback22:
 
             if (loopStack->loop.forLoop->enumSEXP != R_NilValue)
             {
-                /*  
+                /*
                     use a subset of the symbol
                     this tells that two vectors will be created
                 */

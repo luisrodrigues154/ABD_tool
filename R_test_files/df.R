@@ -3,6 +3,7 @@ run <- function(){
     
     
     df2 <- data.frame("c1" = 6:12, "c2" = 9:15)
+    vec <- 10:1
     print(df2)
     abd_start()
     
@@ -22,9 +23,20 @@ run <- function(){
     df <- data.frame("col1" = 1:5, "col2" = 10:6)
     #colValue <- 99
 
+    #df$c1 = df2$c2
     #df$c1[1:2] <- 91
-    #df[] <- 1:5
-    df[1:3,1:2] <- df2$c2[3:1]
+    #df[1] <- df2$c2
+    df[,] <- 1:12
+    #df[1:3,1:2] <- df2$c2[3:1]
+    #df[1:3,1:2] <- df2[]
+    #df[1:3,1:2] <- df2$c2
+    #df[1:3,1:2] <- df2[2:1]
+    #df[1:3,1:2] <- df2[,]
+    # df[1:3,1:2] <- df2[,2:1]
+    #df[1:3,1:2] <- df2$c2[1:2]
+    #df[1:3,1:2] <- df2[2:1,1:1]
+    
+
     #df[1:3,1:2] <- df2[1:3, 1:2]
     #df[1] <- 10 #(assign to all cells in col1)
     #df$col2 <- 10 #(assign to all cells in col1)

@@ -432,6 +432,35 @@ ABD_VEC_OBJ *createStrVector(SEXP rhs)
 
     return vector;
 }
+
+ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
+    ABD_FRAME_OBJ * frame = memAllocFrameObj();
+    SEXP currEnv = getCurrentEnv();
+    CELL_CHANGE * cellChanges = getCurrCellChange();
+    puts("\n\n\n\n");
+    puts("inside frame multi changes");
+    frame->idxChange = 1;
+    puts("toCols");
+    PrintIt2(cellChanges->toCols, currEnv);
+    puts("toRows");
+    PrintIt2(cellChanges->toRows, currEnv);
+    printf("n cols changed %d\n", cellChanges->nCols);
+    printf("n rows changed %d\n", cellChanges->nRows);
+
+    /*
+        if(nRows == -1), consider all the rows
+        if(nCols == -1), consider all the cols
+        srcValues.nRows * srcValues.nCols needs to be multiple of (or bigger than) df[col].nRows * df[col].nCols) <- otherwise throw error
+
+        if(hcValue), apply to all repeatedly
+     */
+
+
+    puts("src values");
+    PrintIt2(cellChanges->srcValues, currEnv);
+    return frame;
+}
+
 ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs)
 {
 
@@ -675,40 +704,54 @@ void printReg()
         auxObject = auxObject->nextObj;
     }
 }
+void processVarCellChange(SEXP result) {
+    CELL_CHANGE * cellChanges = getCurrCellChange();
 
+    printf("src values NIL ? %s\n", cellChanges->srcValues == R_NilValue ? "YES" : "NO");
+    puts("srcValues");
+    PrintIt2(cellChanges->srcValues, getCurrentEnv());
+
+    SEXP rhs = cellChanges->srcValues;
+    ABD_OBJECT * obj = cellChanges->targetObj;
+
+    if (obj!= ABD_OBJECT_NOT_FOUND) {
+        ABD_OBJECT_MOD * newMod = ABD_OBJECT_NOT_FOUND;
+        newMod = addEmptyModToObj(obj, ABD_FRAME);
+        newMod = initModAndPopulate(newMod, ABD_ALIVE, ABD_FRAME);
+        newMod->value.frame_value = processDataFrame(rhs, 1);
+        obj->modList = newMod;
+        obj->usages++;
+        cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+
+    }
+    clearPendingVars();
+}
 void processVarIdxChange(SEXP result)
 {
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
-    puts("1");
+
+    //if (idxChanges->srcValues == R_NilValue || idxChanges->srcValues != result)
     if (idxChanges->srcValues == R_NilValue)
         idxChanges->srcValues = result;
-    puts("2");
+
     SEXP rhs = idxChanges->srcValues;
-    puts("3");
+
     ABD_OBJECT *obj = idxChanges->destObj;
-    puts("4");
+
     if (obj != ABD_OBJECT_NOT_FOUND)
     {
         //dest idxs vector will always say how many changes will be performed
-        puts("5");
+
         idxChanges->nIdxChanges = Rf_length(idxChanges->destIdxs);
-        puts("6");
+
         //the object was found in the registry, need to process new mod
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
-        puts("7");
-
         newMod = addEmptyModToObj(obj, getObjStructType(rhs));
-        puts("8");
         newMod = processByType(rhs, newMod, 1);
-        puts("9");
         obj->modList = newMod;
-        puts("10");
         obj->usages++;
-        puts("11");
         cmnObjReg = rankObjByUsages(cmnObjReg, obj);
-        puts("12");
         createIndexChangeEvent(result, obj);
-        puts("13");
     }
     clearPendingVars();
 }

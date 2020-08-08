@@ -67,7 +67,7 @@ void incrementWaitingIdxChange()
     envStack->waitingIdxChange++;
 }
 
-void incrementWaitingCellChange(){
+void incrementWaitingCellChange() {
     envStack->waitingCellChange++;
 }
 
@@ -111,11 +111,15 @@ void initCellChangeAuxVars()
     envStack->cellChanges->srcRows = R_NilValue;
     envStack->cellChanges->srcCols = R_NilValue;
     envStack->cellChanges->srcSexpObj = R_NilValue;
+    envStack->cellChanges->srcNRows = 0;
+    envStack->cellChanges->srcNCols = 0;
 
     envStack->cellChanges->targetObj = ABD_OBJECT_NOT_FOUND;
     envStack->cellChanges->targetCol = ABD_OBJECT_NOT_FOUND;
     envStack->cellChanges->srcObj = ABD_OBJECT_NOT_FOUND;
     envStack->cellChanges->nCellChanges = 0;
+
+
 }
 
 SEXP getInitialEnv()
@@ -170,14 +174,14 @@ ABD_ENV_STACK *memAllocEnvStack()
     return (ABD_ENV_STACK *)malloc(sizeof(ABD_ENV_STACK));
 }
 
-void tmpSwapEnv(SEXP tmpEnv){
+void tmpSwapEnv(SEXP tmpEnv) {
     envStack->tmpStore = envStack->rho;
     envStack->rho = tmpEnv;
     envStack->onTmp = TRUE;
 }
 
-void popTmpEnv(){
-    if(envStack->onTmp){
+void popTmpEnv() {
+    if (envStack->onTmp) {
         envStack->rho = envStack->tmpStore;
         envStack->onTmp = FALSE;
     }
