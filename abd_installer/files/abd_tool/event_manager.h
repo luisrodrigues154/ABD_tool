@@ -146,6 +146,9 @@ ABD_FRAME_EVENT *memAllocDataFrameEvent()
 {
     return (ABD_FRAME_EVENT *)malloc(sizeof(ABD_FRAME_EVENT));
 }
+ABD_CELL_CHANGE_EVENT * memAllocCellChangeEvent() {
+    return (ABD_CELL_CHANGE_EVENT *)malloc(sizeof(ABD_CELL_CHANGE_EVENT));
+}
 ITER_EVENT_LIST *memAllocIterEventList()
 {
     return (ITER_EVENT_LIST *)malloc(sizeof(ITER_EVENT_LIST));
@@ -1024,6 +1027,9 @@ ABD_EVENT *creaStructsForType(ABD_EVENT *newBaseEvent, ABD_EVENT_TYPE type)
     case FRAME_EVENT:
         newBaseEvent->data.data_frame_event = memAllocDataFrameEvent();
         break;
+    case CELL_EVENT:
+        newBaseEvent->data.cell_change_event = memAllocCellChangeEvent();
+        break;
     case BREAK_EVENT:
     case NEXT_EVENT:
         break;
@@ -1111,7 +1117,12 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
     R_PrintData pars;
     PrintInit(&pars, getCurrentEnv());
     lastArithEvent->exprStr = getStrForStatement(finalArithCall, &pars);
+
+
     if (finalArithAns == rhs)
+        return eventsRegTail;
+
+    if (getCurrCellChange() != ABD_OBJECT_NOT_FOUND)
         return eventsRegTail;
 
     return ABD_EVENT_NOT_FOUND;
@@ -1340,10 +1351,12 @@ void preProcessDataFrameDest(SEXP call)
         //will have column and row (specific cell or range of cells in column)
         cols = CAR(CDR(CDR(CAR(CDR(lhs)))));
         rows = CAR(CDR(CDR(lhs)));
+        cellChanges->nCols = 1;
     }
     else if (hasDollar) {
         rows = R_NilValue;
         cols = CAR(CDR(CDR(lhs)));
+        cellChanges->nCols = 1;
         //will change an entire column because there is no bracket to limit it
     }
     else {
@@ -1410,6 +1423,7 @@ void preProcessDataFrameDest(SEXP call)
         case SYMSXP:
             //symbol
             cellChanges->toCols = cols;
+
             break;
         default:
             //hardcoded values
@@ -1465,6 +1479,7 @@ void preProcessDataFrameSrc(SEXP call)
             memset(requestValue, 0, nameSize);
             sprintf(requestValue, "%s$%s", objName, colName);
             cellChanges->srcValues = getResult(requestValue);
+            cellChanges->srcNRows = -1;
 
         }
         else if (strcmp(rhsChar, "[") == 0)
@@ -1569,6 +1584,7 @@ void preProcessDataFrameSrc(SEXP call)
                     R_PrintData pars;
                     PrintInit(&pars, getCurrentEnv());
                     cellChanges->srcValues = getResult(getStrForStatement(rhs, &pars));
+                    cellChanges->srcNCols = cellChanges->srcNRows = -1;
 
                 }
 
@@ -1582,9 +1598,12 @@ void preProcessDataFrameSrc(SEXP call)
 
                     if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
                     {
-                        //will need to wait for a vector of indexes
 
-                        cellChanges->waitingSrcCols = TRUE;
+                        if (dollarSeen)
+                            cellChanges->waitingSrcRows = TRUE;
+                        else
+                            cellChanges->waitingSrcCols= TRUE;
+
                         incrementWaitingCellChange();
                         cellChanges->waitingSrcValues = TRUE;
                         incrementWaitingCellChange();
@@ -1601,6 +1620,8 @@ void preProcessDataFrameSrc(SEXP call)
                     memset(requestValue, 0, nameSize);
                     sprintf(requestValue, "%s[%d]", CHAR(PRINTNAME(cellChanges->srcSexpObj)), index);
                     cellChanges->srcValues = getResult(requestValue);
+                    cellChanges->srcNRows = 1;
+
                     cellChanges->srcCols = rhs;
                     free(requestValue);
                 }
@@ -1612,6 +1633,8 @@ void preProcessDataFrameSrc(SEXP call)
             const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
             if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0)) {
                 cellChanges->waitingSrcValues = TRUE;
+                cellChanges->srcNCols = -1;
+                cellChanges->srcNRows = 0;
                 incrementWaitingCellChange();
             }
         }
@@ -1624,12 +1647,14 @@ void preProcessDataFrameSrc(SEXP call)
             cellChanges->srcSexpObj = rhs;
             cellChanges->srcValues = getResult(CHAR(PRINTNAME(rhs)));
             cellChanges->srcNCols = Rf_length(cellChanges->srcValues);
+            cellChanges->srcNRows = 1;
         }
         else {
             //hc value
             cellChanges->srcSexpObj = R_NilValue;
             cellChanges->srcValues = rhs;
             cellChanges->srcNCols = 1;
+            cellChanges->srcNRows = 1;
         }
     }
 
@@ -1642,6 +1667,7 @@ void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho)
     setWatcherState(ABD_DISABLE);
     initCellChangeAuxVars();
     cellChange = getCurrCellChange();
+
     cellChange->targetObj = targetObj;
     preProcessDataFrameDest(call);
 
@@ -1757,7 +1783,7 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
         return eventsRegTail;
 }
 
-ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs)
+ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs, ABD_OBJECT * usedObj)
 {
     if (!(frameCall != R_NilValue && pendingFrame && frameCall == call))
         return ABD_EVENT_NOT_FOUND;
@@ -1769,17 +1795,13 @@ ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs)
     frameEvent->srcObjs = (ABD_OBJECT **)malloc(sizeof(ABD_OBJECT *) * numFrameSrcs);
     frameEvent->srcStates = (ABD_OBJECT_MOD **)malloc(sizeof(ABD_OBJECT_MOD *) * numFrameSrcs);
     frameEvent->fromIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
-    frameEvent->colNames = memAllocStrVec(numFrameSrcs);
+    frameEvent->colNames = usedObj->modList->value.frame_value->colNames;
     frameEvent->numIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
-    SEXP colNames = getAttrib(rhs, R_NamesSymbol);
+
 
     for (int i = 0; i < numFrameSrcs; i++)
     {
         ABD_OBJECT *usedObj = ABD_OBJECT_NOT_FOUND;
-        const char *currStr = CHAR(STRING_ELT(colNames, i));
-        int currStrSize = strlen(currStr);
-        frameEvent->colNames[i] = memAllocForString(currStrSize);
-        copyStr(frameEvent->colNames[i], currStr, currStrSize);
         if (frameSrcs[i]->srcObj != R_NilValue)
         {
             const char *objName = CHAR(PRINTNAME(frameSrcs[i]->srcObj));
@@ -1829,7 +1851,7 @@ ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj)
     /* Check if exist an arithmetic event pending */
     ABD_EVENT *retValue = ABD_EVENT_NOT_FOUND;
 
-    retValue = checkPendingFrame(call, rhs);
+    retValue = checkPendingFrame(call, rhs, obj);
     if (retValue != ABD_EVENT_NOT_FOUND)
         return retValue;
 
@@ -1844,6 +1866,8 @@ ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj)
     retValue = checkPendingVec(call, rhs);
     if (retValue != ABD_EVENT_NOT_FOUND)
         return retValue;
+
+
     return retValue;
 }
 
@@ -1885,6 +1909,63 @@ ABD_IDX_CHANGE_EVENT *setIdxList(ABD_IDX_CHANGE_EVENT *idxEvent)
     return idxEvent;
 }
 
+ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
+{
+    CELL_CHANGE *cellChanges = getCurrCellChange();
+    int c, r;
+    cellChangeEvent->nRowsIdxs = cellChanges->srcNRows;
+    cellChangeEvent->nColsIdxs = cellChanges->srcNCols;
+    cellChangeEvent->rowsIdxs = memAllocIntVector(cellChangeEvent->nRowsIdxs);
+    cellChangeEvent->colsIdxs = memAllocIntVector(cellChangeEvent->nColsIdxs);
+    Rboolean doSeqCols = FALSE;
+    Rboolean doSeqRows = FALSE;
+
+    if (cellChanges->srcRows == R_NilValue)
+        doSeqRows = TRUE;
+    if (cellChanges->srcCols == R_NilValue)
+        doSeqCols = TRUE;
+
+    for (c = 0; c<cellChanges->srcNCols; c++) {
+        if (!doSeqCols)
+        {
+            switch (TYPEOF(cellChanges->srcCols))
+            {
+            case REALSXP:
+                cellChangeEvent->colsIdxs[c] = (int)REAL(cellChanges->srcCols)[c];
+                break;
+            case INTSXP:
+                cellChangeEvent->colsIdxs[c] = INTEGER(cellChanges->srcCols)[c];
+                break;
+            }
+        }
+        else
+            cellChangeEvent->colsIdxs[c] = c;
+
+        for (r=0; r<cellChanges->srcNRows; r++) {
+            if (!doSeqRows)
+            {
+                switch (TYPEOF(cellChanges->srcRows))
+                {
+                case REALSXP:
+                    cellChangeEvent->rowsIdxs[r] = (int)REAL(cellChanges->srcRows)[r];
+                    break;
+                case INTSXP:
+                    cellChangeEvent->rowsIdxs[r] = INTEGER(cellChanges->srcRows)[r];
+                    break;
+                }
+            }
+            else
+                cellChangeEvent->rowsIdxs[r] = r;
+
+        }
+    }
+
+    /* int *srcIdxsUsed = ABD_OBJECT_NOT_FOUND;
+    int nSrcIdxs = Rf_length(idxChanges->srcValues);
+    srcIdxsUsed = memAllocIntVector(nSrcIdxs); */
+    return cellChangeEvent;
+}
+
 void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
 {
     ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
@@ -1924,6 +2005,54 @@ void createIndexChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
             currIdxEvent->fromObj = createUnscopedObj("NA", -1, -1, idxChanges->srcValues, 0);
         }
         currIdxEvent->fromState = ((ABD_OBJECT *)currIdxEvent->fromObj)->modList;
+    }
+}
+
+void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
+{
+
+    ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
+    CELL_CHANGE *cellChanges = getCurrCellChange();
+
+
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
+    /* Create the new assignment event */
+
+    createNewEvent(CELL_EVENT);
+
+    /* get the tail from the events registry, to reduce code verbose */
+    ABD_CELL_CHANGE_EVENT *currCellEvent = eventsRegTail->data.cell_change_event;
+
+    currCellEvent->toObj = objUsed;
+    currCellEvent->toState = objUsed->modList;
+    puts("creating cell change event");
+    if (fromEvent != ABD_EVENT_NOT_FOUND)
+    {
+        puts("got an event for cellChange");
+        /* has precedence from another event */
+        currCellEvent->fromType = ABD_E;
+        currCellEvent->fromObj = fromEvent;
+        currCellEvent->fromState = ABD_OBJECT_NOT_FOUND;
+        if (fromEvent->type == VEC_EVENT)
+            fromEvent->data.vec_event->toObj = objUsed;
+    }
+    else
+    {
+        currCellEvent->fromState = ABD_OBJECT_NOT_FOUND;
+        currCellEvent->fromType = ABD_O;
+        if (cellChanges->srcSexpObj != R_NilValue)
+        {
+            const char * srcName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
+            if ((currCellEvent->fromObj = findCmnObj(srcName, getCurrentEnv())) == ABD_OBJECT_NOT_FOUND)
+                currCellEvent->fromObj = createUnscopedObj(srcName, -2, -2, cellChanges->srcValues, 0);
+            currCellEvent = setCellsForSrc(currCellEvent);
+        }
+        else
+        {
+            //hardcoded value???
+            currCellEvent->fromObj = createUnscopedObj("NA", -1, -1, cellChanges->srcValues, 0);
+        }
+        currCellEvent->fromState = ((ABD_OBJECT *)currCellEvent->fromObj)->modList;
     }
 }
 

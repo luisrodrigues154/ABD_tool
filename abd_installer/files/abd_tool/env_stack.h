@@ -29,23 +29,31 @@ void initEnvStack(SEXP startingEnv)
 
 void clearIdxChanges()
 {
+    if (envStack->idxChanges != ABD_OBJECT_NOT_FOUND)
+        free(envStack->idxChanges);
     envStack->idxChanges = ABD_OBJECT_NOT_FOUND;
     envStack->waitingIdxChange = 0;
 }
 
 void clearCellChanges()
 {
+    if (envStack->cellChanges != ABD_OBJECT_NOT_FOUND)
+        free(envStack->cellChanges);
     envStack->cellChanges = ABD_OBJECT_NOT_FOUND;
     envStack->waitingCellChange = 0;
 }
 
 IDX_CHANGE *getCurrIdxChanges()
 {
+    if (envStack == ABD_NOT_FOUND)
+        return ABD_NOT_FOUND;
     return envStack->idxChanges;
 }
 
 CELL_CHANGE *getCurrCellChange()
 {
+    if (envStack == ABD_NOT_FOUND)
+        return ABD_NOT_FOUND;
     return envStack->cellChanges;
 }
 int waitingIdxChange()

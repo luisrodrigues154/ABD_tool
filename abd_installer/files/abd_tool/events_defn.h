@@ -1,5 +1,3 @@
-
-
 #ifndef loaded_ev
 #define loaded_ev
 typedef struct abd_event ABD_EVENT;
@@ -19,7 +17,8 @@ typedef enum abd_event_types
     NEXT_EVENT = 10,
     REPEAT_EVENT = 11,
     WHILE_EVENT = 12,
-    FRAME_EVENT = 13
+    FRAME_EVENT = 13,
+    CELL_EVENT = 14
 } ABD_EVENT_TYPE;
 
 typedef enum loop_tags
@@ -300,6 +299,7 @@ struct abd_event
         ABD_REPEAT_LOOP_EVENT *repeat_loop_event;
         ABD_WHILE_LOOP_EVENT *while_loop_event;
         ABD_FRAME_EVENT *data_frame_event;
+        ABD_CELL_CHANGE_EVENT * cell_change_event;
     } data;
     ABD_OBJECT *atFunc;
     SEXP env;

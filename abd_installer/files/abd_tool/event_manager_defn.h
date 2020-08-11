@@ -4,7 +4,6 @@
 #include <Rinternals.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/events_defn.h>
 
@@ -23,15 +22,15 @@ static int forValPos;
 
 typedef struct loop_chain
 {
-  short initialBranchDepth;
-  ABD_LOOP_TAGS loopType;
-  union {
-    ABD_WHILE_LOOP_EVENT *whileLoop;
-    ABD_FOR_LOOP_EVENT *forLoop;
-    ABD_REPEAT_LOOP_EVENT *repeatLoop;
-  } loop;
-  ITERATION *currIter;
-  struct loop_chain *prevLoop;
+    short initialBranchDepth;
+    ABD_LOOP_TAGS loopType;
+    union {
+        ABD_WHILE_LOOP_EVENT *whileLoop;
+        ABD_FOR_LOOP_EVENT *forLoop;
+        ABD_REPEAT_LOOP_EVENT *repeatLoop;
+    } loop;
+    ITERATION *currIter;
+    struct loop_chain *prevLoop;
 } ABD_LOOP_CHAIN;
 
 static ABD_LOOP_CHAIN *loopStack;
@@ -59,10 +58,10 @@ static int auxVecLine;
 
 typedef struct frame_creation
 {
-  Rboolean srcVec, srcIdxsVec, discard;
-  SEXP srcObj;
-  SEXP srcVal;
-  SEXP srcIdxs;
+    Rboolean srcVec, srcIdxsVec, discard;
+    SEXP srcObj;
+    SEXP srcVal;
+    SEXP srcIdxs;
 } FRAME_CREATION;
 
 int numFrameSrcs;
@@ -134,3 +133,6 @@ int waitingCellChange();
 void storeVecForCellChange(SEXP vec);
 ABD_OBJECT_MOD *initModAndPopulate(ABD_OBJECT_MOD *newMod, OBJ_STATE remotion, ABD_OBJ_VALUE_TYPE valueType);
 ABD_FRAME_OBJ *processDataFrame(SEXP symbolValue, int idxChange);
+void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed);
+ABD_CELL_CHANGE_EVENT * memAllocCellChangeEvent();
+ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent);

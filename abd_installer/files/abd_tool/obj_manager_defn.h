@@ -55,7 +55,7 @@ typedef struct abd_vec_obj
 typedef struct abd_frame_obj
 {
     /*
-        if is idxChange then
+        if is cellChange then
             nCols will represent how many vectors changed
             the *changedVecs will contain the indexes of the changed vectors
             **cols will contain the vector with the change itself similar to the
@@ -64,9 +64,10 @@ typedef struct abd_frame_obj
             **cols contains pointers to ABD_VEC_OBJ that represent the frame columns
             nCols the number of columns
     */
-    int idxChange;
-    int nCols;
+    int cellChange;
+    int nCols, nRows;
     int *changedVecs;
+    char ** colNames;
     ABD_VEC_OBJ **cols;
 } ABD_FRAME_OBJ;
 

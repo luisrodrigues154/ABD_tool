@@ -38,7 +38,7 @@ typedef struct
     SEXP toRows, toCols;
     int nCols, nRows;
 
-
+    int vecPos;
     //misc vars
     ABD_OBJECT *targetObj;
     ABD_VEC_OBJ **targetCol;

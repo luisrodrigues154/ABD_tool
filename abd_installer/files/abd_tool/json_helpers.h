@@ -231,29 +231,29 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         for (int i = 0; i < vecObj->nCols; i++)
         {
             int idx = vecObj->idxs[i];
-            fprintf(out, "\n%s{\n%s\"index\" : %d, ", getStrFromIndent(INDENT_6), getStrFromIndent(INDENT_7), idx);
+            fprintf(out, "\n%s{\"index\" : %d, ", getStrFromIndent(INDENT_6), idx);
             fprintf(dispOut, "{ \"index\" : %d,", idx);
             switch (type)
             {
             case REALSXP:
-                fprintf(out, "\n%s\"newValue\" : %.2f", getStrFromIndent(INDENT_7), ((double *)vecObj->vector)[i]);
+                fprintf(out, "\"newValue\" : %.2f", ((double *)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : %.2f", ((double *)vecObj->vector)[i]);
                 // ((double *)baseVecValues)[idx] = ((double *)vecObj->vector)[i];
                 break;
             case INTSXP:
-                fprintf(out, "\n%s\"newValue\" : %d", getStrFromIndent(INDENT_7), ((int *)vecObj->vector)[i]);
+                fprintf(out, "\"newValue\" : %d", ((int *)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : %d", ((int *)vecObj->vector)[i]);
                 // ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
                 break;
             case STRSXP:
-                fprintf(out, "\n%s\"newValue\" : \"%s\"", getStrFromIndent(INDENT_7), ((char **)vecObj->vector)[i]);
+                fprintf(out, "\"newValue\" : \"%s\"", ((char **)vecObj->vector)[i]);
                 fprintf(dispOut, "\"newValue\" : \"%s\"", ((char **)vecObj->vector)[i]);
                 // ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
                 break;
             default:
                 break;
             }
-            fprintf(out, "\n%s}", getStrFromIndent(INDENT_6));
+            fprintf(out, "}");
             fprintf(dispOut, "}");
             if (i + 1 != vecObj->nCols)
             {
@@ -264,7 +264,7 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
         // fprintf(out, ",");
         // fprintf(dispOut, ",");
         //save the changed vector
-        fprintf(out, "\n%s", getStrFromIndent(INDENT_6));
+        // fprintf(out, "\n%s", getStrFromIndent(INDENT_6));
         // writeVectorValues(out, INDENT_7, type, baseVecValues, baseVecSize, dispOut);
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "]");
@@ -290,19 +290,79 @@ void writeVector(FILE *out, ABD_VEC_OBJ *vecObj, FILE *dispOut)
 
 void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
 {
-    if (frameObj->idxChange)
+    int nCols = frameObj->nCols;
+    if (frameObj->cellChange)
     {
-        //process frame changes
+
+        fprintf(out, "\n%s\"dataType\" : \"Multiple\",", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"dataType\" : \"Multiple\",");
+        fprintf(out, "\n%s\"frameMod\" : true,", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"frameMod\" : true,");
+        fprintf(out, "\n%s\"numMods\" : %d,", getStrFromIndent(INDENT_5), nCols);
+        fprintf(dispOut, "\"numMods\" : %d,", nCols);
+        fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5), nCols);
+        fprintf(dispOut, "\"mods\" : [", nCols);
+
+        for(int c = 0; c<nCols; c++){
+            ABD_VEC_OBJ * changedCol = frameObj->cols[c];
+            fprintf(out, "\n%s\"%d\" : [", getStrFromIndent(INDENT_6), frameObj->changedVecs[c]);
+            fprintf(dispOut, "\"%d\" : [", frameObj->changedVecs[c]);
+            for (int r = 0; r < changedCol->nCols; r++)
+            {
+                int idx = changedCol->idxs[r];
+                fprintf(out, "\n%s{\"index\" : %d, ", getStrFromIndent(INDENT_7), idx);
+                fprintf(dispOut, "{ \"index\" : %d,", idx);
+                switch (changedCol->type)
+                {
+                case REALSXP:
+                    fprintf(out, "\"newValue\" : %.2f", ((double *)changedCol->vector)[r]);
+                    fprintf(dispOut, "\"newValue\" : %.2f", ((double *)changedCol->vector)[r]);
+                    // ((double *)baseVecValues)[idx] = ((double *)vecObj->vector)[i];
+                    break;
+                case INTSXP:
+                    fprintf(out, "\"newValue\" : %d", ((int *)changedCol->vector)[r]);
+                    fprintf(dispOut, "\"newValue\" : %d", ((int *)changedCol->vector)[r]);
+                    // ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
+                    break;
+                case STRSXP:
+                    fprintf(out, "\"newValue\" : \"%s\"", ((char **)changedCol->vector)[r]);
+                    fprintf(dispOut, "\"newValue\" : \"%s\"", ((char **)changedCol->vector)[r]);
+                    // ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
+                    break;
+                default:
+                    break;
+                }
+                fprintf(out, "}");
+                fprintf(dispOut, "}");
+                if (r + 1 != changedCol->nCols)
+                {
+                    fprintf(out, ",");
+                    fprintf(dispOut, ",");
+                }
+            }
+            fprintf(out, "\n%s]", getStrFromIndent(INDENT_6));
+            fprintf(dispOut, "]");
+
+            if (c + 1 < nCols)
+            {
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
+
+        }
+        fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "]");
+
     }
     else
     {
-        int nCols = frameObj->nCols;
         fprintf(out, "\n%s\"dataType\" : \"Multiple\",", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"dataType\" : \"Multiple\",");
-        fprintf(out, "\n%s\"nCols\" : %d,", getStrFromIndent(INDENT_5), nCols);
-        fprintf(dispOut, "\"nCols\" : %d,", nCols);
         fprintf(out, "\n%s\"frameMod\" : false,", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"frameMod\" : false,");
+        fprintf(out, "\n%s\"nCols\" : %d,", getStrFromIndent(INDENT_5), nCols);
+        fprintf(dispOut, "\"nCols\" : %d,", nCols);
+
 
         fprintf(out, "\n%s\"cols\" : [", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"cols\" : [");
@@ -1319,6 +1379,13 @@ void saveDataFrameEvent(FILE *out, ABD_FRAME_EVENT *frameEvent, FILE *dispOut)
     fprintf(out, "\n%s]", getStrFromIndent(INDENT_3));
     fprintf(dispOut, "]");
 }
+
+void saveCellChangeEvent(FILE * out, ABD_CELL_CHANGE_EVENT * cellChangeEvent,FILE *  dispOut){
+  puts("store the cell change event here");
+
+
+}
+
 void saveEvents(FILE *out, FILE *dispOut)
 {
     if (eventsReg == ABD_EVENT_NOT_FOUND)
@@ -1440,6 +1507,11 @@ void saveEvents(FILE *out, FILE *dispOut)
             fprintf(dispOut, "\"data\" : {");
             saveDataFrameEvent(out, currEvent->data.data_frame_event, dispOut);
             break;
+        case CELL_EVENT:
+            fprintf(out, "\"cell_change_event\"");
+            fprintf(dispOut, "\"cell_change_event\"");
+            saveCellChangeEvent(out, currEvent->data.cell_change_event, dispOut);
+            break;
         case BREAK_EVENT:
             fprintf(out, "\"break_event\"");
             fprintf(dispOut, "\"break_event\"");
@@ -1456,7 +1528,7 @@ void saveEvents(FILE *out, FILE *dispOut)
         }
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_2));
         fprintf(dispOut, "}");
-    avoidCurlies:;
+        avoidCurlies:;
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_1));
         fprintf(dispOut, "}");
 

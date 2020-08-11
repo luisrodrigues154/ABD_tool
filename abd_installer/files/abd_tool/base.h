@@ -33,37 +33,30 @@
         # wipe all the ABD_OBJECT_MOD list for all the ABD_OBJECT's saved DLL
 */
 
-void storePossibleRet(SEXP value)
-{
+void storePossibleRet(SEXP value) {
     storeRetValues(value);
 }
-void setWatcherState(ABD_STATE state)
-{
+void setWatcherState(ABD_STATE state) {
     watcherState = state;
 }
-void setVerboseMode(ABD_STATE state)
-{
+void setVerboseMode(ABD_STATE state) {
     verbose = state;
 }
-void abd_set_launch(SEXP state)
-{
-    if (TYPEOF(CAR(state)) != REALSXP)
-    {
+void abd_set_launch(SEXP state) {
+    if (TYPEOF(CAR(state)) != REALSXP) {
         messagePrinter("Invalid arguments");
         return;
     }
 
     int option = (int)REAL(CAR(state))[0];
-    if (option != 0 && option != 1)
-    {
+    if (option != 0 && option != 1) {
         messagePrinter("Invalid arguments");
         return;
     }
     checkSettings();
     setLaunchOption(option);
 }
-void abd_start(SEXP rho)
-{
+void abd_start(SEXP rho) {
     R_jit_enabled = 0;
     checkSettings();
     initObjsRegs();
@@ -73,19 +66,17 @@ void abd_start(SEXP rho)
     setVerboseMode(ABD_ENABLE);
 }
 
-void messagePrinter(char *message)
-{
+void messagePrinter(char *message) {
     printf("\n\t[ABD_TOOL] %s\n", message);
 }
 
-void persistAndDisplay(Rboolean useSettings)
-{
+void persistAndDisplay(Rboolean useSettings) {
     checkSettings();
-    //checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
+    // checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
     if (useSettings)
         setWatcherState(ABD_DISABLE);
     persistInformation();
-    //open the browser with the displayer
+    // open the browser with the displayer
     int ret = 0;
     ABD_STATE displayNow = ABD_ENABLE;
     if (useSettings)
@@ -94,67 +85,62 @@ void persistAndDisplay(Rboolean useSettings)
         ret = system(getCommand());
 }
 
-void abd_stop()
-{
+void abd_stop() {
     if (isRunning())
         persistAndDisplay(TRUE);
 }
 
-void abd_path()
-{
+void abd_path() {
     checkSettings();
     messagePrinter(getFolderPath());
 }
-void abd_set_path(SEXP args)
-{
+void abd_set_path(SEXP args) {
     checkSettings();
     SEXP path = CAR(args);
     SEXP target = CAR(CDR(args));
-    if (TYPEOF(path) != STRSXP || TYPEOF(target) != REALSXP)
-    {
+    if (TYPEOF(path) != STRSXP || TYPEOF(target) != REALSXP) {
         messagePrinter("Invalid Arguments");
         return;
     }
     double target_file = REAL(target)[0];
     const char *path_ = CHAR(STRING_ELT(path, 0));
-    if (!checkPath(path_) || (target_file != 0 && target_file != 1 && target_file != 2))
-    {
+    if (!checkPath(path_) ||
+        (target_file != 0 && target_file != 1 && target_file != 2)) {
         messagePrinter("Invalid arguments (absolute path?)");
         return;
     }
 
-    if (strlen(path_) > 200)
-    {
+    if (strlen(path_) > 200) {
         messagePrinter("Path exceeds size limit [200]");
         return;
     }
     saveNewPath(path_, (int)target_file);
 }
-void abd_clear()
-{
+void abd_clear() {
     forceDefaults();
     messagePrinter("Default settings Loaded");
 }
-Rboolean abd_display()
-{
+Rboolean abd_display() {
     if (!isRunning())
         return FALSE;
     persistAndDisplay(FALSE);
     return TRUE;
 }
 
-void abd_help()
-{
+void abd_help() {
     checkSettings();
     printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
     printf("\t##################################################\n");
-    printf("\t1 -> Start the watcher: abd_start()\n");                                                          //done
-    printf("\t2 -> Stop the watcher: abd_stop()\n");                                                            //done
-    printf("\t3 -> Launch displayer on abd_stop: abd_stop(0/1) [0 - No, (D) 1 - Yes] \n");                      //done
-    printf("\t4 -> Set output file path: abd_path(\"new/path\", 0/1/2) [0 - objects, 1 - events, 2 - both]\n"); //done
-    printf("\t5 -> Display current output file path: abd_path()\n");                                            //done
+    printf("\t1 -> Start the watcher: abd_start()\n"); // done
+    printf("\t2 -> Stop the watcher: abd_stop()\n");   // done
+    printf("\t3 -> Launch displayer on abd_stop: abd_stop(0/1) [0 - No, (D) 1 - "
+        "Yes] \n"); // done
+    printf("\t4 -> Set output file path: abd_path(\"new/path\", 0/1/2) [0 - "
+        "objects, 1 - events, 2 - both]\n");                      // done
+    printf("\t5 -> Display current output file path: abd_path()\n"); // done
     printf("\t6 -> Set verbose mode: abd_verbose(0/1) [(D) 0 - No, 1 - Yes]\n");
-    printf("\t7 -> Launch displayer at current state (execution hangs until input): abd_display()\n"); //done
+    printf("\t7 -> Launch displayer at current state (execution hangs until "
+        "input): abd_display()\n"); // done
     printf("\t8 -> Load Default settings: abd_clear()\n");
     printf("\t##################################################\n");
     printf("\tNOTES:\n");
@@ -164,8 +150,7 @@ void abd_help()
     printf("\t##################################################\n\n\n");
 }
 
-void PrintDaCall(SEXP call, SEXP rho)
-{
+void PrintDaCall(SEXP call, SEXP rho) {
     int old_bl = R_BrowseLines,
         blines = asInteger(GetOption1(install("deparse.max.lines")));
     if (blines != NA_INTEGER && blines > 0)
@@ -178,16 +163,20 @@ void PrintDaCall(SEXP call, SEXP rho)
     R_BrowseLines = old_bl;
 }
 
-void finalizeVarIdxChange(SEXP result, SEXP rho)
-{
+void finalizeVarIdxChange(SEXP result, SEXP rho) {
 
     if (!isRunning())
         return;
 
+    //if not changes regged
+    if (getCurrIdxChanges() == ABD_OBJECT_NOT_FOUND && getCurrCellChange() == ABD_OBJECT_NOT_FOUND)
+        return;
     Rboolean isCellChange = FALSE;
     if (cmpToCurrEnv(rho) == ABD_NOT_EXIST)
-        /* the env does not match, this does not return right away because when assigning a cell to a dataframe
-        using df[x,y] the rho passed is not the same as the one created (which is strange). This tries to mitigate that problem. */
+        /* the env does not match, this does not return right away because when
+        assigning a cell to a dataframe
+        using df[x,y] the rho passed is not the same as the one created (which is
+        strange). This tries to mitigate that problem. */
         if (getCurrCellChange() != ABD_NOT_FOUND)
             isCellChange = TRUE;
         else if (getCurrIdxChanges() != ABD_NOT_FOUND)
@@ -195,43 +184,40 @@ void finalizeVarIdxChange(SEXP result, SEXP rho)
         else
             /* The env does not match, and has no pending idx/cell changes */
             return;
-    if (getCurrCellChange() != ABD_NOT_FOUND) isCellChange = TRUE;
-    else isCellChange = FALSE;
 
+    if (getCurrCellChange() != ABD_NOT_FOUND)
+        isCellChange = TRUE;
+    else
+        isCellChange = FALSE;
+    printf("is cell change? %s\n", isCellChange ? "YES": "NO");
     if (isCellChange)
         processVarCellChange(result);
     else
         processVarIdxChange(result);
-
 }
-void regVarIdxChange(SEXP call, SEXP rho)
-{
+void regVarIdxChange(SEXP call, SEXP rho) {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
     Rboolean isDataFrame = FALSE;
 
-    //printf("var index change... line %d\n", getCurrScriptLn());
-
+    // printf("var index change... line %d\n", getCurrScriptLn());
 
     SEXP obj_sexp = CAR(CDR(CAR(CDR(call))));
     ABD_OBJECT *obj_ptr = ABD_OBJECT_NOT_FOUND;
-
-    if (TYPEOF(obj_sexp) == LANGSXP)
-    {
+    if (TYPEOF(obj_sexp) == LANGSXP) {
         obj_sexp = CAR(CDR(obj_sexp));
         const char *obj_name = CHAR(PRINTNAME(obj_sexp));
         obj_ptr = findCmnObj(obj_name, rho);
     }
-    else
-    {
+    else {
         const char *obj_name = CHAR(PRINTNAME(obj_sexp));
         obj_ptr = findCmnObj(obj_name, rho);
     }
-
     if (obj_ptr == ABD_OBJECT_NOT_FOUND)
         return;
+
 
     if (obj_ptr->modList->valueType == ABD_FRAME)
         isDataFrame = TRUE;
@@ -241,31 +227,29 @@ void regVarIdxChange(SEXP call, SEXP rho)
     else
         preProcessVarIdxChange(call, obj_ptr, rho);
 
-    //now wait ...
+    // now wait ...
 }
 
-void regDataFrameCreation(SEXP call, SEXP rho)
-{
+void regDataFrameCreation(SEXP call, SEXP rho) {
     if (!(isRunning() && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
     frameCall = call;
     preProcessDataFrame(CDR(call));
 }
 
-void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
-{
+void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho) {
 
     if (!(isRunning() && isEnvironment(rho) && (cmpToCurrEnv(rho) == ABD_EXIST)))
         return;
 
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
 
-    if (inLoopByType(ABD_FOR) && call == R_NilValue && loopStack->loop.forLoop->iterator == ABD_OBJECT_NOT_FOUND)
+    if (inLoopByType(ABD_FOR) && call == R_NilValue &&
+        loopStack->loop.forLoop->iterator == ABD_OBJECT_NOT_FOUND)
         loopStack->loop.forLoop->iterator = objUsed;
 
-    if (TYPEOF(rhs) != CLOSXP)
-    {
-        //need to extract the rhs from the call
+    if (TYPEOF(rhs) != CLOSXP) {
+        // need to extract the rhs from the call
         ABD_ASSIGN_EVENT *currAssign = ABD_EVENT_NOT_FOUND;
         SEXP rhs2 = CAR(CDR(CDR(call)));
         createAsgnEvent(objUsed, rhs, rhs2, rho);
@@ -273,8 +257,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
     clearPendingVars();
 }
 
-void decrementBranchDepth(SEXP rho)
-{
+void decrementBranchDepth(SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) && onBranch()))
         return;
     decBranchDepth();
@@ -283,23 +266,23 @@ void decrementBranchDepth(SEXP rho)
 }
 
 /*
-    The function below will verify if R is trying to execute a closure defined by the user.
-    This verification is done because if the user did not declared an object with that symbol
-    name, then, the function being called should not be tracked.
+    The function below will verify if R is trying to execute a closure defined
+   by the user. This verification is done because if the user did not declared
+   an object with that symbol name, then, the function being called should not
+   be tracked.
 */
-ABD_SEARCH checkToReg(SEXP rho)
-{
+ABD_SEARCH checkToReg(SEXP rho) {
     if (!isRunning())
         return ABD_NOT_EXIST;
     return cmpToCurrEnv(rho);
 }
 
-void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
-{
+void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs,
+    SEXP receivedArgs) {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    //printf("func call... line %d\n", getCurrScriptLn());
+    // printf("func call... line %d\n", getCurrScriptLn());
     ABD_OBJECT *objFound = findFuncObj(CHAR(PRINTNAME(lhs)), rho);
 
     if (objFound == ABD_OBJECT_NOT_FOUND)
@@ -311,15 +294,13 @@ void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedA
     // if (inLoopEvent())
     //     addEventToForIteration(eventsRegTail);
 }
-Rboolean isFunCallRegged()
-{
+Rboolean isFunCallRegged() {
     if (!isRunning())
         return FALSE;
     return getFunCalledFlag();
 }
 
-void regVecCreation(SEXP call, SEXP vector, SEXP rho)
-{
+void regVecCreation(SEXP call, SEXP vector, SEXP rho) {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
@@ -330,20 +311,19 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
     if (waitingCellChange()) {
         storeVecForCellChange(vector);
         if (!waitingCellChange()) {
-            if (getCurrCellChange()->toRows == R_NilValue || getCurrCellChange()->toCols == R_NilValue) {
+            if (getCurrCellChange()->toRows == R_NilValue ||
+                getCurrCellChange()->toCols == R_NilValue) {
                 finalizeVarIdxChange(R_NilValue, getCurrentEnv());
             }
         }
         return;
     }
 
-    if (waitingFrameVecs)
-    {
+    if (waitingFrameVecs) {
         storeVecDataFrameEvent(vector);
         return;
     }
-    if (waitingForVecs)
-    {
+    if (waitingForVecs) {
         storeVecForEvent(vector);
 
         if (!waitingForVecs)
@@ -351,10 +331,8 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
         return;
     }
 
-    if (waitingIdxChange())
-    {
-        if (toDiscard())
-        {
+    if (waitingIdxChange()) {
+        if (toDiscard()) {
             decrementWaitingIdxChange();
             return;
         }
@@ -365,36 +343,33 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho)
     storeNewVecValues(vector, call);
 }
 
-void regIf(SEXP Stmt, Rboolean result, SEXP rho)
-{
+void regIf(SEXP Stmt, Rboolean result, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    //printf("if statement ... line %d\n", getCurrScriptLn());
+    // printf("if statement ... line %d\n", getCurrScriptLn());
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
 }
 
 /* FOR LOOP CALLABLES*/
-void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho)
-{
+void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
     clearPendingVars();
-    ABD_FOR_LOOP_EVENT *newForLoopEvent = createNewEvent(FOR_EVENT)->data.for_loop_event;
+    ABD_FOR_LOOP_EVENT *newForLoopEvent =
+        createNewEvent(FOR_EVENT)->data.for_loop_event;
     setForEventValues(call, newForLoopEvent, enumerator);
 }
-void regForLoopIteration(int iterId, SEXP rho)
-{
+void regForLoopIteration(int iterId, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_FOR)))
         return;
 
     createNewLoopIteration(iterId, ABD_FOR);
 }
 
-void regForLoopFinish(SEXP rho)
-{
+void regForLoopFinish(SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_FOR)))
         return;
 
@@ -404,26 +379,26 @@ void regForLoopFinish(SEXP rho)
 
 /* REPEAT LOOP CALLABLES*/
 
-void regRepeatLoopStart(SEXP call, SEXP rho)
-{
+void regRepeatLoopStart(SEXP call, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
-    ABD_REPEAT_LOOP_EVENT *newRepeatLoopEvent = createNewEvent(REPEAT_EVENT)->data.repeat_loop_event;
+    ABD_REPEAT_LOOP_EVENT *newRepeatLoopEvent =
+        createNewEvent(REPEAT_EVENT)->data.repeat_loop_event;
     pushNewLoop(ABD_REPEAT, newRepeatLoopEvent);
 }
 
-void regRepeatLoopIteration(int iterId, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_REPEAT)))
+void regRepeatLoopIteration(int iterId, SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(ABD_REPEAT)))
         return;
 
     createNewLoopIteration(iterId, ABD_REPEAT);
 }
 
-void regRepeatLoopFinish(SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_REPEAT)))
+void regRepeatLoopFinish(SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(ABD_REPEAT)))
         return;
 
     appendLastEventToLoop(ABD_REPEAT);
@@ -432,18 +407,18 @@ void regRepeatLoopFinish(SEXP rho)
 
 /* WHILE LOOP CALLABLES*/
 
-void regWhileLoopStart(SEXP args, SEXP rho)
-{
+void regWhileLoopStart(SEXP args, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
     R_PrintData pars;
-    ABD_WHILE_LOOP_EVENT *newWhileLoopEvent = createNewEvent(WHILE_EVENT)->data.while_loop_event;
+    ABD_WHILE_LOOP_EVENT *newWhileLoopEvent =
+        createNewEvent(WHILE_EVENT)->data.while_loop_event;
     pushNewLoop(ABD_WHILE, newWhileLoopEvent);
 }
 
-void regWhileLoopCondition(SEXP stmt, Rboolean result, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_WHILE)))
+void regWhileLoopCondition(SEXP stmt, Rboolean result, SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(ABD_WHILE)))
         return;
 
     createNewEvent(IF_EVENT);
@@ -455,18 +430,18 @@ void regWhileLoopCondition(SEXP stmt, Rboolean result, SEXP rho)
     clearPendingVars();
 }
 
-void regWhileLoopIteration(int iterId, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_WHILE)))
+void regWhileLoopIteration(int iterId, SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(ABD_WHILE)))
         return;
 
     createNewLoopIteration(iterId, ABD_WHILE);
     verifyBranchDepthIntegrity();
 }
 
-void regWhileLoopFinish(SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_WHILE)))
+void regWhileLoopFinish(SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(ABD_WHILE)))
         return;
 
     appendLastEventToLoop(ABD_WHILE);
@@ -474,9 +449,10 @@ void regWhileLoopFinish(SEXP rho)
 }
 
 /* LOOP misc*/
-void doLoopJump(ABD_LOOP_TAGS jumpType, ABD_LOOP_TAGS requestingLoopType, SEXP rho)
-{
-    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(requestingLoopType)))
+void doLoopJump(ABD_LOOP_TAGS jumpType, ABD_LOOP_TAGS requestingLoopType,
+    SEXP rho) {
+    if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST &&
+        inLoopByType(requestingLoopType)))
         return;
     if (jumpType == ABD_NEXT)
         createNewEvent(NEXT_EVENT);
@@ -484,34 +460,29 @@ void doLoopJump(ABD_LOOP_TAGS jumpType, ABD_LOOP_TAGS requestingLoopType, SEXP r
         createNewEvent(BREAK_EVENT);
 }
 
-void regArith(SEXP call, SEXP ans, SEXP rho)
-{
+void regArith(SEXP call, SEXP ans, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
 
     tmpStoreArith(call, ans);
 }
 
-void storeIsWaitingIf(int isWaiting, SEXP rho)
-{
+void storeIsWaitingIf(int isWaiting, SEXP rho) {
     if (isRunning() && cmpToCurrEnv(rho) == ABD_EXIST)
         setIsWaitingIf(isWaiting);
 }
 
-void regFunRet(SEXP lhs, SEXP rho, SEXP val)
-{
-    //printf("return... line %d\n", getCurrScriptLn());
+void regFunRet(SEXP lhs, SEXP rho, SEXP val) {
+    // printf("return... line %d\n", getCurrScriptLn());
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
     // if (inLoopEvent())
     //     addEventToForIteration(eventsRegTail);
 }
 
-ABD_STATE isRunning()
-{
+ABD_STATE isRunning() {
     return watcherState;
 }
-ABD_STATE isVerbose()
-{
+ABD_STATE isVerbose() {
     return verbose;
 }
