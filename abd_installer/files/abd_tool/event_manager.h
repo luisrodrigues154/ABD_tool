@@ -280,13 +280,10 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
     switch (getObjStructType(symbolValue))
     {
     case ABD_VECTOR:
-        puts("init");
         mod = initModAndPopulate(mod, ABD_ALIVE, ABD_VECTOR);
-        puts("process vector");
         mod->value.vec_value = processVector(symbolValue, idxChange);
         break;
     case ABD_MATRIX:
-
         mod = initModAndPopulate(mod, ABD_ALIVE, ABD_MATRIX);
         puts("deal with matrix here");
         printf("Row number %d\nCol number %d\n", nrows(symbolValue), Rf_ncols(symbolValue));
@@ -1551,6 +1548,7 @@ void preProcessDataFrameSrc(SEXP call)
                         cols = R_NilValue;
                 default:
                     cellChanges->srcCols = cols;
+                    cellChanges->srcNCols = 1;
                     break;
                 }
 
@@ -1915,8 +1913,10 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
     int c, r;
     cellChangeEvent->nRowsIdxs = cellChanges->srcNRows;
     cellChangeEvent->nColsIdxs = cellChanges->srcNCols;
+    printf("n cols %d\n", cellChangeEvent->nColsIdxs);
     cellChangeEvent->rowsIdxs = memAllocIntVector(cellChangeEvent->nRowsIdxs);
     cellChangeEvent->colsIdxs = memAllocIntVector(cellChangeEvent->nColsIdxs);
+    printf("colsIdxs null? %s\n", cellChangeEvent->colsIdxs == NULL ? "YES" : "NO");
     Rboolean doSeqCols = FALSE;
     Rboolean doSeqRows = FALSE;
 
@@ -1927,19 +1927,10 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
 
     for (c = 0; c<cellChanges->srcNCols; c++) {
         if (!doSeqCols)
-        {
-            switch (TYPEOF(cellChanges->srcCols))
-            {
-            case REALSXP:
-                cellChangeEvent->colsIdxs[c] = (int)REAL(cellChanges->srcCols)[c];
-                break;
-            case INTSXP:
-                cellChangeEvent->colsIdxs[c] = INTEGER(cellChanges->srcCols)[c];
-                break;
-            }
-        }
+            cellChangeEvent->colsIdxs[c] = getIdxForSEXP(cellChanges->srcObj, cellChanges->srcCols, c);
         else
             cellChangeEvent->colsIdxs[c] = c;
+
 
         for (r=0; r<cellChanges->srcNRows; r++) {
             if (!doSeqRows)
@@ -2045,6 +2036,7 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
             const char * srcName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
             if ((currCellEvent->fromObj = findCmnObj(srcName, getCurrentEnv())) == ABD_OBJECT_NOT_FOUND)
                 currCellEvent->fromObj = createUnscopedObj(srcName, -2, -2, cellChanges->srcValues, 0);
+            cellChanges->srcObj = currCellEvent->fromObj;
             currCellEvent = setCellsForSrc(currCellEvent);
         }
         else

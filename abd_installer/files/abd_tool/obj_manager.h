@@ -374,43 +374,60 @@ int *getObjFrameDim(ABD_OBJECT *obj) {
 
 
 
-int getIdxForSEXP(ABD_OBJECT_MOD * objValues, SEXP value, int idx) {
+int getIdxForSEXP(ABD_OBJECT * obj, SEXP value, int idx) {
+    puts("get IDX");
+    ABD_OBJECT_MOD * objValues = obj->modList;
     int retIdx;
     const char *colName;
+    Rboolean seenRoll = FALSE;
+    rollBack:;
     Rboolean nameSet = FALSE;
     int counter = 0;
+    printf("type %d\n", TYPEOF(value));
     switch (TYPEOF(value)) {
     case SYMSXP:
-
         colName = CHAR(PRINTNAME(value));
         nameSet = TRUE;
+    case STRSXP:
     case CHARSXP:
         if (!nameSet)
             colName = CHAR(asChar(value));
-        objValues = objValues->prevMod;
-        while (objValues->value.frame_value->cellChange)
+        if(obj->id > 0){
+          if(objValues->value.frame_value->cellChange){
             objValues = objValues->prevMod;
+            while (objValues->value.frame_value->cellChange)
+                objValues = objValues->prevMod;
+          }
+          for (counter = 0; counter < objValues->value.frame_value->nCols; counter++) {
+              if (strcmp(colName, objValues->value.frame_value->colNames[counter]) == 0)
+                  break;
+          }
 
-        for (counter = 0; counter < objValues->value.frame_value->nCols; counter++) {
-            if (strcmp(colName, objValues->value.frame_value->colNames[counter]) == 0)
-                break;
+        }else{
+          int nameSize = strlen(obj->name) + strlen(colName) + 23; //+2 for the $ and null
+          char *requestValue = memAllocForString(nameSize);
+          memset(requestValue, 0, nameSize);
+          sprintf(requestValue, "which(colnames(%s)==\"%s\")", obj->name, colName);
+          value = getResult(requestValue);
+          free(requestValue);
+          seenRoll = TRUE;
+          goto rollBack;
         }
-
         retIdx = counter;
         break;
     case REALSXP:
-        retIdx = (int)REAL(value)[idx];
+        retIdx = seenRoll ?  ((int)REAL(value)[idx])-1 : (int)REAL(value)[idx];
         nameSet = TRUE;
     case INTSXP:
         if (!nameSet)
-            retIdx = INTEGER(value)[idx];
+            retIdx = seenRoll ? (INTEGER(value)[idx])-1 : INTEGER(value)[idx];
         break;
     }
     return retIdx;
 }
 
 ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
-
+    puts("inside multi");
     SEXP currEnv = getCurrentEnv();
     CELL_CHANGE *cellChanges = getCurrCellChange();
 
@@ -456,16 +473,18 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
                 }
                 goto jumpHere;
             }
-            if (destTotalSize % srcTotalSize == 0 || srcTotalSize > destTotalSize)
-                goto jumpHere;
-            else
-                return ABD_OBJECT_NOT_FOUND;
+            if(cellChanges->nRows == dims[0]){
+              if (destTotalSize % srcTotalSize == 0 || srcTotalSize > destTotalSize)
+                  goto jumpHere;
+              else
+                  return ABD_OBJECT_NOT_FOUND;
+            }
         }
     }
     jumpHere:;
 
     int r, c;
-    int vecPos = 0;
+    cellChanges->vecPos = 0;
     ABD_OBJECT_MOD * mule = memAllocMod();
     ABD_FRAME_OBJ *frame = memAllocFrameObj();
     frame->cellChange = 1;
@@ -475,25 +494,30 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
     frame->cols = memAllocMultiVecObj(frame->nCols);
     initIdxChangeAuxVars();
     IDX_CHANGE * idxChanges = getCurrIdxChanges();
+    int srcPicker = 0;
+    int srcLen = Rf_length(cellChanges->srcValues);
+    printf("src len %d\n", srcLen);
     for (c = 0; c<cellChanges->nCols; c++) {
         int colIdx;
         if (cellChanges->toCols == R_NilValue)
             colIdx = c;
-        else {
-            colIdx = getIdxForSEXP(cellChanges->targetObj->modList, cellChanges->toCols, c);
-        }
+        else
+            colIdx = getIdxForSEXP(cellChanges->targetObj, cellChanges->toCols, c);
+
         SEXP srcCurrValues = R_NilValue;
         if (isFrame(cellChanges->srcValues)) {
-            srcCurrValues = VECTOR_ELT(cellChanges->srcValues, c);
-            vecPos = 0;
+            if(c >= srcLen)
+              srcPicker = 0;
+            srcCurrValues = VECTOR_ELT(cellChanges->srcValues, srcPicker++);
+            cellChanges->vecPos = 0;
         }
-        else {
+        else
             srcCurrValues = cellChanges->srcValues;
-        }
+
         idxChanges->srcValues = srcCurrValues;
         idxChanges->destIdxs = cellChanges->toRows;
         idxChanges->nIdxChanges = cellChanges->nRows;
-        mule = processByType(cellChanges->srcValues, mule, 1);
+        mule = processByType(srcCurrValues, mule, 1);
         frame->cols[c] = mule->value.vec_value;
         frame->changedVecs[c] = colIdx;
     }
@@ -647,6 +671,11 @@ ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
             sequential = TRUE;
         }
     }
+    puts("new values");
+    PrintIt2(rhs, getCurrentEnv());
+
+    puts("dest idxs");
+    PrintIt2(idxChanges->destIdxs, getCurrentEnv());
     for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
       if (inCellChange) {
           if (cellChanges->vecPos+1 > Rf_length(rhs))
@@ -876,7 +905,7 @@ void processVarCellChange(SEXP result) {
     CELL_CHANGE *cellChanges = getCurrCellChange();
 
     SEXP rhs = cellChanges->srcValues;
-    
+
     if (rhs == R_NilValue && rhs != result && result != R_NilValue)
         rhs = cellChanges->srcValues = result;
     else if (result == R_NilValue && rhs != R_NilValue)
@@ -885,6 +914,7 @@ void processVarCellChange(SEXP result) {
     ABD_OBJECT *obj = cellChanges->targetObj;
 
     if (obj != ABD_OBJECT_NOT_FOUND) {
+        puts("1");
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
         newMod = addEmptyModToObj(obj, ABD_FRAME);
         newMod = initModAndPopulate(newMod, ABD_ALIVE, ABD_FRAME);
