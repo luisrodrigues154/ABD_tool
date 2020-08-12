@@ -35,7 +35,7 @@ run <- function(){
     print(df2$c2[6:1])
     #df[1:3,1:2] <- 1:6 #srcNRows and Ncols == destNrows and Ncols
     #df[1:2,1:2] <- 8:1 #all src and src > size dest, copy to dest cells (JUST WARNING)
-    df[1:3,1:3] <- df2["c2"] #just col...  srcValues > dest needed cells, copy until end to needed cells sequentially (THROW ERROR)
+    df[1:3,1:2] <- df2["c2"] #just col...  srcValues > dest needed cells, copy until end to needed cells sequentially (THROW ERROR)
 
     #df[1:3,1:2] <- df2[2:1]
     #df[1:3,1:2] <- df2[,]

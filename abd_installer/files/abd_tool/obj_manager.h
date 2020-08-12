@@ -393,10 +393,15 @@ int getIdxForSEXP(ABD_OBJECT * obj, SEXP value, int idx) {
         if (!nameSet)
             colName = CHAR(asChar(value));
         if(obj->id > 0){
+          objValues = objValues->prevMod;
+          puts("1");
           if(objValues->value.frame_value->cellChange){
-            objValues = objValues->prevMod;
+            puts("2");
+
+            puts("3");
             while (objValues->value.frame_value->cellChange)
                 objValues = objValues->prevMod;
+            puts("4");
           }
           for (counter = 0; counter < objValues->value.frame_value->nCols; counter++) {
               if (strcmp(colName, objValues->value.frame_value->colNames[counter]) == 0)
