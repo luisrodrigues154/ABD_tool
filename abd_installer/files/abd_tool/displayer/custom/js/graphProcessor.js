@@ -259,8 +259,8 @@ function getEventTypeHtml(event, nextEventId) {
 	let line = event['line'];
 	let codeLine = code[line - 1];
 	let htmlProduced = '';
-	if(codeLine.indexOf("#") != -1){
-		codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+	if (codeLine.indexOf('#') != -1) {
+		codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 	}
 	switch (event['type']) {
 		case types.FUNC:
@@ -375,7 +375,7 @@ function getEventTypeHtml(event, nextEventId) {
 				}
 			}
 			break;
-		case types.CELL:{
+		case types.CELL: {
 			let originIdx = event['data']['origin'];
 			let toId = event['data']['toId'];
 			let toState = event['data']['toState'];
@@ -652,11 +652,9 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '<div class="col text-right">New value size:';
 	htmlProduced += '</div>';
 
-	if(typeof objCurrentValues[2] == "number"){
-		htmlProduced += '<div class="col text-left">{}'.format(
-			'{}'.format(objCurrentValues[2])
-		);
-	}else{
+	if (typeof objCurrentValues[2] == 'number') {
+		htmlProduced += '<div class="col text-left">{}'.format('{}'.format(objCurrentValues[2]));
+	} else {
 		htmlProduced += '<div class="col text-left">{}'.format(
 			'{}by{}'.format(objCurrentValues[2][0], objCurrentValues[2][1])
 		);
@@ -1491,8 +1489,8 @@ function processIteration(forId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
-		if(codeLine.indexOf("#") != -1){
-			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		if (codeLine.indexOf('#') != -1) {
+			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
 		switch (event['type']) {
 			case types.BREAK:
@@ -1630,30 +1628,38 @@ function processIteration(forId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-			case types.CELL:{
-					let originIdx = event['data']['origin'];
-					let toId = event['data']['toId'];
-					let toState = event['data']['toState'];
-					let objIdx = getCommonObjById(toId);
-					if (originIdx == 'obj') {
-						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			case types.CELL: {
+				let originIdx = event['data']['origin'];
+				let toId = event['data']['toId'];
+				let toState = event['data']['toState'];
+				let objIdx = getCommonObjById(toId);
+				if (originIdx == 'obj') {
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1),
+						codeLine.trim(),
+						event['branchDepth']
+					);
+				} else {
+					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine.trim(),
+							0
+						);
 					} else {
-						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
-							// the vector creation do not have anything special worth a separated label
-							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
-						} else {
-							//other event types
-							htmlProduced += genLabelHtml(
-								'eId-{}'.format(nextEventId - 1, toId, toState),
-								codeLine
-									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
-									.trim(),
-								0
-							);
-						}
+						//other event types
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine
+								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+								.trim(),
+							0
+						);
 					}
-					break;
 				}
+				break;
+			}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -1735,8 +1741,8 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
-		if(codeLine.indexOf("#") != -1){
-			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		if (codeLine.indexOf('#') != -1) {
+			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
 		switch (event['type']) {
 			case types.BREAK:
@@ -1874,30 +1880,38 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-			case types.CELL:{
-					let originIdx = event['data']['origin'];
-					let toId = event['data']['toId'];
-					let toState = event['data']['toState'];
-					let objIdx = getCommonObjById(toId);
-					if (originIdx == 'obj') {
-						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			case types.CELL: {
+				let originIdx = event['data']['origin'];
+				let toId = event['data']['toId'];
+				let toState = event['data']['toState'];
+				let objIdx = getCommonObjById(toId);
+				if (originIdx == 'obj') {
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1),
+						codeLine.trim(),
+						event['branchDepth']
+					);
+				} else {
+					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine.trim(),
+							0
+						);
 					} else {
-						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
-							// the vector creation do not have anything special worth a separated label
-							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
-						} else {
-							//other event types
-							htmlProduced += genLabelHtml(
-								'eId-{}'.format(nextEventId - 1, toId, toState),
-								codeLine
-									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
-									.trim(),
-								0
-							);
-						}
+						//other event types
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine
+								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+								.trim(),
+							0
+						);
 					}
-					break;
 				}
+				break;
+			}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -1999,8 +2013,8 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
-		if(codeLine.indexOf("#") != -1){
-			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		if (codeLine.indexOf('#') != -1) {
+			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
 		switch (event['type']) {
 			case types.BREAK:
@@ -2138,30 +2152,38 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-				case types.CELL:{
-					let originIdx = event['data']['origin'];
-					let toId = event['data']['toId'];
-					let toState = event['data']['toState'];
-					let objIdx = getCommonObjById(toId);
-					if (originIdx == 'obj') {
-						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			case types.CELL: {
+				let originIdx = event['data']['origin'];
+				let toId = event['data']['toId'];
+				let toState = event['data']['toState'];
+				let objIdx = getCommonObjById(toId);
+				if (originIdx == 'obj') {
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1),
+						codeLine.trim(),
+						event['branchDepth']
+					);
+				} else {
+					if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+						// the vector creation do not have anything special worth a separated label
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine.trim(),
+							0
+						);
 					} else {
-						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
-							// the vector creation do not have anything special worth a separated label
-							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
-						} else {
-							//other event types
-							htmlProduced += genLabelHtml(
-								'eId-{}'.format(nextEventId - 1, toId, toState),
-								codeLine
-									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
-									.trim(),
-								0
-							);
-						}
+						//other event types
+						htmlProduced += genLabelHtml(
+							'eId-{}'.format(nextEventId - 1, toId, toState),
+							codeLine
+								.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+								.trim(),
+							0
+						);
 					}
-					break;
 				}
+				break;
+			}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -2232,7 +2254,8 @@ function mkIdxChangeModalInfo(event, eventId) {
 	let repeater = 0;
 	let sourceName = '';
 	let foundEvent = 0;
-
+	let numMods = targetObj['modList'][targetState]['numMods'];
+	let pos = 0;
 	htmlProduced += '<div class="container-fluid">';
 
 	htmlProduced += '<div class="row mt-2">';
@@ -2295,7 +2318,8 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col text-left">Final values:';
 	htmlProduced += '</div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}'.format(mkTooltip(targetCurrValue));
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(structToStr(targetCurrValue));
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -2306,50 +2330,53 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '<div class="col-9 text-left dialog-title">Changes breakdown';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
-
 	//display window
-	htmlProduced += '<div class="row mt-3">';
-	htmlProduced += '<div class="col text-left dialog-text">Display <input id="idx_n_changes-{}" type="text" style="width:50px;" value="{}"/> changes'.format(
-		1,
-		1
-	);
+	let big = false;
+	if (numMods > 10) {
+		big = true;
+		pos = valuesToBigData.length;
+		numMods = 10;
+		htmlProduced += '<div class="row mt-3">';
+		htmlProduced += '<div class="col text-left dialog-text">Display <input id="idx_n_changes-{}" type="text" style="width:50px;" value="{}"/> changes'.format(
+			pos,
+			numMods
+		);
 
-	htmlProduced += '<i class="fa fa-refresh" id="bd-{}" style="font-size:22px;margin-left:10px;color:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim(this.id)"></i>'.format(
-		1
-	);
-	htmlProduced += '</div>';
-	htmlProduced += '</div>';
+		htmlProduced += '<i class="fa fa-refresh" id="bd-{}" style="font-size:22px;margin-left:10px;color:var(--title-color);cursor: pointer;" onclick="idxChangeDisplayNChanges(this.id)"></i>'.format(
+			pos
+		);
+		htmlProduced += '</div>';
+		htmlProduced += '</div>';
 
+		//page selector
+		htmlProduced += '<div class="row mt-3 dialog-text">';
+		htmlProduced += '<div class="col text-center">Prev. page';
 
-	//page selector
-	htmlProduced += '<div class="row mt-3 dialog-text">';
-	htmlProduced += '<div class="col text-center">Prev. page';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col text-center">From change';
 
-	htmlProduced += '</div>';
-	htmlProduced += '<div class="col text-center">From change';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col text-center">Next page';
+		htmlProduced += '</div>';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="row mt-1 dialog-text">';
+		htmlProduced += '<div class="col text-center">';
+		htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='idx-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='idxChangePrevPage(this.id)'></i>".format(
+			pos
+		);
 
-	htmlProduced += '</div>';
-	htmlProduced += '<div class="col text-center">Next page';
-	htmlProduced += '</div>';
-	htmlProduced += '</div>';
-	htmlProduced += '<div class="row mt-1 dialog-text">';
-	htmlProduced += '<div class="col text-center">';
-	htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='idx-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim(this.id)'></i>".format(
-		1
-	);
+		htmlProduced += '</div>';
 
-	htmlProduced += '</div>';
+		htmlProduced += '<div class="col text-center">';
+		htmlProduced += '<input id="start_index_change-{}" type="text" style="width:50px;" value="1"/>'.format(1);
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col text-center">';
+		htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='idxChangeNextPage(this.id)'></i>".format(
+			pos
+		);
 
-	htmlProduced += '<div class="col text-center">';
-	htmlProduced += '<input id="start_idx_change-{}" type="text" style="width:50px;" value="1"/>'.format(1);
-	htmlProduced += '</div>';
-	htmlProduced += '<div class="col text-center">';
-	htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim(this.id)'></i>".format(
-		1
-	);
-
-	htmlProduced += '</div>';
-
+		htmlProduced += '</div>';
+	}
 	//second section table start
 	htmlProduced += '<table class="table table-sm mt-2">';
 	htmlProduced += '<thead>';
@@ -2360,10 +2387,176 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '<th class ="text-center" scope="col">Value</th>';
 	htmlProduced += '</tr>';
 	htmlProduced += '</thead>';
-	htmlProduced += '<tbody class="text-center">';
-	let j, i;
+	htmlProduced += '<tbody class="text-center" id="frame_body">';
+	if (big) {
+		let toPush = {
+			targetName: null,
+			targetObj: null,
+			targetState: null,
+			repeater: null,
+			sourceName: null,
+			event: null,
+			numMods: null
+		};
+		toPush.numMods = targetObj['modList'][targetState]['numMods'];
+		toPush.sourceName = sourceName;
+		toPush.targetName = targetName;
+		toPush.targetObj = targetObj;
+		toPush.targetState = targetState;
+		toPush.repeater = repeater;
+		toPush.event = event;
+		valuesToBigData.push(toPush);
+		htmlProduced += updateIdxChangeContent(pos, 0, numMods, true);
+	} else {
+		let j, i;
+		for (j = 0, i = 0; j < numMods; j++, i++) {
+			let currMod = targetObj['modList'][targetState]['mods'][j];
+			if (i == repeater) i = 0;
+			htmlProduced += '<tr>';
+			htmlProduced += '<td>{}[{}]</td>'.format(targetName, currMod['index'] + 1);
+			htmlProduced += '<td>';
+			if (event['data']['origin'] == 'obj') {
+				switch (event['data']['fromObj']) {
+					case 'HC':
+						htmlProduced += 'U-T';
+						//hardcoded value
+						break;
+					case 'R':
+						//r object
+						htmlProduced += '{}[{}]'.format(event['data']['name'], i + 1);
+						break;
+					default:
+						htmlProduced += '{}[{}]'.format(sourceName, i + 1);
+						//abd object
+						break;
+				}
+			} else {
+				let sourceEvent = events[event['data']['fromEvent']];
 
-	for (j = 0, i = 0; j < targetObj['modList'][targetState]['numMods']; j++, i++) {
+				switch (sourceEvent['type']) {
+					case types.RET:
+						htmlProduced += '{}() return'.format(getCodeFlowObjNameById(sourceEvent['atFunc']));
+
+						break;
+					case types.ARITH:
+						htmlProduced += sourceEvent['data']['exprStr'];
+						break;
+				}
+			}
+			htmlProduced += '</td>';
+			htmlProduced += '<td>{}</td>'.format(currMod['newValue']);
+
+			htmlProduced += '</tr>';
+		}
+	}
+
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function idxChangeDisplayNChanges(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = parseInt($('*[id^=idx_n_changes]').val());
+	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
+	if (val < 0 || val >= valuesToBigData[pos].numMods) {
+		if (valuesToBigData[pos].numMods > 10) val = 10;
+		else val = valuesToBigData[pos].numMods;
+		$('*[id^=idx_n_changes]').val(val);
+	}
+
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos].numMods) {
+		$('*[id^=start_index_change]').val(1);
+		startIdx = 0;
+	}
+
+	if (val > 0) updateIdxChangeContent(pos, startIdx, val, false);
+}
+function idxChangeDisplayChangesFrom(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = parseInt($('*[id^=idx_n_changes]').val());
+	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos].numMods) {
+		$('*[id^=start_index_change]').val(1);
+		startIdx = 0;
+	}
+	if (val > 0) updateIdxChangeContent(pos, startIdx, val, false);
+}
+function idxChangeNextPage(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = parseInt($('*[id^=idx_n_changes]').val());
+	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
+
+	if (startIdx < 0 || startIdx >= valuesToBigData[pos].numMods) {
+		$('*[id^=start_index_change]').val(1);
+		startIdx = 0;
+	}
+	let maxCols = valuesToBigData[pos].numMods;
+	let need = startIdx + val;
+	if (need >= maxCols) return;
+	$('*[id^=start_index_change]').val(need + 1);
+	if (val > 0) updateIdxChangeContent(pos, need, val, false);
+}
+function idxChangePrevPage(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = parseInt($('*[id^=idx_n_changes]').val());
+	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
+	if (startIdx < 0) {
+		$('*[id^=start_index_change]').val(1);
+		startIdx = 0;
+	}
+	let need = startIdx - val;
+
+	if (need < 0) need = 0;
+	$('*[id^=start_index_change]').val(need + 1);
+	if (val > 0) updateIdxChangeContent(pos, need, val, false);
+}
+
+function updateIdxChangeContent(pos, startingChange, numChanges, toReturn) {
+	let j, i;
+	let htmlProduced = '';
+	let numMods = valuesToBigData[pos].numMods;
+	let repeater = valuesToBigData[pos].repeater;
+	let targetObj = valuesToBigData[pos].targetObj;
+	let targetState = valuesToBigData[pos].targetState;
+	let targetName = valuesToBigData[pos].targetName;
+	let sourceName = valuesToBigData[pos].sourceName;
+	let event = valuesToBigData[pos].event;
+
+	let repeatStart = 0;
+	if (startingChange > 0) {
+		let remain = ((startingChange + 1) / repeater) % 1;
+		if (String(remain).indexOf('.') > -1) {
+			let aux = String(remain).split('.')[1];
+			aux = aux.substring(0, 2);
+			remain = parseInt(aux);
+		}
+
+		if (remain == 0) repeatStart = 0;
+		else if (remain == 5 || remain == 50) {
+			repeatStart = repeater / 2;
+		} else {
+			let portion = 100 / repeater;
+			repeatStart = Math.abs(remain / portion);
+		}
+
+		repeatStart = Math.ceil(repeatStart);
+		repeatStart = repeatStart == 0 ? repeater - 1 : repeatStart - 1;
+	}
+
+	if (numChanges > numMods) {
+		numChanges = numMods;
+	}
+
+	if (startingChange + numChanges > numMods) {
+		numChanges = numMods;
+	} else {
+		numChanges += startingChange;
+	}
+
+	for (j = startingChange, i = repeatStart; j < numChanges; j++, i++) {
 		let currMod = targetObj['modList'][targetState]['mods'][j];
 		if (i == repeater) i = 0;
 		htmlProduced += '<tr>';
@@ -2403,11 +2596,8 @@ function mkIdxChangeModalInfo(event, eventId) {
 		htmlProduced += '</tr>';
 	}
 
-	htmlProduced += '</tbody>';
-	htmlProduced += '</table>';
-
-	htmlProduced += '</div>';
-	return htmlProduced;
+	if (toReturn) return htmlProduced;
+	else document.getElementById('frame_body').innerHTML = htmlProduced;
 }
 
 //ONE DIM
@@ -2506,7 +2696,6 @@ function requestFrameNColsTableUpdate_BigDataOneDim(pos) {
 }
 
 function requestStartIdxUpdate_BigDataOneDim(pos) {
-	console.log('pos {}'.format(pos));
 	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=big_n_cols_OD]').val());
 	let startIdx = parseInt($('*[id^=start_index_big_OD]').val()) - 1;
@@ -2590,7 +2779,6 @@ function updateBigDataValuesTable_OneDim(pos, startingIdx, nCols, toReturn) {
 //MULTI DIM
 function genForMultiDim(pos) {
 	let htmlProduced = '';
-	console.log('gen multi pos {}'.format(pos));
 
 	let maxRows = valuesToBigData[pos][2][0];
 	let maxCols = valuesToBigData[pos][2][1];
@@ -2737,8 +2925,7 @@ function updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, toRetu
 		htmlProduced += '<td><b>{}</b></td>'.format(i + 1);
 	}
 	htmlProduced += '</tr>';
-	console.log('before loop');
-	console.log(valuesToBigData);
+
 	for (r = sRow; r < nRows; r++) {
 		htmlProduced += '<tr>';
 		htmlProduced += '<td><b>{}</b></td>'.format(r + 1);
@@ -3274,9 +3461,6 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 				objVal[2] = maxLen;
 				objVal[3] = Array.from(vals);
 			}
-			console.log('bigDataIdx {}'.format(bigDataIdx));
-			console.log('objval');
-			console.log(objVal);
 		} else {
 			if (objId == -2) {
 				objName = mkTooltipOneLine([ 'Object: ', 'Non-Tracked' ], source['name']);
@@ -3359,7 +3543,7 @@ function produceModalContent(eventId) {
 		case types.CELL:
 			content.title = 'Cell change analysis';
 			// content.body = mkIdxChangeModalInfo(event, eventId);
-			content.body = "nothinToSHOW brah "
+			content.body = 'nothinToSHOW brah ';
 			break;
 		case types.RET:
 			content.title = 'Return analysis';
@@ -3391,9 +3575,6 @@ function goBackVisual() {
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	valuesToBigData = producedContent.bigDataValues;
-	console.log('restored... current values');
-
-	console.log(valuesToBigData);
 	visualStack.pop();
 }
 function getArrowBack() {
@@ -3411,9 +3592,6 @@ function processEventClick(eventId) {
 		currModalContent.title = document.getElementById('exec_flow_modal_title').innerHTML;
 		currModalContent.body = document.getElementById('exec_flow_modal_body').innerHTML;
 		currModalContent.bigDataValues = Array.from(valuesToBigData);
-		console.log('stored... values');
-
-		console.log(currModalContent.bigDataValues);
 		visualStack.push(currModalContent);
 		producedContent = produceModalContent(eventId);
 		producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
@@ -3475,6 +3653,20 @@ function processEventClick(eventId) {
 		if (event.keyCode == 13) {
 			let id = $('*[id^=big_n_cols_OD]').attr('id');
 			requestFrameNColsTableUpdate_BigDataOneDim(id);
+		}
+	});
+
+	$('*[id^=start_index_change]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			let id = $('*[id^=start_index_change]').attr('id');
+			idxChangeDisplayChangesFrom(id);
+		}
+	});
+
+	$('*[id^=idx_n_changes]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			let id = $('*[id^=idx_n_changes]').attr('id');
+			idxChangeDisplayNChanges(id);
 		}
 	});
 

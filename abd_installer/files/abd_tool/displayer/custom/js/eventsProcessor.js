@@ -19,7 +19,7 @@ const types = {
 	REPEAT: 'repeat_loop_event',
 	WHILE: 'while_loop_event',
 	DATAF: 'data_frame_event',
-	CELL : "cell_change_event"
+	CELL: 'cell_change_event'
 };
 var processMe = 0;
 
