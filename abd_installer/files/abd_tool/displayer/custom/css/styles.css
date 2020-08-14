@@ -86,6 +86,18 @@
 	font-weight: bold;
 }
 
+.note {
+	font-size: 12pt;
+	color: red;
+	font-weight: bold;
+}
+
+.note-body {
+	font-size: 11pt;
+	color: var(--title-color);
+	font-weight: normal;
+}
+
 .event-content {
 	font-size: 11pt;
 	color: white;

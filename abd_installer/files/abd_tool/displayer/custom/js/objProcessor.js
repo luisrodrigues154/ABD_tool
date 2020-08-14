@@ -270,12 +270,10 @@ function getObjCurrValue(id, state, index) {
 				currentValue.push(cmnObj[id]['modList'][state]['values']);
 			}
 		} else {
-			console.log('got here?!?!');
-			var numMods = cmnObj[id]['modList'][state]['numMods'];
-
-			currentValue.push(numMods);
 			//resolve and get vector
-			currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
+			let resolvedVec = resolveCurrValue(cmnObj[id]['modList'], state, index);
+			currentValue.push(resolvedVec.length);
+			currentValue.push(resolvedVec);
 		}
 	} else {
 		if (cmnObj[id]['modList'][state]['vecMod'] == false) {

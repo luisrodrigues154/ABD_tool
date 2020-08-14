@@ -2,7 +2,7 @@ options("keep.source"=TRUE)
 run <- function(){
     abd_start()
     vec2 <- 100:110
-    vec <- 20:1
+    vec <- 30:1
     # m <- matrix(1:10, nrow=2)
     vec[1:20] <- vec2[1:3]
     # print(m)

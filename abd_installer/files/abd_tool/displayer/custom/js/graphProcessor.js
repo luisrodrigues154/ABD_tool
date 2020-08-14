@@ -667,7 +667,8 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '<div class="col text-right">New value:';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-left">';
-
+	console.log('object current values');
+	console.log(objCurrentValues);
 	htmlProduced += structToStr(objCurrentValues);
 
 	htmlProduced += '</div>';
@@ -2257,7 +2258,8 @@ function mkIdxChangeModalInfo(event, eventId) {
 	let numMods = targetObj['modList'][targetState]['numMods'];
 	let pos = 0;
 	htmlProduced += '<div class="container-fluid">';
-
+	console.log('targetCurrValue');
+	console.log(targetCurrValue);
 	htmlProduced += '<div class="row mt-2">';
 	htmlProduced += '<div class="col text-left">Target Object:';
 	htmlProduced += '</div>';
@@ -2268,7 +2270,7 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col text-left">N. Changes:';
 	htmlProduced += '</div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}'.format(targetCurrValue[2]);
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(numMods);
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -2324,18 +2326,24 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 
 	if (displayNote) {
+		htmlProduced += '<div class="row mt-2">';
+		htmlProduced +=
+			'<div class="col text-left note">Note: <label class="note-body"> Source values repeated! (source values size < needed)</label>';
+		htmlProduced += '</div>';
+		htmlProduced += '</div>';
 	}
 
-	htmlProduced += '<div class="row mt-5">';
+	htmlProduced += '<div class="row mt-3">';
 	htmlProduced += '<div class="col-9 text-left dialog-title">Changes breakdown';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	//display window
 	let big = false;
-	if (numMods > 10) {
+	if (numMods > 8) {
 		big = true;
-		pos = valuesToBigData.length;
-		numMods = 10;
+		pos = ++bigDataIdx;
+
+		numMods = 8;
 		htmlProduced += '<div class="row mt-3">';
 		htmlProduced += '<div class="col text-left dialog-text">Display <input id="idx_n_changes-{}" type="text" style="width:50px;" value="{}"/> changes'.format(
 			pos,
@@ -2462,7 +2470,7 @@ function idxChangeDisplayNChanges(pos) {
 	let val = parseInt($('*[id^=idx_n_changes]').val());
 	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
 	if (val < 0 || val >= valuesToBigData[pos].numMods) {
-		if (valuesToBigData[pos].numMods > 10) val = 10;
+		if (valuesToBigData[pos].numMods > 8) val = 8;
 		else val = valuesToBigData[pos].numMods;
 		$('*[id^=idx_n_changes]').val(val);
 	}
@@ -2741,6 +2749,7 @@ function updateBigDataValuesTable_OneDim(pos, startingIdx, nCols, toReturn) {
 	let idxCol = '';
 	let valCol = '';
 	let i;
+	console.log(valuesToBigData);
 	if (isNaN(startingIdx)) {
 		startingIdx = 0;
 		$('*[id^=start_index_big_OD]').val(1);
@@ -2800,7 +2809,7 @@ function genForMultiDim(pos) {
 
 	htmlProduced += '<div class="row">';
 	htmlProduced +=
-		'<div class="col text-left mt-2" style="color:red; font-size:11pt;">Note: To use inputs, use <b style="color:black;">row,col</b> notation';
+		'<div class="col text-left mt-2 note">Note: <label class="note-body">To use inputs, use <u>row,col</u> notation</label>';
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="row mt-5">';
