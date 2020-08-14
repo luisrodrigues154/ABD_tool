@@ -1665,8 +1665,8 @@ void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho)
     setWatcherState(ABD_DISABLE);
     initCellChangeAuxVars();
     cellChange = getCurrCellChange();
-
     cellChange->targetObj = targetObj;
+    cellChange->scriptLn = getCurrScriptLn();
     preProcessDataFrameDest(call);
 
     /* Src can be a data frame too!!!! */
@@ -1913,10 +1913,9 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
     int c, r;
     cellChangeEvent->nRowsIdxs = cellChanges->srcNRows;
     cellChangeEvent->nColsIdxs = cellChanges->srcNCols;
-    printf("n cols %d\n", cellChangeEvent->nColsIdxs);
     cellChangeEvent->rowsIdxs = memAllocIntVector(cellChangeEvent->nRowsIdxs);
     cellChangeEvent->colsIdxs = memAllocIntVector(cellChangeEvent->nColsIdxs);
-    printf("colsIdxs null? %s\n", cellChangeEvent->colsIdxs == NULL ? "YES" : "NO");
+    cellChangeEvent->srcDims = getObjDim(cellChanges->srcObj);
     Rboolean doSeqCols = FALSE;
     Rboolean doSeqRows = FALSE;
 
@@ -2013,6 +2012,7 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
 
     /* get the tail from the events registry, to reduce code verbose */
     ABD_CELL_CHANGE_EVENT *currCellEvent = eventsRegTail->data.cell_change_event;
+    eventsRegTail->scriptLn = cellChanges->scriptLn;
 
     currCellEvent->toObj = objUsed;
     currCellEvent->toState = objUsed->modList;

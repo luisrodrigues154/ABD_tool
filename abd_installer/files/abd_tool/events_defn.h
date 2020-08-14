@@ -226,6 +226,7 @@ typedef struct cell_change_event
     ASSIGN_DATA_TYPE fromType;
     void *fromObj;
     ABD_OBJECT_MOD *fromState;
+    int *srcDims;
     int nRowsIdxs;
     int nColsIdxs;
     int *rowsIdxs;

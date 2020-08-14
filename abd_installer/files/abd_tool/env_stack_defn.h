@@ -43,6 +43,7 @@ typedef struct
     ABD_OBJECT *targetObj;
     ABD_VEC_OBJ **targetCol;
     ABD_OBJECT *srcObj;
+    int scriptLn;
     int nCellChanges;
 } CELL_CHANGE;
 

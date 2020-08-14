@@ -259,6 +259,9 @@ function getEventTypeHtml(event, nextEventId) {
 	let line = event['line'];
 	let codeLine = code[line - 1];
 	let htmlProduced = '';
+	if(codeLine.indexOf("#") != -1){
+		codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+	}
 	switch (event['type']) {
 		case types.FUNC:
 			let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
@@ -372,6 +375,30 @@ function getEventTypeHtml(event, nextEventId) {
 				}
 			}
 			break;
+		case types.CELL:{
+			let originIdx = event['data']['origin'];
+			let toId = event['data']['toId'];
+			let toState = event['data']['toState'];
+			let objIdx = getCommonObjById(toId);
+			if (originIdx == 'obj') {
+				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+			} else {
+				if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+					// the vector creation do not have anything special worth a separated label
+					htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
+				} else {
+					//other event types
+					htmlProduced += genLabelHtml(
+						'eId-{}'.format(nextEventId - 1, toId, toState),
+						codeLine
+							.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+							.trim(),
+						0
+					);
+				}
+			}
+			break;
+		}
 		case types.FOR: {
 			let envir = event['atEnv'];
 			if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -624,9 +651,17 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col text-right">New value size:';
 	htmlProduced += '</div>';
-	htmlProduced += '<div class="col text-left">{}'.format(
-		'{}by{}'.format(objCurrentValues[2][0], objCurrentValues[2][1])
-	);
+
+	if(typeof objCurrentValues[2] == "number"){
+		htmlProduced += '<div class="col text-left">{}'.format(
+			'{}'.format(objCurrentValues[2])
+		);
+	}else{
+		htmlProduced += '<div class="col text-left">{}'.format(
+			'{}by{}'.format(objCurrentValues[2][0], objCurrentValues[2][1])
+		);
+	}
+
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 	//first section obj value
@@ -1456,6 +1491,9 @@ function processIteration(forId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		if(codeLine.indexOf("#") != -1){
+			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		}
 		switch (event['type']) {
 			case types.BREAK:
 				addEventToAuxMap(actualEnv, event['line'], 'Break');
@@ -1592,6 +1630,30 @@ function processIteration(forId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
+			case types.CELL:{
+					let originIdx = event['data']['origin'];
+					let toId = event['data']['toId'];
+					let toState = event['data']['toState'];
+					let objIdx = getCommonObjById(toId);
+					if (originIdx == 'obj') {
+						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+					} else {
+						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+							// the vector creation do not have anything special worth a separated label
+							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
+						} else {
+							//other event types
+							htmlProduced += genLabelHtml(
+								'eId-{}'.format(nextEventId - 1, toId, toState),
+								codeLine
+									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+									.trim(),
+								0
+							);
+						}
+					}
+					break;
+				}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -1673,6 +1735,9 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		if(codeLine.indexOf("#") != -1){
+			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		}
 		switch (event['type']) {
 			case types.BREAK:
 				addEventToAuxMap(actualEnv, event['line'], 'Break');
@@ -1809,7 +1874,30 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
-
+			case types.CELL:{
+					let originIdx = event['data']['origin'];
+					let toId = event['data']['toId'];
+					let toState = event['data']['toState'];
+					let objIdx = getCommonObjById(toId);
+					if (originIdx == 'obj') {
+						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+					} else {
+						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+							// the vector creation do not have anything special worth a separated label
+							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
+						} else {
+							//other event types
+							htmlProduced += genLabelHtml(
+								'eId-{}'.format(nextEventId - 1, toId, toState),
+								codeLine
+									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+									.trim(),
+								0
+							);
+						}
+					}
+					break;
+				}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -1911,6 +1999,9 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 
 		let codeLine = code[event['line'] - 1];
 		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		if(codeLine.indexOf("#") != -1){
+			codeLine = codeLine.substring(0, codeLine.indexOf("#"));
+		}
 		switch (event['type']) {
 			case types.BREAK:
 				addEventToAuxMap(actualEnv, event['line'], 'Break');
@@ -2047,6 +2138,30 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 				}
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
+				case types.CELL:{
+					let originIdx = event['data']['origin'];
+					let toId = event['data']['toId'];
+					let toState = event['data']['toState'];
+					let objIdx = getCommonObjById(toId);
+					if (originIdx == 'obj') {
+						htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
+					} else {
+						if (originIdx == 'event' && events[event['data']['fromEvent']]['type'] == types.VEC) {
+							// the vector creation do not have anything special worth a separated label
+							htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1, toId, toState), codeLine.trim(), 0);
+						} else {
+							//other event types
+							htmlProduced += genLabelHtml(
+								'eId-{}'.format(nextEventId - 1, toId, toState),
+								codeLine
+									.substring(codeLine.indexOf(objIdx), codeLine.indexOf('<-', codeLine.indexOf(objIdx)))
+									.trim(),
+								0
+							);
+						}
+					}
+					break;
+				}
 			case types.FOR: {
 				let envir = event['atEnv'];
 				if (codeLine.includes('{')) codeLine = codeLine.substring(0, codeLine.indexOf('{'));
@@ -2192,6 +2307,49 @@ function mkIdxChangeModalInfo(event, eventId) {
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
+	//display window
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-left dialog-text">Display <input id="idx_n_changes-{}" type="text" style="width:50px;" value="{}"/> changes'.format(
+		1,
+		1
+	);
+
+	htmlProduced += '<i class="fa fa-refresh" id="bd-{}" style="font-size:22px;margin-left:10px;color:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_BigDataOneDim(this.id)"></i>'.format(
+		1
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+
+	//page selector
+	htmlProduced += '<div class="row mt-3 dialog-text">';
+	htmlProduced += '<div class="col text-center">Prev. page';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">From change';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next page';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-1 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='idx-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevPageChange_BigDataOneDim(this.id)'></i>".format(
+		1
+	);
+
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<input id="start_idx_change-{}" type="text" style="width:50px;" value="1"/>'.format(1);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextPageChange_BigDataOneDim(this.id)'></i>".format(
+		1
+	);
+
+	htmlProduced += '</div>';
+
 	//second section table start
 	htmlProduced += '<table class="table table-sm mt-2">';
 	htmlProduced += '<thead>';
@@ -2303,6 +2461,7 @@ function genForOneDim(pos) {
 	);
 
 	htmlProduced += '</div>';
+
 	htmlProduced += '<div class="col text-center">';
 	htmlProduced += '<input id="start_index_big_OD-{}" type="text" style="width:50px;" value="1"/>'.format(pos);
 	htmlProduced += '</div>';
@@ -3197,6 +3356,11 @@ function produceModalContent(eventId) {
 			content.title = 'Index change analysis';
 			content.body = mkIdxChangeModalInfo(event, eventId);
 			break;
+		case types.CELL:
+			content.title = 'Cell change analysis';
+			// content.body = mkIdxChangeModalInfo(event, eventId);
+			content.body = "nothinToSHOW brah "
+			break;
 		case types.RET:
 			content.title = 'Return analysis';
 			content.body = 'nothing to show';
@@ -3341,7 +3505,7 @@ function processEventClick(eventId) {
 
 
 
-	
+
 
 
 	d3 functions
