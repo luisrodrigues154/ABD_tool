@@ -667,8 +667,7 @@ function mkObjModalTopInfo(event) {
 	htmlProduced += '<div class="col text-right">New value:';
 	htmlProduced += '</div>';
 	htmlProduced += '<div class="col text-left">';
-	console.log('object current values');
-	console.log(objCurrentValues);
+
 	htmlProduced += structToStr(objCurrentValues);
 
 	htmlProduced += '</div>';
@@ -2244,6 +2243,619 @@ function mergeMaps(env, withEnv) {
 	}
 }
 
+//cell change modal
+function mkCellIdxChangeModalInfo(event, eventId) {
+	let htmlProduced = '';
+
+	let destId = event['data']['toObj'];
+	let destStateId = event['data']['toState'];
+	let destObj = getCommonObjById(destId);
+	let objMod = destObj['modList'][destStateId];
+
+	let nChangedRows = objMod['mods'][0].length - 1;
+	let seqRows = false;
+
+	let nChangedCols = objMod['mods'].length;
+	let seqCols = false;
+
+	if (nChangedRows == 0) {
+		seqRows = true;
+		nChangedRows = event['data']['iRows'];
+	}
+
+	if (nChangedCols == 0) {
+		seqCols = true;
+		nChangedCols = event['data']['iCols'];
+	}
+
+	let nRows = nChangedRows;
+	let nCols = nChangedCols;
+	let pos = 1;
+
+	if (nCols > 10) nCols = 10;
+	if (nRows > 10) nRows = 10;
+
+	htmlProduced += '<div class="container-fluid">';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Target object: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(destObj['name']);
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">N-Rows changed: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(nChangedRows);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">N-Columns changed: </div>';
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(nChangedCols);
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+
+	if (event['data']['origin'] == 'obj') {
+		htmlProduced += '<div class="col text-left">Source Object:';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col-md-auto text-left">';
+		if (event['data']['fromObj'] != 'HC') {
+			//repeater = event['data']['fromIdxs'].length;
+			// if (targetCurrValue[2] > repeater) {
+			// 	displayNote = true;
+			// }
+			if (event['data']['fromObj'] == 'ABD') {
+				foundEvent = findEventId(event['data']['fromId'], event['data']['fromState']);
+				sourceName = getCommonObjNameById(event['data']['fromId']);
+				htmlProduced += genLabelForAlreadyOpenModal(foundEvent, sourceName);
+			} else {
+				let firstElement = [ 'Obj', 'Not-tracked' ];
+				htmlProduced += '{}'.format(mkTooltipOneLine(firstElement, event['data']['name']));
+			}
+		} else {
+			htmlProduced += 'User-Typed';
+		}
+	} else {
+		htmlProduced += '<div class="col text-left">Source Event:';
+		htmlProduced += '</div>';
+		htmlProduced += '<div class="col-md-auto text-left">';
+		let sourceEvent = events[event['data']['fromEvent']];
+
+		switch (sourceEvent['type']) {
+			case types.RET:
+				htmlProduced += '{}() return'.format(getCodeFlowObjNameById(sourceEvent['atFunc']));
+
+				break;
+			case types.ARITH:
+				htmlProduced += genLabelForAlreadyOpenModal(event['data']['fromEvent'], 'Arithmetic');
+				break;
+		}
+	}
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-left">Final values: </div>';
+	let finalValues = getObjCurrValue(destId, destStateId, -1);
+
+	/* here i need to implement the resolver for the multidim object at getObjCurrentValues() function*/
+	htmlProduced += '<div class="col-md-auto text-left">{}</div>'.format(structToStr(finalValues));
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row">';
+	htmlProduced +=
+		'<div class="col text-left mt-2 note">Note: <label class="note-body">To use inputs, use <u>row,col</u> notation</label>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col-9 text-left dialog-title">Changes breakdown';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//navigation
+	pos = ++bigDataIdx;
+	htmlProduced += '<div class="row mt-3">';
+	htmlProduced += '<div class="col text-left dialog-text">Display window:<input id="cellChange_n_cols-{}" type="text" style="width:50px;margin-left:10px;" value="{}"/>'.format(
+		pos,
+		'{},{}'.format(nRows, nCols)
+	);
+
+	htmlProduced +=
+		'<i class="fa fa-refresh" style="font-size:22px;margin-left:10px;c	olor:var(--title-color);cursor: pointer;" onclick="requestFrameNColsTableUpdate_cellChange()"></i>';
+
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-3 dialog-text">';
+	htmlProduced += '<div class="col text-center">Prev. page';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Start cell';
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center">Next page';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="row mt-1 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += "<i class='fa fa-arrow-left' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevColPageChange_cellChange(this.id)'></i>".format(
+		pos
+	);
+	htmlProduced += "<i class='fa fa-arrow-up' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRowPageChange_cellChange(this.id)'></i>".format(
+		pos
+	);
+
+	htmlProduced += '</div>';
+	htmlProduced += '<div class="col text-center" >';
+	htmlProduced += '<input id="cellChange_start_index-{}" type="text" style="width:50px;" value="1,1"/>'.format(pos);
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += "<i class='fa fa-arrow-right' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextColPageChange_cellChange(this.id)'></i>".format(
+		pos
+	);
+	htmlProduced += "<i class='fa fa-arrow-down' aria-hidden='true' id='bd-{}' style='font-size:22px;margin-right:10px;color:var(--title-color);cursor: pointer;' onclick='requestNextRowPageChange_cellChange(this.id)'></i>".format(
+		pos
+	);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//navigation end
+
+	let toPush = [];
+	let mapT = new Map();
+
+	for (let y = 0; y < nChangedCols; y++) {
+		let targetCol = objMod['mods'][y][0];
+		for (let x = 0; x < nChangedRows; x++) {
+			let targetRow = objMod['mods'][y][x + 1]['index'];
+			if (!mapT.has(x)) mapT.set(x, []);
+			mapT.get(x).push([ targetRow, targetCol ]);
+		}
+	}
+
+	toPush.push('DataFrame');
+	toPush.push('Multiple');
+	toPush.push([ nChangedRows, nChangedCols ]);
+	toPush.push(finalValues[3]);
+	toPush.push(mapT);
+	valuesToBigData.push(toPush);
+
+	htmlProduced += '<div class="row mt-2 dialog-text">';
+	htmlProduced += '<div class="col text-center">';
+	htmlProduced += '<table class="table table-bordered table-sm mt-2 dialog-text">';
+	htmlProduced += '<tbody class="text-center" id="frame_body">';
+	htmlProduced += updateCellChangeContent(pos, 0, 0, nRows, nCols, true);
+	htmlProduced += '</tbody>';
+	htmlProduced += '</table>';
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '</div>';
+	return htmlProduced;
+}
+
+function requestFrameNColsTableUpdate_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, sRow, sCol, nRows, nCols, false);
+}
+
+//change start cell
+
+function requestStartIdxUpdate_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, sRow, sCol, nRows, nCols, false);
+}
+
+//change cols
+function requestPrevColPageChange_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+
+	need = sCol - nCols;
+
+	if (need < 0) need = 0;
+	$('*[id^=cellChange_start_index]').val('{},{}'.format(sRow + 1, need + 1));
+
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, sRow, need, nRows, nCols, false);
+}
+
+function requestNextColPageChange_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+	updateBigDataValuesTable_MultiDim;
+	let need = sCol + nCols;
+
+	if (need >= parseInt(valuesToBigData[pos][2][1])) return;
+
+	$('*[id^=cellChange_start_index]').val('{},{}'.format(sRow + 1, need + 1));
+	console.log('will call? {}'.format(nRows > 0 && nCols > 0));
+	console.log('need {}'.format(need));
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, sRow, need, nRows, nCols, false);
+}
+
+//change rows
+function requestPrevRowPageChange_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+	let need = sRow - nRows;
+
+	if (need < 0) need = 0;
+	$('*[id^=cellChange_start_index]').val('{},{}'.format(need + 1, sCol + 1));
+
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, need, sCol, nRows, nCols, false);
+}
+
+function requestNextRowPageChange_cellChange(pos) {
+	pos = parseInt(pos.split('-')[1]);
+	let val = $('*[id^=cellChange_n_cols]').val();
+	let nRows, nCols;
+	let startCell = $('*[id^=cellChange_start_index]').val();
+	let sRow, sCol;
+
+	if (val.indexOf(',') > 0) {
+		val = val.split(',');
+		nRows = parseInt(val[0]);
+		nCols = parseInt(val[1]);
+		if (nRows < 0 || nRows >= valuesToBigData[pos][2][0]) {
+			if (valuesToBigData[pos][2][0] > 10) nRows = 10;
+			else nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
+			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			else nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	} else {
+		if (valuesToBigData[pos][2][0] > 10) {
+			nRows = 10;
+		} else {
+			nRows = parseInt(valuesToBigData[pos][2][0]);
+		}
+
+		if (valuesToBigData[pos][2][1] > 10) {
+			nCols = 10;
+		} else {
+			nCols = parseInt(valuesToBigData[pos][2][1]);
+		}
+
+		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
+	}
+
+	if (startCell.indexOf(',') > 0) {
+		startCell = startCell.split(',');
+		sRow = parseInt(startCell[0]) - 1;
+		sCol = parseInt(startCell[1]) - 1;
+
+		if (sRow < 0 || sRow >= valuesToBigData[pos][2][0] || sCol < 0 || sCol >= valuesToBigData[pos][2][1]) {
+			$('*[id^=cellChange_start_index]').val('1,1');
+			sRow = sCol = 0;
+		}
+	} else {
+		$('*[id^=cellChange_start_index]').val('1,1');
+		sRow = sCol = 0;
+	}
+
+	let need = sRow + nRows;
+	if (need >= parseInt(valuesToBigData[pos][2][0])) return;
+	$('*[id^=cellChange_start_index]').val('{},{}'.format(need + 1, sCol + 1));
+	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, need, sCol, nRows, nCols, false);
+}
+
+function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
+	console.log('update cell change');
+	let j, i, r, c;
+	let htmlProduced = '';
+
+	let data = valuesToBigData[pos][4];
+	let currValues = valuesToBigData[pos][3];
+	let colHeaders = '';
+	let rowsHtml = '';
+	let colsAdded = [];
+	let didChange;
+	console.log('sRow {}'.format(sRow));
+	console.log('sCol {}'.format(sCol));
+	console.log('nRows {}'.format(nRows));
+	console.log('nCols {}'.format(nCols));
+
+	if (isNaN(sRow) || isNaN(sCol)) {
+		sRow = sCol = 0;
+		$('*[id^=start_index_big_MD]').val('1,1');
+	}
+
+	if (isNaN(nCols) || isNaN(nRows)) {
+		nCols = nRows = 10;
+		$('*[id^=big_n_cols_MD]').val('10,10');
+	}
+
+	if (nRows > valuesToBigData[pos][2][0]) {
+		nRows = parseInt(valuesToBigData[pos][2][0]);
+		didChange = true;
+	}
+
+	if (nCols > valuesToBigData[pos][2][1]) {
+		nCols = parseInt(valuesToBigData[pos][2][1]);
+		didChange = true;
+	}
+
+	if (didChange) $('*[id^=big_n_cols_MD]').val('{},{}'.format(nCols, nRows));
+
+	if (sRow + nRows > valuesToBigData[pos][2][0]) {
+		nRows = parseInt(valuesToBigData[pos][2][0]);
+	} else {
+		nRows += sRow;
+	}
+
+	if (sCol + nCols > valuesToBigData[pos][2][1]) {
+		nCols = parseInt(valuesToBigData[pos][2][1]);
+	} else {
+		nCols += sCol;
+	}
+
+	if (didChange) $('*[id^=big_n_cols_MD]').val('{},{}'.format(nCols, nRows));
+
+	for (r = sRow; r < nRows; r++) {
+		let rowData = data.get(r);
+		let rowUsed = rowData[0][0];
+		rowsHtml += '<tr>';
+		rowsHtml += '<td><b>{}</b></td>'.format(rowUsed + 1);
+		console.log('rowUsed {}'.format(rowUsed));
+		console.log('rowData');
+		console.log(rowData);
+		for (c = sCol; c < nCols; c++) {
+			let colUsed = rowData[c][1];
+			console.log('colUsed {}'.format(colUsed));
+			if (colsAdded.indexOf(colUsed) == -1) {
+				colsAdded.push(colUsed);
+				colHeaders += '<td><b>{}</b></td>'.format(colUsed + 1);
+			}
+
+			rowsHtml += '<td>{}</td>'.format(currValues[colUsed][rowUsed]);
+		}
+		rowsHtml += '</tr>';
+	}
+
+	htmlProduced += '<tr>';
+	htmlProduced += '<td></td>';
+	htmlProduced += colHeaders;
+	htmlProduced += '</tr>';
+	htmlProduced += rowsHtml;
+
+	if (toReturn) return htmlProduced;
+	else document.getElementById('frame_body').innerHTML = htmlProduced;
+}
+
+//index change modal
 function mkIdxChangeModalInfo(event, eventId) {
 	let htmlProduced = '';
 	let displayNote = false;
@@ -2258,8 +2870,6 @@ function mkIdxChangeModalInfo(event, eventId) {
 	let numMods = targetObj['modList'][targetState]['numMods'];
 	let pos = 0;
 	htmlProduced += '<div class="container-fluid">';
-	console.log('targetCurrValue');
-	console.log(targetCurrValue);
 	htmlProduced += '<div class="row mt-2">';
 	htmlProduced += '<div class="col text-left">Target Object:';
 	htmlProduced += '</div>';
@@ -2469,7 +3079,7 @@ function idxChangeDisplayNChanges(pos) {
 	pos = parseInt(pos.split('-')[1]);
 	let val = parseInt($('*[id^=idx_n_changes]').val());
 	let startIdx = parseInt($('*[id^=start_index_change]').val()) - 1;
-	if (val < 0 || val >= valuesToBigData[pos].numMods) {
+	if (val < 0 || val > valuesToBigData[pos].numMods) {
 		if (valuesToBigData[pos].numMods > 8) val = 8;
 		else val = valuesToBigData[pos].numMods;
 		$('*[id^=idx_n_changes]').val(val);
@@ -2749,7 +3359,6 @@ function updateBigDataValuesTable_OneDim(pos, startingIdx, nCols, toReturn) {
 	let idxCol = '';
 	let valCol = '';
 	let i;
-	console.log(valuesToBigData);
 	if (isNaN(startingIdx)) {
 		startingIdx = 0;
 		$('*[id^=start_index_big_OD]').val(1);
@@ -3551,8 +4160,7 @@ function produceModalContent(eventId) {
 			break;
 		case types.CELL:
 			content.title = 'Cell change analysis';
-			// content.body = mkIdxChangeModalInfo(event, eventId);
-			content.body = 'nothinToSHOW brah ';
+			content.body = mkCellIdxChangeModalInfo(event, eventId);
 			break;
 		case types.RET:
 			content.title = 'Return analysis';
@@ -3627,6 +4235,8 @@ function processEventClick(eventId) {
 	$('#exec_flow_modal').on('hidden.bs.modal', function() {
 		visualStack = [];
 		modalIsOpen = false;
+		valuesToBigData = [];
+		bigDataIdx = -1;
 	});
 	$('*[id^=dropSearch]').on('keyup paste', function(event) {
 		if (document.getElementById('exec_flow_modal_title').innerHTML.includes('Repeat')) {
@@ -3690,6 +4300,20 @@ function processEventClick(eventId) {
 		if (event.keyCode == 13) {
 			let id = $('*[id^=big_n_cols_MD]').attr('id');
 			requestFrameNColsTableUpdate_BigDataMultiDim(id);
+		}
+	});
+
+	$('*[id^=cellChange_start_index]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			let id = $('*[id^=cellChange_start_index]').attr('id');
+			requestStartIdxUpdate_cellChange(id);
+		}
+	});
+
+	$('*[id^=cellChange_n_cols]').on('keyup', function(event) {
+		if (event.keyCode == 13) {
+			let id = $('*[id^=cellChange_n_cols]').attr('id');
+			requestFrameNColsTableUpdate_cellChange(id);
 		}
 	});
 
