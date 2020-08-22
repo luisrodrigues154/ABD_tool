@@ -2790,12 +2790,12 @@ function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
 
 	if (isNaN(sRow) || isNaN(sCol)) {
 		sRow = sCol = 0;
-		$('*[id^=start_index_big_MD]').val('1,1');
+		$('*[id^=cellChange_start_index]').val('1,1');
 	}
 
 	if (isNaN(nCols) || isNaN(nRows)) {
 		nCols = nRows = 10;
-		$('*[id^=big_n_cols_MD]').val('10,10');
+		$('*[id^=cellChange_n_cols]').val('10,10');
 	}
 
 	if (nRows > valuesToBigData[pos][2][0]) {
@@ -2808,7 +2808,7 @@ function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
 		didChange = true;
 	}
 
-	if (didChange) $('*[id^=big_n_cols_MD]').val('{},{}'.format(nCols, nRows));
+	if (didChange) $('*[id^=cellChange_n_cols]').val('{},{}'.format(nCols, nRows));
 
 	if (sRow + nRows > valuesToBigData[pos][2][0]) {
 		nRows = parseInt(valuesToBigData[pos][2][0]);
@@ -2822,7 +2822,7 @@ function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
 		nCols += sCol;
 	}
 
-	if (didChange) $('*[id^=big_n_cols_MD]').val('{},{}'.format(nCols, nRows));
+	if (didChange) $('*[id^=cellChange_n_cols]').val('{},{}'.format(nCols, nRows));
 
 	for (r = sRow; r < nRows; r++) {
 		let rowData = data.get(r);
