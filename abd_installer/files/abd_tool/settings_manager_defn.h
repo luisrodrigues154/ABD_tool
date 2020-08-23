@@ -42,3 +42,5 @@ void saveNewPath(const char *path, int target);
 void setLaunchOption(ABD_STATE state);
 ABD_STATE launchOnStop();
 void forceDefaults();
+ABD_STATE useVerbose();
+void updateVerboseMode(ABD_STATE newState);

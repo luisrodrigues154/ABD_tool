@@ -782,7 +782,9 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     }
     setWatcherState(ABD_ENABLE);
     //printf("\nStatement %s\nResult %s\n", stmtStr, (newExpr->result) ? "TRUE" : "FALSE");
+    puts("before free 1");
     free(stmtStr);
+    puts("no error");
     return newExpr;
 }
 
@@ -1131,7 +1133,9 @@ ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
         return ABD_EVENT_NOT_FOUND;
 
     lastRetEvent->data.ret_event->toObj = obj;
+    puts("freeing lastRet");
     free(lastRetEvent->data.ret_event->retValue);
+    puts("done");
     lastRetEvent->data.ret_event->retValue = obj->modList;
 
     return lastRetEvent;

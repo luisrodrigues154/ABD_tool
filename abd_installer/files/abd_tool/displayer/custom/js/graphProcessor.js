@@ -31,7 +31,6 @@ let bigDataIdx = -1;
 $(function() {
 	//load function
 	buildNodes();
-
 	generateSVGgraph();
 });
 
@@ -548,7 +547,7 @@ function mkFuncModalInfo(event, eventId) {
 			if (fromId > 0) {
 				let foundEvent = findEventId(fromId, fromState);
 
-				prevChange = genLabelForAlreadyOpenModal(foundEvent, events[foundEvent]['line']);
+				prevChange = genLabelForAlreadyOpenModal(foundEvent, 'view');
 			}
 
 			htmlProduced += '<tr>';
@@ -4117,6 +4116,10 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 	else document.getElementById('frame_body').innerHTML = htmlProduced;
 }
 
+function mkReturnModalInfo(event, eventId) {
+	return 'need to do this';
+}
+
 function produceModalContent(eventId) {
 	let content = {
 		title: '',
@@ -4164,7 +4167,7 @@ function produceModalContent(eventId) {
 			break;
 		case types.RET:
 			content.title = 'Return analysis';
-			content.body = 'nothing to show';
+			content.body = mkReturnModalInfo(event, eventId);
 			break;
 		case types.FOR:
 			content.title = 'For-Loop analysis';

@@ -359,7 +359,7 @@ int *getObjDim(ABD_OBJECT *obj) {
         return ABD_OBJECT_NOT_FOUND;
 
     int *dims = memAllocIntVector(2);
-    SEXP rows = R_NilValue,cols = R_NilValue;;
+    SEXP rows = R_NilValue, cols = R_NilValue;;
     int nameSize = strlen(obj->name) + 7; // +7 for NROW/NCOL, () and \0
     char *requestValue = memAllocForString(nameSize);
 
@@ -376,15 +376,15 @@ int *getObjDim(ABD_OBJECT *obj) {
     //free request str
     free(requestValue);
 
-    if(TYPEOF(rows) == REALSXP)
-      dims[0] = (int) REAL(rows)[0];
+    if (TYPEOF(rows) == REALSXP)
+        dims[0] = (int)REAL(rows)[0];
     else
-      dims[0] = INTEGER(rows)[0];
+        dims[0] = INTEGER(rows)[0];
 
-    if(TYPEOF(cols) == REALSXP)
-      dims[1] = (int) REAL(cols)[0];
+    if (TYPEOF(cols) == REALSXP)
+        dims[1] = (int)REAL(cols)[0];
     else
-      dims[1] = INTEGER(cols)[0];
+        dims[1] = INTEGER(cols)[0];
 
     return dims;
 }
@@ -473,11 +473,11 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
                 }
                 goto jumpHere;
             }
-            if(cellChanges->nRows == dims[0]){
-              if (destTotalSize % srcTotalSize == 0 || srcTotalSize > destTotalSize)
-                  goto jumpHere;
-              else
-                  return ABD_OBJECT_NOT_FOUND;
+            if (cellChanges->nRows == dims[0]) {
+                if (destTotalSize % srcTotalSize == 0 || srcTotalSize > destTotalSize)
+                    goto jumpHere;
+                else
+                    return ABD_OBJECT_NOT_FOUND;
             }
         }
     }
@@ -505,8 +505,8 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
 
         SEXP srcCurrValues = R_NilValue;
         if (isFrame(cellChanges->srcValues)) {
-            if(c >= srcLen)
-              srcPicker = 0;
+            if (c >= srcLen)
+                srcPicker = 0;
             srcCurrValues = VECTOR_ELT(cellChanges->srcValues, srcPicker++);
             cellChanges->vecPos = 0;
         }
@@ -597,49 +597,49 @@ ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs) {
         }
     }
     for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
-      if (inCellChange) {
-          if (cellChanges->vecPos+1 > Rf_length(rhs))
-              cellChanges->vecPos = 0;
+        if (inCellChange) {
+            if (cellChanges->vecPos+1 > Rf_length(rhs))
+                cellChanges->vecPos = 0;
 
-          int fromIdx = cellChanges->vecPos;
-          int toIdx = i;
+            int fromIdx = cellChanges->vecPos;
+            int toIdx = i;
 
-          if (!sequential) {
-              if (TYPEOF(idxChanges->destIdxs) == REALSXP)
-                  toIdx = (int)REAL(idxChanges->destIdxs)[i];
-              else
-                  // intsxp
-                  toIdx = INTEGER(idxChanges->destIdxs)[i];
-              toIdx--;
-          }
+            if (!sequential) {
+                if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+                    toIdx = (int)REAL(idxChanges->destIdxs)[i];
+                else
+                    // intsxp
+                    toIdx = INTEGER(idxChanges->destIdxs)[i];
+                toIdx--;
+            }
 
-          vector->idxs[i] = toIdx;
-          const char *currStr = CHAR(STRING_ELT(rhs, fromIdx));
-          int currStrSize = strlen(currStr);
-          ((char **)vector->vector)[i] = memAllocForString(currStrSize);
-          copyStr(((char **)vector->vector)[i], currStr, currStrSize);
+            vector->idxs[i] = toIdx;
+            const char *currStr = CHAR(STRING_ELT(rhs, fromIdx));
+            int currStrSize = strlen(currStr);
+            ((char **)vector->vector)[i] = memAllocForString(currStrSize);
+            copyStr(((char **)vector->vector)[i], currStr, currStrSize);
 
-          cellChanges->vecPos++;
+            cellChanges->vecPos++;
         }
         else {
-          int toIdx = 0;
-          if (TYPEOF(idxChanges->destIdxs) == REALSXP)
-              toIdx = (int)REAL(idxChanges->destIdxs)[i];
-          else
-              // intsxp
-              toIdx = INTEGER(idxChanges->destIdxs)[i];
+            int toIdx = 0;
+            if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+                toIdx = (int)REAL(idxChanges->destIdxs)[i];
+            else
+                // intsxp
+                toIdx = INTEGER(idxChanges->destIdxs)[i];
 
-          // because R is 1-n, c is 0-n-1
-          toIdx--;
+            // because R is 1-n, c is 0-n-1
+            toIdx--;
 
-          vector->idxs[i] = toIdx;
+            vector->idxs[i] = toIdx;
 
-          if (j == repeater)
-              j = 0;
-          const char *currStr = CHAR(STRING_ELT(rhs, j));
-          int currStrSize = strlen(currStr);
-          ((char **)vector->vector)[i] = memAllocForString(currStrSize);
-          copyStr(((char **)vector->vector)[i], currStr, currStrSize);
+            if (j == repeater)
+                j = 0;
+            const char *currStr = CHAR(STRING_ELT(rhs, j));
+            int currStrSize = strlen(currStr);
+            ((char **)vector->vector)[i] = memAllocForString(currStrSize);
+            copyStr(((char **)vector->vector)[i], currStr, currStrSize);
         }
     }
     return vector;
@@ -672,43 +672,43 @@ ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
     }
 
     for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
-      if (inCellChange) {
-          if (cellChanges->vecPos+1 > Rf_length(rhs))
-              cellChanges->vecPos = 0;
+        if (inCellChange) {
+            if (cellChanges->vecPos+1 > Rf_length(rhs))
+                cellChanges->vecPos = 0;
 
-          int fromIdx = cellChanges->vecPos;
-          int toIdx = i;
+            int fromIdx = cellChanges->vecPos;
+            int toIdx = i;
 
-          if (!sequential) {
-              if (TYPEOF(idxChanges->destIdxs) == REALSXP)
-                  toIdx = (int)REAL(idxChanges->destIdxs)[i];
-              else
-                  // intsxp
-                  toIdx = INTEGER(idxChanges->destIdxs)[i];
-              toIdx--;
-          }
+            if (!sequential) {
+                if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+                    toIdx = (int)REAL(idxChanges->destIdxs)[i];
+                else
+                    // intsxp
+                    toIdx = INTEGER(idxChanges->destIdxs)[i];
+                toIdx--;
+            }
 
-          vector->idxs[i] = toIdx;
-          ((int *)vector->vector)[i] = INTEGER(rhs)[fromIdx];
-          cellChanges->vecPos++;
+            vector->idxs[i] = toIdx;
+            ((int *)vector->vector)[i] = INTEGER(rhs)[fromIdx];
+            cellChanges->vecPos++;
         }
         else {
-          int toIdx = 0;
-          if (TYPEOF(idxChanges->destIdxs) == REALSXP)
-              toIdx = (int)REAL(idxChanges->destIdxs)[i];
-          else
-              // intsxp
-              toIdx = INTEGER(idxChanges->destIdxs)[i];
+            int toIdx = 0;
+            if (TYPEOF(idxChanges->destIdxs) == REALSXP)
+                toIdx = (int)REAL(idxChanges->destIdxs)[i];
+            else
+                // intsxp
+                toIdx = INTEGER(idxChanges->destIdxs)[i];
 
-          // because R is 1-n, c is 0-n-1
-          toIdx--;
+            // because R is 1-n, c is 0-n-1
+            toIdx--;
 
-          vector->idxs[i] = toIdx;
+            vector->idxs[i] = toIdx;
 
-          if (j == repeater)
-              j = 0;
+            if (j == repeater)
+                j = 0;
 
-          ((int *)vector->vector)[i] = INTEGER(rhs)[j];
+            ((int *)vector->vector)[i] = INTEGER(rhs)[j];
         }
     }
     return vector;
@@ -909,7 +909,6 @@ void processVarCellChange(SEXP result) {
     ABD_OBJECT *obj = cellChanges->targetObj;
 
     if (obj != ABD_OBJECT_NOT_FOUND) {
-        puts("1");
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
         newMod = addEmptyModToObj(obj, ABD_FRAME);
         newMod = initModAndPopulate(newMod, ABD_ALIVE, ABD_FRAME);

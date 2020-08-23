@@ -39,8 +39,24 @@ void storePossibleRet(SEXP value) {
 void setWatcherState(ABD_STATE state) {
     watcherState = state;
 }
-void setVerboseMode(ABD_STATE state) {
-    verbose = state;
+void abd_verbose(SEXP option) {
+    if (TYPEOF(CAR(option)) != REALSXP && TYPEOF(CAR(option)) != NILSXP) {
+        messagePrinter("Invalid arguments");
+        return;
+    }
+    ABD_STATE state;
+    if (TYPEOF(CAR(option)) != NILSXP) {
+        state = (int)REAL(CAR(option))[0];
+        if (state != ABD_ENABLE && state != ABD_DISABLE) {
+            messagePrinter("Invalid arguments");
+            return;
+        }
+        updateVerboseMode(state);
+    }
+    else
+        state = useVerbose();
+
+    state == ABD_ENABLE ? messagePrinter("Verbose mode ENABLED!") : messagePrinter("Verbose mode DISABLED!");
 }
 void abd_set_launch(SEXP state) {
     if (TYPEOF(CAR(state)) != REALSXP) {
@@ -63,7 +79,6 @@ void abd_start(SEXP rho) {
     initEnvStack(rho);
     initEventsReg();
     setWatcherState(ABD_ENABLE);
-    setVerboseMode(ABD_ENABLE);
 }
 
 void messagePrinter(char *message) {
@@ -126,7 +141,10 @@ Rboolean abd_display() {
     persistAndDisplay(FALSE);
     return TRUE;
 }
-
+void printForVerbose(char * message) {
+    if (useVerbose())
+        messagePrinter(message);
+}
 void abd_help() {
     checkSettings();
     printf("\n\n\t  \"Automatic\" Bug Detection (ABD) tool usage\n");
@@ -189,12 +207,17 @@ void finalizeVarIdxChange(SEXP result, SEXP rho) {
         isCellChange = TRUE;
     else
         isCellChange = FALSE;
-    printf("is cell change? %s\n", isCellChange ? "YES": "NO");
-    if (isCellChange)
+
+    if (isCellChange) {
         processVarCellChange(result);
-    else
+        printForVerbose("Cell change processed");
+    }
+    else {
         processVarIdxChange(result);
+        printForVerbose("Index change processed");
+    }
 }
+
 void regVarIdxChange(SEXP call, SEXP rho) {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
@@ -222,10 +245,14 @@ void regVarIdxChange(SEXP call, SEXP rho) {
     if (obj_ptr->modList->valueType == ABD_FRAME)
         isDataFrame = TRUE;
 
-    if (isDataFrame)
+    if (isDataFrame) {
         preProcessDataFrameCellChange(call, obj_ptr, rho);
-    else
+        printForVerbose("Cell change detected");
+    }
+    else {
         preProcessVarIdxChange(call, obj_ptr, rho);
+        printForVerbose("Index change detected");
+    }
 
     // now wait ...
 }
@@ -235,6 +262,7 @@ void regDataFrameCreation(SEXP call, SEXP rho) {
         return;
     frameCall = call;
     preProcessDataFrame(CDR(call));
+    printForVerbose("Data Frame creation detected");
 }
 
 void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho) {
@@ -254,6 +282,7 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho) {
         SEXP rhs2 = CAR(CDR(CDR(call)));
         createAsgnEvent(objUsed, rhs, rhs2, rho);
     }
+    printForVerbose("New object usage detected");
     clearPendingVars();
 }
 
@@ -291,6 +320,7 @@ void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs,
     createNewEvent(FUNC_EVENT);
     setFuncEventValues(objFound, newRho, passedArgs, receivedArgs);
     setFunCallRegged(TRUE);
+    printForVerbose("Function call detected");
     // if (inLoopEvent())
     //     addEventToForIteration(eventsRegTail);
 }
@@ -304,10 +334,7 @@ void regVecCreation(SEXP call, SEXP vector, SEXP rho) {
 
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST))
         return;
-    // puts("");
-    puts("received vec");
-    PrintDaCall(vector, rho);
-    // puts("");
+
     if (waitingCellChange()) {
         storeVecForCellChange(vector);
         if (!waitingCellChange()) {
@@ -350,6 +377,7 @@ void regIf(SEXP Stmt, Rboolean result, SEXP rho) {
     createNewEvent(IF_EVENT);
     setIfEventValues(Stmt, result);
     clearPendingVars();
+    printForVerbose("Branch detected");
 }
 
 /* FOR LOOP CALLABLES*/
@@ -361,6 +389,7 @@ void regForLoopStart(SEXP call, SEXP enumerator, SEXP rho) {
     ABD_FOR_LOOP_EVENT *newForLoopEvent =
         createNewEvent(FOR_EVENT)->data.for_loop_event;
     setForEventValues(call, newForLoopEvent, enumerator);
+    printForVerbose("For loop start detected");
 }
 void regForLoopIteration(int iterId, SEXP rho) {
     if (!(isRunning() && cmpToCurrEnv(rho) == ABD_EXIST && inLoopByType(ABD_FOR)))
@@ -375,6 +404,7 @@ void regForLoopFinish(SEXP rho) {
 
     appendLastEventToLoop(ABD_FOR);
     popLoopFromStack(ABD_FOR);
+    printForVerbose("For loop finish detected");
 }
 
 /* REPEAT LOOP CALLABLES*/
@@ -386,6 +416,7 @@ void regRepeatLoopStart(SEXP call, SEXP rho) {
     ABD_REPEAT_LOOP_EVENT *newRepeatLoopEvent =
         createNewEvent(REPEAT_EVENT)->data.repeat_loop_event;
     pushNewLoop(ABD_REPEAT, newRepeatLoopEvent);
+    printForVerbose("Repeat loop start detected");
 }
 
 void regRepeatLoopIteration(int iterId, SEXP rho) {
@@ -403,6 +434,7 @@ void regRepeatLoopFinish(SEXP rho) {
 
     appendLastEventToLoop(ABD_REPEAT);
     popLoopFromStack(ABD_REPEAT);
+    printForVerbose("Repeat loop finish detected");
 }
 
 /* WHILE LOOP CALLABLES*/
@@ -414,6 +446,7 @@ void regWhileLoopStart(SEXP args, SEXP rho) {
     ABD_WHILE_LOOP_EVENT *newWhileLoopEvent =
         createNewEvent(WHILE_EVENT)->data.while_loop_event;
     pushNewLoop(ABD_WHILE, newWhileLoopEvent);
+    printForVerbose("While loop start detected");
 }
 
 void regWhileLoopCondition(SEXP stmt, Rboolean result, SEXP rho) {
@@ -446,6 +479,7 @@ void regWhileLoopFinish(SEXP rho) {
 
     appendLastEventToLoop(ABD_WHILE);
     popLoopFromStack(ABD_WHILE);
+    printForVerbose("While loop finish detected");
 }
 
 /* LOOP misc*/
@@ -465,6 +499,7 @@ void regArith(SEXP call, SEXP ans, SEXP rho) {
         return;
 
     tmpStoreArith(call, ans);
+    printForVerbose("Arithmetic operation detected");
 }
 
 void storeIsWaitingIf(int isWaiting, SEXP rho) {
@@ -476,13 +511,11 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val) {
     // printf("return... line %d\n", getCurrScriptLn());
     createNewEvent(RET_EVENT);
     setRetEventValue(val);
+    printForVerbose("Function return detected");
     // if (inLoopEvent())
     //     addEventToForIteration(eventsRegTail);
 }
 
 ABD_STATE isRunning() {
     return watcherState;
-}
-ABD_STATE isVerbose() {
-    return verbose;
 }

@@ -52,7 +52,6 @@ void abd_help();
 void abd_start(SEXP rho);
 void abd_stop();
 ABD_STATE isRunning();
-ABD_STATE isVerbose();
 
 /* Functions used to register events */
 void regVarChange(SEXP, SEXP, SEXP, SEXP);
@@ -81,3 +80,5 @@ void abd_path();
 void messagePrinter(char *message);
 void abd_set_path(SEXP path);
 void abd_set_launch(SEXP state);
+void abd_verbose(SEXP option);
+void printForVerbose(char * message);

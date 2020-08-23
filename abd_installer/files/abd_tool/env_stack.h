@@ -8,12 +8,9 @@
 #include <abd_tool/base_defn.h>
 #include <abd_tool/event_manager_defn.h>
 
-void initEnvStack(SEXP startingEnv)
-{
-    envStack = (ABD_ENV_STACK *)malloc(sizeof(ABD_ENV_STACK));
-    envStack->rho = startingEnv;
-    envStack->prev = ABD_NOT_FOUND;
-    envStack->funcObj = ABD_OBJECT_NOT_FOUND;
+void clearAllVars() {
+
+
     envStack->args = ABD_OBJECT_NOT_FOUND;
     envStack->onBranch = FALSE;
     envStack->branchDepth = 0;
@@ -24,6 +21,15 @@ void initEnvStack(SEXP startingEnv)
     envStack->cellChanges = ABD_OBJECT_NOT_FOUND;
     envStack->onTmp = FALSE;
     envStack->tmpStore = R_NilValue;
+}
+
+void initEnvStack(SEXP startingEnv)
+{
+    envStack = (ABD_ENV_STACK *)malloc(sizeof(ABD_ENV_STACK));
+    envStack->rho = startingEnv;
+    clearAllVars();
+    envStack->funcObj = ABD_OBJECT_NOT_FOUND;
+    envStack->prev = ABD_NOT_FOUND;
     initialEnv = startingEnv;
 }
 
@@ -203,8 +209,7 @@ void envPush(SEXP newRho, ABD_OBJECT *funcObj)
     newEnv->funcObj = funcObj;
     newEnv->prev = envStack;
     envStack = newEnv;
-    envStack->onBranch = FALSE;
-    envStack->branchDepth = 0;
+    clearAllVars();
 }
 char *envToStr(SEXP rho)
 {
