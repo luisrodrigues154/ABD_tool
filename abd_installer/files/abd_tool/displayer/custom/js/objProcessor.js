@@ -65,6 +65,7 @@ function objIdsToString(index) {
 
 	return ret;
 }
+
 function populateObjects() {
 	//html generics
 	var htmlProduced = '';

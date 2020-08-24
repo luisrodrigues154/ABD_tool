@@ -782,9 +782,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     }
     setWatcherState(ABD_ENABLE);
     //printf("\nStatement %s\nResult %s\n", stmtStr, (newExpr->result) ? "TRUE" : "FALSE");
-    puts("before free 1");
     free(stmtStr);
-    puts("no error");
     return newExpr;
 }
 

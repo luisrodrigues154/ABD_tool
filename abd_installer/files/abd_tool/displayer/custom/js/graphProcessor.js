@@ -6,7 +6,7 @@ let eventsLen = 0;
 var nodeCount = 0;
 var linkCount = 0;
 //d3 variable
-
+var zoom_handler;
 var linkedByIndex = {};
 var width = 950;
 var height = 650;
@@ -25,7 +25,7 @@ let envContent = new Map();
 let auxMap = new Map();
 let envLineBDepth = new Map();
 let lastLineGP = 0;
-
+let scaleToUse = 1;
 let bigDataIdx = -1;
 
 $(function() {
@@ -254,6 +254,15 @@ function findElseLine(statement, fromLine, isElseIf) {
 	return fromLine;
 }
 
+function getFollowLabel(funcEnv, currHtmlProduced) {
+	return '{} {}'.format(
+		currHtmlProduced,
+		'<jumper id="jp-{}" style="cursor: pointer; font-size: 8pt;" onClick="processJumpClick(this.id)"><b><u>follow</u></b></jumper>'.format(
+			funcEnv
+		)
+	);
+}
+
 function getEventTypeHtml(event, nextEventId) {
 	let line = event['line'];
 	let codeLine = code[line - 1];
@@ -262,20 +271,19 @@ function getEventTypeHtml(event, nextEventId) {
 		codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 	}
 	switch (event['type']) {
-		case types.FUNC:
+		case types.FUNC: {
 			let newFuncName = getCodeFlowObjNameById(event['data']['toId']);
-			processEnv(newFuncName, event['data']['toEnv'], nextEventId, line);
-			addNodeLink(event['atEnv'], event['data']['toEnv']);
+			let newFuncEnv = event['data']['toEnv'];
+			processEnv(newFuncName, newFuncEnv, nextEventId, line);
+			addNodeLink(event['atEnv'], newFuncEnv);
+			let textToDisplay = codeLine
+				.substring(codeLine.indexOf(newFuncName), codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1)
+				.trim();
 
-			htmlProduced += genLabelHtml(
-				'eId-{}'.format(nextEventId - 1),
-				codeLine
-					.substring(codeLine.indexOf(newFuncName), codeLine.indexOf(')', codeLine.indexOf(newFuncName)) + 1)
-					.trim(),
-				0
-			);
-
+			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), textToDisplay, 0);
+			htmlProduced = getFollowLabel(newFuncEnv, htmlProduced);
 			break;
+		}
 		case types.DATAF:
 			htmlProduced += genLabelHtml(
 				'eId-{}'.format(nextEventId - 1),
@@ -4117,7 +4125,57 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 }
 
 function mkReturnModalInfo(event, eventId) {
-	return 'need to do this';
+	let htmlProduced = '';
+	console.log(event);
+	let toId = event['data']['toId'];
+	let displayValues;
+	let retFromFunc = getCodeFlowObjNameById(event['atFunc']);
+	let retTo;
+
+	findEventId(toId, event['data']['toState']);
+	if (toId == -1) {
+		retTo = 'Value discarded';
+		displayValues = event['data']['value'];
+	} else {
+		let toState = event['data']['toState'];
+		displayValues = structToStr(getObjCurrValue(toId, toState, -1));
+		let eId = findEventId(toId, toState);
+		let objName = getCommonObjNameById(toId);
+		retTo = genLabelForAlreadyOpenModal(eId, objName);
+	}
+
+	htmlProduced += '<div class="container-fluid">';
+
+	//return from
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">From function:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}()'.format(retFromFunc);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//values
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Values:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(displayValues);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	//returned to
+	htmlProduced += '<div class="row">';
+	htmlProduced += '<div class="col text-left">Returned to:';
+	htmlProduced += '</div>';
+
+	htmlProduced += '<div class="col-md-auto text-left">{}'.format(retTo);
+	htmlProduced += '</div>';
+	htmlProduced += '</div>';
+
+	htmlProduced += '</div>';
+
+	return htmlProduced;
 }
 
 function produceModalContent(eventId) {
@@ -4324,6 +4382,33 @@ function processEventClick(eventId) {
 		$('*[id^=dropSearch]').focus();
 	});
 }
+
+function processJumpClick(labelId) {
+	let funcEnv = labelId.split('-')[1];
+	console.log('center on env {}'.format(funcEnv));
+	// let obj = g.select(funcEnv);
+	let foundId = getFOidByName(funcEnv);
+	if (foundId != -1) {
+		let obj = document.getElementById(foundId);
+		let locX = obj.getAttribute('x');
+		let locY = obj.getAttribute('y');
+		svg
+			.transition()
+			.duration(500)
+			.call(
+				zoom_handler.transform,
+				d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6).translate(-locX, -locY)
+			);
+	}
+}
+
+function getFOidByName(name) {
+	let i;
+	for (i = 0; i < Object.keys(graph.nodes).length; i++) {
+		if (graph.nodes[i].name == name) return graph.nodes[i].id;
+	}
+	return -1;
+}
 /*
 
 
@@ -4345,21 +4430,34 @@ var graph = {
 	nodes: [],
 	links: []
 };
+function clicked(d) {
+	d3.event.stopPropagation();
+	svg
+		.transition()
+		.duration(750)
+		.call(
+			zoom_handler.transform,
+			d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6).translate(-d.x, -d.y),
+			d3.mouse(svg.node())
+		);
+}
+
 function generateSVGgraph() {
+	zoom_handler = d3.zoom().on('zoom', zoom_actions);
 	nodeSizeScale = d3.scaleLinear().domain(d3.extent(graph.nodes, (d) => d.id)).range([ 30, 30 ]);
 
 	simulation = d3
 		.forceSimulation()
-		.force('link', d3.forceLink().id((d) => d.source))
-		.force('charge', d3.forceManyBody())
-		.force('center', d3.forceCenter(100, 100))
+		.force('link', null)
+		.force('charge', null)
+		.force('center', null)
 		.nodes(graph.nodes);
 
 	var link_force = d3.forceLink(graph.links).id(function(d) {
 		return d.name;
 	});
 
-	charge_force = d3.forceManyBody().strength(-55000);
+	charge_force = d3.forceManyBody().strength(-100000);
 
 	center_force = d3.forceCenter(width / 2, height / 2);
 
@@ -4414,8 +4512,10 @@ function generateSVGgraph() {
 		.enter()
 		.append('foreignObject')
 		.attr('id', (d) => d.id)
+		.attr('name', (d) => d.name)
 		.on('mouseover', mouseOver(0.1))
-		.on('mouseout', mouseOut);
+		.on('mouseout', mouseOut)
+		.on('dblclick', clicked);
 
 	drag_handler = d3.drag().on('start', drag_start).on('drag', drag_drag);
 	drag_handler(nodes);
@@ -4424,14 +4524,29 @@ function generateSVGgraph() {
 		document.getElementById(node.id).innerHTML = node.html;
 	});
 
-	var zoom_handler = d3.zoom().on('zoom', zoom_actions);
-
 	zoom_handler(svg);
 
 	graph.links.forEach(function(d) {
 		linkedByIndex[d.source.index + ',' + d.target.index] = 1;
 	});
-	g.transition().duration(300).call(zoom_handler.transform, d3.zoomIdentity);
+	//g.transition().duration(300).call(zoom_handler.transform, d3.zoomIdentity);
+
+	console.log(graph);
+	if (nodeCount < 5) {
+		scaleToUse = 0.6;
+	} else if (nodeCount < 10) {
+		scaleToUse = 0.4;
+	} else if (nodeCount < 15) {
+		scaleToUse = 0.2;
+	} else {
+		scaleToUse = 0.1;
+	}
+
+	svg
+		.call(zoom_handler) // here
+		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(scaleToUse))
+		.append('svg:g')
+		.attr('transform', 'translate({},{}) scale({},{})'.format(width / 2, height / 2, scaleToUse, scaleToUse));
 }
 
 function zoom_actions() {
@@ -4440,7 +4555,8 @@ function zoom_actions() {
 
 function drag_start(d) {
 	if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-	//d3.select(this).classed('fixed', (d.fixed = true));
+	d3.select(this).classed('fixed', (d.fixed = true));
+
 	d.fx = d.x;
 	d.fy = d.y;
 }
@@ -4485,8 +4601,18 @@ function positionLink1(d) {
 	let width = document.getElementById('env-{}'.format(d.source.name)).offsetWidth;
 	let sourceHeight = document.getElementById('env-{}'.format(d.source.name)).offsetHeight;
 	let targetHeight = document.getElementById('env-{}'.format(d.target.name)).offsetHeight;
-	let sourceDims = [ [ width / 2, 0 ], [ width, sourceHeight / 2 ], [ width / 2, sourceHeight ], [ 0, width / 2 ] ];
-	let targetDims = [ [ width / 2, 0 ], [ width, targetHeight / 2 ], [ width / 2, targetHeight ], [ 0, width / 2 ] ];
+	let sourceDims = [
+		[ width / 2, -5 ], // when the arrow exits on top
+		[ width + 5, sourceHeight / 2 ], // when the arrow exits on the right side
+		[ width / 2, sourceHeight + 5 ], // when the arrow exits on bottom
+		[ -5, sourceHeight / 2 ] // when the arrow exits on the left side
+	];
+	let targetDims = [
+		[ width / 2, -15 ], // when the arrow points on top
+		[ width + 15, targetHeight / 2 ], // when the arrow points on the right side
+		[ width / 2, targetHeight + 15 ], // when the arrow points on bottom
+		[ -15, targetHeight / 2 ] // when the arrow points on the left side
+	];
 
 	sourceDims.forEach((s) =>
 		targetDims.forEach((t) => {
@@ -4501,20 +4627,7 @@ function positionLink1(d) {
 		})
 	);
 
-	return (
-		'M' +
-		best.s.x +
-		',' +
-		best.s.y +
-		'A' +
-		dr +
-		',' +
-		dr +
-		' 0 0,1 ' +
-		(best.d.x == d.target.x ? best.d.x - 10 : best.d.x + 5) +
-		',' +
-		(best.d.y == d.target.y ? best.d.y - 10 : best.d.y + 10)
-	);
+	return 'M' + best.s.x + ',' + best.s.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + best.d.x + ',' + best.d.y;
 }
 
 // check the dictionary to see if nodes are linked

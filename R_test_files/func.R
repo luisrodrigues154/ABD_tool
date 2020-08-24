@@ -13,10 +13,15 @@ run <- function(){
     add <- function(x, y){
         result <- x + y
         result <- sub(result)
+        result  
 
     }
 
-    sum <- add(a,b)
+    add(a,b)
+    
+
+
+
 
 
     abd_stop()
