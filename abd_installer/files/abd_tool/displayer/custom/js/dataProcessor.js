@@ -1,37 +1,62 @@
-var stack = [];
-var stackSize = 0;
-var currentEnv = '';
-var valuesToBigData = [];
+let stack = [];
+let stackSize = 0;
+let currentEnv = '';
+let valuesToBigData = [];
 let eventsLen = 0;
-var nodeCount = 0;
-var linkCount = 0;
+let nodeCount = 0;
+let linkCount = 0;
 //d3 variable
-var zoom_handler;
-var linkedByIndex = {};
-var width = 950;
-var height = 650;
-var svg;
-var nodes;
-var simulation;
-var charge_force;
-var link_force;
-var center_force;
-var drag_handler;
-var g;
-var links;
-var nodeSizeScale;
-var codeLineClass = 'node-code-line';
+let zoom_handler;
+let linkedByIndex = {};
+let width = 950;
+let height = 650;
+let svg;
+let nodes;
+let simulation;
+let charge_force;
+let link_force;
+let center_force;
+let drag_handler;
+let g;
+let links;
+let nodeSizeScale;
+let codeLineClass = 'node-code-line';
 let envContent = new Map();
 let auxMap = new Map();
 let envLineBDepth = new Map();
 let lastLineGP = 0;
 let scaleToUse = 1;
 let bigDataIdx = -1;
-
+let cmnObj = objects['commonObj'];
+let cfObj = objects['codeFlowObj'];
+var HC_text = 'User-Typed';
+var R_text = 'Non-Tracked Object';
+const structTypes = {
+	vec: 'Vector',
+	mtx: 'Matrix',
+	frm: 'DataFrame'
+};
+const types = {
+	ASSIGN: 'assign_event',
+	IF: 'if_event',
+	FUNC: 'func_event',
+	RET: 'ret_event',
+	ARITH: 'arith_event',
+	VEC: 'vector_event',
+	IDX: 'idx_change_event',
+	FOR: 'for_loop_event',
+	BREAK: 'break_event',
+	NEXT: 'next_event',
+	REPEAT: 'repeat_loop_event',
+	WHILE: 'while_loop_event',
+	DATAF: 'data_frame_event',
+	CELL: 'cell_change_event'
+};
 $(function() {
 	//load function
 	buildNodes();
 	generateSVGgraph();
+	centerOnMain();
 });
 
 $(document).ready(function() {});
@@ -43,7 +68,23 @@ String.prototype.format = function() {
 		return typeof args[i] != 'undefined' ? args[i++] : '';
 	});
 };
+function populateDropDown() {
+	let htmlProduced = '';
+	let i;
+	// htmlProduced +=
+	// 	'<input class="dropdown-item form-control" type="text" placeholder="Search function" aria-label="Search">';
+	// htmlProduced += '<div class="dropdown-divider"></div>';
+	htmlProduced += '<a class="dropdown-item" href="#" onclick="centerOnMain()">main</a>';
+	for (i = Object.keys(graph.nodes).length - 2; i >= 0; i--) {
+		htmlProduced += '<a class="dropdown-item" href="#" onclick="centerOnId({})">{} (call line: {})</a>'.format(
+			graph.nodes[i].id,
+			graph.nodes[i].fName,
+			graph.nodes[i].callLine
+		);
+	}
 
+	document.getElementById('center-on-func-drop').innerHTML = htmlProduced;
+}
 function buildNodes() {
 	var len = Object.keys(events).length;
 	if (len == 0) return;
@@ -51,6 +92,7 @@ function buildNodes() {
 	envContent = new Map();
 	envLineBDepth = new Map();
 	processEnv('main', events[1]['atEnv'], 1, 0);
+	populateDropDown();
 }
 
 function resolveEnvContents(env, funcName, calledFromLine) {
@@ -72,11 +114,11 @@ function resolveEnvContents(env, funcName, calledFromLine) {
 
 	nodeHtml += '</div>';
 	nodeHtml += '</node>';
-	addNodeToDict(env, nodeHtml);
+	addNodeToDict(env, funcName, calledFromLine, nodeHtml);
 }
 
-function addNodeToDict(env, html) {
-	graph.nodes.push({ name: env, id: ++nodeCount, html: html });
+function addNodeToDict(env, fName, callLine, html) {
+	graph.nodes.push({ name: env, id: ++nodeCount, html: html, fName: fName, callLine: callLine });
 }
 
 function initEnvMap(env) {
@@ -4382,14 +4424,19 @@ function processEventClick(eventId) {
 		$('*[id^=dropSearch]').focus();
 	});
 }
-
+function centerOnMain() {
+	centerOnId(nodeCount);
+}
 function processJumpClick(labelId) {
 	let funcEnv = labelId.split('-')[1];
-	console.log('center on env {}'.format(funcEnv));
 	// let obj = g.select(funcEnv);
 	let foundId = getFOidByName(funcEnv);
-	if (foundId != -1) {
-		let obj = document.getElementById(foundId);
+	centerOnId(foundId);
+}
+
+function centerOnId(id) {
+	if (id != -1) {
+		let obj = document.getElementById(id);
 		let locX = obj.getAttribute('x');
 		let locY = obj.getAttribute('y');
 		svg
@@ -4409,6 +4456,170 @@ function getFOidByName(name) {
 	}
 	return -1;
 }
+
+function applyMapToVector(map, vector) {
+	map.forEach((val, key) => {
+		vector[key] = val;
+	});
+	return vector;
+}
+
+function addToMap(map, key, value) {
+	if (map.has(key)) return map;
+	map.set(key, value);
+	return map;
+}
+
+function addColToMap(map, col) {
+	if (map.has(col)) return map;
+	map.set(col, new Map());
+	return map;
+}
+
+function addRowToMap(map, col, row, value) {
+	if (map.get(col).has(row)) return map;
+	map.get(col).set(row, value);
+	return map;
+}
+function applyMapToFrame(map, cols) {
+	map.forEach((rowsMap, col) => {
+		rowsMap.forEach((newValue, row) => {
+			cols[col][row] = newValue;
+		});
+	});
+	return cols;
+}
+function resolveCurrValue(isFrame, modList, inState, withIndex) {
+	let i;
+	let changesMap = new Map();
+	let index, val, row;
+	if (isFrame) {
+		for (i = inState; i > 0; i--) {
+			if (modList[i]['frameMod'] == true) {
+				let j;
+				for (j = 0; j < modList[i]['numMods']; j++) {
+					//index == col
+					index = modList[i]['mods'][j][0];
+					changesMap = addColToMap(changesMap, index);
+					let k;
+					for (k = 1; k < modList[i]['mods'][j].length; k++) {
+						row = modList[i]['mods'][j][k]['index'];
+						val = modList[i]['mods'][j][k]['newValue'];
+						changesMap = addRowToMap(changesMap, index, row, val);
+					}
+				}
+			} else {
+				if (withIndex == -1) return applyMapToFrame(changesMap, modList[i]['cols']);
+				else return [ applyMapToFrame(changesMap, modList[i]['cols'])[withIndex] ];
+			}
+		}
+	} else {
+		for (i = inState; i > 0; i--) {
+			if (modList[i]['vecMod'] == true) {
+				if (modList[i]['numMods'] == 1) {
+					index = modList[i]['mods'][0]['index'];
+					val = modList[i]['mods'][0]['newValue'];
+					changesMap = addToMap(changesMap, index, val);
+					continue;
+				}
+				let j;
+				for (j = 0; j < modList[i]['mods'].length; j++) {
+					index = modList[i]['mods'][j]['index'];
+					val = modList[i]['mods'][j]['newValue'];
+					changesMap = addToMap(changesMap, index, val);
+				}
+			} else {
+				if (withIndex == -1) return applyMapToVector(changesMap, modList[i]['values']);
+				else return [ applyMapToVector(changesMap, modList[i]['values'])[withIndex] ];
+			}
+		}
+	}
+}
+function getObjCurrValue(id, state, index) {
+	var currentValue = [];
+	let isMultiDim = false;
+	currentValue.push(cmnObj[id]['modList'][state]['structType']);
+	currentValue.push(cmnObj[id]['modList'][state]['dataType']);
+
+	if (cmnObj[id]['modList'][state]['structType'] == 'DataFrame') {
+		isMultiDim = true;
+	}
+	if (index == -1) {
+		if (cmnObj[id]['modList'][state]['vecMod'] == false || cmnObj[id]['modList'][state]['frameMod'] == false) {
+			if (isMultiDim) {
+				let cols = cmnObj[id]['modList'][state]['nCols'];
+				let rows = cmnObj[id]['modList'][state]['cols'][0].length;
+				currentValue.push([ rows, cols ]);
+				currentValue.push(cmnObj[id]['modList'][state]['cols']);
+			} else {
+				currentValue.push(cmnObj[id]['modList'][state]['nElements']);
+				currentValue.push(cmnObj[id]['modList'][state]['values']);
+			}
+		} else {
+			//resolve and get vector
+			if (isMultiDim) {
+				let resolvedFrame = resolveCurrValue(isMultiDim, cmnObj[id]['modList'], state, index);
+				console.log('resolved frame');
+				console.log(resolvedFrame);
+				currentValue.push([ resolvedFrame[0].length, resolvedFrame.length ]);
+				currentValue.push(resolvedFrame);
+			} else {
+				let resolvedVec = resolveCurrValue(isMultiDim, cmnObj[id]['modList'], state, index);
+				currentValue.push(resolvedVec.length);
+				currentValue.push(resolvedVec);
+			}
+		}
+	} else {
+		if (isMultiDim) {
+		} else {
+			if (cmnObj[id]['modList'][state]['vecMod'] == false) {
+				currentValue.push(1);
+				currentValue.push(cmnObj[id]['modList'][state]['values'][index]);
+			} else {
+				var numMods = cmnObj[id]['modList'][state]['numMods'];
+				currentValue.push(1);
+
+				//resolve and get idx
+				currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
+			}
+		}
+	}
+
+	return currentValue;
+}
+
+function structToStr(objCurrentValues) {
+	switch (objCurrentValues[0]) {
+		case structTypes.vec:
+			if (objCurrentValues[2] <= 5) return '[{}]'.format(String(objCurrentValues[3]));
+			else if (objCurrentValues[2] <= 15) return mkTooltip(objCurrentValues);
+			else {
+				valuesToBigData.push(objCurrentValues);
+				return genLabelForBigDataAlreadyOpenModal(++bigDataIdx, 'Values');
+			}
+
+		case structTypes.mtx:
+			return '';
+		case structTypes.frm:
+			valuesToBigData.push(objCurrentValues);
+			return genLabelForBigDataAlreadyOpenModal(++bigDataIdx, 'Values');
+		default:
+			return '';
+	}
+}
+
+function getCommonObjById(id) {
+	return cmnObj[id];
+}
+
+function getCommonObjNameById(id) {
+	return cmnObj[id]['name'];
+}
+
+function getCodeFlowObjNameById(id) {
+	return cfObj[id]['name'];
+}
+
 /*
 
 
@@ -4531,7 +4742,6 @@ function generateSVGgraph() {
 	});
 	//g.transition().duration(300).call(zoom_handler.transform, d3.zoomIdentity);
 
-	console.log(graph);
 	if (nodeCount < 5) {
 		scaleToUse = 0.6;
 	} else if (nodeCount < 10) {
@@ -4544,9 +4754,16 @@ function generateSVGgraph() {
 
 	svg
 		.call(zoom_handler) // here
-		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(scaleToUse))
+		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2 - 50).scale(scaleToUse))
 		.append('svg:g')
-		.attr('transform', 'translate({},{}) scale({},{})'.format(width / 2, height / 2, scaleToUse, scaleToUse));
+		.attr('transform', 'translate({},{}) scale({},{})'.format(width / 2, height / 2 - 50, scaleToUse, scaleToUse));
+}
+
+function resetView() {
+	svg
+		.transition()
+		.duration(500)
+		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2 - 50).scale(scaleToUse));
 }
 
 function zoom_actions() {

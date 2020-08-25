@@ -342,8 +342,11 @@ void loadSettings()
 
 void checkSettings()
 {
+    messagePrinter("Verifying settings integrity");
     if (settings == NO_PATH)
         loadSettings();
+
+
 }
 
 void forceDefaults()

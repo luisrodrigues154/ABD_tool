@@ -75,8 +75,11 @@ void abd_set_launch(SEXP state) {
 void abd_start(SEXP rho) {
     R_jit_enabled = 0;
     checkSettings();
+    printForVerbose("Initializing Objects registry");
     initObjsRegs();
+    printForVerbose("Initializing Environment stack");
     initEnvStack(rho);
+    printForVerbose("Initializing Events registry");
     initEventsReg();
     setWatcherState(ABD_ENABLE);
 }
@@ -90,14 +93,17 @@ void persistAndDisplay(Rboolean useSettings) {
     // checkPendings(R_NilValue, R_NilValue, ABD_OBJECT_NOT_FOUND);
     if (useSettings)
         setWatcherState(ABD_DISABLE);
+
     persistInformation();
     // open the browser with the displayer
     int ret = 0;
     ABD_STATE displayNow = ABD_ENABLE;
     if (useSettings)
         displayNow = launchOnStop();
-    if (displayNow == ABD_ENABLE)
+    if (displayNow == ABD_ENABLE) {
+        printForVerbose("Launching displayer");
         ret = system(getCommand());
+    }
 }
 
 void abd_stop() {
@@ -107,6 +113,7 @@ void abd_stop() {
 
 void abd_path() {
     checkSettings();
+    printForVerbose("Showing saving path");
     messagePrinter(getFolderPath());
 }
 void abd_set_path(SEXP args) {
@@ -133,11 +140,12 @@ void abd_set_path(SEXP args) {
 }
 void abd_clear() {
     forceDefaults();
-    messagePrinter("Default settings Loaded");
+    printForVerbose("Default settings Loaded");
 }
 Rboolean abd_display() {
     if (!isRunning())
         return FALSE;
+
     persistAndDisplay(FALSE);
     return TRUE;
 }

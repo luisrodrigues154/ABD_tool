@@ -1622,6 +1622,7 @@ void saveEvents(FILE *out, FILE *dispOut)
 
 void persistInformation()
 {
+    printForVerbose("Persisting collected data");
     FILE *outputFile;
     FILE *dispOutFile;
 

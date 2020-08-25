@@ -16,37 +16,25 @@
     <div class="m-auto border border-light rounded-lg d-flex flex-column overflow-auto" id="wrapper">
         <div class="justify-content-start align-content-center p-1 border-bottom border-dark sticky-top bg-white"
              id="header">
-            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/1"
-                    data-toggle="button" type="button">Code
+            <button class="btn btn-outline-dark btn-sm" type="button" onClick="centerOnMain()">Center on main
             </button>
-            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/2/1"
-                    data-toggle="button" type="button">Objects
+            <button class="btn btn-outline-dark btn-sm" type="button" onclick="resetView()">Reset view
             </button>
-            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/2/2/2"
-                    data-toggle="button" type="button">Events
-            </button>
-
-            <button aria-pressed="false" class="btn btn-outline-dark" data-path="/1/1" data-toggle="button"
-                    type="button">Execution Flow
-            </button>
-            <label class="ml-5 mt-2">At Function: <label class="ml-1 bar-rhs" id="func_name_label">NA</label></label>
-            <label class="ml-4">Environment:<label class="ml-1 bar-rhs" id="env_label">NA</label></label> </label>
+            <div class="btn-group">
+              <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Center on function
+              </button>
+              <div class="dropdown-menu" id="center-on-func-drop">
+                <!-- Search form -->
+              </div>
+            </div>
             <label class="float-right d-block menu-title my-auto">[ABD_Tool]</label>
-            
         </div>
         <div class="flex-fill position-relative" id="content">
-            <div class="position-absolute w-100 h-100 pane-opacity" data-path="/0">
-                <div class="w-100 h-100 d-flex">
-                    <span class="m-auto">No panes selected.</span>
-                </div>
-            </div>
-            <div class="h-100 w-100 pane-opacity" data-path="/1">
-                <div class="w-100 h-100 d-block pane-opacity" data-path="/1/1">
+            <div class="h-100 w-100 pane-opacity">
+                <div class="w-100 h-100 d-block pane-opacity" >
                     <div class="col-lg h-100">
-                        <div class="h-100 w-100 pane-opacity overflow-hidden" data-path="/1">
-                            <div class="container-fluid mt-1">
-                                <label class="inner-title">Execution graph</label>
-                            </div>
+                        <div class="h-100 w-100 pane-opacity overflow-hidden">
                             <div class="col-lg h-100 overflow-auto" id="graph-container">
                                 <svg class="container-fluid" id="exec-flow-graph"></svg>
                             </div>
@@ -58,91 +46,12 @@
 
                 </div>
             </div>
-            <div class="h-100 w-100 pane-opacity" data-path="/2">
-                <div class="container-fluid h-100">
-                    <div class="row h-100">
-                        <div class="col-lg h-100 border overflow-auto" data-path="/2/1">
-                            
-                            <div class="row flex-grow-1">
-                                <div class="container-fluid mt-1">
-                                    <label class="inner-title" >Code</label>
-                                </div>
-                                <div class="col-lg h-100" id="code_container">
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg h-100 border " data-path="/2/2">
-                            <div class="d-flex flex-column h-100">
-                                <div class="row flex-grow-1 overflow-hidden" data-path="/2/2/1">
-                                    <div class="container-fluid mt-1">
-                                        <label class="inner-title">Objects</label>
-                                        <button type="button" class="btn btn-secondary btn-sm float-right" data-toggle="modal" data-target="#track_modal">
-                                            Track objects
-                                        </button>
-                                    </div>
-                                    <div class="col-lg h-100 p-3 overflow-auto" id="objects_container">
-                                    
-                                    </div>
-                                </div>
-                                <div class="row flex-grow-1 border-top overflow-hidden" data-path="/2/2/2">
-                                    <div class="container-fluid mt-1">
-                                        <label class="inner-title">Events</label>
-                                    </div>
-                                    <div class="col-lg h-100 p-3 overflow-auto" id="events_container">
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODALS HERE-->
-<!--Track objects selection-->
-<div class="modal fade" id="track_modal" tabindex="-1" role="dialog" aria-labelledby="trackModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-width modal-settings bg-white" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title dialog-title" id="modalTitle" >Select objects to track</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body modal-settings-body" id="modal_body">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary modal-track-bto" onclick="updateDisplay();" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-</div>
-
-<!--Context selection-->
-<div class="modal fade " id="context_modal" tabindex="-1" role="dialog" aria-labelledby="contextModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-width modal-settings bg-white" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title dialog-title" id="context_modal_title">Select the context</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body modal-settings-body dialog-text" id="context_modal_body">
             
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary modal-track-bto" data-dismiss="modal">Close</button>
-        </div>
-      </div>
     </div>
 </div>
 
-<!--modal1 selection-->
+<!--modal-->
 <div class="modal fade " id="exec_flow_modal" tabindex="-1" role="dialog" aria-labelledby="exec_flow_modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-width bg-white" role="document">
       <div class="modal-content">
@@ -171,11 +80,7 @@
 <script src="custom/js/events.js"></script>
 <script src="custom/js/code.js"></script>
 <script src="custom/js/blocks.js"></script>
-<script src="custom/js/index.js"></script>
-<script src="custom/js/eventsProcessor.js"></script>
-<script src="custom/js/objProcessor.js"></script>
-<script src="custom/js/graphProcessor.js"></script>
-<script src="custom/js/codeProcessor.js"></script>
+<script src="custom/js/dataProcessor.js"></script>
 
 </body>
 </html>

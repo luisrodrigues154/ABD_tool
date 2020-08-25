@@ -1131,9 +1131,7 @@ ABD_EVENT *checkPendingRet(SEXP rhs, ABD_OBJECT *obj)
         return ABD_EVENT_NOT_FOUND;
 
     lastRetEvent->data.ret_event->toObj = obj;
-    puts("freeing lastRet");
     free(lastRetEvent->data.ret_event->retValue);
-    puts("done");
     lastRetEvent->data.ret_event->retValue = obj->modList;
 
     return lastRetEvent;
