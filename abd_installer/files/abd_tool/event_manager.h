@@ -146,7 +146,8 @@ ABD_FRAME_EVENT *memAllocDataFrameEvent()
 {
     return (ABD_FRAME_EVENT *)malloc(sizeof(ABD_FRAME_EVENT));
 }
-ABD_CELL_CHANGE_EVENT * memAllocCellChangeEvent() {
+ABD_CELL_CHANGE_EVENT *memAllocCellChangeEvent()
+{
     return (ABD_CELL_CHANGE_EVENT *)malloc(sizeof(ABD_CELL_CHANGE_EVENT));
 }
 ITER_EVENT_LIST *memAllocIterEventList()
@@ -206,7 +207,7 @@ SEXP getValueFromPROMSXP(SEXP symbol)
 ABD_VEC_OBJ *processVector(SEXP symbolValue, int idxChange)
 {
     SEXPTYPE modType;
-    rollback2:
+rollback2:
     modType = TYPEOF(symbolValue);
 
     switch (modType)
@@ -341,7 +342,7 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
             object before start_watcher() is issued.
         */
 
-        rollback:
+    rollback:
         switch (TYPEOF(symbol))
         {
         case REALSXP:
@@ -405,10 +406,10 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
 
 int inCollection(const char *check)
 {
-    char *collection[] ={
+    char *collection[] = {
         "+", "-", "*", "/",
         "==", "!=", "<", ">", "<=", ">=",
-        "&", "|", "&&", "||", "!", "[", "**", "^" };
+        "&", "|", "&&", "||", "!", "[", "**", "^"};
     int nCollection = 18;
 
     for (int i = 0; i < nCollection; i++)
@@ -459,7 +460,7 @@ ABD_OBJECT_MOD *idxCurrValueVec(ABD_OBJECT_MOD *modList, int findIdx)
     ABD_OBJECT_MOD *retMod = memAllocMod();
     ABD_OBJECT_MOD *currMod = modList;
     int found = 0;
-    top:;
+top:;
     if (!currMod->value.vec_value->idxChange || found)
     {
         retMod->id = modList->id;
@@ -525,6 +526,8 @@ IF_ABD_OBJ *getAbdIfObj(SEXP symbol, int withIndex)
 
     switch (TYPEOF(symbol))
     {
+    case STRSXP:
+    case INTSXP:
     case REALSXP:
         objectFound = createUnscopedObj("NA", -1, -1, symbol, 0);
         objValue = objectFound->modList;
@@ -659,15 +662,15 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
 
 IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
 {
-
     IF_EXPRESSION *newExpr = memAllocIfExp();
     newExpr->exprId = ++exprId;
     char *stmtStr = memAllocForString(100);
     memset(stmtStr, 0, 100);
+
     if (TYPEOF(st) == LANGSXP)
     {
         newExpr->isConfined = 0;
-        procStateLabel:;
+    procStateLabel:;
         SEXP carSt = CAR(st);
         const char *operator= CHAR(PRINTNAME(carSt));
         int opSize = strlen(operator);
@@ -696,7 +699,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
             }
             else
             {
-                jump1:;
+            jump1:;
                 // if we come to (2>3) left side wont be LANGSXP
                 // need to process by type
                 newExpr->left_type = IF_ABD;
@@ -723,7 +726,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
             }
             else
             {
-                jump2:;
+            jump2:;
                 // if we come to (2>3) left side wont be LANGSXP
                 // need to process by type
                 newExpr->right_type = IF_ABD;
@@ -748,25 +751,20 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     }
     mkStrForCmp(newExpr, stmtStr);
     setWatcherState(ABD_DISABLE);
+
+    SEXP result = R_NilValue;
+    currArithIndex++;
     if (withEval)
-    {
-        SEXP result = getResult(stmtStr);
-        SEXPTYPE resType = TYPEOF(result);
+        result = getResult(stmtStr);
+    else if (lastArithEvent != ABD_EVENT_NOT_FOUND)
+        /* pick from the results array */
+        result = arithResults[currArithIndex];
 
-        if (resType == LGLSXP)
-            newExpr->result = LOGICAL(result)[0];
-        else if (resType == REALSXP)
-            newExpr->result = REAL(result)[0];
-    }
-    else
-    {
-        if (lastArithEvent != ABD_EVENT_NOT_FOUND)
-        {
-            /* pick from the results array */;
-            newExpr->result = REAL(arithResults[++currArithIndex])[0];
-            /* int arithLen = Rf_length(arithResults[++currArithIndex]);
-
-
+    /* 
+        structure multiplication (like v1 * 2) certainly achievable with something 
+        around the code in this comment block
+        
+        int arithLen = Rf_length(arithResults[++currArithIndex]);
             //newExpr->resultSize = arithLen;
             if (arithLen > 1)
             {
@@ -777,9 +775,17 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
                 newExpr->result = REAL(arithResults[currArithIndex])[0];
                 printf("result: %.4f\n", newExpr->result);
             }
- */
-        }
-    }
+    */
+
+    SEXPTYPE resType = TYPEOF(result);
+
+    if (resType == LGLSXP)
+        newExpr->result = LOGICAL(result)[0];
+    else if (resType == REALSXP)
+        newExpr->result = REAL(result)[0];
+    else if (resType == INTSXP)
+        newExpr->result = (double)INTEGER(result)[0];
+
     setWatcherState(ABD_ENABLE);
     //printf("\nStatement %s\nResult %s\n", stmtStr, (newExpr->result) ? "TRUE" : "FALSE");
     free(stmtStr);
@@ -1106,7 +1112,14 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
     */
 
     createNewEvent(ARITH_EVENT);
-    lastArithEvent->globalResult = REAL(finalArithAns)[0];
+    SEXPTYPE resType = TYPEOF(finalArithAns);
+
+    if (resType == LGLSXP)
+        lastArithEvent->globalResult = LOGICAL(finalArithAns)[0];
+    else if (resType == REALSXP)
+        lastArithEvent->globalResult = REAL(finalArithAns)[0];
+    else if (resType == INTSXP)
+        lastArithEvent->globalResult = (double)INTEGER(finalArithAns)[0];
     currArithIndex = -1;
     exprId = 0;
     lastArithEvent->expr = processIfStmt(finalArithCall, 0);
@@ -1114,7 +1127,6 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
     R_PrintData pars;
     PrintInit(&pars, getCurrentEnv());
     lastArithEvent->exprStr = getStrForStatement(finalArithCall, &pars);
-
 
     if (finalArithAns == rhs)
         return eventsRegTail;
@@ -1170,11 +1182,13 @@ void storeVecForIdxChange(SEXP vec)
     }
 }
 
-void storeVecForCellChange(SEXP vec) {
+void storeVecForCellChange(SEXP vec)
+{
 
-    CELL_CHANGE * cellChange = getCurrCellChange();
+    CELL_CHANGE *cellChange = getCurrCellChange();
 
-    if (cellChange->waitingSrcCols) {
+    if (cellChange->waitingSrcCols)
+    {
         cellChange->srcCols = vec;
         cellChange->waitingSrcCols = FALSE;
         cellChange->srcNCols = Rf_length(vec);
@@ -1182,7 +1196,8 @@ void storeVecForCellChange(SEXP vec) {
         return;
     }
 
-    if (cellChange->waitingSrcRows) {
+    if (cellChange->waitingSrcRows)
+    {
         cellChange->srcRows = vec;
         cellChange->waitingSrcRows = FALSE;
         cellChange->srcNRows = Rf_length(vec);
@@ -1190,14 +1205,16 @@ void storeVecForCellChange(SEXP vec) {
         return;
     }
 
-    if (cellChange->waitingSrcValues) {
+    if (cellChange->waitingSrcValues)
+    {
         cellChange->srcValues = vec;
         cellChange->waitingSrcValues = FALSE;
         decrementWaitingCellChange();
         return;
     }
 
-    if (cellChange->waitingColsVec) {
+    if (cellChange->waitingColsVec)
+    {
         cellChange->toCols = vec;
         cellChange->waitingColsVec = FALSE;
         cellChange->nCols = Rf_length(vec);
@@ -1205,8 +1222,8 @@ void storeVecForCellChange(SEXP vec) {
         return;
     }
 
-
-    if (cellChange->waitingRowsVec) {
+    if (cellChange->waitingRowsVec)
+    {
         cellChange->toRows = vec;
         cellChange->waitingRowsVec = FALSE;
         cellChange->nRows = Rf_length(vec);
@@ -1251,7 +1268,7 @@ void preProcessSrc(SEXP call)
     SEXP rhs = CAR(CDR(CDR(call)));
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     idxChanges->src = R_NilValue;
-    rollback:
+rollback:
     if (TYPEOF(rhs) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
@@ -1330,34 +1347,38 @@ void preProcessDataFrameDest(SEXP call)
 {
 
     SEXP currEnv = getCurrentEnv();
-    CELL_CHANGE * cellChanges = getCurrCellChange();
+    CELL_CHANGE *cellChanges = getCurrCellChange();
     SEXP lhs = CAR(CDR(call));
     SEXP cols = R_NilValue;
     SEXP rows = R_NilValue;
     R_PrintData pars;
     PrintInit(&pars, currEnv);
-    const char * lhs_str = getStrForStatement(lhs, &pars);
+    const char *lhs_str = getStrForStatement(lhs, &pars);
 
     Rboolean hasDollar = FALSE, hasBracket = FALSE;
 
     hasDollar = (strstr(lhs_str, "$") != ABD_NOT_FOUND);
     hasBracket = (strstr(lhs_str, "[") != ABD_NOT_FOUND);
 
-    if (hasDollar && hasBracket) {
+    if (hasDollar && hasBracket)
+    {
         //has dollar and bracket
         //will have column and row (specific cell or range of cells in column)
         cols = CAR(CDR(CDR(CAR(CDR(lhs)))));
         rows = CAR(CDR(CDR(lhs)));
         cellChanges->nCols = 1;
     }
-    else if (hasDollar) {
+    else if (hasDollar)
+    {
         rows = R_NilValue;
         cols = CAR(CDR(CDR(lhs)));
         cellChanges->nCols = 1;
         //will change an entire column because there is no bracket to limit it
     }
-    else {
-        if (strstr(lhs_str, ",") != ABD_NOT_FOUND) {
+    else
+    {
+        if (strstr(lhs_str, ",") != ABD_NOT_FOUND)
+        {
             //contains comma, has a row and a column
             rows = CAR(CDR(CDR(lhs)));
             if (TYPEOF(rows) == SYMSXP)
@@ -1368,7 +1389,8 @@ void preProcessDataFrameDest(SEXP call)
                 if (strcmp(CHAR(PRINTNAME(cols)), "") == 0)
                     cols = R_NilValue;
         }
-        else {
+        else
+        {
             //does not contains comma, will modify the entire column
             rows = R_NilValue;
             cols = CAR(CDR(CDR(lhs)));
@@ -1378,13 +1400,17 @@ void preProcessDataFrameDest(SEXP call)
         }
     }
 
-    if (rows != R_NilValue) {
+    if (rows != R_NilValue)
+    {
         SEXPTYPE rowType = TYPEOF(rows);
-        switch (rowType) {
-        case LANGSXP: {
+        switch (rowType)
+        {
+        case LANGSXP:
+        {
             //range
             SEXP tester = CAR(rows);
-            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))) {
+            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c")))
+            {
                 cellChanges->waitingRowsVec = TRUE;
                 incrementWaitingCellChange();
             }
@@ -1401,17 +1427,22 @@ void preProcessDataFrameDest(SEXP call)
             break;
         }
     }
-    else {
+    else
+    {
         cellChanges->nRows = -1;
     }
 
-    if (cols != R_NilValue) {
+    if (cols != R_NilValue)
+    {
         SEXPTYPE colType = TYPEOF(cols);
-        switch (colType) {
-        case LANGSXP: {
+        switch (colType)
+        {
+        case LANGSXP:
+        {
             //range
             SEXP tester = CAR(cols);
-            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c"))) {
+            if ((strcmp(CHAR(PRINTNAME(tester)), ":") == 0) || (strcmp(CHAR(PRINTNAME(tester)), "c")))
+            {
                 cellChanges->waitingColsVec = TRUE;
                 incrementWaitingCellChange();
             }
@@ -1428,12 +1459,11 @@ void preProcessDataFrameDest(SEXP call)
             cellChanges->nCols = 1;
             break;
         }
-
     }
-    else {
+    else
+    {
         cellChanges->nCols = -1;
     }
-
 }
 
 void preProcessDataFrameSrc(SEXP call)
@@ -1458,10 +1488,11 @@ void preProcessDataFrameSrc(SEXP call)
     */
     SEXP rhs = CAR(CDR(CDR(call)));
     SEXP currEnv = getCurrentEnv();
-    CELL_CHANGE * cellChanges = getCurrCellChange();
+    CELL_CHANGE *cellChanges = getCurrCellChange();
     SEXPTYPE rhsType = TYPEOF(rhs);
 
-    if (rhsType == LANGSXP) {
+    if (rhsType == LANGSXP)
+    {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
         if (strcmp(rhsChar, "$") == 0)
         {
@@ -1469,15 +1500,14 @@ void preProcessDataFrameSrc(SEXP call)
             cellChanges->srcSexpObj = CAR(CDR(rhs));
             cellChanges->srcCols = CAR(CDR(CDR(rhs)));
             cellChanges->srcNCols = 1;
-            const char * colName = CHAR(asChar(cellChanges->srcCols));
-            const char * objName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
+            const char *colName = CHAR(asChar(cellChanges->srcCols));
+            const char *objName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
             int nameSize = strlen(colName) + strlen(objName) + 2;
             char *requestValue = memAllocForString(nameSize);
             memset(requestValue, 0, nameSize);
             sprintf(requestValue, "%s$%s", objName, colName);
             cellChanges->srcValues = getResult(requestValue);
             cellChanges->srcNRows = -1;
-
         }
         else if (strcmp(rhsChar, "[") == 0)
         {
@@ -1487,8 +1517,10 @@ void preProcessDataFrameSrc(SEXP call)
             SEXP cols = R_NilValue;
             SEXPTYPE rowsType = NILSXP, colsType = NILSXP;
 
-            if (TYPEOF(testForDollar) == LANGSXP) {
-                if (strcmp(CHAR(PRINTNAME(CAR(testForDollar))), "$") == 0) {
+            if (TYPEOF(testForDollar) == LANGSXP)
+            {
+                if (strcmp(CHAR(PRINTNAME(CAR(testForDollar))), "$") == 0)
+                {
                     // extract the object here
                     cellChanges->srcSexpObj = CAR(CDR(testForDollar));
                     cols = CAR(CDR(CDR(testForDollar)));
@@ -1500,8 +1532,10 @@ void preProcessDataFrameSrc(SEXP call)
                 cellChanges->srcSexpObj = testForDollar;
 
             SEXP srcVals = getResult(CHAR(PRINTNAME(cellChanges->srcSexpObj)));
-            if (Rf_isFrame(srcVals)) {
-                if (!dollarSeen) {
+            if (Rf_isFrame(srcVals))
+            {
+                if (!dollarSeen)
+                {
                     /*
                         dollar not seen, need to check if two arguments passed
                         this arguments can be:
@@ -1516,25 +1550,27 @@ void preProcessDataFrameSrc(SEXP call)
                     rowsType = TYPEOF(rows);
                     cols = CAR(CDR(CDR(CDR(rhs))));
                     colsType = TYPEOF(cols);
-                    if (colsType == NILSXP) {
+                    if (colsType == NILSXP)
+                    {
                         cols = rows;
                         colsType = TYPEOF(cols);
                         rowsType = NILSXP;
                         rows = R_NilValue;
                         cellChanges->srcRows = R_NilValue;
                     }
-
-
                 }
-                else {
+                else
+                {
                     rows = CAR(CDR(CDR(rhs)));
                     rowsType = TYPEOF(rows);
                 }
 
-
-                switch (colsType) {
-                case NILSXP: break;
-                case LANGSXP: {
+                switch (colsType)
+                {
+                case NILSXP:
+                    break;
+                case LANGSXP:
+                {
                     const char *rhsChar = CHAR(PRINTNAME(CAR(cols)));
                     if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
                     {
@@ -1552,20 +1588,24 @@ void preProcessDataFrameSrc(SEXP call)
                     break;
                 }
 
-                if (rowsType != NILSXP) {
-                    switch (rowsType) {
-                    case NILSXP: break;
-                    case LANGSXP: {
+                if (rowsType != NILSXP)
+                {
+                    switch (rowsType)
+                    {
+                    case NILSXP:
+                        break;
+                    case LANGSXP:
+                    {
                         const char *rhsChar = CHAR(PRINTNAME(CAR(rows)));
                         if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
                         {
                             cellChanges->waitingSrcRows = TRUE;
                             incrementWaitingCellChange();
-                            if (dollarSeen) {
+                            if (dollarSeen)
+                            {
                                 cellChanges->waitingSrcValues = TRUE;
                                 incrementWaitingCellChange();
                             }
-
                         }
                         break;
                     }
@@ -1578,17 +1618,16 @@ void preProcessDataFrameSrc(SEXP call)
                     }
                 }
 
-                if ((!cellChanges->waitingSrcValues) && (cellChanges->srcValues == R_NilValue)) {
+                if ((!cellChanges->waitingSrcValues) && (cellChanges->srcValues == R_NilValue))
+                {
                     R_PrintData pars;
                     PrintInit(&pars, getCurrentEnv());
                     cellChanges->srcValues = getResult(getStrForStatement(rhs, &pars));
                     cellChanges->srcNCols = cellChanges->srcNRows = -1;
-
                 }
-
-
             }
-            else if (Rf_isVector(srcVals)) {
+            else if (Rf_isVector(srcVals))
+            {
                 rhs = CAR(CDR(CDR(rhs)));
                 if (TYPEOF(rhs) == LANGSXP)
                 {
@@ -1600,7 +1639,7 @@ void preProcessDataFrameSrc(SEXP call)
                         if (dollarSeen)
                             cellChanges->waitingSrcRows = TRUE;
                         else
-                            cellChanges->waitingSrcCols= TRUE;
+                            cellChanges->waitingSrcCols = TRUE;
 
                         incrementWaitingCellChange();
                         cellChanges->waitingSrcValues = TRUE;
@@ -1626,28 +1665,32 @@ void preProcessDataFrameSrc(SEXP call)
             }
         }
 
-        else {
+        else
+        {
             //check hardcoded vector
             const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));
-            if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0)) {
+            if ((strcmp(rhsChar, ":") == 0) || (strcmp(rhsChar, "c") == 0))
+            {
                 cellChanges->waitingSrcValues = TRUE;
                 cellChanges->srcNCols = -1;
                 cellChanges->srcNRows = 0;
                 incrementWaitingCellChange();
             }
         }
-
     }
-    else {
+    else
+    {
         //symbol or harcoded
-        if (rhsType == SYMSXP) {
+        if (rhsType == SYMSXP)
+        {
             //symbol
             cellChanges->srcSexpObj = rhs;
             cellChanges->srcValues = getResult(CHAR(PRINTNAME(rhs)));
             cellChanges->srcNCols = Rf_length(cellChanges->srcValues);
             cellChanges->srcNRows = 1;
         }
-        else {
+        else
+        {
             //hc value
             cellChanges->srcSexpObj = R_NilValue;
             cellChanges->srcValues = rhs;
@@ -1659,9 +1702,9 @@ void preProcessDataFrameSrc(SEXP call)
     puts("\n\n\n\n");
 }
 
-void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho)
+void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *targetObj, SEXP rho)
 {
-    CELL_CHANGE * cellChange = ABD_NOT_FOUND;
+    CELL_CHANGE *cellChange = ABD_NOT_FOUND;
     setWatcherState(ABD_DISABLE);
     initCellChangeAuxVars();
     cellChange = getCurrCellChange();
@@ -1679,12 +1722,13 @@ void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *  targetObj, SEXP rho)
      if true, call finalize from here.
      */
     setWatcherState(ABD_ENABLE);
-    if ((!cellChange->waitingSrcValues) && (!cellChange->waitingSrcCols) && (!cellChange->waitingSrcRows) && (!cellChange->waitingRowsVec) && (!cellChange->waitingColsVec) && (cellChange->toRows == R_NilValue || cellChange->toCols == R_NilValue)) {
+    if ((!cellChange->waitingSrcValues) && (!cellChange->waitingSrcCols) && (!cellChange->waitingSrcRows) && (!cellChange->waitingRowsVec) && (!cellChange->waitingColsVec) && (cellChange->toRows == R_NilValue || cellChange->toCols == R_NilValue))
+    {
         finalizeVarIdxChange(R_NilValue, getCurrentEnv());
     }
 }
 
-void preProcessVarIdxChange(SEXP call, ABD_OBJECT * targetObj, SEXP rho)
+void preProcessVarIdxChange(SEXP call, ABD_OBJECT *targetObj, SEXP rho)
 {
     initIdxChangeAuxVars();
     getCurrIdxChanges()->destObj = targetObj;
@@ -1781,7 +1825,7 @@ ABD_EVENT *checkPendingVec(SEXP rhs2, SEXP vecVal)
         return eventsRegTail;
 }
 
-ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs, ABD_OBJECT * usedObj)
+ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs, ABD_OBJECT *usedObj)
 {
     if (!(frameCall != R_NilValue && pendingFrame && frameCall == call))
         return ABD_EVENT_NOT_FOUND;
@@ -1795,7 +1839,6 @@ ABD_EVENT *checkPendingFrame(SEXP call, SEXP rhs, ABD_OBJECT * usedObj)
     frameEvent->fromIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
     frameEvent->colNames = usedObj->modList->value.frame_value->colNames;
     frameEvent->numIdxs = (int **)malloc(sizeof(int *) * numFrameSrcs);
-
 
     for (int i = 0; i < numFrameSrcs; i++)
     {
@@ -1865,7 +1908,6 @@ ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj)
     if (retValue != ABD_EVENT_NOT_FOUND)
         return retValue;
 
-
     return retValue;
 }
 
@@ -1924,14 +1966,15 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
     if (cellChanges->srcCols == R_NilValue)
         doSeqCols = TRUE;
 
-    for (c = 0; c<cellChanges->srcNCols; c++) {
+    for (c = 0; c < cellChanges->srcNCols; c++)
+    {
         if (!doSeqCols)
             cellChangeEvent->colsIdxs[c] = getIdxForSEXP(cellChanges->srcObj, cellChanges->srcCols, c);
         else
             cellChangeEvent->colsIdxs[c] = c;
 
-
-        for (r=0; r<cellChanges->srcNRows; r++) {
+        for (r = 0; r < cellChanges->srcNRows; r++)
+        {
             if (!doSeqRows)
             {
                 switch (TYPEOF(cellChanges->srcRows))
@@ -1946,7 +1989,6 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
             }
             else
                 cellChangeEvent->rowsIdxs[r] = r;
-
         }
     }
 
@@ -2004,7 +2046,6 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
     ABD_EVENT *fromEvent = checkPendings(R_NilValue, rhs, objUsed);
     CELL_CHANGE *cellChanges = getCurrCellChange();
 
-
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     /* Create the new assignment event */
 
@@ -2033,7 +2074,7 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
         currCellEvent->fromType = ABD_O;
         if (cellChanges->srcSexpObj != R_NilValue)
         {
-            const char * srcName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
+            const char *srcName = CHAR(PRINTNAME(cellChanges->srcSexpObj));
             if ((currCellEvent->fromObj = findCmnObj(srcName, getCurrentEnv())) == ABD_OBJECT_NOT_FOUND)
                 currCellEvent->fromObj = createUnscopedObj(srcName, -2, -2, cellChanges->srcValues, 0);
             cellChanges->srcObj = currCellEvent->fromObj;
@@ -2148,7 +2189,7 @@ void parseDataFrameSrcs(SEXP call, int i)
     frameSrcs[i]->discard = FALSE;
     waitingFrameIdxs[i] = 0;
 
-    rollback:
+rollback:
     if (TYPEOF(call) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(call)));
@@ -2280,7 +2321,7 @@ void preProcessEnumerator(SEXP enumerator)
 
     SEXP rhs = enumerator;
     loopStack->loop.forLoop->enumSEXP = R_NilValue;
-    rollback22:
+rollback22:
     if (TYPEOF(rhs) == LANGSXP)
     {
         const char *rhsChar = CHAR(PRINTNAME(CAR(rhs)));

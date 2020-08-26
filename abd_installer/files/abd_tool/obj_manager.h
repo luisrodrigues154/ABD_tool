@@ -8,7 +8,8 @@
 #include <ctype.h>
 #include <strings.h>
 
-void initObjsRegs() {
+void initObjsRegs()
+{
     // set NULL to initialize
     cmnObjReg = ABD_OBJECT_NOT_FOUND;
     cfObjReg = ABD_OBJECT_NOT_FOUND;
@@ -16,22 +17,26 @@ void initObjsRegs() {
     numCmnObj = 0;
 }
 
-void wipeObjMods(ABD_OBJECT_MOD *listStart) {
+void wipeObjMods(ABD_OBJECT_MOD *listStart)
+{
     ABD_OBJECT_MOD *currMod = listStart;
 
-    do {
+    do
+    {
         ABD_OBJECT_MOD *freeMod = currMod;
         currMod = currMod->nextMod;
         free(freeMod);
     } while (currMod != ABD_NOT_FOUND);
 }
-void wipeRegs() {
+void wipeRegs()
+{
     // clears registry memory (all nodes)
     // TODO: clear ABD_OBJ_MOD_LIST not done
 
     // wipe common objects registry
     ABD_OBJECT *currentObject = cmnObjReg;
-    while (currentObject != ABD_OBJECT_NOT_FOUND) {
+    while (currentObject != ABD_OBJECT_NOT_FOUND)
+    {
         ABD_OBJECT *next = currentObject->nextObj;
         free(currentObject);
         currentObject = next;
@@ -39,23 +44,27 @@ void wipeRegs() {
 
     // wipe codeflow objects registry
     currentObject = cfObjReg;
-    while (currentObject != ABD_OBJECT_NOT_FOUND) {
+    while (currentObject != ABD_OBJECT_NOT_FOUND)
+    {
         ABD_OBJECT *next = currentObject->nextObj;
         free(currentObject);
         currentObject = next;
     }
 }
 
-ABD_OBJECT *memAllocBaseObj() {
+ABD_OBJECT *memAllocBaseObj()
+{
     return (ABD_OBJECT *)malloc(sizeof(ABD_OBJECT));
 }
 
-char *memAllocForString(int strSize) {
+char *memAllocForString(int strSize)
+{
     //+1 for \0 terminator
     return (char *)malloc(strSize * sizeof(char) + 1);
 }
 
-ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS) {
+ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS)
+{
     // set obj->prev = (node_RHS->prev)
     obj->prevObj = node_RHS->prevObj;
 
@@ -78,16 +87,19 @@ ABD_OBJECT *doSwap(ABD_OBJECT *objReg, ABD_OBJECT *obj, ABD_OBJECT *node_RHS) {
     return objReg;
 }
 
-ABD_OBJECT_MOD *memAllocMod() {
+ABD_OBJECT_MOD *memAllocMod()
+{
     return (ABD_OBJECT_MOD *)malloc(sizeof(ABD_OBJECT_MOD));
 }
 
-void copyStr(char *dest, const char *src, int strSize) {
+void copyStr(char *dest, const char *src, int strSize)
+{
     strncpy(dest, src, strSize * sizeof(char));
     dest[strSize] = '\0';
 }
 
-void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv) {
+void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv)
+{
     int nameSize = strlen(name);
     obj->name = memAllocForString(nameSize);
     copyStr(obj->name, name, nameSize);
@@ -97,7 +109,8 @@ void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv) {
 
     obj->createdEnv = createdEnv;
     ABD_OBJECT *createdAt = getCurrFuncObj();
-    if (createdAt == ABD_OBJECT_NOT_FOUND) {
+    if (createdAt == ABD_OBJECT_NOT_FOUND)
+    {
         int mainSize = strlen("main");
         obj->createdAt = memAllocForString(mainSize);
         copyStr(obj->createdAt, "main", mainSize);
@@ -108,8 +121,10 @@ void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv) {
     obj->modListStart = ABD_OBJECT_NOT_FOUND;
     obj->modList = ABD_OBJECT_NOT_FOUND;
 }
-ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg) {
-    if (objReg == ABD_OBJECT_NOT_FOUND) {
+ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg)
+{
+    if (objReg == ABD_OBJECT_NOT_FOUND)
+    {
         // empty registry
         objReg = memAllocBaseObj();
         objReg->nextObj = ABD_OBJECT_NOT_FOUND;
@@ -129,7 +144,8 @@ ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg) {
 
     return newObject;
 }
-ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv) {
+ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv)
+{
     if (cfObjReg == ABD_OBJECT_NOT_FOUND)
         // registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
@@ -138,14 +154,16 @@ ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv) {
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT *currentObject = cfObjReg;
     unsigned short found = 0;
-    do {
+    do
+    {
         // line below mitigates recursion and calling functions declared
         // in the global env as well as declared in function scope
 
         if ((strncmp(currentObject->name, name, strlen(name) * sizeof(char)) ==
-            0) &&
+             0) &&
             (currentObject->createdEnv == getInitialEnv() ||
-                currentObject->createdEnv == callingEnv)) {
+             currentObject->createdEnv == callingEnv))
+        {
             objectFound = currentObject;
             break;
         }
@@ -155,7 +173,8 @@ ABD_OBJECT *findFuncObj(const char *name, SEXP callingEnv) {
 
     return objectFound;
 }
-ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv) {
+ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv)
+{
     if (cmnObjReg == ABD_OBJECT_NOT_FOUND)
         // registry empty, alloc
         return ABD_OBJECT_NOT_FOUND;
@@ -165,9 +184,11 @@ ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv) {
     ABD_OBJECT *currentObject = cmnObjReg;
     unsigned short result = 0, result2 = 0;
     unsigned short found = 0;
-    do {
+    do
+    {
         if ((currentObject->createdEnv == createdEnv) &&
-            (strcmp(currentObject->name, name) == 0)) {
+            (strcmp(currentObject->name, name) == 0))
+        {
             objectFound = currentObject;
             break;
         }
@@ -177,7 +198,8 @@ ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv) {
     return objectFound;
 }
 
-ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
+ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj)
+{
     // verify if already top of the list
     if (obj->prevObj == ABD_OBJECT_NOT_FOUND)
         return ABD_OBJECT_NOT_FOUND;
@@ -190,8 +212,10 @@ ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
     ABD_OBJECT *node_RHS = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT *auxNode = obj->prevObj;
     unsigned short found = 0;
-    do {
-        if (auxNode->usages < obj->usages) {
+    do
+    {
+        if (auxNode->usages < obj->usages)
+        {
             // need to move
             node_RHS = auxNode;
             auxNode = auxNode->prevObj;
@@ -208,7 +232,8 @@ ABD_OBJECT *findRHS(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
 
     return node_RHS;
 }
-void changeNeighbours(ABD_OBJECT *obj) {
+void changeNeighbours(ABD_OBJECT *obj)
+{
     // prev obj NULL
     // prev NULL
 
@@ -220,7 +245,8 @@ void changeNeighbours(ABD_OBJECT *obj) {
         (obj->nextObj)->prevObj = obj->prevObj;
 }
 
-ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
+ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj)
+{
     // this function searches for a space in the list where
     // the node before has more usages or is NULL (HEAD)
     // and the node after has less usages than the node being ranked.
@@ -228,7 +254,8 @@ ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
     // stores (changeNeighbours).
     // This way the list can maintain coerence
     ABD_OBJECT *node_RHS = findRHS(objReg, obj);
-    if (node_RHS != ABD_OBJECT_NOT_FOUND) {
+    if (node_RHS != ABD_OBJECT_NOT_FOUND)
+    {
         changeNeighbours(obj);
         objReg = doSwap(objReg, obj, node_RHS);
     }
@@ -236,10 +263,12 @@ ABD_OBJECT *rankObjByUsages(ABD_OBJECT *objReg, ABD_OBJECT *obj) {
     return objReg;
 }
 
-ABD_OBJECT *getCmnObj(const char *name, SEXP rho) {
+ABD_OBJECT *getCmnObj(const char *name, SEXP rho)
+{
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
-    if (cmnObjReg == ABD_OBJECT_NOT_FOUND) {
+    if (cmnObjReg == ABD_OBJECT_NOT_FOUND)
+    {
         // registry empty, alloc
         cmnObjReg = addEmptyObjToReg(cmnObjReg);
         objectFound = cmnObjReg;
@@ -249,7 +278,8 @@ ABD_OBJECT *getCmnObj(const char *name, SEXP rho) {
     else
         objectFound = findCmnObj(name, rho);
 
-    if (objectFound == ABD_OBJECT_NOT_FOUND) {
+    if (objectFound == ABD_OBJECT_NOT_FOUND)
+    {
         // alloc
         objectFound = addEmptyObjToReg(cmnObjReg);
         objectFound->id = ++numCmnObj;
@@ -257,10 +287,12 @@ ABD_OBJECT *getCmnObj(const char *name, SEXP rho) {
     }
     return objectFound;
 }
-ABD_OBJECT *getCfObj(const char *name, SEXP rho) {
+ABD_OBJECT *getCfObj(const char *name, SEXP rho)
+{
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
 
-    if (cfObjReg == ABD_OBJECT_NOT_FOUND) {
+    if (cfObjReg == ABD_OBJECT_NOT_FOUND)
+    {
         // registry empty, alloc
         cfObjReg = addEmptyObjToReg(cfObjReg);
         objectFound = cfObjReg;
@@ -270,7 +302,8 @@ ABD_OBJECT *getCfObj(const char *name, SEXP rho) {
     else
         objectFound = findFuncObj(name, rho);
 
-    if (objectFound == ABD_OBJECT_NOT_FOUND) {
+    if (objectFound == ABD_OBJECT_NOT_FOUND)
+    {
         // alloc
         objectFound = addEmptyObjToReg(cfObjReg);
         objectFound->id = ++numCfObj;
@@ -284,36 +317,45 @@ ABD_OBJECT *getCfObj(const char *name, SEXP rho) {
 /*
     CMN_OBJ specifics
 */
-void manageMatrix() {
+void manageMatrix()
+{
     puts("arrived");
 }
-ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod) {
+ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod)
+{
     newMod->value.mtrx_value = NULL;
     newMod->value.vec_value = NULL;
     newMod->value.frame_value = NULL;
     return newMod;
 }
-ABD_VEC_OBJ *memAllocVecObj() {
+ABD_VEC_OBJ *memAllocVecObj()
+{
     return (ABD_VEC_OBJ *)malloc(sizeof(ABD_VEC_OBJ));
 }
-ABD_VEC_OBJ **memAllocMultiVecObj(int numVecs) {
+ABD_VEC_OBJ **memAllocMultiVecObj(int numVecs)
+{
     return (ABD_VEC_OBJ **)malloc(sizeof(ABD_VEC_OBJ *) * numVecs);
 }
 
-ABD_FRAME_OBJ *memAllocFrameObj() {
+ABD_FRAME_OBJ *memAllocFrameObj()
+{
     return (ABD_FRAME_OBJ *)malloc(sizeof(ABD_FRAME_OBJ));
 }
 
-double *memAllocDoubleVector(int size) {
+double *memAllocDoubleVector(int size)
+{
     return (double *)malloc(size * sizeof(double));
 }
-int *memAllocIntVector(int size) {
+int *memAllocIntVector(int size)
+{
     return (int *)malloc(size * sizeof(int));
 }
-char **memAllocStrVec(int size) {
+char **memAllocStrVec(int size)
+{
     return (char **)malloc(sizeof(char **) * size);
 }
-ABD_VEC_OBJ *createIntVector(SEXP rhs) {
+ABD_VEC_OBJ *createIntVector(SEXP rhs)
+{
     int nElements = Rf_nrows(rhs);
     ABD_VEC_OBJ *vector = memAllocVecObj();
     vector->type = INTSXP;
@@ -327,7 +369,8 @@ ABD_VEC_OBJ *createIntVector(SEXP rhs) {
 
     return vector;
 }
-ABD_VEC_OBJ *createRealVector(SEXP rhs) {
+ABD_VEC_OBJ *createRealVector(SEXP rhs)
+{
     int nElements = Rf_nrows(rhs);
     ABD_VEC_OBJ *vector = memAllocVecObj();
     vector->type = REALSXP;
@@ -341,7 +384,8 @@ ABD_VEC_OBJ *createRealVector(SEXP rhs) {
 
     return vector;
 }
-static void PrintIt2(SEXP call, SEXP rho) {
+static void PrintIt2(SEXP call, SEXP rho)
+{
     int old_bl = R_BrowseLines,
         blines = asInteger(GetOption1(install("deparse.max.lines")));
     if (blines != NA_INTEGER && blines > 0)
@@ -354,15 +398,16 @@ static void PrintIt2(SEXP call, SEXP rho) {
     R_BrowseLines = old_bl;
 }
 
-int *getObjDim(ABD_OBJECT *obj) {
+int *getObjDim(ABD_OBJECT *obj)
+{
     if (obj == ABD_OBJECT_NOT_FOUND)
         return ABD_OBJECT_NOT_FOUND;
 
     int *dims = memAllocIntVector(2);
-    SEXP rows = R_NilValue, cols = R_NilValue;;
+    SEXP rows = R_NilValue, cols = R_NilValue;
+    ;
     int nameSize = strlen(obj->name) + 7; // +7 for NROW/NCOL, () and \0
     char *requestValue = memAllocForString(nameSize);
-
 
     memset(requestValue, 0, nameSize);
     //request rows for obj
@@ -389,17 +434,17 @@ int *getObjDim(ABD_OBJECT *obj) {
     return dims;
 }
 
-
-
-int getIdxForSEXP(ABD_OBJECT * obj, SEXP value, int idx) {
-    ABD_OBJECT_MOD * objValues = obj->modList;
+int getIdxForSEXP(ABD_OBJECT *obj, SEXP value, int idx)
+{
+    ABD_OBJECT_MOD *objValues = obj->modList;
     int retIdx;
     const char *colName;
     Rboolean seenRoll = FALSE;
-    rollBack:;
+rollBack:;
     Rboolean nameSet = FALSE;
     int counter = 0;
-    switch (TYPEOF(value)) {
+    switch (TYPEOF(value))
+    {
     case SYMSXP:
         colName = CHAR(PRINTNAME(value));
         nameSet = TRUE;
@@ -417,17 +462,18 @@ int getIdxForSEXP(ABD_OBJECT * obj, SEXP value, int idx) {
         goto rollBack;
         break;
     case REALSXP:
-        retIdx = ((int)REAL(value)[idx])-1;
+        retIdx = ((int)REAL(value)[idx]) - 1;
         nameSet = TRUE;
     case INTSXP:
         if (!nameSet)
-            retIdx = (INTEGER(value)[idx])-1;
+            retIdx = (INTEGER(value)[idx]) - 1;
         break;
     }
     return retIdx;
 }
 
-ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
+ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs)
+{
     SEXP currEnv = getCurrentEnv();
     CELL_CHANGE *cellChanges = getCurrCellChange();
 
@@ -436,7 +482,8 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
     int srcTotalSize = 0;
     int destTotalSize = 0;
 
-    if (Rf_isFrame(cellChanges->srcValues)) {
+    if (Rf_isFrame(cellChanges->srcValues))
+    {
         if (cellChanges->srcNRows == -1)
             cellChanges->srcNRows = Rf_length(VECTOR_ELT(cellChanges->srcValues, 0));
 
@@ -444,9 +491,9 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
             cellChanges->srcNCols = Rf_nrows(cellChanges->srcValues);
 
         srcTotalSize = cellChanges->srcNRows * cellChanges->srcNCols;
-
     }
-    else if (Rf_isVector(cellChanges->srcValues)) {
+    else if (Rf_isVector(cellChanges->srcValues))
+    {
         if (cellChanges->srcNCols == 0)
             cellChanges->srcNCols = 1;
 
@@ -464,16 +511,21 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
 
     destTotalSize = cellChanges->nRows * cellChanges->nCols;
 
-    if (srcTotalSize > 1) {
-        if (destTotalSize != srcTotalSize) {
-            if (cellChanges->toRows == R_NilValue && cellChanges->srcRows == R_NilValue) {
-                if (srcTotalSize != destTotalSize) {
+    if (srcTotalSize > 1)
+    {
+        if (destTotalSize != srcTotalSize)
+        {
+            if (cellChanges->toRows == R_NilValue && cellChanges->srcRows == R_NilValue)
+            {
+                if (srcTotalSize != destTotalSize)
+                {
                     if (dims[0] != cellChanges->srcNRows)
                         return ABD_OBJECT_NOT_FOUND;
                 }
                 goto jumpHere;
             }
-            if (cellChanges->nRows == dims[0]) {
+            if (cellChanges->nRows == dims[0])
+            {
                 if (destTotalSize % srcTotalSize == 0 || srcTotalSize > destTotalSize)
                     goto jumpHere;
                 else
@@ -481,11 +533,11 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
             }
         }
     }
-    jumpHere:;
+jumpHere:;
 
     int r, c;
     cellChanges->vecPos = 0;
-    ABD_OBJECT_MOD * mule = memAllocMod();
+    ABD_OBJECT_MOD *mule = memAllocMod();
     ABD_FRAME_OBJ *frame = memAllocFrameObj();
     frame->cellChange = 1;
     frame->nCols = cellChanges->nCols;
@@ -493,10 +545,11 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
     frame->colNames = ABD_NOT_FOUND;
     frame->cols = memAllocMultiVecObj(frame->nCols);
     initIdxChangeAuxVars();
-    IDX_CHANGE * idxChanges = getCurrIdxChanges();
+    IDX_CHANGE *idxChanges = getCurrIdxChanges();
     int srcPicker = 0;
     int srcLen = Rf_length(cellChanges->srcValues);
-    for (c = 0; c<cellChanges->nCols; c++) {
+    for (c = 0; c < cellChanges->nCols; c++)
+    {
         int colIdx;
         if (cellChanges->toCols == R_NilValue)
             colIdx = c;
@@ -504,7 +557,8 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
             colIdx = getIdxForSEXP(cellChanges->targetObj, cellChanges->toCols, c);
 
         SEXP srcCurrValues = R_NilValue;
-        if (isFrame(cellChanges->srcValues)) {
+        if (isFrame(cellChanges->srcValues))
+        {
             if (c >= srcLen)
                 srcPicker = 0;
             srcCurrValues = VECTOR_ELT(cellChanges->srcValues, srcPicker++);
@@ -525,7 +579,8 @@ ABD_FRAME_OBJ *frameMultiChanges(SEXP rhs) {
     return frame;
 }
 
-ABD_FRAME_OBJ *createDataFrame(SEXP rhs) {
+ABD_FRAME_OBJ *createDataFrame(SEXP rhs)
+{
     ABD_FRAME_OBJ *frame = memAllocFrameObj();
 
     // in dataframes the number of rows define the number of columns, in other
@@ -538,7 +593,8 @@ ABD_FRAME_OBJ *createDataFrame(SEXP rhs) {
     frame->changedVecs = ABD_OBJECT_NOT_FOUND;
     frame->colNames = memAllocStrVec(nCols);
     SEXP colNames = getAttrib(rhs, R_NamesSymbol);
-    for (int i = 0; i < nCols; i++) {
+    for (int i = 0; i < nCols; i++)
+    {
         const char *currStr = CHAR(STRING_ELT(colNames, i));
         int currStrSize = strlen(currStr);
         frame->colNames[i] = memAllocForString(currStrSize);
@@ -550,7 +606,8 @@ ABD_FRAME_OBJ *createDataFrame(SEXP rhs) {
 
     return frame;
 }
-ABD_VEC_OBJ *createStrVector(SEXP rhs) {
+ABD_VEC_OBJ *createStrVector(SEXP rhs)
+{
     int nStrings = Rf_nrows(rhs);
     int i;
     ABD_VEC_OBJ *vector = memAllocVecObj();
@@ -559,7 +616,8 @@ ABD_VEC_OBJ *createStrVector(SEXP rhs) {
     vector->idxs = ABD_NOT_FOUND;
     vector->nCols = nStrings;
     vector->vector = memAllocStrVec(nStrings);
-    for (i = 0; i < nStrings; i++) {
+    for (i = 0; i < nStrings; i++)
+    {
         const char *currStr = CHAR(STRING_ELT(rhs, i));
         int currStrSize = strlen(currStr);
         ((char **)vector->vector)[i] = memAllocForString(currStrSize);
@@ -569,7 +627,8 @@ ABD_VEC_OBJ *createStrVector(SEXP rhs) {
     return vector;
 }
 
-ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs) {
+ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs)
+{
 
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     ABD_VEC_OBJ *vector = memAllocVecObj();
@@ -589,22 +648,27 @@ ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs) {
     int i, j;
     Rboolean sequential = FALSE;
     Rboolean inCellChange = FALSE;
-    CELL_CHANGE * cellChanges = getCurrCellChange();
-    if (cellChanges!=ABD_NOT_FOUND) {
+    CELL_CHANGE *cellChanges = getCurrCellChange();
+    if (cellChanges != ABD_NOT_FOUND)
+    {
         inCellChange = TRUE;
-        if (idxChanges->destIdxs == R_NilValue) {
+        if (idxChanges->destIdxs == R_NilValue)
+        {
             sequential = TRUE;
         }
     }
-    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
-        if (inCellChange) {
-            if (cellChanges->vecPos+1 > Rf_length(rhs))
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        if (inCellChange)
+        {
+            if (cellChanges->vecPos + 1 > Rf_length(rhs))
                 cellChanges->vecPos = 0;
 
             int fromIdx = cellChanges->vecPos;
             int toIdx = i;
 
-            if (!sequential) {
+            if (!sequential)
+            {
                 if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                     toIdx = (int)REAL(idxChanges->destIdxs)[i];
                 else
@@ -621,7 +685,8 @@ ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs) {
 
             cellChanges->vecPos++;
         }
-        else {
+        else
+        {
             int toIdx = 0;
             if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                 toIdx = (int)REAL(idxChanges->destIdxs)[i];
@@ -644,7 +709,8 @@ ABD_VEC_OBJ *strVectorMultiChanges(SEXP rhs) {
     }
     return vector;
 }
-ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
+ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs)
+{
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     ABD_VEC_OBJ *vector = memAllocVecObj();
     vector->idxChange = 1;
@@ -663,23 +729,28 @@ ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
     int i, j;
     Rboolean sequential = FALSE;
     Rboolean inCellChange = FALSE;
-    CELL_CHANGE * cellChanges = getCurrCellChange();
-    if (cellChanges!=ABD_NOT_FOUND) {
+    CELL_CHANGE *cellChanges = getCurrCellChange();
+    if (cellChanges != ABD_NOT_FOUND)
+    {
         inCellChange = TRUE;
-        if (idxChanges->destIdxs == R_NilValue) {
+        if (idxChanges->destIdxs == R_NilValue)
+        {
             sequential = TRUE;
         }
     }
 
-    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
-        if (inCellChange) {
-            if (cellChanges->vecPos+1 > Rf_length(rhs))
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        if (inCellChange)
+        {
+            if (cellChanges->vecPos + 1 > Rf_length(rhs))
                 cellChanges->vecPos = 0;
 
             int fromIdx = cellChanges->vecPos;
             int toIdx = i;
 
-            if (!sequential) {
+            if (!sequential)
+            {
                 if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                     toIdx = (int)REAL(idxChanges->destIdxs)[i];
                 else
@@ -692,7 +763,8 @@ ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
             ((int *)vector->vector)[i] = INTEGER(rhs)[fromIdx];
             cellChanges->vecPos++;
         }
-        else {
+        else
+        {
             int toIdx = 0;
             if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                 toIdx = (int)REAL(idxChanges->destIdxs)[i];
@@ -713,7 +785,8 @@ ABD_VEC_OBJ *intVectorMultiChanges(SEXP rhs) {
     }
     return vector;
 }
-ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs) {
+ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs)
+{
 
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
     ABD_VEC_OBJ *vector = memAllocVecObj();
@@ -721,7 +794,8 @@ ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs) {
     vector->type = REALSXP;
     int srcSize = Rf_length(idxChanges->srcValues);
     int destSize = Rf_length(idxChanges->destIdxs);
-    if (idxChanges->nIdxChanges == 0) {
+    if (idxChanges->nIdxChanges == 0)
+    {
         idxChanges->nIdxChanges = destSize;
     }
 
@@ -736,22 +810,27 @@ ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs) {
     int i, j;
     Rboolean sequential = FALSE;
     Rboolean inCellChange = FALSE;
-    CELL_CHANGE * cellChanges = getCurrCellChange();
-    if (cellChanges!=ABD_NOT_FOUND) {
+    CELL_CHANGE *cellChanges = getCurrCellChange();
+    if (cellChanges != ABD_NOT_FOUND)
+    {
         inCellChange = TRUE;
-        if (idxChanges->destIdxs == R_NilValue) {
+        if (idxChanges->destIdxs == R_NilValue)
+        {
             sequential = TRUE;
         }
     }
-    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++) {
-        if (inCellChange) {
-            if (cellChanges->vecPos+1 > Rf_length(rhs))
+    for (i = j = 0; i < idxChanges->nIdxChanges; i++, j++)
+    {
+        if (inCellChange)
+        {
+            if (cellChanges->vecPos + 1 > Rf_length(rhs))
                 cellChanges->vecPos = 0;
 
             int fromIdx = cellChanges->vecPos;
             int toIdx = i;
 
-            if (!sequential) {
+            if (!sequential)
+            {
                 if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                     toIdx = (int)REAL(idxChanges->destIdxs)[i];
                 else
@@ -764,7 +843,8 @@ ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs) {
             ((double *)vector->vector)[i] = REAL(rhs)[fromIdx];
             cellChanges->vecPos++;
         }
-        else {
+        else
+        {
             int toIdx = 0;
             if (TYPEOF(idxChanges->destIdxs) == REALSXP)
                 toIdx = (int)REAL(idxChanges->destIdxs)[i];
@@ -782,12 +862,12 @@ ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs) {
 
             ((double *)vector->vector)[i] = REAL(rhs)[j];
         }
-
     }
     return vector;
 }
 
-int getObjStructType(SEXP symbolValue) {
+int getObjStructType(SEXP symbolValue)
+{
 
     if (isFrame(symbolValue))
         return 3;
@@ -800,16 +880,19 @@ int getObjStructType(SEXP symbolValue) {
     return 0;
 }
 
-ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, ABD_OBJ_VALUE_TYPE type) {
+ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, ABD_OBJ_VALUE_TYPE type)
+{
 
-    if (obj->modList == ABD_OBJECT_NOT_FOUND) {
+    if (obj->modList == ABD_OBJECT_NOT_FOUND)
+    {
         // list empty
         obj->modList = memAllocMod();
         obj->modList->prevMod = ABD_OBJECT_NOT_FOUND;
         obj->modList->nextMod = ABD_OBJECT_NOT_FOUND;
         obj->modListStart = obj->modList;
     }
-    else {
+    else
+    {
         // has modifications
         // alloc and set at modList (head) [fast search]
         ABD_OBJECT_MOD *newMod = memAllocMod();
@@ -826,12 +909,14 @@ ABD_OBJECT_MOD *addEmptyModToObj(ABD_OBJECT *obj, ABD_OBJ_VALUE_TYPE type) {
 }
 
 ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId,
-    SEXP value, int withIndex) {
+                              SEXP value, int withIndex)
+{
     ABD_OBJECT *hcObj = memAllocBaseObj();
     setObjBaseValues(hcObj, name, getCurrentEnv());
     hcObj->id = objId;
     hcObj->usages = 1;
-    if (value != R_NilValue) {
+    if (value != R_NilValue)
+    {
         hcObj->modList = addEmptyModToObj(hcObj, getObjStructType(value));
         hcObj->modList->id = valId;
         hcObj->modList = processByType(value, hcObj->modList, withIndex);
@@ -842,7 +927,8 @@ ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId,
     return hcObj;
 }
 ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs,
-    ABD_OBJECT *createdAt) {
+                                ABD_OBJECT *createdAt)
+{
     ABD_OBJECT *obj = getCmnObj(name, rho);
 
     obj->createdAt = createdAt->name;
@@ -855,7 +941,8 @@ ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs,
 
     return obj;
 }
-ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho) {
+ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
+{
     if (!isalpha(CHAR(PRINTNAME(lhs))[0]))
         return ABD_OBJECT_NOT_FOUND;
 
@@ -869,7 +956,8 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho) {
     ABD_OBJECT *obj = ABD_OBJECT_NOT_FOUND;
     if (TYPEOF(rhs) == CLOSXP)
         obj = getCfObj(name, rho);
-    else {
+    else
+    {
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
 
         obj = getCmnObj(name, rho);
@@ -885,18 +973,21 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho) {
     return obj;
 }
 
-void printReg() {
+void printReg()
+{
     ABD_OBJECT *auxObject = cfObjReg;
-    while (auxObject != ABD_OBJECT_NOT_FOUND) {
+    while (auxObject != ABD_OBJECT_NOT_FOUND)
+    {
         printf("name: %s\n", auxObject->name);
         printf("prev null: %s\n",
-            auxObject->prevObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
+               auxObject->prevObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
         printf("next null: %s\n",
-            auxObject->nextObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
+               auxObject->nextObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
         auxObject = auxObject->nextObj;
     }
 }
-void processVarCellChange(SEXP result) {
+void processVarCellChange(SEXP result)
+{
     CELL_CHANGE *cellChanges = getCurrCellChange();
 
     SEXP rhs = cellChanges->srcValues;
@@ -908,16 +999,19 @@ void processVarCellChange(SEXP result) {
 
     ABD_OBJECT *obj = cellChanges->targetObj;
 
-    if (obj != ABD_OBJECT_NOT_FOUND) {
+    if (obj != ABD_OBJECT_NOT_FOUND)
+    {
         ABD_OBJECT_MOD *newMod = ABD_OBJECT_NOT_FOUND;
         newMod = addEmptyModToObj(obj, ABD_FRAME);
         newMod = initModAndPopulate(newMod, ABD_ALIVE, ABD_FRAME);
         newMod->value.frame_value = processDataFrame(rhs, 1);
-        if (newMod->value.frame_value == ABD_OBJECT_NOT_FOUND) {
+        if (newMod->value.frame_value == ABD_OBJECT_NOT_FOUND)
+        {
             obj->modList = obj->modList->prevMod;
             free(newMod);
         }
-        else {
+        else
+        {
             obj->modList = newMod;
             obj->usages++;
             cmnObjReg = rankObjByUsages(cmnObjReg, obj);
@@ -926,7 +1020,8 @@ void processVarCellChange(SEXP result) {
     }
     clearPendingVars();
 }
-void processVarIdxChange(SEXP result) {
+void processVarIdxChange(SEXP result)
+{
     IDX_CHANGE *idxChanges = getCurrIdxChanges();
 
     // if (idxChanges->srcValues == R_NilValue || idxChanges->srcValues != result)
@@ -937,7 +1032,8 @@ void processVarIdxChange(SEXP result) {
 
     ABD_OBJECT *obj = idxChanges->destObj;
 
-    if (obj != ABD_OBJECT_NOT_FOUND) {
+    if (obj != ABD_OBJECT_NOT_FOUND)
+    {
         // dest idxs vector will always say how many changes will be performed
 
         idxChanges->nIdxChanges = Rf_length(idxChanges->destIdxs);

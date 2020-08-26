@@ -56,10 +56,12 @@ $(function() {
 	//load function
 	buildNodes();
 	generateSVGgraph();
-	centerOnMain();
+	//centerOnMain();
 });
 
-$(document).ready(function() {});
+$(document).ready(function() {
+	resetView();
+});
 
 String.prototype.format = function() {
 	var i = 0,
@@ -299,7 +301,7 @@ function findElseLine(statement, fromLine, isElseIf) {
 function getFollowLabel(funcEnv, currHtmlProduced) {
 	return '{} {}'.format(
 		currHtmlProduced,
-		'<jumper id="jp-{}" style="cursor: pointer; font-size: 8pt;" onClick="processJumpClick(this.id)"><b><u>follow</u></b></jumper>'.format(
+		'<jumper id="jp-{}" style="cursor: pointer; font-size: 8pt;color:var(--bto-color)" onClick="processJumpClick(this.id)"><b><u>follow</u></b></jumper>'.format(
 			funcEnv
 		)
 	);
@@ -382,7 +384,7 @@ function getEventTypeHtml(event, nextEventId) {
 			return eventId - 1;
 
 			break;
-		case types.RET:
+		case types.RET: {
 			if (typeof envContent.get(event['atEnv']).get(line) === 'undefined') {
 				//no content for this line, so, grab the code existing there
 				htmlProduced += "<ret type='button' data-toggle='modal' data-target='#exec_flow_modal' id='eId-{}' onclick='processEventClick(this.id)'> {} <- {} </ret>".format(
@@ -397,7 +399,9 @@ function getEventTypeHtml(event, nextEventId) {
 					'(return)'
 				);
 			}
+			htmlProduced = getFollowLabel(event['data']['toEnv'], htmlProduced);
 			break;
+		}
 		case types.ARITH:
 			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), event['data']['exprStr'].trim(), 0);
 			break;
@@ -867,18 +871,18 @@ function getHtmlForExpressions(event, showLogical) {
 
 					htmlProduced += mkTooltip2(firstElement, secondElement, text);
 					break;
-				default:
+				default: {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['lObjId'], cE['lObjState'], cE['lWithIndex']);
 					let stateEventId = findEventId(cE['lObjId'], cE['lObjState']);
-					let label = genLabelForAlreadyOpenModal(
-						stateEventId,
-						'{}[{}]'.format(getCommonObjNameById(cE['lObjId']), cE['lWithIndex'] + 1)
-					);
-					let element = [ 'Value', objValues[3] ];
-					htmlProduced += mkTooltipOneLine(element, label);
+					let lblTxt = '{}[{}]'.format(getCommonObjNameById(cE['lObjId']), cE['lWithIndex'] + 1);
 
+					htmlProduced += "{}<valLbl style='font-size:7.5pt'>({})</valLbl>".format(
+						genLabelForAlreadyOpenModal(stateEventId, lblTxt),
+						objValues[3]
+					);
 					break;
+				}
 			}
 		}
 
@@ -910,18 +914,19 @@ function getHtmlForExpressions(event, showLogical) {
 
 					htmlProduced += mkTooltip2(firstElement, secondElement, text);
 					break;
-				default:
+				default: {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['rObjId'], cE['rObjState'], cE['rWithIndex']);
 					let stateEventId = findEventId(cE['rObjId'], cE['rObjState']);
-					let label = genLabelForAlreadyOpenModal(
-						stateEventId,
-						'{}[{}]'.format(getCommonObjNameById(cE['rObjId']), cE['rWithIndex'] + 1)
-					);
 
-					let element = [ 'Value', objValues[3] ];
-					htmlProduced += mkTooltipOneLine(element, label);
+					let lblTxt = '{}[{}]'.format(getCommonObjNameById(cE['rObjId']), cE['rWithIndex'] + 1);
+
+					htmlProduced += "{}<valLbl style='font-size:7.5pt'>({})</valLbl>".format(
+						genLabelForAlreadyOpenModal(stateEventId, lblTxt),
+						objValues[3]
+					);
 					break;
+				}
 			}
 		}
 		htmlProduced += '</td>';
@@ -2466,6 +2471,7 @@ function mkCellIdxChangeModalInfo(event, eventId) {
 	toPush.push([ nChangedRows, nChangedCols ]);
 	toPush.push(finalValues[3]);
 	toPush.push(mapT);
+	toPush.push(finalValues[4]);
 	valuesToBigData.push(toPush);
 
 	htmlProduced += '<div class="row mt-2 dialog-text">';
@@ -2702,8 +2708,6 @@ function requestNextColPageChange_cellChange(pos) {
 	if (need >= parseInt(valuesToBigData[pos][2][1])) return;
 
 	$('*[id^=cellChange_start_index]').val('{},{}'.format(sRow + 1, need + 1));
-	console.log('will call? {}'.format(nRows > 0 && nCols > 0));
-	console.log('need {}'.format(need));
 	if (nRows > 0 && nCols > 0) updateCellChangeContent(pos, sRow, need, nRows, nCols, false);
 }
 
@@ -2822,7 +2826,6 @@ function requestNextRowPageChange_cellChange(pos) {
 }
 
 function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
-	console.log('update cell change');
 	let j, i, r, c;
 	let htmlProduced = '';
 
@@ -2832,10 +2835,6 @@ function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
 	let rowsHtml = '';
 	let colsAdded = [];
 	let didChange;
-	console.log('sRow {}'.format(sRow));
-	console.log('sCol {}'.format(sCol));
-	console.log('nRows {}'.format(nRows));
-	console.log('nCols {}'.format(nCols));
 
 	if (isNaN(sRow) || isNaN(sCol)) {
 		sRow = sCol = 0;
@@ -2878,15 +2877,12 @@ function updateCellChangeContent(pos, sRow, sCol, nRows, nCols, toReturn) {
 		let rowUsed = rowData[0][0];
 		rowsHtml += '<tr>';
 		rowsHtml += '<td><b>{}</b></td>'.format(rowUsed + 1);
-		console.log('rowUsed {}'.format(rowUsed));
-		console.log('rowData');
-		console.log(rowData);
 		for (c = sCol; c < nCols; c++) {
 			let colUsed = rowData[c][1];
-			console.log('colUsed {}'.format(colUsed));
+
 			if (colsAdded.indexOf(colUsed) == -1) {
 				colsAdded.push(colUsed);
-				colHeaders += '<td><b>{}</b></td>'.format(colUsed + 1);
+				colHeaders += '<td><b>{}</b></td>'.format(valuesToBigData[pos][5][colUsed]);
 			}
 
 			rowsHtml += '<td>{}</td>'.format(currValues[colUsed][rowUsed]);
@@ -3589,7 +3585,7 @@ function updateBigDataValuesTable_MultiDim(pos, sRow, sCol, nRows, nCols, toRetu
 	htmlProduced += '<tr>';
 	htmlProduced += '<td></td>';
 	for (i = sCol; i < nCols; i++) {
-		htmlProduced += '<td><b>{}</b></td>'.format(i + 1);
+		htmlProduced += '<td><b>{}</b></td>'.format(valuesToBigData[pos][4][i]);
 	}
 	htmlProduced += '</tr>';
 
@@ -4168,7 +4164,6 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 
 function mkReturnModalInfo(event, eventId) {
 	let htmlProduced = '';
-	console.log(event);
 	let toId = event['data']['toId'];
 	let displayValues;
 	let retFromFunc = getCodeFlowObjNameById(event['atFunc']);
@@ -4424,38 +4419,6 @@ function processEventClick(eventId) {
 		$('*[id^=dropSearch]').focus();
 	});
 }
-function centerOnMain() {
-	centerOnId(nodeCount);
-}
-function processJumpClick(labelId) {
-	let funcEnv = labelId.split('-')[1];
-	// let obj = g.select(funcEnv);
-	let foundId = getFOidByName(funcEnv);
-	centerOnId(foundId);
-}
-
-function centerOnId(id) {
-	if (id != -1) {
-		let obj = document.getElementById(id);
-		let locX = obj.getAttribute('x');
-		let locY = obj.getAttribute('y');
-		svg
-			.transition()
-			.duration(500)
-			.call(
-				zoom_handler.transform,
-				d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6).translate(-locX, -locY)
-			);
-	}
-}
-
-function getFOidByName(name) {
-	let i;
-	for (i = 0; i < Object.keys(graph.nodes).length; i++) {
-		if (graph.nodes[i].name == name) return graph.nodes[i].id;
-	}
-	return -1;
-}
 
 function applyMapToVector(map, vector) {
 	map.forEach((val, key) => {
@@ -4481,13 +4444,26 @@ function addRowToMap(map, col, row, value) {
 	map.get(col).set(row, value);
 	return map;
 }
-function applyMapToFrame(map, cols) {
+function applyMapToFrame(map, cols, colsNames) {
 	map.forEach((rowsMap, col) => {
 		rowsMap.forEach((newValue, row) => {
 			cols[col][row] = newValue;
 		});
 	});
-	return cols;
+
+	let retInfo = {
+		nCols: null,
+		nRows: null,
+		values: null,
+		colsNames: null
+	};
+
+	retInfo.nCols = cols.length;
+	retInfo.nRows = cols[0].length;
+	retInfo.values = cols;
+	retInfo.colsNames = colsNames;
+
+	return retInfo;
 }
 function resolveCurrValue(isFrame, modList, inState, withIndex) {
 	let i;
@@ -4509,8 +4485,8 @@ function resolveCurrValue(isFrame, modList, inState, withIndex) {
 					}
 				}
 			} else {
-				if (withIndex == -1) return applyMapToFrame(changesMap, modList[i]['cols']);
-				else return [ applyMapToFrame(changesMap, modList[i]['cols'])[withIndex] ];
+				if (withIndex == -1) return applyMapToFrame(changesMap, modList[i]['cols'], modList[i]['colsNm']);
+				else return applyMapToFrame(changesMap, modList[i]['cols'], modList[i]['colsNm']);
 			}
 		}
 	} else {
@@ -4540,7 +4516,6 @@ function getObjCurrValue(id, state, index) {
 	let isMultiDim = false;
 	currentValue.push(cmnObj[id]['modList'][state]['structType']);
 	currentValue.push(cmnObj[id]['modList'][state]['dataType']);
-
 	if (cmnObj[id]['modList'][state]['structType'] == 'DataFrame') {
 		isMultiDim = true;
 	}
@@ -4551,6 +4526,7 @@ function getObjCurrValue(id, state, index) {
 				let rows = cmnObj[id]['modList'][state]['cols'][0].length;
 				currentValue.push([ rows, cols ]);
 				currentValue.push(cmnObj[id]['modList'][state]['cols']);
+				currentValue.push(cmnObj[id]['modList'][state]['colsNm']);
 			} else {
 				currentValue.push(cmnObj[id]['modList'][state]['nElements']);
 				currentValue.push(cmnObj[id]['modList'][state]['values']);
@@ -4559,10 +4535,9 @@ function getObjCurrValue(id, state, index) {
 			//resolve and get vector
 			if (isMultiDim) {
 				let resolvedFrame = resolveCurrValue(isMultiDim, cmnObj[id]['modList'], state, index);
-				console.log('resolved frame');
-				console.log(resolvedFrame);
-				currentValue.push([ resolvedFrame[0].length, resolvedFrame.length ]);
-				currentValue.push(resolvedFrame);
+				currentValue.push([ resolvedFrame.nRows, resolvedFrame.nCols ]);
+				currentValue.push(resolvedFrame.values);
+				currentValue.push(resolvedFrame.colsNames);
 			} else {
 				let resolvedVec = resolveCurrValue(isMultiDim, cmnObj[id]['modList'], state, index);
 				currentValue.push(resolvedVec.length);
@@ -4641,6 +4616,46 @@ var graph = {
 	nodes: [],
 	links: []
 };
+
+function centerOnMain() {
+	centerOnId(nodeCount);
+}
+function processJumpClick(labelId) {
+	let funcEnv = labelId.split('-')[1];
+	// let obj = g.select(funcEnv);
+	let foundId = getFOidByName(funcEnv);
+	centerOnId(foundId);
+}
+
+function centerOnId(id) {
+	if (id != -1) {
+		let obj = document.getElementById(id);
+		let locX = obj.getAttribute('x');
+		let locY = obj.getAttribute('y');
+		let objWidth = document.getElementById('env-{}'.format(obj.getAttribute('name'))).offsetWidth;
+		let objHeight = document.getElementById('env-{}'.format(obj.getAttribute('name'))).offsetHeight;
+
+		svg
+			.transition()
+			.duration(750)
+			.call(
+				zoom_handler.transform,
+				d3.zoomIdentity
+					.translate(width / 2, height / 2)
+					.scale(0.8)
+					.translate(-locX - objWidth / 2 + width / 2, -locY - objHeight + height / 2 - 50)
+			);
+	}
+}
+
+function getFOidByName(name) {
+	let i;
+	for (i = 0; i < Object.keys(graph.nodes).length; i++) {
+		if (graph.nodes[i].name == name) return graph.nodes[i].id;
+	}
+	return -1;
+}
+
 function clicked(d) {
 	d3.event.stopPropagation();
 	svg
@@ -4742,27 +4757,21 @@ function generateSVGgraph() {
 	});
 	//g.transition().duration(300).call(zoom_handler.transform, d3.zoomIdentity);
 
-	if (nodeCount < 5) {
-		scaleToUse = 0.6;
-	} else if (nodeCount < 10) {
-		scaleToUse = 0.4;
-	} else if (nodeCount < 15) {
-		scaleToUse = 0.2;
-	} else {
-		scaleToUse = 0.1;
-	}
+	if (nodeCount < 5) scaleToUse = 0.6;
+	else if (nodeCount > 15) scaleToUse = 0.1;
+	else scaleToUse = 0.2;
 
-	svg
-		.call(zoom_handler) // here
-		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2 - 50).scale(scaleToUse))
-		.append('svg:g')
-		.attr('transform', 'translate({},{}) scale({},{})'.format(width / 2, height / 2 - 50, scaleToUse, scaleToUse));
+	// svg
+	// 	.call(zoom_handler) // here
+	// 	.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2 - 50).scale(scaleToUse))
+	// 	.append('svg:g')
+	// 	.attr('transform', 'translate({},{}) scale({},{})'.format(width / 2, height / 2 - 50, scaleToUse, scaleToUse));
 }
 
 function resetView() {
 	svg
 		.transition()
-		.duration(500)
+		.duration(750)
 		.call(zoom_handler.transform, d3.zoomIdentity.translate(width / 2, height / 2 - 50).scale(scaleToUse));
 }
 

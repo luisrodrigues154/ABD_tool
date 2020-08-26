@@ -303,8 +303,9 @@ void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
         fprintf(out, "\n%s\"mods\" : [", getStrFromIndent(INDENT_5), nCols);
         fprintf(dispOut, "\"mods\" : [", nCols);
 
-        for (int c = 0; c<nCols; c++) {
-            ABD_VEC_OBJ * changedCol = frameObj->cols[c];
+        for (int c = 0; c < nCols; c++)
+        {
+            ABD_VEC_OBJ *changedCol = frameObj->cols[c];
             fprintf(out, "\n%s[", getStrFromIndent(INDENT_6));
             fprintf(dispOut, "[");
             fprintf(out, "\n%s%d,", getStrFromIndent(INDENT_7), frameObj->changedVecs[c]);
@@ -350,11 +351,9 @@ void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
                 fprintf(out, ",");
                 fprintf(dispOut, ",");
             }
-
         }
         fprintf(out, "\n%s]", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "]");
-
     }
     else
     {
@@ -364,8 +363,20 @@ void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
         fprintf(dispOut, "\"frameMod\" : false,");
         fprintf(out, "\n%s\"nCols\" : %d,", getStrFromIndent(INDENT_5), nCols);
         fprintf(dispOut, "\"nCols\" : %d,", nCols);
-
-
+        fprintf(out, "\n%s\"colsNm\" : [", getStrFromIndent(INDENT_5));
+        fprintf(dispOut, "\"colsNm\" : [");
+        for (int i = 0; i < nCols; i++)
+        {
+            fprintf(out, "\"%s\"", frameObj->colNames[i]);
+            fprintf(dispOut, "\"%s\"", frameObj->colNames[i]);
+            if (i + 1 < nCols)
+            {
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
+        }
+        fprintf(out, "],");
+        fprintf(dispOut, "],");
         fprintf(out, "\n%s\"cols\" : [", getStrFromIndent(INDENT_5));
         fprintf(dispOut, "\"cols\" : [");
         for (int i = 0; i < nCols; i++)
@@ -1382,7 +1393,8 @@ void saveDataFrameEvent(FILE *out, ABD_FRAME_EVENT *frameEvent, FILE *dispOut)
     fprintf(dispOut, "]");
 }
 
-void saveCellChangeEvent(FILE * out, ABD_CELL_CHANGE_EVENT * event, FILE *  dispOut) {
+void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
+{
     fprintf(out, "\n%s\"toObj\" : %d,", getStrFromIndent(INDENT_3), event->toObj->id);
     fprintf(out, "\n%s\"toState\" : %d,", getStrFromIndent(INDENT_3), event->toState->id);
     fprintf(out, "\n%s\"origin\" : \"%s\",", getStrFromIndent(INDENT_3), (event->fromType == ABD_E) ? "event" : "obj");
@@ -1433,22 +1445,22 @@ void saveCellChangeEvent(FILE * out, ABD_CELL_CHANGE_EVENT * event, FILE *  disp
 
         fprintf(out, "\n%s\"wRows\" : ", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "\"wRows\" :");
-        if (event->nRowsIdxs == event->srcDims[0]) {
+        if (event->nRowsIdxs == event->srcDims[0])
+        {
             fprintf(out, "[],");
             fprintf(dispOut, "[],");
             fprintf(out, "\n%s\"iRows\" : %d", getStrFromIndent(INDENT_3), event->srcDims[0]);
             fprintf(dispOut, "\"iRows\" : %d", event->srcDims[0]);
-
         }
         else
             writeVectorValues(out, INDENT_0, INTSXP, event->rowsIdxs, event->nRowsIdxs, dispOut);
-
 
         fprintf(out, ",");
         fprintf(dispOut, ",");
         fprintf(out, "\n%s\"wCols\" : ", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "\"wCols\" :");
-        if (event->nColsIdxs == event->srcDims[1]) {
+        if (event->nColsIdxs == event->srcDims[1])
+        {
             fprintf(out, "[]");
             fprintf(dispOut, "[]");
             fprintf(out, "\n%s\"iCols\" : %d", getStrFromIndent(INDENT_3), event->srcDims[1]);
@@ -1604,7 +1616,7 @@ void saveEvents(FILE *out, FILE *dispOut)
         }
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_2));
         fprintf(dispOut, "}");
-        avoidCurlies:;
+    avoidCurlies:;
         fprintf(out, "\n%s}", getStrFromIndent(INDENT_1));
         fprintf(dispOut, "}");
 

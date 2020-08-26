@@ -18,6 +18,10 @@ run <- function(){
     }
 
     add(a,b)
+    add(a,b)
+    add(a,b)
+    add(a,b)
+    
     vec <- 1:10
     vec2 <- 10:1
     for(c in vec){

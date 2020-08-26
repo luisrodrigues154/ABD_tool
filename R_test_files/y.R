@@ -2,31 +2,18 @@ options("keep.source" = TRUE)
 run <- function(){
 
     abd_start()
-    abd_stop(1)
-    
-    # i <- 1
-    # while (i < 6) {
-    #     print(i)
-    #     i = i+1
-    # }
-    print("-------------------------")
-    # while(x < 6){
-    #     x <- x+1
-    #     if(x < 4){
-    #         next
-    #     }
-    # }
-    x <- 1:10
-    z <- 1:10
+    abd_stop(0)
 
-    x[1] <- 3
-    x[2:4] <- 10
-    # repeat{
-    #     if(x == 2){
-    #         break
-    #     }
-    #     x <- x + 1
-    # }
+    v1 <- 99995:99999
+    v2 <- 99999:99995
+    result <- v1[1] + v2[1]
+    if((v1[1] + v2[1] - 1) >= 99){
+        v1[1] <- 99
+        v2[1] <- 1
+    }else{
+        v1[1] <- 1
+        v2[1] <- 10
+    }
 
     abd_stop()
 }
