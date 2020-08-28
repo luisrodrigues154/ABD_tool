@@ -85,6 +85,11 @@
 	color: white;
 	font-weight: bold;
 }
+.error-lbl {
+	font-size: 16pt;
+	color: tomato;
+	font-weight: normal;
+}
 
 .note {
 	font-size: 12pt;

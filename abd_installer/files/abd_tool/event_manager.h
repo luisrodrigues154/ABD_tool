@@ -309,7 +309,7 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
     due to the fact that it is an arbitrary number of arguments
     might apply the same procedure as 17 to the 18 (anysxp)
 */
-ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_OBJECT *targetFunc)
+ABD_EVENT_ARG *processArgs(SEXP call, SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_OBJECT *targetFunc)
 {
     ABD_EVENT_ARG *argsList = ABD_NOT_FOUND;
     ABD_EVENT_ARG *currentArg = ABD_NOT_FOUND;
@@ -395,7 +395,7 @@ ABD_EVENT_ARG *processArgs(SEXP passedArgs, SEXP receivedArgs, SEXP newRho, ABD_
             //Rprintf("[%d] '%s' R type\n", i+1, rcvdName);
         }
         const char *rcvdName = isNull(TAG(receivedArgs)) ? "" : CHAR(PRINTNAME(TAG(receivedArgs)));
-        ABD_OBJECT *toObj = createLocalVariable(rcvdName, newRho, rcvdValue, targetFunc);
+        ABD_OBJECT *toObj = createLocalVariable(call, rcvdName, newRho, rcvdValue, targetFunc);
         currentArg = setArgValues(currentArg, objectFound, toObj, objValue);
 
         objectFound = ABD_OBJECT_NOT_FOUND;
@@ -928,13 +928,13 @@ void setIfEventValues2(SEXP statement, Rboolean result)
     setIsWaitingIf(0);
 }
 
-void setFuncEventValues(ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
+void setFuncEventValues(SEXP call, ABD_OBJECT *calledObj, SEXP newRho, SEXP passedArgs, SEXP receivedArgs)
 {
     eventsRegTail->data.func_event->toEnv = newRho;
     eventsRegTail->data.func_event->caller = getCurrFuncObj();
     eventsRegTail->data.func_event->called = calledObj;
     eventsRegTail->branchDepth = getCurrBranchDepth();
-    eventsRegTail->data.func_event->args = processArgs(passedArgs, receivedArgs, newRho, calledObj);
+    eventsRegTail->data.func_event->args = processArgs(call, passedArgs, receivedArgs, newRho, calledObj);
     envPush(newRho, calledObj);
 }
 
@@ -1059,6 +1059,7 @@ ABD_EVENT *createNewEvent(ABD_EVENT_TYPE newEventType)
     newEvent->atFunc = getCurrFuncObj();
     newEvent->env = getCurrentEnv();
     newEvent->type = newEventType;
+    newEvent->warns = getWarnings();
     return newEvent;
 }
 

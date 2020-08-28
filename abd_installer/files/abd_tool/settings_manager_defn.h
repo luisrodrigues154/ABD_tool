@@ -11,6 +11,7 @@ typedef struct sett
     ABD_STATE verbose;
     char objOutPath[214];
     char eventsOutPath[214];
+    char warnsAndErrs[214];
 } ABD_SETTINGS;
 #define NO_PATH NULL
 static ABD_SETTINGS *settings = NO_PATH;
@@ -31,6 +32,7 @@ int checkFolderHierarchy();
 void createDefaults(FILE *settingsFile);
 char *getObjPath();
 char *getEventsPath();
+char * getWarningsAndErrorsPath();
 void checkSettings();
 void buildDisplayerPath();
 char *getDisplayerPath();
@@ -44,3 +46,4 @@ ABD_STATE launchOnStop();
 void forceDefaults();
 ABD_STATE useVerbose();
 void updateVerboseMode(ABD_STATE newState);
+

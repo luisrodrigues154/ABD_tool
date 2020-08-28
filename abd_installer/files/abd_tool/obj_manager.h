@@ -926,20 +926,29 @@ ABD_OBJECT *createUnscopedObj(const char *name, int objId, int valId,
 
     return hcObj;
 }
-ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs,
+ABD_OBJECT *createLocalVariable(SEXP call, const char *name, SEXP rho, SEXP rhs,
                                 ABD_OBJECT *createdAt)
 {
-    ABD_OBJECT *obj = getCmnObj(name, rho);
+    ABD_OBJECT *objUsed = getCmnObj(name, rho);
 
-    obj->createdAt = createdAt->name;
-    ABD_OBJECT_MOD *newMod = addEmptyModToObj(obj, getObjStructType(rhs));
+    objUsed->createdAt = createdAt->name;
+    ABD_OBJECT_MOD *newMod = addEmptyModToObj(objUsed, getObjStructType(rhs));
 
     newMod = processByType(rhs, newMod, 0);
-    obj->modList = newMod;
-    obj->usages++;
-    cmnObjReg = rankObjByUsages(cmnObjReg, obj);
+    objUsed->modList = newMod;
+    objUsed->usages++;
+    cmnObjReg = rankObjByUsages(cmnObjReg, objUsed);
 
-    return obj;
+    //create fake asign event
+    createNewEvent(ASGN_EVENT);
+    ABD_ASSIGN_EVENT *currAssign = eventsRegTail->data.asgn_event;
+    currAssign->value = objUsed->modList;
+    currAssign->toObj = objUsed;
+    currAssign->withIndex = -1;
+    currAssign->fromType = ABD_O;
+    currAssign->fromObj = ABD_OBJECT_NOT_FOUND;
+
+    return objUsed;
 }
 ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
 {

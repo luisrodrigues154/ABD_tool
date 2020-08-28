@@ -29,6 +29,7 @@
 #define FILE_NOT_FOUND NULL
 #define FILE_OPEN_WRITE "w"
 #define FILE_OPEN_READ "r"
+#define FILE_OPEN_APPEND "a+"
 
 typedef enum
 {
@@ -81,3 +82,4 @@ void dupScript();
 char *getScriptPath();
 void writeCharByCharToFile(FILE *out, char *string, int withComma);
 void writeExpression(FILE *out, IF_EXPRESSION *expr, FILE *dispOut);
+void saveErrors(FILE * outputFile,ABD_ERRORS *  error,FILE *  dispOutFile);

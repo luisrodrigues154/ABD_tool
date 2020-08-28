@@ -160,7 +160,7 @@ ABD_OBJECT_MOD *memAllocMod();
     Registries Management prototypes
    ####################################
 */
-ABD_OBJECT *createLocalVariable(const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt);
+ABD_OBJECT *createLocalVariable(SEXP call, const char *name, SEXP rho, SEXP rhs, ABD_OBJECT *createdAt);
 void setObjBaseValues(ABD_OBJECT *obj, const char *name, SEXP createdEnv);
 ABD_OBJECT *addEmptyObjToReg(ABD_OBJECT *objReg);
 ABD_OBJECT *findCmnObj(const char *name, SEXP createdEnv);

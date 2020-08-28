@@ -272,7 +272,8 @@ if __name__ == "__main__":
         "seq.c": "/src/main/",
         "bind.c": "/src/main/",
         "subassign.c": "/src/main/",
-        "subset.c": "/src/main/"
+        "subset.c": "/src/main/",
+        "errors.c": "/src/main/"
 
     }
     force = False

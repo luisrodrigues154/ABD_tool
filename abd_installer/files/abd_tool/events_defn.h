@@ -286,6 +286,7 @@ struct abd_event
     int id;
     int scriptLn;
     ABD_EVENT_TYPE type;
+    ABD_WARNINGS * warns;
     short branchDepth;
     union
     {

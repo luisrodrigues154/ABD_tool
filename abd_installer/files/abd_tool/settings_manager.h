@@ -127,25 +127,35 @@ void saveNewPath(const char *path, int target)
 
     switch (target)
     {
+    
     case 1:
-        settings->eventsOutPath[0] = '\0';
-        strcat(settings->eventsOutPath, path);
-        strcat(settings->eventsOutPath, "/events.json");
-        break;
-    case 0:
         settings->objOutPath[0] = '\0';
         strcat(settings->objOutPath, path);
         strcat(settings->objOutPath, "/objects.json");
         break;
     case 2:
         settings->eventsOutPath[0] = '\0';
+        strcat(settings->eventsOutPath, path);
+        strcat(settings->eventsOutPath, "/events.json");
+        break;
+    case 3:
+        settings->warnsAndErrs[0] = '\0';
+        strcat(settings->warnsAndErrs, path);
+        strcat(settings->warnsAndErrs, "/wrnerr.json");
+        break;
+    case 0:
+        settings->eventsOutPath[0] = '\0';
         settings->objOutPath[0] = '\0';
-
+        settings->warnsAndErrs[0] = '\0';
+        
+        
         strcat(settings->eventsOutPath, path);
         strcat(settings->objOutPath, path);
+        strcat(settings->warnsAndErrs, path);
 
         strcat(settings->eventsOutPath, "/events.json");
         strcat(settings->objOutPath, "/objects.json");
+        strcat(settings->warnsAndErrs, "/wrnerr.json");
         break;
     default:
         break;
@@ -306,12 +316,15 @@ void createDefaults(FILE *settingsFile)
     settings->launchOnStop = ABD_ENABLE;
     settings->eventsOutPath[0] = '\0';
     settings->objOutPath[0] = '\0';
+    settings->warnsAndErrs[0] = '\0';
 
     strcat(settings->eventsOutPath, folderPath);
     strcat(settings->objOutPath, folderPath);
+    strcat(settings->warnsAndErrs, folderPath);
 
     strcat(settings->eventsOutPath, "/events.json");
     strcat(settings->objOutPath, "/objects.json");
+    strcat(settings->warnsAndErrs, "/wrnerr.json");
 
     writeCurrSettings(settingsFile);
 }
@@ -376,4 +389,7 @@ char *getObjPath()
 char *getEventsPath()
 {
     return settings->eventsOutPath;
+}
+char * getWarningsAndErrorsPath(){
+    return settings->warnsAndErrs;
 }

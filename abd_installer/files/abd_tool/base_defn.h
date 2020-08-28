@@ -55,7 +55,7 @@ ABD_STATE isRunning();
 
 /* Functions used to register events */
 void regVarChange(SEXP, SEXP, SEXP, SEXP);
-void regFunCall(SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
+void regFunCall(SEXP call, SEXP lhs, SEXP rho, SEXP newRho, SEXP passedArgs, SEXP receivedArgs);
 void regFunRet(SEXP lhs, SEXP rho, SEXP val);
 void regVarIdxChange(SEXP call, SEXP rho);
 void regIf(SEXP Stmt, Rboolean result, SEXP rho);
@@ -81,4 +81,7 @@ void messagePrinter(char *message);
 void abd_set_path(SEXP path);
 void abd_set_launch(SEXP state);
 void abd_verbose(SEXP option);
-void printForVerbose(char * message);
+void printForVerbose(char *message);
+int getErrorLine();
+void regErrorSignal(SEXP call, char * message);
+void regWarningSignal(const char *message);

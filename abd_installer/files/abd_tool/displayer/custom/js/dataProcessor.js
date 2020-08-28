@@ -1,4 +1,6 @@
 let stack = [];
+let warnings = signals['warns'];
+let errors = signals['err'];
 let stackSize = 0;
 let currentEnv = '';
 let valuesToBigData = [];
@@ -61,6 +63,7 @@ $(function() {
 
 $(document).ready(function() {
 	resetView();
+	$('[data-toggle="tooltip"]').tooltip();
 });
 
 String.prototype.format = function() {
@@ -133,6 +136,20 @@ function updateBranchLineDepth(env, line, branchDepth) {
 
 	envLineBDepth.get(env).get(line)[0] = branchDepth;
 }
+function checkErrForFunc(funcName, env) {
+	if (errors == null) return false;
+	let i;
+
+	if (errors['atEnv'] == env && errors['atFunc'] == funcName) return true;
+
+	return false;
+}
+
+function getHtmlForErr(message, expr) {
+	let htmlProduced = '';
+	htmlProduced += mkTooltipForError([ 'Error', message ], '[ERROR] {}'.format(expr));
+	return htmlProduced;
+}
 
 function processEnv(funcName, env, idxStart, calledFromLine) {
 	let i;
@@ -143,20 +160,28 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 		if (events[i]['atEnv'] == env) {
 			updateBranchLineDepth(env, events[i]['line'], events[i]['branchDepth']);
 			let htmlRcvd = getEventTypeHtml(events[i], i + 1);
-			if (
-				events[i]['type'] != types.IF &&
-				events[i]['type'] != types.FOR &&
-				events[i]['type'] != types.REPEAT &&
-				events[i]['type'] != types.WHILE
-			) {
-				lastLineGP = events[i]['line'];
-				addEventToEnvMap(env, lastLineGP, htmlRcvd);
-			} else {
-				i = htmlRcvd;
+			if (htmlRcvd != '') {
+				if (
+					events[i]['type'] != types.IF &&
+					events[i]['type'] != types.FOR &&
+					events[i]['type'] != types.REPEAT &&
+					events[i]['type'] != types.WHILE
+				) {
+					lastLineGP = events[i]['line'];
+					addEventToEnvMap(env, lastLineGP, htmlRcvd);
+				} else {
+					i = htmlRcvd;
+				}
 			}
 		}
 	}
 
+	if (checkErrForFunc(funcName, env)) {
+		console.log('inside');
+		addEventToEnvMap(env, errors['line'], getHtmlForErr(errors['message'], errors['expr']));
+		updateBranchLineDepth(env, errors['line'], 0);
+	}
+	console.log('after');
 	resolveEnvContents(env, funcName, calledFromLine);
 	popFromStack();
 }
@@ -307,6 +332,30 @@ function getFollowLabel(funcEnv, currHtmlProduced) {
 	);
 }
 
+function mkTooltipForWarning(text) {
+	//<i id='eId-{}' class='fa fa-arrow-left' aria-hidden='true' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevIteration(this.id)'></i>
+	let icon =
+		"<i id='eId-{}' class='fa fa-exclamation-triangle' aria-hidden='true' style='font-size:22px;color:var(--bto-color);cursor: pointer;margin-left:10px;'></i>";
+	return "<a href='#' data-placement='top' data-toggle='tooltip' data-html='true' title='{}'>{}</a>".format(
+		text,
+		icon
+	);
+}
+
+function getWarningIcon(event, currHtmlProduced) {
+	let i;
+	let nWarns = event['warnings'].length;
+	if (nWarns == 0) return currHtmlProduced;
+
+	console.log('GOT WARNIGNS');
+	event['warnings'].reverse();
+	let text = '';
+	for (i = 1; i <= nWarns; i++) {
+		text = '{}\n{} - {}'.format(text, i, warnings[i]);
+	}
+	return '{} {}'.format(currHtmlProduced, mkTooltipForWarning(text));
+}
+
 function getEventTypeHtml(event, nextEventId) {
 	let line = event['line'];
 	let codeLine = code[line - 1];
@@ -326,6 +375,7 @@ function getEventTypeHtml(event, nextEventId) {
 
 			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), textToDisplay, 0);
 			htmlProduced = getFollowLabel(newFuncEnv, htmlProduced);
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		}
 		case types.DATAF:
@@ -334,12 +384,16 @@ function getEventTypeHtml(event, nextEventId) {
 				codeLine.substring(codeLine.indexOf('data.frame')).trim(),
 				0
 			);
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		case types.ASSIGN:
 			let objId = event['data']['toObj'];
 			let obj = getCommonObjNameById(objId);
 			let state = event['data']['toState'];
 			let origin = event['data']['origin'];
+			if (origin == 'loc') {
+				return '';
+			}
 			if (origin == 'obj') {
 				htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), codeLine.trim(), event['branchDepth']);
 			} else {
@@ -355,6 +409,7 @@ function getEventTypeHtml(event, nextEventId) {
 					);
 				}
 			}
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		case types.IF:
 			let env = event['atEnv'];
@@ -376,7 +431,7 @@ function getEventTypeHtml(event, nextEventId) {
 					0,
 					event['data']['globalResult']
 				);
-
+				htmlProduced = getWarningIcon(event, htmlProduced);
 				//pick next event
 				event = events[++eventId];
 			}
@@ -400,10 +455,12 @@ function getEventTypeHtml(event, nextEventId) {
 				);
 			}
 			htmlProduced = getFollowLabel(event['data']['toEnv'], htmlProduced);
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		}
 		case types.ARITH:
 			htmlProduced += genLabelHtml('eId-{}'.format(nextEventId - 1), event['data']['exprStr'].trim(), 0);
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		case types.IDX:
 			let originIdx = event['data']['origin'];
@@ -427,6 +484,7 @@ function getEventTypeHtml(event, nextEventId) {
 					);
 				}
 			}
+			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
 		case types.CELL: {
 			let originIdx = event['data']['origin'];
@@ -450,6 +508,8 @@ function getEventTypeHtml(event, nextEventId) {
 					);
 				}
 			}
+			htmlProduced = getWarningIcon(event, htmlProduced);
+
 			break;
 		}
 		case types.FOR: {
@@ -549,6 +609,14 @@ function mkTooltip2(firstElement, secondElement, text) {
 
 function mkTooltipOneLine(element, text) {
 	return "<a href='#' type='button' data-placement='top' data-toggle='tooltip' data-html='true' title='{}: {}'><u>{}</u></a>".format(
+		element[0],
+		element[1],
+		text
+	);
+}
+
+function mkTooltipForError(element, text) {
+	return "<a href='#' class='error-lbl' type='button' data-placement='top' data-toggle='tooltip' data-html='true' title='{}: {}'>{}</a>".format(
 		element[0],
 		element[1],
 		text
@@ -875,6 +943,7 @@ function getHtmlForExpressions(event, showLogical) {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['lObjId'], cE['lObjState'], cE['lWithIndex']);
 					let stateEventId = findEventId(cE['lObjId'], cE['lObjState']);
+
 					let lblTxt = '{}[{}]'.format(getCommonObjNameById(cE['lObjId']), cE['lWithIndex'] + 1);
 
 					htmlProduced += "{}<valLbl style='font-size:7.5pt'>({})</valLbl>".format(
@@ -1465,6 +1534,7 @@ function requestPrevIteration(forId) {
 		processIteration(forId, currIteration - 1, false);
 	}
 }
+
 function resolveAuxEnvContents(env) {
 	let nodeHtml = '';
 	nodeHtml += '<div class="container-fluid" id="node_content">';
@@ -1566,7 +1636,7 @@ function processIteration(forId, iterationId, toReturn) {
 						.trim(),
 					0
 				);
-
+				loopHtml = getWarningIcon(event, loopHtml);
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
 				toAppendAfter[event['line']] = event['data']['toEnv'];
 				branchIncrementer++;
@@ -1579,6 +1649,7 @@ function processIteration(forId, iterationId, toReturn) {
 					0
 				);
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				loopHtml = getWarningIcon(event, loopHtml);
 				break;
 			case types.ASSIGN:
 				let objId = event['data']['toObj'];
@@ -1604,6 +1675,7 @@ function processIteration(forId, iterationId, toReturn) {
 					}
 				}
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
+				loopHtml = getWarningIcon(event, loopHtml);
 				break;
 			case types.IF:
 				let startLine = event['line'];
@@ -1626,7 +1698,7 @@ function processIteration(forId, iterationId, toReturn) {
 						0,
 						event['data']['globalResult']
 					);
-
+					loopHtml = getWarningIcon(event, loopHtml);
 					//pick next event
 					event = events[++eventId];
 				}
@@ -1648,6 +1720,7 @@ function processIteration(forId, iterationId, toReturn) {
 						'(return)'
 					);
 				}
+				loopHtml = getWarningIcon(event, loopHtml);
 				addEventToAuxMap(actualEnv, event['line'], loopHtml);
 				// htmlProduced += resolveAuxEnvContents(actualEnv);
 				branchIncrementer--;
@@ -1656,6 +1729,7 @@ function processIteration(forId, iterationId, toReturn) {
 				break;
 			case types.ARITH:
 				loopHtml += genLabelForAlreadyOpenModalWithIndent(eventId, event['data']['exprStr'].trim(), 0);
+				loopHtml = getWarningIcon(event, loopHtml);
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
 			case types.IDX:
@@ -1680,6 +1754,7 @@ function processIteration(forId, iterationId, toReturn) {
 						);
 					}
 				}
+				loopHtml = getWarningIcon(event, loopHtml);
 				addEventToAuxMap(event['atEnv'], event['line'], loopHtml);
 				break;
 			case types.CELL: {
@@ -1712,6 +1787,7 @@ function processIteration(forId, iterationId, toReturn) {
 						);
 					}
 				}
+				loopHtml = getWarningIcon(event, loopHtml);
 				break;
 			}
 			case types.FOR: {
@@ -4226,6 +4302,8 @@ function produceModalContent(eventId) {
 		content.body = genModalForBigData(parseInt(valuesPos));
 		return content;
 	}
+
+	console.log('rcvd eventId {}'.format(eventId));
 	eventId = eventId.split('-')[1];
 	let event = events[eventId];
 	switch (event['type']) {
@@ -4322,8 +4400,8 @@ function processEventClick(eventId) {
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	if (search) doSearch();
-	$('[data-toggle="tooltip"]').tooltip();
-	$('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
+
+	//$('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
 	/*$('[data-toggle="tooltip"]').tooltip({ container: 'body' }); */
 	//$('[data-toggle="popover"]').popover();
 
@@ -4642,7 +4720,7 @@ function centerOnId(id) {
 				zoom_handler.transform,
 				d3.zoomIdentity
 					.translate(width / 2, height / 2)
-					.scale(0.8)
+					.scale(1.1)
 					.translate(-locX - objWidth / 2 + width / 2, -locY - objHeight + height / 2 - 50)
 			);
 	}
@@ -4663,7 +4741,7 @@ function clicked(d) {
 		.duration(750)
 		.call(
 			zoom_handler.transform,
-			d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6).translate(-d.x, -d.y),
+			d3.zoomIdentity.translate(width / 2, height / 2).scale(1.1).translate(-d.x, -d.y),
 			d3.mouse(svg.node())
 		);
 }
