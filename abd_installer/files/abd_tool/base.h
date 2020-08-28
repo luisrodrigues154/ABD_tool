@@ -126,8 +126,10 @@ void persistAndDisplay(Rboolean useSettings)
 
 void abd_stop()
 {
-    if (isRunning())
+    if (isRunning()){
+        messagePrinter("Watcher state: Stopped");
         persistAndDisplay(TRUE);
+    }
 }
 
 void abd_path()

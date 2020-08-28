@@ -234,18 +234,6 @@ rollback2:
             return createStrVector(symbolValue);
 
         break;
-    case CPLXSXP:
-        puts("complex vectors");
-        break;
-    case LGLSXP:
-        puts("logical vectors");
-        break;
-    case RAWSXP:
-        puts("raw vector");
-        break;
-    case VECSXP:
-        puts("list (generic vector)");
-        break;
     case PROMSXP:
     {
         symbolValue = getValueFromPROMSXP(symbolValue);
@@ -285,16 +273,13 @@ ABD_OBJECT_MOD *processByType(SEXP symbolValue, ABD_OBJECT_MOD *mod, int idxChan
         mod->value.vec_value = processVector(symbolValue, idxChange);
         break;
     case ABD_MATRIX:
-        mod = initModAndPopulate(mod, ABD_ALIVE, ABD_MATRIX);
-        puts("deal with matrix here");
-        printf("Row number %d\nCol number %d\n", nrows(symbolValue), Rf_ncols(symbolValue));
+        // mod = initModAndPopulate(mod, ABD_ALIVE, ABD_MATRIX);
         break;
     case ABD_FRAME:
         mod = initModAndPopulate(mod, ABD_ALIVE, ABD_FRAME);
         mod->value.frame_value = processDataFrame(symbolValue, idxChange);
         break;
     default:
-        puts("fell to def");
         break;
     }
     return mod;
@@ -1649,7 +1634,6 @@ void preProcessDataFrameSrc(SEXP call)
                 }
                 else
                 {
-                    puts("in else");
                     //TODO: does not treat df[x,y] <- vec[symbol]
                     int index = (int)REAL(rhs)[0];
                     int nDigits = floor(log10(abs(index))) + 1;
@@ -1699,8 +1683,6 @@ void preProcessDataFrameSrc(SEXP call)
             cellChanges->srcNRows = 1;
         }
     }
-
-    puts("\n\n\n\n");
 }
 
 void preProcessDataFrameCellChange(SEXP call, ABD_OBJECT *targetObj, SEXP rho)
@@ -2058,10 +2040,8 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
 
     currCellEvent->toObj = objUsed;
     currCellEvent->toState = objUsed->modList;
-    puts("creating cell change event");
     if (fromEvent != ABD_EVENT_NOT_FOUND)
     {
-        puts("got an event for cellChange");
         /* has precedence from another event */
         currCellEvent->fromType = ABD_E;
         currCellEvent->fromObj = fromEvent;
@@ -2637,12 +2617,6 @@ void setForEventValues(SEXP call, ABD_FOR_LOOP_EVENT *newForEvent, SEXP enumerat
     pushNewLoop(ABD_FOR, newForEvent);
     preProcessEnumerator(enumerator);
 
-    /* printf("iterator... TYPE %d\n", TYPEOF(iterator));
-    PrintIt(iterator, getCurrentEnv());
-
-    printf("enumerator... TYPE %d\n", TYPEOF(enumerator));
-    PrintIt(enumerator, getCurrentEnv());
- */
     if (!waitingForVecs)
         finalizeForEventProcessing();
 }
@@ -2656,23 +2630,4 @@ void storeRetValues(SEXP value)
 {
     possibleRetLine = getCurrScriptLn();
     possibleRet = value;
-}
-
-void eventPrint(ABD_EVENT *event)
-{
-
-    switch (event->type)
-    {
-    case MAIN_EVENT:
-        printf("Running on main event...\n");
-        break;
-
-    case FUNC_EVENT:
-        printf("Running on a func event...\nFunction name: %s\n", event->data.func_event->called->name);
-        break;
-
-    default:
-        printf("None\n");
-        break;
-    }
 }

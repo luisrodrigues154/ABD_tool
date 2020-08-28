@@ -2481,14 +2481,9 @@ SEXP do_watcher(SEXP call, SEXP op, SEXP args, SEXP rho)
 	case 2:
 		// abd_stop() issued
 		if (args == R_NilValue)
-		{
 			abd_stop();
-			messagePrinter("Watcher state: Stopped");
-		}
 		else
-		{
 			abd_set_launch(args);
-		}
 		break;
 	case 3:
 		if (abd_display())

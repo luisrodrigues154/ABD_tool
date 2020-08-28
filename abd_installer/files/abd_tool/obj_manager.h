@@ -319,7 +319,6 @@ ABD_OBJECT *getCfObj(const char *name, SEXP rho)
 */
 void manageMatrix()
 {
-    puts("arrived");
 }
 ABD_OBJECT_MOD *initValueUnion(ABD_OBJECT_MOD *newMod)
 {
@@ -982,19 +981,6 @@ ABD_OBJECT *newObjUsage(SEXP lhs, SEXP rhs, SEXP rho)
     return obj;
 }
 
-void printReg()
-{
-    ABD_OBJECT *auxObject = cfObjReg;
-    while (auxObject != ABD_OBJECT_NOT_FOUND)
-    {
-        printf("name: %s\n", auxObject->name);
-        printf("prev null: %s\n",
-               auxObject->prevObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
-        printf("next null: %s\n",
-               auxObject->nextObj == ABD_OBJECT_NOT_FOUND ? "yes" : "no");
-        auxObject = auxObject->nextObj;
-    }
-}
 void processVarCellChange(SEXP result)
 {
     CELL_CHANGE *cellChanges = getCurrCellChange();

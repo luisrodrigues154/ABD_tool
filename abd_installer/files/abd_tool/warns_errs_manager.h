@@ -12,22 +12,27 @@
 #include <Rembedded.h>
 #include <R_ext/Parse.h>
 
-void initVars(){
-    currError =   ABD_NOT_FOUND;
-    currWarning =  ABD_NOT_FOUND;
+void initVars()
+{
+    currError = ABD_NOT_FOUND;
+    currWarning = ABD_NOT_FOUND;
     warnCount = 0;
 }
-int getWarnCount(){
+int getWarnCount()
+{
     return warnCount;
 }
 
-void storeWarningSignal(const char * message){
-    printf("storing warning... %s\n", message);
-    if(currWarning == ABD_NOT_FOUND){
+void storeWarningSignal(const char *message)
+{
+    if (currWarning == ABD_NOT_FOUND)
+    {
         currWarning = memAllocWarning();
         currWarning->prevWarning = ABD_NOT_FOUND;
-    }else{
-        ABD_WARNINGS * newWarning = memAllocWarning();
+    }
+    else
+    {
+        ABD_WARNINGS *newWarning = memAllocWarning();
         newWarning->prevWarning = currWarning;
         currWarning = newWarning;
     }
@@ -36,22 +41,26 @@ void storeWarningSignal(const char * message){
     copyStr(currWarning->message, message, msgLen);
     currWarning->id = ++warnCount;
 }
-ABD_WARNINGS * memAllocWarning(){
+ABD_WARNINGS *memAllocWarning()
+{
     //
-    return (ABD_WARNINGS *) malloc(sizeof(ABD_WARNINGS));
+    return (ABD_WARNINGS *)malloc(sizeof(ABD_WARNINGS));
 }
-void clearWarnings(){
+void clearWarnings()
+{
     currWarning = ABD_NOT_FOUND;
 }
 
-ABD_WARNINGS *getWarnings(){
+ABD_WARNINGS *getWarnings()
+{
     //
-    ABD_WARNINGS * toRet = currWarning;
+    ABD_WARNINGS *toRet = currWarning;
     clearWarnings();
     return toRet;
 }
 
-void storeErrorSignal(SEXP call, char * message){
+void storeErrorSignal(SEXP call, char *message)
+{
     //
     currError = memAllocError();
     R_PrintData pars;
@@ -59,10 +68,13 @@ void storeErrorSignal(SEXP call, char * message){
     currError->atFunc = getCurrFuncObj();
     currError->atEnv = getCurrentEnv();
 
-    if(call != R_NilValue){
+    if (call != R_NilValue)
+    {
         PrintInit(&pars, getCurrentEnv());
         currError->exprStr = getStrForStatement(call, &pars);
-    }else{
+    }
+    else
+    {
         int exprStrLen = strlen(ABD_ERR_DEF);
         currError->exprStr = memAllocForString(exprStrLen);
         copyStr(currError->exprStr, ABD_ERR_DEF, exprStrLen);
@@ -72,11 +84,13 @@ void storeErrorSignal(SEXP call, char * message){
     currError->message = memAllocForString(msgLen);
     copyStr(currError->message, message, msgLen);
 }
-ABD_ERRORS * getError(){
+ABD_ERRORS *getError()
+{
     //
     return currError;
 }
-ABD_ERRORS * memAllocError(){
+ABD_ERRORS *memAllocError()
+{
     //
-    return (ABD_ERRORS *) malloc(sizeof(ABD_ERRORS));
+    return (ABD_ERRORS *)malloc(sizeof(ABD_ERRORS));
 }

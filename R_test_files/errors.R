@@ -2,6 +2,7 @@ options("keep.source" = TRUE)
 run <- function(){
     #df <- data.frame(1:2, 1:3)
     abd_stop(0)
+    abd_verbose(1)
     abd_start()
 
     add <- function(x, y){

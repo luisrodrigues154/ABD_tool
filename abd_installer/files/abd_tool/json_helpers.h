@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
-FILE * dispWarn;
-FILE * outWarn;
+FILE *dispWarn;
+FILE *outWarn;
 FILE *openFile(char *filePath, char *mode)
 {
     return fopen(filePath, mode);
@@ -423,7 +423,6 @@ void writeObjModsToFile(FILE *out, ABD_OBJECT_MOD *listStart, FILE *dispOut)
             writeDataFrame(out, currMod->value.frame_value, dispOut);
             break;
         default:
-            puts("default in persist");
             break;
         }
 
@@ -1493,13 +1492,11 @@ void saveEvents(FILE *out, FILE *dispOut)
 
     ABD_EVENT *currEvent = eventsReg->nextEvent;
     fprintf(out, "{");
-    
+
     fprintf(dispOut, "var events=JSON.parse('{");
     do
     {
-        
-       
-    
+
         //write to the json file
         fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_1), currEvent->id);
         fprintf(out, "\n%s\"line\" : %d,", getStrFromIndent(INDENT_2), currEvent->scriptLn);
@@ -1515,16 +1512,18 @@ void saveEvents(FILE *out, FILE *dispOut)
         fprintf(dispOut, "\"branchDepth\" : %d,", currEvent->branchDepth);
         fprintf(dispOut, "\"warnings\" : [");
 
-        while(currEvent->warns != ABD_NOT_FOUND){
+        while (currEvent->warns != ABD_NOT_FOUND)
+        {
             fprintf(outWarn, "\n%s\"%d\" : ", getStrFromIndent(INDENT_2), currEvent->warns->id);
             fprintf(dispWarn, "\"%d\" : ", currEvent->warns->id);
             fprintf(out, "%d", currEvent->warns->id);
             fprintf(dispOut, "%d", currEvent->warns->id);
 
-            writeCharByCharToFile(outWarn, currEvent->warns->message,0 );
-            writeCharByCharToFile(dispWarn, currEvent->warns->message,0);
+            writeCharByCharToFile(outWarn, currEvent->warns->message, 0);
+            writeCharByCharToFile(dispWarn, currEvent->warns->message, 0);
             currEvent->warns = currEvent->warns->prevWarning;
-            if(currEvent->warns != ABD_NOT_FOUND){
+            if (currEvent->warns != ABD_NOT_FOUND)
+            {
                 fprintf(outWarn, ",");
                 fprintf(dispWarn, ",");
                 fprintf(out, ",");
@@ -1534,9 +1533,6 @@ void saveEvents(FILE *out, FILE *dispOut)
         fprintf(out, "],");
         fprintf(dispOut, "],");
 
-        
-
-        
         fprintf(out, "\n%s\"type\" : ", getStrFromIndent(INDENT_2));
         fprintf(dispOut, "\"type\" : ");
 
@@ -1670,19 +1666,20 @@ void saveEvents(FILE *out, FILE *dispOut)
     fprintf(out, "\n}");
     fprintf(dispOut, "}')");
 }
-void saveErrors(FILE * out ,ABD_ERRORS *  error,FILE *  dispOutFile){
+void saveErrors(FILE *out, ABD_ERRORS *error, FILE *dispOutFile)
+{
 
     fprintf(outWarn, "\n%s\"err\" : {", getStrFromIndent(INDENT_1));
     fprintf(dispWarn, "\"err\" : {");
 
     fprintf(outWarn, "\n%s\"athEnv\" : \"%s\",", getStrFromIndent(INDENT_2), envToStr(error->atEnv));
-    fprintf(dispWarn, "\"atEnv\" : \"%s\",",  envToStr(error->atEnv));
+    fprintf(dispWarn, "\"atEnv\" : \"%s\",", envToStr(error->atEnv));
 
     fprintf(outWarn, "\n%s\"atFunc\" : \"%s\",", getStrFromIndent(INDENT_2), (error->atFunc == ABD_OBJECT_NOT_FOUND) ? "main" : error->atFunc->name);
-    fprintf(dispWarn, "\"atFunc\" : \"%s\",",  (error->atFunc == ABD_OBJECT_NOT_FOUND) ? "main" : error->atFunc->name);
+    fprintf(dispWarn, "\"atFunc\" : \"%s\",", (error->atFunc == ABD_OBJECT_NOT_FOUND) ? "main" : error->atFunc->name);
 
     fprintf(outWarn, "\n%s\"line\" : %d,", getStrFromIndent(INDENT_2), error->line);
-    fprintf(dispWarn, "\"line\" : %d,",  error->line);
+    fprintf(dispWarn, "\"line\" : %d,", error->line);
 
     fprintf(outWarn, "\n%s\"message\" : ", getStrFromIndent(INDENT_2));
     fprintf(dispWarn, "\"message\" : ");
@@ -1713,10 +1710,13 @@ void persistInformation()
     fprintf(outWarn, "\n%s\"warns\" : ", getStrFromIndent(INDENT_1));
     fprintf(dispWarn, "\"warns\" : ");
 
-    if(getWarnCount() == 0){
+    if (getWarnCount() == 0)
+    {
         fprintf(outWarn, "null");
         fprintf(dispWarn, "null");
-    }else{
+    }
+    else
+    {
         fprintf(outWarn, "{");
         fprintf(dispWarn, "{");
     }
@@ -1760,27 +1760,28 @@ void persistInformation()
     closeFile(outputFile);
     closeFile(dispOutFile);
 
-
     //save error
-    ABD_ERRORS * error;
-    if(getWarnCount() == 0){
+    ABD_ERRORS *error;
+    if (getWarnCount() == 0)
+    {
         fprintf(outWarn, ",");
         fprintf(dispWarn, ",");
-    }else{
+    }
+    else
+    {
         fprintf(outWarn, "\n%s},", getStrFromIndent(INDENT_1));
         fprintf(dispWarn, "},");
     }
-    if((error = getError()) != ABD_NOT_FOUND)
+    if ((error = getError()) != ABD_NOT_FOUND)
         saveErrors(outputFile, error, dispOutFile);
-    else{
+    else
+    {
         fprintf(outWarn, "\n%s\"err\" : null", getStrFromIndent(INDENT_1));
         fprintf(dispWarn, "\n%s\"err\" : null");
     }
     fprintf(outWarn, "\n%s}", getStrFromIndent(INDENT_0));
     fprintf(dispWarn, "}')");
 
-
     closeFile(dispWarn);
     closeFile(outWarn);
-
 }
