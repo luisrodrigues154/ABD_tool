@@ -411,7 +411,7 @@ function getEventTypeHtml(event, nextEventId) {
 			}
 			htmlProduced = getWarningIcon(event, htmlProduced);
 			break;
-		case types.IF:
+		case types.IF: {
 			let env = event['atEnv'];
 			let startLine = event['line'];
 			let eventId = nextEventId - 1;
@@ -434,11 +434,12 @@ function getEventTypeHtml(event, nextEventId) {
 				htmlProduced = getWarningIcon(event, htmlProduced);
 				//pick next event
 				event = events[++eventId];
+
+				if (typeof event === 'undefined') break;
 			}
 			addEventToEnvMap(env, startLine, htmlProduced);
 			return eventId - 1;
-
-			break;
+		}
 		case types.RET: {
 			if (typeof envContent.get(event['atEnv']).get(line) === 'undefined') {
 				//no content for this line, so, grab the code existing there
@@ -1701,6 +1702,7 @@ function processIteration(forId, iterationId, toReturn) {
 					loopHtml = getWarningIcon(event, loopHtml);
 					//pick next event
 					event = events[++eventId];
+					if (typeof event === 'undefined') break;
 				}
 				addEventToAuxMap(actualEnv, startLine, loopHtml);
 				i += ctrJump;
@@ -1957,6 +1959,7 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 
 					//pick next event
 					event = events[++eventId];
+					if (typeof event === 'undefined') break;
 				}
 				addEventToAuxMap(actualEnv, startLine, loopHtml);
 				i += ctrJump;
@@ -2229,6 +2232,7 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 
 					//pick next event
 					event = events[++eventId];
+					if (typeof event === 'undefined') break;
 				}
 				addEventToAuxMap(actualEnv, startLine, loopHtml);
 				i += ctrJump;

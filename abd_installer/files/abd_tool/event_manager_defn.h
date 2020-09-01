@@ -105,6 +105,7 @@ void tmpStoreArith(SEXP call, SEXP ans);
 ABD_EVENT *checkPendings(SEXP call, SEXP rhs, ABD_OBJECT *obj);
 void setAsgnEventValues(ABD_OBJECT *toObj, SEXP value);
 int getCurrScriptLn();
+SEXP getValueFromPROMSXP(SEXP symbol);
 SEXP getResult(const char *expr);
 SEXP getSavedArithAns();
 void storeVecsForIdxChange(SEXP vec);

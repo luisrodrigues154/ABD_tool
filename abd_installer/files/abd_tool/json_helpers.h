@@ -1470,8 +1470,8 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
         fprintf(dispOut, "\"wCols\" :");
         if (event->nColsIdxs == event->srcDims[1])
         {
-            fprintf(out, "[]");
-            fprintf(dispOut, "[]");
+            fprintf(out, "[],");
+            fprintf(dispOut, "[],");
             fprintf(out, "\n%s\"iCols\" : %d", getStrFromIndent(INDENT_3), event->srcDims[1]);
             fprintf(dispOut, "\"iCols\" : %d", event->srcDims[1]);
         }
@@ -1777,7 +1777,7 @@ void persistInformation()
     else
     {
         fprintf(outWarn, "\n%s\"err\" : null", getStrFromIndent(INDENT_1));
-        fprintf(dispWarn, "\n%s\"err\" : null");
+        fprintf(dispWarn, "\"err\" : null");
     }
     fprintf(outWarn, "\n%s}", getStrFromIndent(INDENT_0));
     fprintf(dispWarn, "}')");

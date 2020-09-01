@@ -54,6 +54,7 @@ void abd_verbose(SEXP option)
         return;
     }
     ABD_STATE state;
+    checkSettings();
     if (TYPEOF(CAR(option)) != NILSXP)
     {
         state = (int)REAL(CAR(option))[0];
@@ -126,7 +127,8 @@ void persistAndDisplay(Rboolean useSettings)
 
 void abd_stop()
 {
-    if (isRunning()){
+    if (isRunning())
+    {
         messagePrinter("Watcher state: Stopped");
         persistAndDisplay(TRUE);
     }
@@ -151,7 +153,7 @@ void abd_set_path(SEXP args)
     double target_file = REAL(target)[0];
     const char *path_ = CHAR(STRING_ELT(path, 0));
     if (!checkPath(path_) ||
-        (target_file != 0 && target_file != 1 && target_file != 2 && target_file != 3 ))
+        (target_file != 0 && target_file != 1 && target_file != 2 && target_file != 3))
     {
         messagePrinter("Invalid arguments (absolute path?)");
         return;
@@ -192,7 +194,7 @@ void abd_help()
     printf("\t3 -> Launch displayer on abd_stop: abd_stop(0/1) [0 - No, (D) 1 - "
            "Yes] \n"); // done
     printf("\t4 -> Set output file path: abd_path(\"new/path\", 0/1/2/3) [0 - "
-           "all, 1 - objects, 2 - events, 3 - warnings/errors]\n");                      // done
+           "all, 1 - objects, 2 - events, 3 - warnings/errors]\n");  // done
     printf("\t5 -> Display current output file path: abd_path()\n"); // done
     printf("\t6 -> Set verbose mode: abd_verbose(0/1) [(D) 0 - No, 1 - Yes]\n");
     printf("\t7 -> Launch displayer at current state (execution hangs until "
@@ -299,8 +301,6 @@ void regVarIdxChange(SEXP call, SEXP rho)
         preProcessVarIdxChange(call, obj_ptr, rho);
         printForVerbose("Index change detected");
     }
-
-    // now wait ...
 }
 
 void regDataFrameCreation(SEXP call, SEXP rho)
@@ -319,7 +319,6 @@ void regVarChange(SEXP call, SEXP lhs, SEXP rhs, SEXP rho)
         return;
 
     ABD_OBJECT *objUsed = newObjUsage(lhs, rhs, rho);
-
     if (inLoopByType(ABD_FOR) && call == R_NilValue &&
         loopStack->loop.forLoop->iterator == ABD_OBJECT_NOT_FOUND)
         loopStack->loop.forLoop->iterator = objUsed;
@@ -591,21 +590,24 @@ void regFunRet(SEXP lhs, SEXP rho, SEXP val)
 }
 
 // errors and warnings
-void regErrorSignal(SEXP call, char * message){
-    
-    if(isRunning()){
+void regErrorSignal(SEXP call, char *message)
+{
+
+    if (isRunning())
+    {
         storeErrorSignal(call, message);
         abd_stop();
     }
 }
 
-void regWarningSignal(const char *message){
-    if(isRunning())
+void regWarningSignal(const char *message)
+{
+    if (isRunning())
         storeWarningSignal(message);
 }
 
-
-int getErrorLine(){
+int getErrorLine()
+{
     return getCurrScriptLn();
 }
 ABD_STATE isRunning()

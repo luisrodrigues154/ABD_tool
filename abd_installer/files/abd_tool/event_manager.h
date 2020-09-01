@@ -166,7 +166,6 @@ ABD_EVENT_ARG *setArgValues(ABD_EVENT_ARG *currArg, ABD_OBJECT *fromObj, ABD_OBJ
     currArg->toObj = toObj;
     currArg->passedValue = passedValue;
     currArg->rcvdValue = toObj->modList;
-
     return currArg;
 }
 SEXP getValueFromPROMSXP(SEXP symbol)
@@ -232,7 +231,6 @@ rollback2:
             return strVectorMultiChanges(symbolValue);
         else
             return createStrVector(symbolValue);
-
         break;
     case PROMSXP:
     {
@@ -330,6 +328,8 @@ ABD_EVENT_ARG *processArgs(SEXP call, SEXP passedArgs, SEXP receivedArgs, SEXP n
     rollback:
         switch (TYPEOF(symbol))
         {
+        case STRSXP:
+        case INTSXP:
         case REALSXP:
             objectFound = createUnscopedObj("NA", -1, -1, symbol, 0);
             objValue = objectFound->modList;
@@ -473,18 +473,19 @@ top:;
 ABD_OBJECT_MOD *findCurrValue(ABD_OBJECT_MOD *modList, int findIdx)
 {
     ABD_OBJECT_MOD *retMod = ABD_OBJECT_NOT_FOUND;
+
     switch (modList->valueType)
     {
     case ABD_VECTOR:
-        return idxCurrValueVec(modList, findIdx);
+        retMod = idxCurrValueVec(modList, findIdx);
         break;
     case ABD_MATRIX:
         break;
 
     default:
-        return retMod;
+        break;
     }
-    return ABD_OBJECT_NOT_FOUND;
+    return retMod;
 }
 ABD_OBJECT_MOD *fakeIdxForUnscoped(ABD_OBJECT_MOD *mod, int index)
 {
@@ -508,7 +509,6 @@ IF_ABD_OBJ *getAbdIfObj(SEXP symbol, int withIndex)
     IF_ABD_OBJ *newObj = memAllocIfAbdObj();
     ABD_OBJECT *objectFound = ABD_OBJECT_NOT_FOUND;
     ABD_OBJECT_MOD *objValue = ABD_OBJECT_NOT_FOUND;
-
     switch (TYPEOF(symbol))
     {
     case STRSXP:
@@ -564,7 +564,6 @@ IF_ABD_OBJ *getAbdIfObj(SEXP symbol, int withIndex)
     }
     newObj->objPtr = objectFound;
     newObj->objValue = objValue;
-
     return newObj;
 }
 
@@ -589,7 +588,6 @@ char *getObjStr(IF_ABD_OBJ *objStruct)
     char *objRepr = memAllocForString(20);
     memset(objRepr, 0, 20);
     sprintf(objRepr, "%s", obj->name);
-
     switch (objValue->valueType)
     {
     case ABD_VECTOR:
@@ -622,6 +620,7 @@ void mkStrForCmp(IF_EXPRESSION *newExpr, char *stmtStr)
             sprintf(stmtStr, "%s%.4f", stmtStr, ((double *)objValue->value.vec_value->vector)[0]);
         }
         else
+
             sprintf(stmtStr, "%s%s", stmtStr, getObjStr((IF_ABD_OBJ *)newExpr->left_data));
     }
 
@@ -742,7 +741,7 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     if (withEval)
         result = getResult(stmtStr);
     else if (lastArithEvent != ABD_EVENT_NOT_FOUND)
-        /* pick from the results array */
+
         result = arithResults[currArithIndex];
 
     /* 
@@ -763,7 +762,6 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
     */
 
     SEXPTYPE resType = TYPEOF(result);
-
     if (resType == LGLSXP)
         newExpr->result = LOGICAL(result)[0];
     else if (resType == REALSXP)
@@ -1108,12 +1106,12 @@ ABD_EVENT *checkPendingArith(SEXP rhs)
         lastArithEvent->globalResult = (double)INTEGER(finalArithAns)[0];
     currArithIndex = -1;
     exprId = 0;
+
     lastArithEvent->expr = processIfStmt(finalArithCall, 0);
     eventsRegTail->scriptLn = arithScriptLn;
     R_PrintData pars;
     PrintInit(&pars, getCurrentEnv());
     lastArithEvent->exprStr = getStrForStatement(finalArithCall, &pars);
-
     if (finalArithAns == rhs)
         return eventsRegTail;
 
@@ -2074,7 +2072,6 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
 {
     /* check if the value origin */
     ABD_EVENT *fromEvent = checkPendings(rhs2, rhs, objUsed);
-
     /* Create the new assignment event */
 
     createNewEvent(ASGN_EVENT);

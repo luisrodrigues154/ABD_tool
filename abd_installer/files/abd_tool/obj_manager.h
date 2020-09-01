@@ -867,7 +867,8 @@ ABD_VEC_OBJ *realVectorMultiChanges(SEXP rhs)
 
 int getObjStructType(SEXP symbolValue)
 {
-
+    if (TYPEOF(symbolValue) == PROMSXP)
+        symbolValue = getValueFromPROMSXP(symbolValue);
     if (isFrame(symbolValue))
         return 3;
     else if (isMatrix(symbolValue))
@@ -932,7 +933,8 @@ ABD_OBJECT *createLocalVariable(SEXP call, const char *name, SEXP rho, SEXP rhs,
 
     objUsed->createdAt = createdAt->name;
     ABD_OBJECT_MOD *newMod = addEmptyModToObj(objUsed, getObjStructType(rhs));
-
+    printf("creating local variable %s with value\n", name);
+    PrintIt2(rhs, rho);
     newMod = processByType(rhs, newMod, 0);
     objUsed->modList = newMod;
     objUsed->usages++;
