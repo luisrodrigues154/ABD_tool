@@ -23,14 +23,14 @@ char *getCommand()
     int htmlPathSize = strlen("index.html");
     int openSize = 5;
     char *htmlPath;
-    #ifdef __APPLE__
+#ifdef __APPLE__
     char open[] = "open ";
     openSize = strlen(open);
     htmlPath = (char *)malloc(sizeof(char) * (partialPathSize + htmlPathSize + openSize + 1));
     strcpy(htmlPath, open);
     strcat(htmlPath, displayerPath);
     strcat(htmlPath, "index.html");
-    #elif defined __linux__
+#elif defined __linux__
     char open[] = "nohup xdg-open ";
     char devNull[] = "> /dev/null 2>&1";
     openSize = strlen(open);
@@ -41,7 +41,7 @@ char *getCommand()
     strcat(htmlPath, "index.html");
     strcat(htmlPath, devNull);
 
-    #endif
+#endif
 
     return htmlPath;
 }
@@ -104,7 +104,7 @@ void buildDisplayerPath()
 {
     char path[1024];
     uint32_t size = sizeof(path);
-    #ifdef __APPLE__
+#ifdef __APPLE__
 
     if (_NSGetExecutablePath(path, &size) == 0)
     {
@@ -113,21 +113,21 @@ void buildDisplayerPath()
         mergePaths(path, size);
     }
 
-    #elif defined __linux__
+#elif defined __linux__
     if (readlink("/proc/self/exe", path, size))
     {
         size = strlen(path);
         mergePaths(path, size);
     }
-    //
-    #endif
+//
+#endif
 }
 void saveNewPath(const char *path, int target)
 {
 
     switch (target)
     {
-    
+
     case 1:
         settings->objOutPath[0] = '\0';
         strcat(settings->objOutPath, path);
@@ -147,8 +147,7 @@ void saveNewPath(const char *path, int target)
         settings->eventsOutPath[0] = '\0';
         settings->objOutPath[0] = '\0';
         settings->warnsAndErrs[0] = '\0';
-        
-        
+
         strcat(settings->eventsOutPath, path);
         strcat(settings->objOutPath, path);
         strcat(settings->warnsAndErrs, path);
@@ -207,13 +206,13 @@ int buildFolderPath()
     int userPathLen;
     int folderPathLen;
 
-    #ifdef __APPLE__
+#ifdef __APPLE__
     userPathLen = strlen(login) + strlen("/Users/");
     folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
-    #elif defined __linux__
+#elif defined __linux__
     userPathLen = strlen(login) + strlen("/home/");
     folderPathLen = userPathLen + strlen("/Documents/ABD_tool");
-    #endif
+#endif
 
     folderPath = (char *)malloc(folderPathLen * sizeof(char) + 1);
     userPath = (char *)malloc(userPathLen * sizeof(char) + 1);
@@ -221,11 +220,11 @@ int buildFolderPath()
     memset(userPath, 0, userPathLen * sizeof(char));
     memset(folderPath, 0, folderPathLen * sizeof(char));
 
-    #ifdef __APPLE__
+#ifdef __APPLE__
     strcat(userPath, "/Users/");
-    #elif defined __linux__
+#elif defined __linux__
     strcat(userPath, "/home/");
-    #endif
+#endif
 
     strcat(userPath, login);
 
@@ -284,8 +283,10 @@ void setLaunchOption(ABD_STATE state)
     closeSetFile(setFile);
 }
 
-void updateVerboseMode(ABD_STATE newState) {
-    if (settings->verbose != newState) {
+void updateVerboseMode(ABD_STATE newState)
+{
+    if (settings->verbose != newState)
+    {
         settings->verbose = newState;
         FILE *setFile = openSetFile("wb");
         if (setFile == NO_PATH)
@@ -297,7 +298,8 @@ void updateVerboseMode(ABD_STATE newState) {
         closeSetFile(setFile);
     }
 }
-ABD_STATE useVerbose() {
+ABD_STATE useVerbose()
+{
     return settings->verbose;
 }
 
@@ -358,8 +360,6 @@ void checkSettings()
     messagePrinter("Verifying settings integrity");
     if (settings == NO_PATH)
         loadSettings();
-
-
 }
 
 void forceDefaults()
@@ -390,6 +390,7 @@ char *getEventsPath()
 {
     return settings->eventsOutPath;
 }
-char * getWarningsAndErrorsPath(){
+char *getWarningsAndErrorsPath()
+{
     return settings->warnsAndErrs;
 }

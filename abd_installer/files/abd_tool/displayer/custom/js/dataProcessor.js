@@ -2406,7 +2406,7 @@ function mkCellIdxChangeModalInfo(event, eventId) {
 	let nCols = nChangedCols;
 	let pos = 1;
 
-	if (nCols > 10) nCols = 10;
+	if (nCols > 10) nCols = 4;
 	if (nRows > 10) nRows = 10;
 
 	htmlProduced += '<div class="container-fluid">';
@@ -2584,7 +2584,7 @@ function requestFrameNColsTableUpdate_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2596,7 +2596,7 @@ function requestFrameNColsTableUpdate_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -2638,7 +2638,7 @@ function requestStartIdxUpdate_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2650,7 +2650,7 @@ function requestStartIdxUpdate_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -2691,7 +2691,7 @@ function requestPrevColPageChange_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2703,7 +2703,7 @@ function requestPrevColPageChange_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -2749,7 +2749,7 @@ function requestNextColPageChange_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2761,7 +2761,7 @@ function requestNextColPageChange_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -2808,7 +2808,7 @@ function requestPrevRowPageChange_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2820,7 +2820,7 @@ function requestPrevRowPageChange_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -2865,7 +2865,7 @@ function requestNextRowPageChange_cellChange(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=cellChange_n_cols]').val('{},{}'.format(nRows, nCols));
@@ -2877,7 +2877,7 @@ function requestNextRowPageChange_cellChange(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3348,7 +3348,7 @@ function genForOneDim(pos) {
 	let htmlProduced = '';
 	let nCols = valuesToBigData[pos][2];
 
-	if (nCols > 10) nCols = 10;
+	if (nCols > 10) nCols = 4;
 
 	htmlProduced += '<div class="container-fluid">';
 
@@ -3527,7 +3527,7 @@ function genForMultiDim(pos) {
 	let maxCols = valuesToBigData[pos][2][1];
 	let nRows = maxRows;
 	let nCols = maxCols;
-	if (nCols > 10) nCols = 10;
+	if (nCols > 10) nCols = 4;
 	if (nRows > 10) nRows = 10;
 
 	htmlProduced += '<div class="container-fluid">';
@@ -3699,7 +3699,7 @@ function requestFrameNColsTableUpdate_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3711,7 +3711,7 @@ function requestFrameNColsTableUpdate_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3752,7 +3752,7 @@ function requestStartIdxUpdate_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3764,7 +3764,7 @@ function requestStartIdxUpdate_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3805,7 +3805,7 @@ function requestPrevColPageChange_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3817,7 +3817,7 @@ function requestPrevColPageChange_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3863,7 +3863,7 @@ function requestNextColPageChange_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3875,7 +3875,7 @@ function requestNextColPageChange_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3923,7 +3923,7 @@ function requestPrevRowPageChange_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3935,7 +3935,7 @@ function requestPrevRowPageChange_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
@@ -3980,7 +3980,7 @@ function requestNextRowPageChange_BigDataMultiDim(pos) {
 			else nRows = parseInt(valuesToBigData[pos][2][0]);
 		}
 		if (nCols < 0 || nCols >= valuesToBigData[pos][2][1]) {
-			if (valuesToBigData[pos][2][1] > 10) nCols = 10;
+			if (valuesToBigData[pos][2][1] > 10) nCols = 4;
 			else nCols = parseInt(valuesToBigData[pos][2][1]);
 		}
 		$('*[id^=big_n_cols_MD]').val('{},{}'.format(nRows, nCols));
@@ -3992,7 +3992,7 @@ function requestNextRowPageChange_BigDataMultiDim(pos) {
 		}
 
 		if (valuesToBigData[pos][2][1] > 10) {
-			nCols = 10;
+			nCols = 4;
 		} else {
 			nCols = parseInt(valuesToBigData[pos][2][1]);
 		}

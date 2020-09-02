@@ -1,7 +1,6 @@
 options("keep.source" = TRUE)
 run <- function(){
     abd_verbose(1)
-    #abd_stop(1)
 
     abd_start()
 

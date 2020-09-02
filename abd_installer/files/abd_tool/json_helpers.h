@@ -71,7 +71,6 @@ void writeCharByCharToFile(FILE *out, char *string, int withComma)
         fprintf(out, ",");
 
     fprintf(out, "\"");
-
     for (int i = 0; string[i] != '\n' && string[i] != '\r' && string[i] != '\0'; i++)
     {
         if (!isprint(string[i]))
@@ -161,8 +160,15 @@ void writeVectorValues(FILE *out, int indent, SEXPTYPE type, void *vector, int n
             fprintf(dispOut, "%d%s", ((int *)vector)[i], (i + 1 == nElements) ? "" : ",");
             break;
         case STRSXP:
-            fprintf(out, "\"%s\"%s", ((char **)vector)[i], (i + 1 == nElements) ? "" : ",");
-            fprintf(dispOut, "\"%s\"%s", ((char **)vector)[i], (i + 1 == nElements) ? "" : ",");
+
+            writeCharByCharToFile(out, ((char **)vector)[i], 0);
+            writeCharByCharToFile(dispOut, ((char **)vector)[i], 0);
+
+            if (i + 1 < nElements)
+            {
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+            }
             break;
         default:
             break;
@@ -330,8 +336,12 @@ void writeDataFrame(FILE *out, ABD_FRAME_OBJ *frameObj, FILE *dispOut)
                     // ((int *)baseVecValues)[idx] = ((int *)vecObj->vector)[i];
                     break;
                 case STRSXP:
-                    fprintf(out, "\"newValue\" : \"%s\"", ((char **)changedCol->vector)[r]);
-                    fprintf(dispOut, "\"newValue\" : \"%s\"", ((char **)changedCol->vector)[r]);
+                    fprintf(out, "\"newValue\" : ");
+                    fprintf(dispOut, "\"newValue\" :");
+
+                    writeCharByCharToFile(out, ((char **)changedCol->vector)[r], 0);
+                    writeCharByCharToFile(dispOut, ((char **)changedCol->vector)[r], 0);
+
                     // ((char **)baseVecValues)[idx] = ((char **)vecObj->vector)[i];
                     break;
                 default:
@@ -875,8 +885,15 @@ void writeIFobj(FILE *out, char *sideStr, IF_ABD_OBJ *obj, FILE *dispOut)
                 fprintf(dispOut, "\"%sValue\" : %d,", sideStr, ((int *)obj->objValue->value.vec_value->vector)[0]);
                 break;
             case STRSXP:
-                fprintf(out, "\n%s\"%sValue\" : \"%s\",", getStrFromIndent(INDENT_5), sideStr, ((char **)obj->objValue->value.vec_value->vector)[0]);
-                fprintf(dispOut, "\"%sValue\" : \"%s\",", sideStr, ((char **)obj->objValue->value.vec_value->vector)[0]);
+                fprintf(out, "\n%s\"%sValue\" : ", getStrFromIndent(INDENT_5), sideStr);
+                fprintf(dispOut, "\"%sValue\" : ", sideStr);
+
+                writeCharByCharToFile(out, ((char **)obj->objValue->value.vec_value->vector)[0], 0);
+                writeCharByCharToFile(dispOut, ((char **)obj->objValue->value.vec_value->vector)[0], 0);
+
+                fprintf(out, ",");
+                fprintf(dispOut, ",");
+
                 break;
             default:
                 break;
@@ -1698,6 +1715,7 @@ void saveErrors(FILE *out, ABD_ERRORS *error, FILE *dispOutFile)
 }
 void persistInformation()
 {
+    puts("Saving....");
     printForVerbose("Persisting collected data");
     FILE *outputFile;
     FILE *dispOutFile;
