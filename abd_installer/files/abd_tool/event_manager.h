@@ -6,6 +6,7 @@
 #include <abd_tool/obj_manager_defn.h>
 #include <abd_tool/env_stack_defn.h>
 #include <abd_tool/base_defn.h>
+#include <abd_tool/warns_errs_manager_defn.h>
 #include <Rembedded.h>
 #include <R_ext/Parse.h>
 
@@ -53,6 +54,7 @@ void initEventsReg()
     waitingFrameVecs = 0;
 
     /* registry*/
+    initVars();
     eventsReg = createMainEvent();
     eventsRegTail = eventsReg;
     waitingElseIF = 0;

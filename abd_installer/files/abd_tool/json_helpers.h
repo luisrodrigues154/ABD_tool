@@ -1529,8 +1529,15 @@ void saveEvents(FILE *out, FILE *dispOut)
         fprintf(dispOut, "\"branchDepth\" : %d,", currEvent->branchDepth);
         fprintf(dispOut, "\"warnings\" : [");
 
+        if (hasWarnsPrinted && currEvent->warns != ABD_NOT_FOUND)
+        {
+            fprintf(outWarn, ",");
+            fprintf(dispWarn, ",");
+        }
+
         while (currEvent->warns != ABD_NOT_FOUND)
         {
+            hasWarnsPrinted = 1;
             fprintf(outWarn, "\n%s\"%d\" : ", getStrFromIndent(INDENT_2), currEvent->warns->id);
             fprintf(dispWarn, "\"%d\" : ", currEvent->warns->id);
             fprintf(out, "%d", currEvent->warns->id);
@@ -1539,6 +1546,7 @@ void saveEvents(FILE *out, FILE *dispOut)
             writeCharByCharToFile(outWarn, currEvent->warns->message, 0);
             writeCharByCharToFile(dispWarn, currEvent->warns->message, 0);
             currEvent->warns = currEvent->warns->prevWarning;
+
             if (currEvent->warns != ABD_NOT_FOUND)
             {
                 fprintf(outWarn, ",");

@@ -55,6 +55,7 @@ typedef enum
     EVENTS
 } ABD_PERSIST;
 
+static short hasWarnsPrinted = 0;
 #endif
 
 /*
@@ -82,4 +83,4 @@ void dupScript();
 char *getScriptPath();
 void writeCharByCharToFile(FILE *out, char *string, int withComma);
 void writeExpression(FILE *out, IF_EXPRESSION *expr, FILE *dispOut);
-void saveErrors(FILE * outputFile,ABD_ERRORS *  error,FILE *  dispOutFile);
+void saveErrors(FILE *outputFile, ABD_ERRORS *error, FILE *dispOutFile);

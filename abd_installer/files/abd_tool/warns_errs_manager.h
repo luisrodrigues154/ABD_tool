@@ -17,6 +17,7 @@ void initVars()
     currError = ABD_NOT_FOUND;
     currWarning = ABD_NOT_FOUND;
     warnCount = 0;
+    puts("warns inited");
 }
 int getWarnCount()
 {

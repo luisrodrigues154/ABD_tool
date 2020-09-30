@@ -198,6 +198,7 @@ node {
 	font-size: 13pt;
 	border-radius: 10px;
 	padding: 5px;
+	width: 600px !important;
 	border: 2px solid white;
 }
 
