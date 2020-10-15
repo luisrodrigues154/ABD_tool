@@ -177,11 +177,9 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 	}
 
 	if (checkErrForFunc(funcName, env)) {
-		console.log('inside');
 		addEventToEnvMap(env, errors['line'], getHtmlForErr(errors['message'], errors['expr']));
 		updateBranchLineDepth(env, errors['line'], 0);
 	}
-	console.log('after');
 	resolveEnvContents(env, funcName, calledFromLine);
 	popFromStack();
 }
@@ -346,8 +344,6 @@ function getWarningIcon(event, currHtmlProduced) {
 	let i;
 	let nWarns = event['warnings'].length;
 	if (nWarns == 0) return currHtmlProduced;
-
-	console.log('GOT WARNIGNS');
 	event['warnings'].reverse();
 	let text = '';
 	for (i = 1; i <= nWarns; i++) {
@@ -832,6 +828,7 @@ function mkObjModalBotInfo(event, eventId) {
 			if (currEvent['atEnv'] == currentEnv && currEvent['type'] == 'assign_event') {
 				if (currEvent['data']['toObj'] == objId) {
 					doneSomething = true;
+
 					let objStateValues = getObjCurrValue(objId, currEvent['data']['toState'], -1);
 					let strToAppend = '';
 					//create row here
@@ -846,11 +843,10 @@ function mkObjModalBotInfo(event, eventId) {
 						let fromState = currEvent['data']['fromState'];
 						addToSearch(fromId, fromState, 'hist-' + (currEvent['line'] - 1));
 					}
-
-					htmlProduced += '<td class="text-center" id="hist-{}">{}</td>'.format(
-						currEvent['line'] - 1,
-						code[currEvent['line'] - 1]
-					);
+					let cl = code[currEvent['line'] - 1];
+					let hasCmt = cl.indexOf('#');
+					if (hasCmt > -1) cl = cl.substring(0, hasCmt);
+					htmlProduced += '<td class="text-center" id="hist-{}">{}</td>'.format(currEvent['line'] - 1, cl);
 
 					htmlProduced += '<td class ="text-center">{}</td>'.format(structToStr(objStateValues));
 					htmlProduced += '</tr>';
@@ -896,6 +892,11 @@ function doSearch() {
 		if ((eventId = findEventId(searchable.fromId, searchable.fromState))) {
 			let lineNum = searchable.tdId.split('-')[1];
 			let codeLine = code[lineNum].split('<-');
+			let hasCmt = codeLine.indexOf('#');
+
+			if (hasCmt > -1) {
+				codeLine = codeLine.substring(0, hasCmt);
+			}
 			let aTag = genLabelForAlreadyOpenModal(eventId, codeLine[1]);
 			let html = '{} <- {}'.format(codeLine[0], aTag);
 			document.getElementById(searchable.tdId).innerHTML = html;
@@ -4307,7 +4308,6 @@ function produceModalContent(eventId) {
 		return content;
 	}
 
-	console.log('rcvd eventId {}'.format(eventId));
 	eventId = eventId.split('-')[1];
 	let event = events[eventId];
 	switch (event['type']) {
