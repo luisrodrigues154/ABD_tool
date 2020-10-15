@@ -1941,6 +1941,7 @@ ABD_CELL_CHANGE_EVENT *setCellsForSrc(ABD_CELL_CHANGE_EVENT *cellChangeEvent)
     cellChangeEvent->rowsIdxs = memAllocIntVector(cellChangeEvent->nRowsIdxs);
     cellChangeEvent->colsIdxs = memAllocIntVector(cellChangeEvent->nColsIdxs);
     cellChangeEvent->srcDims = getObjDim(cellChanges->srcObj);
+
     Rboolean doSeqCols = FALSE;
     Rboolean doSeqRows = FALSE;
 
@@ -2064,6 +2065,9 @@ void createCellChangeEvent(SEXP rhs, ABD_OBJECT *objUsed)
         else
         {
             //hardcoded value???
+            currCellEvent->srcDims = memAllocIntVector(2);
+            currCellEvent->srcDims[0] = 0;
+            currCellEvent->srcDims[1] = 0;
             currCellEvent->fromObj = createUnscopedObj("NA", -1, -1, cellChanges->srcValues, 0);
         }
         currCellEvent->fromState = ((ABD_OBJECT *)currCellEvent->fromObj)->modList;

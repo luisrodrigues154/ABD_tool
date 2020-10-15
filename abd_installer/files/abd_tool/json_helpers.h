@@ -1432,11 +1432,14 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
     if (event->fromType == ABD_E)
     {
         /* from event */
+
         fprintf(out, "\n%s\"fromEvent\" : %d", getStrFromIndent(INDENT_3), ((ABD_EVENT *)event->fromObj)->id);
+
         fprintf(dispOut, "\"fromEvent\" : %d", ((ABD_EVENT *)event->fromObj)->id);
     }
     else
     {
+
         ABD_OBJECT *obj = ((ABD_OBJECT *)event->fromObj);
         fprintf(out, "\n%s\"fromObj\" : ", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "\"fromObj\" : ");
@@ -1471,7 +1474,8 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
 
         fprintf(out, "\n%s\"wRows\" : ", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "\"wRows\" :");
-        if (event->nRowsIdxs == event->srcDims[0])
+
+        if (event->nRowsIdxs == event->srcDims[0] && event->srcDims != NULL)
         {
             fprintf(out, "[],");
             fprintf(dispOut, "[],");
@@ -1479,13 +1483,14 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
             fprintf(dispOut, "\"iRows\" : %d", event->srcDims[0]);
         }
         else
+        {
             writeVectorValues(out, INDENT_0, INTSXP, event->rowsIdxs, event->nRowsIdxs, dispOut);
-
+        }
         fprintf(out, ",");
         fprintf(dispOut, ",");
         fprintf(out, "\n%s\"wCols\" : ", getStrFromIndent(INDENT_3));
         fprintf(dispOut, "\"wCols\" :");
-        if (event->nColsIdxs == event->srcDims[1])
+        if (event->nColsIdxs == event->srcDims[1] && event->srcDims != NULL)
         {
             fprintf(out, "[],");
             fprintf(dispOut, "[],");
@@ -1493,7 +1498,9 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
             fprintf(dispOut, "\"iCols\" : %d", event->srcDims[1]);
         }
         else
+        {
             writeVectorValues(out, INDENT_0, INTSXP, event->colsIdxs, event->nColsIdxs, dispOut);
+        }
     }
 }
 
@@ -1513,7 +1520,6 @@ void saveEvents(FILE *out, FILE *dispOut)
     fprintf(dispOut, "var events=JSON.parse('{");
     do
     {
-
         //write to the json file
         fprintf(out, "\n%s\"%d\" : {", getStrFromIndent(INDENT_1), currEvent->id);
         fprintf(out, "\n%s\"line\" : %d,", getStrFromIndent(INDENT_2), currEvent->scriptLn);
@@ -1555,6 +1561,7 @@ void saveEvents(FILE *out, FILE *dispOut)
                 fprintf(dispOut, ",");
             }
         }
+
         fprintf(out, "],");
         fprintf(dispOut, "],");
 
@@ -1723,7 +1730,6 @@ void saveErrors(FILE *out, ABD_ERRORS *error, FILE *dispOutFile)
 }
 void persistInformation()
 {
-    puts("Saving....");
     printForVerbose("Persisting collected data");
     FILE *outputFile;
     FILE *dispOutFile;

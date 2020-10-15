@@ -404,7 +404,6 @@ int *getObjDim(ABD_OBJECT *obj)
 
     int *dims = memAllocIntVector(2);
     SEXP rows = R_NilValue, cols = R_NilValue;
-    ;
     int nameSize = strlen(obj->name) + 7; // +7 for NROW/NCOL, () and \0
     char *requestValue = memAllocForString(nameSize);
 

@@ -4397,16 +4397,12 @@ function processEventClick(eventId) {
 	}
 	modalIsOpen = true;
 
-	// if (visualStack.length > 0) {
-	// 	producedContent.title = '{}{}'.format(getArrowBack(), producedContent.title);
-	// }
-
 	document.getElementById('exec_flow_modal_title').innerHTML = producedContent.title;
 	document.getElementById('exec_flow_modal_body').innerHTML = producedContent.body;
 	if (search) doSearch();
 
 	//$('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
-	/*$('[data-toggle="tooltip"]').tooltip({ container: 'body' }); */
+	$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
 	//$('[data-toggle="popover"]').popover();
 
 	/* $('.popover-dismiss').popover({
