@@ -1309,7 +1309,7 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRepeatIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fa fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRepeatIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1389,7 +1389,7 @@ function mkWhileLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fa fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
