@@ -1,5 +1,6 @@
 options("keep.source"=TRUE)
 run <- function(){
+    abd_stop(1)
     x <- 20
     abd_start()
 

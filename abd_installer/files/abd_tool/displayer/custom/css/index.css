@@ -57,8 +57,3 @@ text {
 	pointer-events: none;
 	color: white;
 }
-foreignObject {
-	overflow: visible;
-	width: auto !important;
-	display: block;
-}

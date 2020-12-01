@@ -58,7 +58,7 @@ $(function() {
 	//load function
 	buildNodes();
 	generateSVGgraph();
-	//centerOnMain();
+	centerOnMain();
 });
 
 $(document).ready(function() {
@@ -180,11 +180,12 @@ function processEnv(funcName, env, idxStart, calledFromLine) {
 		addEventToEnvMap(env, errors['line'], getHtmlForErr(errors['message'], errors['expr']));
 		updateBranchLineDepth(env, errors['line'], 0);
 	}
+
 	resolveEnvContents(env, funcName, calledFromLine);
 	popFromStack();
 }
 function mkBlockHeader(funcName, env, withFromLine) {
-	let htmlProduced = '<div class="container-fluid" id="node_header">';
+	let htmlProduced = '<div class="container-fluid" id="node_header" style="margin-top:10px;">';
 
 	//Funtion name
 	htmlProduced += '<div class="row">';
@@ -226,14 +227,14 @@ function mkBlockHeader(funcName, env, withFromLine) {
 	return htmlProduced;
 }
 function genNodeRow(line, codeHtml, branchDept) {
-	var htmlProduced = '<div class="row">';
+	var htmlProduced = '<div class="row" style="flex-wrap: unset;">';
 
 	htmlProduced += '<div class="col col-lg-2 col1">';
 	htmlProduced += '<label class="float-right object-rhs-special">' + line + '</label>';
 	htmlProduced += '</div>';
 	//code
 	htmlProduced += '<div class="col col-md-auto col3" style="margin-left:{}px;">'.format(branchDept * 14);
-	htmlProduced += '<codeWrapper">{}</codeWrapper>'.format(codeHtml);
+	htmlProduced += '<codeWrapper>{}</codeWrapper>'.format(codeHtml);
 	htmlProduced += '</div>';
 
 	//terminators
@@ -344,6 +345,7 @@ function getWarningIcon(event, currHtmlProduced) {
 	let i;
 	let nWarns = event['warnings'].length;
 	if (nWarns == 0) return currHtmlProduced;
+
 	event['warnings'].reverse();
 	let text = '';
 	for (i = 1; i <= nWarns; i++) {
@@ -1309,7 +1311,7 @@ function mkRepeatLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fa fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRepeatIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevRepeatIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1389,7 +1391,7 @@ function mkWhileLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fa fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -4721,7 +4723,7 @@ function centerOnId(id) {
 				d3.zoomIdentity
 					.translate(width / 2, height / 2)
 					.scale(1.1)
-					.translate(-locX - objWidth / 2 + width / 2, -locY - objHeight + height / 2 - 50)
+					.translate(-locX - objWidth + width / 2, -locY - objHeight + 15 + height / 2)
 			);
 	}
 }
@@ -4902,21 +4904,30 @@ function positionLink1(d) {
 		s: { x: 0, y: 0 },
 		d: { x: 0, y: 0 }
 	};
-	let width = document.getElementById('env-{}'.format(d.source.name)).offsetWidth;
-	let sourceHeight = document.getElementById('env-{}'.format(d.source.name)).offsetHeight;
-	let targetHeight = document.getElementById('env-{}'.format(d.target.name)).offsetHeight;
+	let sourceObj = document.getElementById('env-{}'.format(d.source.name));
+	let targetObj = document.getElementById('env-{}'.format(d.target.name));
+
+	if (sourceObj == null || targetObj == null || sourceObj === 'undefined' || targetObj === 'undefined') return;
+
+	let sourceWidth = sourceObj.offsetWidth;
+	let sourceHeight = sourceObj.offsetHeight;
+
+	let targetWidth = targetObj.offsetWidth;
+	let targetHeight = targetObj.offsetHeight;
+
 	let sourceDims = [
-		[ width / 2, -5 ], // when the arrow exits on top
-		[ width + 5, sourceHeight / 2 ], // when the arrow exits on the right side
-		[ width / 2, sourceHeight + 5 ], // when the arrow exits on bottom
-		[ -5, sourceHeight / 2 ] // when the arrow exits on the left side
+		[ sourceWidth / 2, 0 ], // when the arrow exits on top
+		[ sourceWidth, sourceHeight / 2 ], // when the arrow exits on the right side
+		[ sourceWidth / 2, sourceHeight ], // when the arrow exits on bottom
+		[ 0, sourceHeight / 2 ] // when the arrow exits on the left side
 	];
 	let targetDims = [
-		[ width / 2, -15 ], // when the arrow points on top
-		[ width + 15, targetHeight / 2 ], // when the arrow points on the right side
-		[ width / 2, targetHeight + 15 ], // when the arrow points on bottom
-		[ -15, targetHeight / 2 ] // when the arrow points on the left side
+		[ targetWidth / 2, -10 ], // when the arrow points on top
+		[ targetWidth + 10, targetHeight / 2 ], // when the arrow points on the right side
+		[ targetWidth / 2, targetHeight + 10 ], // when the arrow points on bottom
+		[ -10, targetHeight / 2 ] // when the arrow points on the left side
 	];
+
 
 	sourceDims.forEach((s) =>
 		targetDims.forEach((t) => {

@@ -174,6 +174,7 @@ hr {
 .main-node {
 	background: var(--title-color);
 	color: white;
+	width: max-content !important;
 }
 
 .for-loop-body {
@@ -198,7 +199,7 @@ node {
 	font-size: 13pt;
 	border-radius: 10px;
 	padding: 5px;
-	width: 600px !important;
+	width: max-content !important;
 	border: 2px solid white;
 }
 
@@ -212,4 +213,8 @@ node {
 	font-size: 11pt;
 	text-align: right;
 	width: 100%;
+}
+foreignObject {
+	overflow: visible;
+	width: auto !important;
 }
