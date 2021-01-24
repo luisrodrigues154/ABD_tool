@@ -394,10 +394,10 @@ ABD_EVENT_ARG *processArgs(SEXP call, SEXP passedArgs, SEXP receivedArgs, SEXP n
 int inCollection(const char *check)
 {
     char *collection[] = {
-        "+", "-", "*", "/",
+        "+", "-", "*", "/", "%%",
         "==", "!=", "<", ">", "<=", ">=",
         "&", "|", "&&", "||", "!", "[", "**", "^"};
-    int nCollection = 18;
+    int nCollection = 19;
 
     for (int i = 0; i < nCollection; i++)
     {
@@ -676,8 +676,25 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
                     // lElem == symb name
                     // rElem == 1 (index)
                     SEXP val = CAR(CDR(CDR(lElem)));
+
+                    if (TYPEOF(val) == SYMSXP)
+                    {
+                        const char *passedName = CHAR(PRINTNAME(val));
+                        SEXP rStrName = mkString(passedName);
+                        val = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
+                    }
+
                     lElem = CAR(CDR(lElem));
-                    withIndex = (int)REAL(val)[0] - 1;
+
+                    if (TYPEOF(val) == REALSXP)
+                    {
+                        withIndex = (int)REAL(val)[0] - 1;
+                    }
+                    else if (TYPEOF(val) == INTSXP)
+                    {
+                        withIndex = INTEGER(val)[0] - 1;
+                    }
+
                     goto jump1;
                 }
                 newExpr->left_type = IF_EXPR;
@@ -703,8 +720,23 @@ IF_EXPRESSION *processIfStmt(SEXP st, int withEval)
                     // lElem == symb name
                     // rElem == 1 (index)
                     SEXP val = CAR(CDR(CDR(rElem)));
+                    if (TYPEOF(val) == SYMSXP)
+                    {
+                        const char *passedName = CHAR(PRINTNAME(val));
+                        SEXP rStrName = mkString(passedName);
+                        val = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
+                    }
+
                     rElem = CAR(CDR(rElem));
-                    withIndex = (int)REAL(val)[0] - 1;
+
+                    if (TYPEOF(val) == REALSXP)
+                    {
+                        withIndex = (int)REAL(val)[0] - 1;
+                    }
+                    else if (TYPEOF(val) == INTSXP)
+                    {
+                        withIndex = INTEGER(val)[0] - 1;
+                    }
                     goto jump2;
                 }
                 newExpr->right_type = IF_EXPR;
@@ -2118,7 +2150,8 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
         }
         else
         {
-            int withIndex = 0;
+            int withIndex = -1;
+            SEXP indexer = NILSXP;
             if (TYPEOF(rhs2) == LANGSXP)
             {
                 /*
@@ -2126,20 +2159,38 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
                     Will treat only:
                         -> a[idx]
                 */
-
                 if (strcmp(CHAR(PRINTNAME(CAR(rhs2))), "[") == 0)
                 {
                     /* is an index from a variable */
-                    withIndex = asInteger(CAR(CDR(CDR(rhs2))));
+                    withIndex = 0;
+                    indexer = CAR(CDR(CDR(rhs2)));
                     rhs2 = CAR(CDR(rhs2));
                 }
             }
             if (TYPEOF(rhs2) == SYMSXP)
             {
+                if (withIndex != -1)
+                {
+                rollhere:
+                    switch (TYPEOF(indexer))
+                    {
+                    case SYMSXP:;
+                        const char *passedName = CHAR(PRINTNAME(indexer));
+                        SEXP rStrName = mkString(passedName);
+                        indexer = findVar(installChar(STRING_ELT(rStrName, 0)), getCurrentEnv());
+                        goto rollhere;
+                    case INTSXP:
+                        withIndex = INTEGER(indexer)[0];
+                        break;
+                    case REALSXP:
+                        withIndex = (int)REAL(indexer)[0];
+                        break;
+                    }
+                }
+
                 if ((fromObj = findCmnObj(CHAR(PRINTNAME(rhs2)), rho)) == ABD_OBJECT_NOT_FOUND)
                 {
                     //not mapped obj
-                    withIndex = (withIndex == 0) ? 1 : withIndex;
                     fromObj = createUnscopedObj(CHAR(PRINTNAME(rhs2)), -2, -2, R_NilValue, 0);
                     currAssign->withIndex = withIndex;
                     currAssign->fromState = ABD_OBJECT_NOT_FOUND;
@@ -2147,8 +2198,8 @@ void createAsgnEvent(ABD_OBJECT *objUsed, SEXP rhs, SEXP rhs2, SEXP rho)
                 else
                 {
                     currAssign->fromState = fromObj->modList;
-                    currAssign->withIndex = withIndex - 1;
                 }
+                currAssign->withIndex = withIndex - 1;
             }
             else
             {
@@ -2392,6 +2443,7 @@ void createNewLoopIteration(int iterId, ABD_LOOP_TAGS type)
         currIterList = currIterList->nextIter;
         currIterList->nextIter = ABD_EVENT_NOT_FOUND;
         loopStack->currIter = currIterList;
+        forceBranchDepth(loopStack->initialBranchDepth);
     }
 
     if (type == ABD_FOR)

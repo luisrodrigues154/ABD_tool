@@ -146,12 +146,12 @@ hr {
 
 .modal-settings {
 	overflow-y: initial !important;
-	width: 50%;
+	width: auto !important;
 }
 
 .modal-settings-2 {
 	overflow-y: initial !important;
-	width: 50%;
+	width: auto !important;
 }
 
 .modal-settings-body {

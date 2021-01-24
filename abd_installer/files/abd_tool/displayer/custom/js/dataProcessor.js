@@ -229,7 +229,7 @@ function mkBlockHeader(funcName, env, withFromLine) {
 function genNodeRow(line, codeHtml, branchDept) {
 	var htmlProduced = '<div class="row" style="flex-wrap: unset;">';
 
-	htmlProduced += '<div class="col col-lg-2 col1">';
+	htmlProduced += '<div class="col col-lg-1 col1">';
 	htmlProduced += '<label class="float-right object-rhs-special">' + line + '</label>';
 	htmlProduced += '</div>';
 	//code
@@ -631,7 +631,7 @@ function mkFuncModalInfo(event, eventId) {
 
 	//header
 	htmlProduced += '<div class="row">';
-	htmlProduced += '<div class="col-9 text-left dialog-title">Function Name: {}()'.format(
+	htmlProduced += '<div class="col-9 text-left dialog-text-2">Function Name: {}()'.format(
 		getCodeFlowObjNameById(targetFunc)
 	);
 	htmlProduced += '</div>';
@@ -649,7 +649,6 @@ function mkFuncModalInfo(event, eventId) {
 	htmlProduced += '<th class ="text-center" scope="col">Passed</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Received</th>';
 	htmlProduced += '<th class ="text-center" scope="col">Value</th>';
-	htmlProduced += '<th class ="text-center" scope="col">Previous change</th>';
 	htmlProduced += '</tr>';
 	htmlProduced += '</thead>';
 	//table body
@@ -663,24 +662,25 @@ function mkFuncModalInfo(event, eventId) {
 			let fromObj = arg['fromId'] > 0 ? getCommonObjNameById(fromId) : fromId == -1 ? 'U-T' : 'N-T';
 			let toObj = getCommonObjNameById(toId);
 			let objCurrentValues = getObjCurrValue(toId, 1, -1);
-			let prevChange = 'NA';
+			let prevChange = '';
 
 			if (fromId > 0) {
 				let foundEvent = findEventId(fromId, fromState);
 
-				prevChange = genLabelForAlreadyOpenModal(foundEvent, 'view');
+				prevChange = genLabelForAlreadyOpenModal(foundEvent, fromObj);
+			} else {
+				prevChange = fromObj;
 			}
 
 			htmlProduced += '<tr>';
-			htmlProduced += '<td>{}</td>'.format(fromObj);
+			htmlProduced += '<td>{}</td>'.format(prevChange);
 			htmlProduced += '<td>{}</td>'.format(toObj);
 			htmlProduced += '<td>{}</td>'.format(structToStr(objCurrentValues));
-			htmlProduced += '<td>{}</td>'.format(prevChange);
+
 			htmlProduced += '</tr>';
 		});
 
-		htmlProduced +=
-			'<caption style="font-size: 11pt;"> <p>U-T : User-Typed ; N-T : Not-Tracked ; NA - Not Availabel</p></caption>';
+		htmlProduced += '<caption style="font-size: 11pt;"> <p>U-T : User-Typed ; N-T : Not-Tracked</p></caption>';
 	} else {
 		//no args
 		htmlProduced += '<tr>';
@@ -884,6 +884,8 @@ function findEventId(toObj, toState) {
 	for (i = 1; i <= Object.keys(events).length; i++) {
 		if (events[i]['type'] == types.ASSIGN) {
 			if (events[i]['data']['toObj'] == toObj && events[i]['data']['toState'] == toState) return i;
+		} else if (events[i]['type'] == types.IDX) {
+			if (events[i]['data']['toId'] == toObj && events[i]['data']['toState'] == toState) return i;
 		}
 	}
 	return 0;
@@ -940,14 +942,15 @@ function getHtmlForExpressions(event, showLogical) {
 					let firstElement = [ 'Obj', 'Non-tracked' ];
 					let secondElement = [ 'Value', cE['lValue'] ];
 					let text = '{}[{}]'.format(cE['lObjName'], cE['lWithIndex'] + 1);
-
 					htmlProduced += mkTooltip2(firstElement, secondElement, text);
 					break;
 				default: {
 					//ABD_OBJECT
 					let objValues = getObjCurrValue(cE['lObjId'], cE['lObjState'], cE['lWithIndex']);
+					console.log(objValues);
 					let stateEventId = findEventId(cE['lObjId'], cE['lObjState']);
-
+					if (stateEventId == 0) {
+					}
 					let lblTxt = '{}[{}]'.format(getCommonObjNameById(cE['lObjId']), cE['lWithIndex'] + 1);
 
 					htmlProduced += "{}<valLbl style='font-size:7.5pt'>({})</valLbl>".format(
@@ -1187,9 +1190,14 @@ function mkForLoopModalInfo(event, eventId) {
 	htmlProduced += '<div class="row">';
 	htmlProduced += '<div class="col text-left">Enumerator:';
 	htmlProduced += '</div>';
-	htmlProduced += '<div class="col-md-auto text-left">{}'.format(
-		genLabelForAlreadyOpenModal(enumStateEventId, enumeratorObj['name'])
-	);
+
+	if (enumeratorId > 0) {
+		htmlProduced += '<div class="col-md-auto text-left">{}'.format(
+			genLabelForAlreadyOpenModal(enumStateEventId, enumeratorObj['name'])
+		);
+	} else {
+		htmlProduced += '<div class="col-md-auto text-left"> User-Typed';
+	}
 	htmlProduced += '</div>';
 	htmlProduced += '</div>';
 
@@ -1391,7 +1399,7 @@ function mkWhileLoopModalInfo(event, eventId) {
 	dropDown += '</div>';
 
 	htmlProduced += '<div class="col text-center">{}'.format(
-		"<i id='eId-{}' class='fas fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
+		"<i id='eId-{}' class='fa fa-arrow-left' style='font-size:22px;color:var(--title-color);cursor: pointer;' onclick='requestPrevWhileIteration(this.id)'></i>".format(
 			eventId
 		)
 	);
@@ -1616,7 +1624,8 @@ function processIteration(forId, iterationId, toReturn) {
 		}
 
 		let codeLine = code[event['line'] - 1];
-		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		//updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth']);
 		if (codeLine.indexOf('#') != -1) {
 			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
@@ -1875,7 +1884,7 @@ function processRepeatIteration(repeatId, iterationId, toReturn) {
 		}
 
 		let codeLine = code[event['line'] - 1];
-		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth']);
 		if (codeLine.indexOf('#') != -1) {
 			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
@@ -2125,7 +2134,7 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 	htmlProduced += '</tr>';
 
 	htmlProduced += '<tr>';
-	htmlProduced += '<td>';
+	htmlProduced += '<td colspan="2">';
 	auxMap = new Map();
 	envLineBDepth = new Map();
 	let alreadyInit = false;
@@ -2148,7 +2157,8 @@ function processWhileIteration(whileId, iterationId, toReturn) {
 		}
 
 		let codeLine = code[event['line'] - 1];
-		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		//updateBranchLineDepth(actualEnv, event['line'], event['branchDepth'] + branchIncrementer);
+		updateBranchLineDepth(actualEnv, event['line'], event['branchDepth']);
 		if (codeLine.indexOf('#') != -1) {
 			codeLine = codeLine.substring(0, codeLine.indexOf('#'));
 		}
@@ -2376,7 +2386,7 @@ function mergeMaps(env, withEnv) {
 	for ([ line, content ] of toAppendContent) {
 		auxMap.get(env).set(line, content);
 		actualBDepth = envLineBDepth.get(withEnv).get(line)[0];
-		updateBranchLineDepth(env, line, actualBDepth + 2);
+		updateBranchLineDepth(env, line, actualBDepth);
 	}
 }
 
@@ -3169,10 +3179,10 @@ function mkIdxChangeModalInfo(event, eventId) {
 						break;
 					case 'R':
 						//r object
-						htmlProduced += '{}[{}]'.format(event['data']['name'], i + 1);
+						htmlProduced += '{}[{}]'.format(event['data']['name'], event['data']['fromIdxs'][i] + 1);
 						break;
 					default:
-						htmlProduced += '{}[{}]'.format(sourceName, i + 1);
+						htmlProduced += '{}[{}]'.format(sourceName, event['data']['fromIdxs'][i] + 1);
 						//abd object
 						break;
 				}
@@ -3316,10 +3326,12 @@ function updateIdxChangeContent(pos, startingChange, numChanges, toReturn) {
 					break;
 				case 'R':
 					//r object
-					htmlProduced += '{}[{}]'.format(event['data']['name'], i + 1);
+					idxToUse = event['data']['fromIdxs'][i];
+					htmlProduced += '{}[{}]'.format(event['data']['name'], idxToUse + 1);
 					break;
 				default:
-					htmlProduced += '{}[{}]'.format(sourceName, i + 1);
+					idxToUse = event['data']['fromIdxs'][i];
+					htmlProduced += '{}[{}]'.format(sourceName, idxToUse + 1);
 					//abd object
 					break;
 			}
@@ -4181,14 +4193,20 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 		let objName;
 		let idxLabel;
 		let valuesLbl = '';
-
+		let idxArr = [];
 		let idxsLen = source['idxs'].length;
 		if (idxsLen == 0) {
 			idxLabel = 'All';
 			idxsLen = -1;
 		} else {
-			idxsLen = source['idxs'];
-			let idxArr = [ 'Vector', '', source['idxs'].length, source['idxs'] ];
+			idxArr = [
+				'Vector',
+				'',
+				source['idxs'].length,
+				source['idxs'].map(function(item) {
+					return item + 1;
+				})
+			];
 			idxLabel = structToStr(idxArr);
 		}
 
@@ -4199,10 +4217,10 @@ function updateDataFrameDisplayedCols(startingIdx, nCols, event, toReturn) {
 			objVal = getObjCurrValue(objId, source['objState'], -1);
 			let vals = [];
 			if (idxsLen > 0) {
-				let maxLen = idxsLen.length;
+				let maxLen = idxArr[2];
 				let i;
 				for (i = 0; i < maxLen; i++) {
-					vals.push(objVal[3][idxsLen[i]]);
+					vals.push(objVal[3][idxArr[3][i] - 1]);
 				}
 				objVal[2] = maxLen;
 				objVal[3] = Array.from(vals);
@@ -4549,6 +4567,7 @@ function resolveCurrValue(isFrame, modList, inState, withIndex) {
 	let i;
 	let changesMap = new Map();
 	let index, val, row;
+
 	if (isFrame) {
 		for (i = inState; i > 0; i--) {
 			if (modList[i]['frameMod'] == true) {
@@ -4599,6 +4618,8 @@ function getObjCurrValue(id, state, index) {
 	if (cmnObj[id]['modList'][state]['structType'] == 'DataFrame') {
 		isMultiDim = true;
 	}
+	console.log('is multi ' + isMultiDim);
+	console.log('index: ' + index);
 	if (index == -1) {
 		if (cmnObj[id]['modList'][state]['vecMod'] == false || cmnObj[id]['modList'][state]['frameMod'] == false) {
 			if (isMultiDim) {
@@ -4631,11 +4652,9 @@ function getObjCurrValue(id, state, index) {
 				currentValue.push(1);
 				currentValue.push(cmnObj[id]['modList'][state]['values'][index]);
 			} else {
-				var numMods = cmnObj[id]['modList'][state]['numMods'];
-				currentValue.push(1);
-
-				//resolve and get idx
-				currentValue.push(resolveCurrValue(cmnObj[id]['modList'], state, index));
+				let resolvedVec = resolveCurrValue(isMultiDim, cmnObj[id]['modList'], state, index);
+				currentValue.push(resolvedVec.length);
+				currentValue.push(resolvedVec);
 			}
 		}
 	}
@@ -4904,6 +4923,7 @@ function positionLink1(d) {
 		s: { x: 0, y: 0 },
 		d: { x: 0, y: 0 }
 	};
+
 	let sourceObj = document.getElementById('env-{}'.format(d.source.name));
 	let targetObj = document.getElementById('env-{}'.format(d.target.name));
 
@@ -4927,7 +4947,6 @@ function positionLink1(d) {
 		[ targetWidth / 2, targetHeight + 10 ], // when the arrow points on bottom
 		[ -10, targetHeight / 2 ] // when the arrow points on the left side
 	];
-
 
 	sourceDims.forEach((s) =>
 		targetDims.forEach((t) => {

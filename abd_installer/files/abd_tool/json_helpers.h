@@ -1434,7 +1434,6 @@ void saveCellChangeEvent(FILE *out, ABD_CELL_CHANGE_EVENT *event, FILE *dispOut)
         /* from event */
 
         fprintf(out, "\n%s\"fromEvent\" : %d", getStrFromIndent(INDENT_3), ((ABD_EVENT *)event->fromObj)->id);
-
         fprintf(dispOut, "\"fromEvent\" : %d", ((ABD_EVENT *)event->fromObj)->id);
     }
     else
