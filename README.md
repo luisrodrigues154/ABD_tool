@@ -1,7 +1,12 @@
 # [ABD_Tool] - "Automatic" Bug Detection for R
 
-This is an academic tool that aims to improve debugging in R scripts based on a one-time run.
-
+This is an academic tool that aims to improve debugging R scripts, implementing a different paradigm than the one actually available.
+<br>
+The tool has some problems but demonstrates that is possible to improve and offer completely different, yet valuable, debugging functionalities to the R language.
+<br>
+The tool will not be updated/maintained. The internal structures and the implemented procedures can be greatly improved (a redesign would be the best).
+<br>
+As stated before, it intended to prove that R debugging could be improved and thus the language features are not fully supported.
 
 # Files
 Files for the tool are in the folder under the path:
